@@ -9,7 +9,7 @@ export default defineConfig({
   name: 'default',
   title: 'Real Estate Website',
 
-  projectId: '1zb39xqr',
+  projectId: 'ujo0cv7k',
   dataset: 'production',
 
   plugins: [
