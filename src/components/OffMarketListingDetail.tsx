@@ -52,7 +52,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
           {/* Registration overlay */}
           <div className="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-4 bg-gradient-to-b from-white/80 via-white/90 to-white">
             <div className="text-center mb-8 max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-[var(--color-sothebys-blue)] mb-4">
                 Exclusive Off-Market Property
               </h1>
               <p className="text-lg text-gray-600 mb-2">
@@ -187,7 +187,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
                 <SavePropertyButton listingId={listing._id} listingType="off_market" variant="button" />
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-[var(--color-sothebys-blue)] mb-2">
                 {formatPrice(listing.listPrice)}
               </h1>
 
@@ -235,7 +235,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
             {/* Description */}
             {listing.description && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Description</h2>
+                <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Description</h2>
                 <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">
                   {listing.description}
                 </p>
@@ -245,7 +245,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
             {/* Virtual Tour */}
             {listing.virtualTourUrl && listing.virtualTourUrl.includes('matterport') && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Virtual Tour</h2>
+                <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Virtual Tour</h2>
                 <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
                   <iframe
                     width="100%"
@@ -263,7 +263,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
             {/* Map */}
             {listing.latitude && listing.longitude && (
               <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Location</h2>
+                <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Location</h2>
                 <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
                   <iframe
                     width="100%"

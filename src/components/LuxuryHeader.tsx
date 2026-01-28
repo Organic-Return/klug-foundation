@@ -176,11 +176,11 @@ export default function LuxuryHeader({
 
         {/* Menu Content */}
         <div className="relative h-full pt-24 lg:pt-28 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+          <div className="max-w-3xl mx-auto px-6 lg:px-12 py-12">
+            <div className="flex flex-col items-center">
 
-              {/* Main Navigation - Left Side */}
-              <nav className="lg:col-span-5">
+              {/* Main Navigation - Centered */}
+              <nav className="w-full max-w-md text-center">
                 <ul className="space-y-0">
                   {navItems.map((item, index) => (
                     <li key={index} className="border-b border-white/10">
@@ -189,7 +189,7 @@ export default function LuxuryHeader({
                           href={item.url}
                           target={item.openInNewTab ? '_blank' : undefined}
                           rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                          className="block py-5 text-white text-xl lg:text-2xl font-extralight tracking-[0.1em] hover:text-[var(--color-gold)] transition-colors duration-300"
+                          className="block py-5 text-white text-lg font-normal tracking-[0.1em] hover:text-[var(--color-gold)] transition-colors duration-300"
                           onClick={() => setMenuOpen(false)}
                         >
                           {item.label}
@@ -198,7 +198,7 @@ export default function LuxuryHeader({
                         <div>
                           <button
                             onClick={() => toggleCategory(index)}
-                            className="w-full flex items-center justify-between py-5 text-white text-xl lg:text-2xl font-extralight tracking-[0.1em] hover:text-[var(--color-gold)] transition-colors duration-300"
+                            className="w-full flex items-center justify-center gap-3 py-5 text-white text-lg font-normal tracking-[0.1em] hover:text-[var(--color-gold)] transition-colors duration-300"
                           >
                             <span>{item.label}</span>
                             <svg
@@ -224,7 +224,7 @@ export default function LuxuryHeader({
                               activeCategory === index ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                             }`}
                           >
-                            <div className="pb-6 pl-4">
+                            <div className="pb-6">
                               {item.hasMegaMenu && item.megaMenuColumns?.map((column, colIndex) => (
                                 <div key={colIndex} className="mb-4">
                                   {column.title && (
@@ -271,36 +271,12 @@ export default function LuxuryHeader({
                 </ul>
               </nav>
 
-              {/* Featured Content - Right Side */}
-              <div className="lg:col-span-7 hidden lg:block">
-                <div className="h-full flex flex-col justify-center">
-                  <p className="text-[var(--color-gold)] text-[10px] uppercase tracking-[0.35em] mb-4">
-                    Featured
-                  </p>
-                  <h3 className="text-white text-3xl lg:text-4xl font-extralight tracking-[0.05em] mb-6 leading-snug">
-                    Discover Extraordinary<br />Living Spaces
-                  </h3>
-                  <p className="text-white/60 text-sm font-light leading-relaxed max-w-md mb-8">
-                    Explore our curated collection of exceptional properties, where luxury meets lifestyle in the most coveted locations.
-                  </p>
-                  <Link
-                    href="/listings"
-                    className="inline-flex items-center gap-3 text-white text-[11px] uppercase tracking-[0.25em] font-light hover:text-[var(--color-gold)] transition-colors"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span>View All Properties</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                    </svg>
-                  </Link>
-                </div>
-              </div>
             </div>
 
-            {/* Bottom Section */}
+            {/* Bottom Section - Centered */}
             <div className="mt-16 pt-8 border-t border-white/10">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
-                <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
+              <div className="flex flex-col items-center gap-6">
+                <div className="flex gap-8">
                   <Link
                     href="/contact-us"
                     className="text-white/60 text-[11px] uppercase tracking-[0.2em] font-light hover:text-white transition-colors"

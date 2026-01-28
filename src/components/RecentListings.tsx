@@ -91,7 +91,7 @@ function PropertyCard({ listing }: { listing: Listing }) {
       className="group block"
     >
       {/* Image Container */}
-      <div className="relative aspect-[4/3] bg-[#f5f5f5] overflow-hidden">
+      <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden">
         {currentPhoto ? (
           <Image
             src={currentPhoto}
@@ -266,7 +266,7 @@ export default function RecentListings({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {[1, 2, 3].map((i) => (
                 <div key={i}>
-                  <div className="aspect-[4/3] bg-[#f5f5f5]" />
+                  <div className="aspect-square bg-[#f5f5f5]" />
                   <div className="pt-4">
                     <div className="h-6 bg-[#e8e6e3] rounded w-28 mb-3" />
                     <div className="h-4 bg-[#e8e6e3] rounded w-full mb-2" />

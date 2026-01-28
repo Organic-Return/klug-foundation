@@ -70,7 +70,7 @@ export default function LuxuryHero({
       <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
         {/* Title - Hermès inspired refined typography */}
         <h1
-          className={`text-white text-3xl sm:text-4xl md:text-5xl lg:text-[56px] font-extralight tracking-[0.15em] uppercase mb-8 max-w-5xl leading-[1.2] transition-all duration-1000 delay-400 ${
+          className={`text-white uppercase mb-8 max-w-5xl transition-all duration-1000 delay-400 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >

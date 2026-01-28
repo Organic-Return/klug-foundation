@@ -212,7 +212,7 @@ export default function FeaturedAspenProperties({
                   onClick={() => !isActive && goToSlide(index)}
                 >
                   <div
-                    className={`relative w-[320px] sm:w-[400px] md:w-[500px] lg:w-[600px] aspect-[4/3] rounded-lg overflow-hidden shadow-2xl transition-all duration-500 ${
+                    className={`relative w-[320px] sm:w-[400px] md:w-[500px] lg:w-[600px] aspect-[4/3] overflow-hidden shadow-2xl transition-all duration-500 ${
                       isActive ? 'ring-2 ring-[var(--color-gold)]' : ''
                     }`}
                   >

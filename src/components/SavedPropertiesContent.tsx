@@ -73,7 +73,7 @@ export default function SavedPropertiesContent({
           <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-[var(--color-sothebys-blue)] mb-4">
             Your Saved Properties
           </h1>
           <p className="text-lg text-gray-600">
@@ -95,7 +95,7 @@ export default function SavedPropertiesContent({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Saved Properties</h1>
+              <h1 className="text-white mb-2">Saved Properties</h1>
               <p className="text-white/80">
                 {totalSaved === 0
                   ? 'You haven\'t saved any properties yet'
@@ -123,7 +123,7 @@ export default function SavedPropertiesContent({
             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Saved Properties</h2>
+            <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-2">No Saved Properties</h2>
             <p className="text-gray-600 mb-6">
               Start exploring properties and click the heart icon to save your favorites.
             </p>
@@ -139,7 +139,7 @@ export default function SavedPropertiesContent({
             {/* MLS Listings */}
             {savedMlsListings.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">
                   MLS Listings ({savedMlsListings.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -189,7 +189,7 @@ export default function SavedPropertiesContent({
             {/* Off-Market Listings */}
             {savedOffMarketListings.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">
                   Off-Market Listings ({savedOffMarketListings.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

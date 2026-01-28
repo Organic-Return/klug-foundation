@@ -135,9 +135,9 @@ export default function CityStats({
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+          <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white mb-4">
             {title}
-          </h2>
+          </h1>
 
           <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-[17px] max-w-2xl mx-auto">
             {subtitle}

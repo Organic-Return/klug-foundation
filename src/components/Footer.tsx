@@ -91,7 +91,7 @@ export default function Footer({
   };
 
   // Default links if none provided
-  const defaultLinks = [
+  const defaultLinks: FooterLink[] = [
     { label: 'Home', url: '/' },
     { label: 'Featured Properties', url: '/listings' },
     { label: 'About Klug Properties', url: '/about' },

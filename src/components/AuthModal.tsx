@@ -52,7 +52,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Check Your Email</h2>
+          <h2 className="text-2xl font-bold text-[var(--color-sothebys-blue)] mb-2">Check Your Email</h2>
           <p className="text-gray-600 mb-6">
             We&apos;ve sent a confirmation link to <strong>{email}</strong>.
             Please check your inbox and click the link to verify your account.
@@ -74,7 +74,7 @@ export default function AuthModal({ onClose }: AuthModalProps) {
   return (
     <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">
+        <h2 className="text-2xl font-bold text-[var(--color-sothebys-blue)]">
           {mode === 'register' ? 'Create an Account' : 'Welcome Back'}
         </h2>
         <p className="text-gray-600 mt-2">

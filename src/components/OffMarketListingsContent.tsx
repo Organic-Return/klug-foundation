@@ -55,7 +55,7 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
           {/* Registration overlay */}
           <div className="relative z-10 flex flex-col items-center justify-center min-h-[80vh] px-4 bg-gradient-to-b from-white/80 via-white/90 to-white">
             <div className="text-center mb-8 max-w-2xl">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <h1 className="text-[var(--color-sothebys-blue)] mb-4">
                 Exclusive Off-Market Listings
               </h1>
               <p className="text-lg text-gray-600">
@@ -100,7 +100,7 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">Off-Market Listings</h1>
+              <h1 className="text-white mb-2">Off-Market Listings</h1>
               <p className="text-white/80">
                 Exclusive properties available only to registered members
               </p>
@@ -126,7 +126,7 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
             <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No Off-Market Listings Available</h2>
+            <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-2">No Off-Market Listings Available</h2>
             <p className="text-gray-600">Check back soon for exclusive properties.</p>
           </div>
         ) : (

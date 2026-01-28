@@ -38,7 +38,7 @@ export default function CommunityHero({
         <div className="w-full max-w-7xl mx-auto px-6 md:px-12 pb-12 md:pb-16 lg:pb-20">
           <div className="max-w-3xl">
             {/* Title */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light text-white tracking-wide leading-tight mb-4 md:mb-6">
+            <h1 className="text-white mb-4 md:mb-6">
               {title}
             </h1>
 

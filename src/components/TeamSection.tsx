@@ -67,9 +67,9 @@ export default function TeamSection({
 
         {/* Content */}
         <div className="w-full md:w-1/2 lg:w-[45%] md:pl-6 lg:pl-8 xl:pl-16">
-          <h2 className="!mt-0 !pt-0 mb-3 sm:mb-4 lg:mb-6 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-[#1a1a1a] dark:text-white leading-tight">
+          <h1 className="!mt-0 !pt-0 mb-3 sm:mb-4 lg:mb-6 text-[var(--color-sothebys-blue)] dark:text-white">
             {title}
-          </h2>
+          </h1>
 
           {teamMember.name && (
             <span className="hidden" itemProp="name">{teamMember.name}</span>

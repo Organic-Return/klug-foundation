@@ -49,9 +49,9 @@ export default function Accolades({
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Section Header */}
           <div className="text-center mb-12 md:mb-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
+            <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white">
               {title}
-            </h2>
+            </h1>
           </div>
 
           <div className="bg-white/80 dark:bg-[#1a1a1a]/80 py-12 px-6 md:px-8">
