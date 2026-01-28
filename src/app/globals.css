@@ -3,13 +3,38 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Hermès/Four Seasons/One&Only inspired luxury palette */
+  --color-navy: #1a1a1a;
+  --color-navy-light: #2d2d2d;
+  --color-sothebys-blue: #00254a;
+  --color-gold: #b8860b;
+  --color-gold-light: #d4a84b;
+  --color-gold-dark: #96700a;
+  --color-cream: #fffcf7;
+  --color-cream-dark: #f7f4ef;
+  --color-charcoal: #444444;
+  --color-warm-gray: #696969;
+  --color-taupe: #e2d8ce;
+  --color-sand: #c9b99a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-navy: var(--color-navy);
+  --color-navy-light: var(--color-navy-light);
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+  --color-gold-dark: var(--color-gold-dark);
+  --color-cream: var(--color-cream);
+  --color-cream-dark: var(--color-cream-dark);
+  --color-charcoal: var(--color-charcoal);
+  --color-warm-gray: var(--color-warm-gray);
+  --color-taupe: var(--color-taupe);
+  --color-sand: var(--color-sand);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-lora);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -19,8 +44,418 @@
   }
 }
 
+/* Base typography */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  font-size: 16px; /* Base font size for optimal readability */
+}
+
+/* Paragraphs */
+p {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 1rem; /* 16px - optimal for body text */
+  line-height: 1.75; /* ~28px line height for 16px text */
+  letter-spacing: 0.01em;
+  margin-bottom: 1.25em; /* Consistent paragraph spacing */
+  max-width: 75ch; /* Optimal reading width: 45-75 characters per line */
+}
+
+/* Headings - elegant serif typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-lora), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.3; /* Slightly more line height for better readability */
+  letter-spacing: -0.02em;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+/* H1: Hero/Page titles - 40-72px */
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 40px-72px */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5em;
+}
+
+/* H2: Section titles - 32-56px */
+h2 {
+  font-size: clamp(2rem, 4vw, 3.5rem); /* 32px-56px */
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+/* H3: Subsection titles - 24-40px */
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem); /* 24px-40px */
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+/* H4: Card titles - 20-30px */
+h4 {
+  font-size: clamp(1.25rem, 2vw, 1.875rem); /* 20px-30px */
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* H5: Small headings - 18-24px */
+h5 {
+  font-size: clamp(1.125rem, 1.5vw, 1.5rem); /* 18px-24px */
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* H6: Smallest headings - 16-20px */
+h6 {
+  font-size: clamp(1rem, 1vw, 1.25rem); /* 16px-20px */
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Links */
+a {
+  font-family: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+/* Buttons */
+button, .btn {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.875rem; /* 14px - standard button size */
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+/* Input elements */
+input, textarea, select {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 1rem; /* 16px - prevents zoom on iOS */
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.5;
+}
+
+/* Labels and small text */
+label {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.875rem; /* 14px */
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+small {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.75rem; /* 12px - minimum for readability */
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* Address elements */
+address {
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-style: normal;
+  letter-spacing: 0.01em;
+}
+
+/* ========================================
+   LUXURY BUTTON STYLES - SOTHEBY'S INSPIRED
+   ======================================== */
+
+/* Primary Button - Navy with Gold shimmer */
+.btn-luxury-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background-color: var(--color-navy);
+  color: white;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: none;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201, 169, 98, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-luxury-primary:hover {
+  background-color: var(--color-navy-light);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 35, 73, 0.3);
+}
+
+.btn-luxury-primary:hover::before {
+  left: 100%;
+}
+
+.btn-luxury-primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary Button - Gold outline with fill */
+.btn-luxury-secondary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background-color: transparent;
+  color: var(--color-navy);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 2px solid var(--color-gold);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.btn-luxury-secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: var(--color-gold);
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-luxury-secondary:hover {
+  color: var(--color-navy);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(201, 169, 98, 0.3);
+}
+
+.btn-luxury-secondary:hover::before {
+  width: 100%;
+}
+
+.btn-luxury-secondary:active {
+  transform: translateY(0);
+}
+
+/* White Button - For dark backgrounds */
+.btn-luxury-white {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.125rem 2.75rem;
+  background-color: white;
+  color: var(--color-navy);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: none;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury-white::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateX(-50%);
+}
+
+.btn-luxury-white:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.btn-luxury-white:hover::after {
+  width: 60%;
+}
+
+.btn-luxury-white:active {
+  transform: translateY(0);
+}
+
+/* Ghost Button - Transparent with elegant border */
+.btn-luxury-ghost {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2.5rem;
+  background-color: transparent;
+  color: white;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-luxury-ghost:hover {
+  background-color: white;
+  color: var(--color-navy);
+  border-color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.15);
+}
+
+.btn-luxury-ghost:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   LUXURY ANIMATIONS
+   ======================================== */
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-delay-100 { animation-delay: 0.1s; opacity: 0; }
+.animate-delay-200 { animation-delay: 0.2s; opacity: 0; }
+.animate-delay-300 { animation-delay: 0.3s; opacity: 0; }
+.animate-delay-400 { animation-delay: 0.4s; opacity: 0; }
+.animate-delay-500 { animation-delay: 0.5s; opacity: 0; }
+.animate-delay-600 { animation-delay: 0.6s; opacity: 0; }
+
+/* Elegant line reveal */
+@keyframes lineReveal {
+  from {
+    width: 0;
+  }
+  to {
+    width: 80px;
+  }
+}
+
+.line-reveal::after {
+  content: '';
+  display: block;
+  height: 2px;
+  margin-top: 1.5rem;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+  animation: lineReveal 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.8s;
+  width: 0;
+}
+
+/* Scale on hover with smooth transition */
+.hover-lift {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Image zoom effect on hover */
+.img-zoom-container {
+  overflow: hidden;
+}
+
+.img-zoom {
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.img-zoom-container:hover .img-zoom {
+  transform: scale(1.08);
+}
+
+/* Gold accent underline */
+.gold-underline {
+  position: relative;
+  display: inline-block;
+}
+
+.gold-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-gold), var(--color-gold-light));
+}
+
+/* Text shadow for luxury readability */
+.text-shadow-luxury {
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Elegant focus ring */
+.focus-luxury:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-gold);
+}
+
+/* Elegant scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-cream);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-dark);
 }

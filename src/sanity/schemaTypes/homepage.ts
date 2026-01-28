@@ -1,0 +1,543 @@
+import { defineType, defineField } from 'sanity'
+
+export const homepage = defineType({
+  name: 'homepage',
+  title: 'Homepage',
+  type: 'document',
+  fields: [
+    defineField({
+      name: 'title',
+      title: 'Page Title',
+      type: 'string',
+      description: 'Internal reference title',
+      validation: (Rule) => Rule.required(),
+      initialValue: 'Homepage',
+    }),
+    defineField({
+      name: 'template',
+      title: 'Homepage Template',
+      type: 'string',
+      description: 'Choose the visual style for the homepage',
+      options: {
+        list: [
+          { title: 'Classic', value: 'classic' },
+          { title: 'Luxury', value: 'luxury' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'classic',
+    }),
+    defineField({
+      name: 'hero',
+      title: 'Hero Section',
+      type: 'object',
+      description: 'Full-width hero section with video background and property search',
+      options: {
+        collapsible: true,
+        collapsed: false,
+      },
+      fields: [
+        {
+          name: 'title',
+          title: 'Hero Title',
+          type: 'string',
+          description: 'Main headline text',
+          validation: (Rule) => Rule.required(),
+          initialValue: 'Find Your Dream Home',
+        },
+        {
+          name: 'subtitle',
+          title: 'Hero Subtitle',
+          type: 'text',
+          rows: 2,
+          description: 'Supporting text below the title',
+          initialValue: 'Discover the perfect property for you and your family',
+        },
+        {
+          name: 'videoUrl',
+          title: 'Background Video URL',
+          type: 'url',
+          description: 'URL to video file (MP4 recommended). Leave empty to use image only.',
+        },
+        {
+          name: 'videoFile',
+          title: 'Background Video File',
+          type: 'file',
+          description: 'Or upload a video file directly',
+          options: {
+            accept: 'video/*',
+          },
+        },
+        {
+          name: 'fallbackImage',
+          title: 'Background Image',
+          type: 'image',
+          description: 'Fallback image or poster for video (required)',
+          validation: (Rule) => Rule.required(),
+          options: {
+            hotspot: true,
+          },
+        },
+        {
+          name: 'showSearch',
+          title: 'Show Property Search',
+          type: 'boolean',
+          description: 'Toggle the property search form on/off',
+          initialValue: true,
+        },
+        {
+          name: 'showTitleSubtitle',
+          title: 'Show Title & Subtitle',
+          type: 'boolean',
+          description: 'Toggle the hero title and subtitle on/off',
+          initialValue: true,
+        },
+      ],
+    }),
+    defineField({
+      name: 'teamSection',
+      title: 'Team Section',
+      type: 'object',
+      description: 'Configure the team section on the homepage',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Team Section',
+          type: 'boolean',
+          description: 'Toggle team section on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'Our Team',
+        },
+        {
+          name: 'imagePosition',
+          title: 'Image Position',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Left', value: 'left' },
+              { title: 'Right', value: 'right' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'left',
+        },
+        {
+          name: 'textAlign',
+          title: 'Text Alignment',
+          type: 'string',
+          options: {
+            list: [
+              { title: 'Left', value: 'left' },
+              { title: 'Right', value: 'right' },
+            ],
+            layout: 'radio',
+          },
+          initialValue: 'right',
+        },
+        {
+          name: 'featuredTeamMember',
+          title: 'Featured Team Member',
+          type: 'reference',
+          to: [{ type: 'teamMember' }],
+          description: 'Select a team member to feature on the homepage',
+        },
+        {
+          name: 'primaryButtonText',
+          title: 'Primary Button Text',
+          type: 'string',
+          initialValue: 'LEARN MORE',
+        },
+        {
+          name: 'primaryButtonLink',
+          title: 'Primary Button Link',
+          type: 'string',
+          initialValue: '/about/our-team',
+        },
+        {
+          name: 'secondaryButtonText',
+          title: 'Secondary Button Text',
+          type: 'string',
+          initialValue: 'SCHEDULE A CALL',
+        },
+        {
+          name: 'secondaryButtonLink',
+          title: 'Secondary Button Link',
+          type: 'string',
+          initialValue: '/contact-us',
+        },
+      ],
+    }),
+    defineField({
+      name: 'accolades',
+      title: 'Accolades Section',
+      type: 'object',
+      description: 'Showcase achievements and statistics',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Accolades Section',
+          type: 'boolean',
+          description: 'Toggle accolades section on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'Our Accolades',
+        },
+        {
+          name: 'backgroundImage',
+          title: 'Background Image',
+          type: 'image',
+          description: 'Background image for the accolades section',
+          options: {
+            hotspot: true,
+          },
+        },
+        {
+          name: 'items',
+          title: 'Accolade Items',
+          type: 'array',
+          of: [{ type: 'accolade' }],
+          validation: (Rule) => Rule.max(12),
+        },
+      ],
+    }),
+    defineField({
+      name: 'featuredProperty',
+      title: 'Featured Property',
+      type: 'object',
+      description: 'Display a featured MLS property with full-width image',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Featured Property',
+          type: 'boolean',
+          description: 'Toggle featured property section on/off',
+          initialValue: false,
+        },
+        {
+          name: 'mlsId',
+          title: 'MLS ID',
+          type: 'string',
+          description: 'Enter the MLS ID of the property to feature',
+        },
+        {
+          name: 'headline',
+          title: 'Headline',
+          type: 'string',
+          description: 'Optional headline text to display above property details',
+          initialValue: 'Featured Property',
+        },
+        {
+          name: 'buttonText',
+          title: 'Button Text',
+          type: 'string',
+          description: 'Text for the view property button',
+          initialValue: 'View Property',
+        },
+      ],
+    }),
+    defineField({
+      name: 'featuredPropertiesCarousel',
+      title: 'Featured Properties Carousel',
+      type: 'object',
+      description: 'Display newest properties from selected cities in a carousel',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Featured Properties Carousel',
+          type: 'boolean',
+          description: 'Toggle the featured properties carousel on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          description: 'Title displayed above the carousel',
+          initialValue: 'Newest in Aspen',
+        },
+        {
+          name: 'subtitle',
+          title: 'Section Subtitle',
+          type: 'text',
+          rows: 2,
+          description: 'Subtitle displayed below the title',
+          initialValue: 'Explore our latest luxury listings',
+        },
+        {
+          name: 'cities',
+          title: 'Cities',
+          type: 'array',
+          description: 'Select one or more cities to show properties from. Properties will be fetched from all selected cities.',
+          of: [{ type: 'string' }],
+          options: {
+            layout: 'tags',
+          },
+          initialValue: ['Aspen'],
+          validation: (Rule) => Rule.min(1).error('At least one city is required'),
+        },
+        {
+          name: 'limit',
+          title: 'Number of Properties',
+          type: 'number',
+          description: 'Maximum number of properties to display (default: 8)',
+          initialValue: 8,
+          validation: (Rule) => Rule.min(1).max(20),
+        },
+        {
+          name: 'buttonText',
+          title: 'View All Button Text',
+          type: 'string',
+          description: 'Text for the "View All" button',
+          initialValue: 'View All Properties',
+        },
+      ],
+    }),
+    defineField({
+      name: 'featuredCommunities',
+      title: 'Featured Communities',
+      type: 'object',
+      description: 'Configure which communities to feature on the homepage',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'Featured Communities',
+        },
+        {
+          name: 'showAll',
+          title: 'Show All Communities',
+          type: 'boolean',
+          description: 'Show all communities or select specific ones',
+          initialValue: true,
+        },
+        {
+          name: 'communities',
+          title: 'Select Communities',
+          type: 'array',
+          description: 'Only used if "Show All Communities" is disabled',
+          of: [
+            {
+              type: 'reference',
+              to: [{ type: 'community' }],
+            },
+          ],
+          hidden: ({ parent }) => parent?.showAll !== false,
+        },
+        {
+          name: 'limit',
+          title: 'Maximum Number to Display',
+          type: 'number',
+          description: 'Maximum communities to show (default: 12)',
+          initialValue: 12,
+          validation: (Rule) => Rule.min(1).max(50),
+        },
+      ],
+    }),
+    defineField({
+      name: 'neighborhoodsSection',
+      title: 'Neighborhoods Section',
+      type: 'object',
+      description: 'Display neighborhoods from your communities on the homepage',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Neighborhoods Section',
+          type: 'boolean',
+          description: 'Toggle neighborhoods section on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'Explore Neighborhoods',
+        },
+        {
+          name: 'subtitle',
+          title: 'Section Subtitle',
+          type: 'text',
+          rows: 2,
+          description: 'Subtitle displayed below the title',
+          initialValue: 'Discover the perfect neighborhood for your lifestyle',
+        },
+      ],
+    }),
+    defineField({
+      name: 'marketStatsSection',
+      title: 'Market Stats Section',
+      type: 'object',
+      description: 'Configure the Market Insights/Statistics section',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show Market Stats Section',
+          type: 'boolean',
+          description: 'Toggle market stats section on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'Market Insights',
+        },
+        {
+          name: 'subtitle',
+          title: 'Section Subtitle',
+          type: 'text',
+          rows: 2,
+          description: 'Subtitle displayed below the title',
+          initialValue: 'Real-time market data across our featured communities',
+        },
+        {
+          name: 'cities',
+          title: 'Cities to Display',
+          type: 'array',
+          description: 'Select and order the cities to show in the Market Stats section. Drag to reorder.',
+          of: [
+            {
+              type: 'object',
+              name: 'marketStatsCity',
+              fields: [
+                {
+                  name: 'city',
+                  title: 'City',
+                  type: 'string',
+                  options: {
+                    list: [
+                      { title: 'Aspen', value: 'Aspen' },
+                      { title: 'Basalt', value: 'Basalt' },
+                      { title: 'Carbondale', value: 'Carbondale' },
+                      { title: 'El Jebel', value: 'El Jebel' },
+                      { title: 'Glenwood Springs', value: 'Glenwood Springs' },
+                      { title: 'Marble', value: 'Marble' },
+                      { title: 'Meredith', value: 'Meredith' },
+                      { title: 'New Castle', value: 'New Castle' },
+                      { title: 'Parachute', value: 'Parachute' },
+                      { title: 'Redstone', value: 'Redstone' },
+                      { title: 'Rifle', value: 'Rifle' },
+                      { title: 'Silt', value: 'Silt' },
+                      { title: 'Snowmass', value: 'Snowmass' },
+                      { title: 'Snowmass Village', value: 'Snowmass Village' },
+                      { title: 'Thomasville', value: 'Thomasville' },
+                      { title: 'Woody Creek', value: 'Woody Creek' },
+                    ],
+                  },
+                  validation: (Rule) => Rule.required(),
+                },
+                {
+                  name: 'enabled',
+                  title: 'Show this city',
+                  type: 'boolean',
+                  initialValue: true,
+                },
+              ],
+              preview: {
+                select: {
+                  title: 'city',
+                  enabled: 'enabled',
+                },
+                prepare({ title, enabled }) {
+                  return {
+                    title: title || 'Unknown City',
+                    subtitle: enabled ? '✅ Shown' : '❌ Hidden',
+                  };
+                },
+              },
+            },
+          ],
+        },
+      ],
+    }),
+    defineField({
+      name: 'seo',
+      title: 'SEO Settings',
+      type: 'object',
+      description: 'SEO settings for the homepage',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'metaTitle',
+          title: 'Meta Title',
+          type: 'string',
+          description: 'SEO title (leave empty to use site default)',
+        },
+        {
+          name: 'metaDescription',
+          title: 'Meta Description',
+          type: 'text',
+          rows: 3,
+          description: 'SEO description (leave empty to use site default)',
+        },
+        {
+          name: 'metaImage',
+          title: 'Meta Image',
+          type: 'image',
+          description: 'Social sharing image (leave empty to use site default)',
+          options: {
+            hotspot: true,
+          },
+        },
+        {
+          name: 'keywords',
+          title: 'Keywords',
+          type: 'array',
+          of: [{ type: 'string' }],
+          description: 'SEO keywords',
+          options: {
+            layout: 'tags',
+          },
+        },
+      ],
+    }),
+  ],
+  preview: {
+    prepare() {
+      return {
+        title: 'Homepage',
+        subtitle: 'Main landing page configuration',
+      }
+    },
+  },
+})

@@ -1,65 +1,130 @@
-import Image from "next/image";
+import { Metadata } from 'next';
+import imageUrlBuilder from '@sanity/image-url';
+import { client } from '@/sanity/client';
+import { getHomepageData } from '@/lib/homepage';
+import { getSettings } from '@/lib/settings';
+import StructuredData from '@/components/StructuredData';
+import HomepageContent from '@/components/HomepageContent';
 
-export default function Home() {
+const builder = imageUrlBuilder(client);
+
+function urlFor(source: any) {
+  return builder.image(source);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [homepage, settings] = await Promise.all([
+    getHomepageData(),
+    getSettings(),
+  ]);
+
+  const seo = homepage?.seo;
+  const siteTitle = settings?.title || 'Real Estate';
+
+  return {
+    title: seo?.metaTitle || siteTitle,
+    description: seo?.metaDescription || settings?.description,
+    keywords: seo?.keywords,
+    openGraph: {
+      title: seo?.metaTitle || siteTitle,
+      description: seo?.metaDescription || settings?.description,
+      images: seo?.metaImage?.asset?.url
+        ? [{ url: urlFor(seo.metaImage).width(1200).url() }]
+        : undefined,
+    },
+  };
+}
+
+export default async function Home() {
+  const [homepage, settings] = await Promise.all([
+    getHomepageData(),
+    getSettings(),
+  ]);
+
+  const hero = homepage?.hero;
+  const teamSection = homepage?.teamSection;
+  const accolades = homepage?.accolades;
+  const featuredProperty = homepage?.featuredProperty;
+
+  // Get video URL (either from Mux/uploaded file or external URL)
+  const videoUrl = hero?.videoFile?.asset?.url || hero?.videoUrl;
+  const fallbackImageUrl = hero?.fallbackImage?.asset?.url
+    ? urlFor(hero.fallbackImage).width(1920).url()
+    : undefined;
+
+  // Structured data for SEO
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateAgent',
+    name: settings?.title || 'Real Estate',
+    description: settings?.description,
+    url: settings?.siteUrl,
+    telephone: settings?.contactInfo?.phone,
+    email: settings?.contactInfo?.email,
+    address: settings?.contactInfo?.address
+      ? {
+          '@type': 'PostalAddress',
+          streetAddress: settings.contactInfo.address,
+        }
+      : undefined,
+    sameAs: [
+      settings?.socialMedia?.facebook,
+      settings?.socialMedia?.instagram,
+      settings?.socialMedia?.twitter,
+      settings?.socialMedia?.linkedin,
+      settings?.socialMedia?.youtube,
+    ].filter(Boolean),
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <>
+      <StructuredData data={structuredData} />
+
+      <HomepageContent
+        template={homepage?.template}
+        videoUrl={videoUrl}
+        fallbackImageUrl={fallbackImageUrl}
+        heroTitle={hero?.title}
+        heroSubtitle={hero?.subtitle}
+        showSearch={hero?.showSearch !== false}
+        showTitleSubtitle={hero?.showTitleSubtitle !== false}
+        teamSection={{
+          enabled: teamSection?.enabled,
+          title: teamSection?.title,
+          imagePosition: teamSection?.imagePosition,
+          featuredTeamMember: teamSection?.featuredTeamMember,
+          primaryButtonText: teamSection?.primaryButtonText,
+          primaryButtonLink: teamSection?.primaryButtonLink,
+          secondaryButtonText: teamSection?.secondaryButtonText,
+          secondaryButtonLink: teamSection?.secondaryButtonLink,
+        }}
+        accolades={{
+          enabled: accolades?.enabled,
+          title: accolades?.title,
+          backgroundImage: accolades?.backgroundImage,
+          items: accolades?.items,
+        }}
+        featuredProperty={{
+          enabled: featuredProperty?.enabled,
+          mlsId: featuredProperty?.mlsId,
+          headline: featuredProperty?.headline,
+          buttonText: featuredProperty?.buttonText,
+        }}
+        featuredPropertiesCarousel={{
+          enabled: homepage?.featuredPropertiesCarousel?.enabled,
+          title: homepage?.featuredPropertiesCarousel?.title,
+          subtitle: homepage?.featuredPropertiesCarousel?.subtitle,
+          cities: homepage?.featuredPropertiesCarousel?.cities,
+          limit: homepage?.featuredPropertiesCarousel?.limit,
+          buttonText: homepage?.featuredPropertiesCarousel?.buttonText,
+        }}
+        marketStatsSection={{
+          enabled: homepage?.marketStatsSection?.enabled,
+          title: homepage?.marketStatsSection?.title,
+          subtitle: homepage?.marketStatsSection?.subtitle,
+          cities: homepage?.marketStatsSection?.cities,
+        }}
+      />
+    </>
   );
 }

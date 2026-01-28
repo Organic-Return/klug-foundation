@@ -1,0 +1,183 @@
+{
+  "_type": "testimonialsPage",
+  "_id": "testimonialsPage",
+  "heroTitle": "Client Testimonials",
+  "heroSubtitle": "Hear from the families and individuals we've had the privilege of helping find their perfect home in the Aspen area.",
+  "introTitle": "Our Clients' Success Stories",
+  "introContent": [
+    {
+      "_type": "block",
+      "_key": "intro1",
+      "style": "normal",
+      "markDefs": [],
+      "children": [
+        {
+          "_type": "span",
+          "_key": "intro1span",
+          "text": "At Klug Properties, we measure our success by the satisfaction of our clients. Whether helping first-time buyers navigate the Aspen market or assisting longtime residents in finding their next mountain retreat, we're committed to making every real estate journey exceptional.",
+          "marks": []
+        }
+      ]
+    }
+  ],
+  "featuredTestimonial": {
+    "quote": "Working with Klug Properties was the best decision we made in our home search. Their knowledge of the Aspen market is unparalleled, and they found us the perfect ski-in/ski-out property before it even hit the market. Their attention to detail and genuine care for our needs made the entire process seamless.",
+    "author": "The Richardson Family",
+    "role": "Aspen Highlands Homeowners",
+    "location": "Aspen, Colorado",
+    "transactionType": "buyer"
+  },
+  "testimonials": [
+    {
+      "_key": "t1",
+      "quote": "From the moment we reached out, the team at Klug Properties treated us like family. They understood exactly what we were looking for and showed us only properties that matched our vision. We couldn't be happier with our new home in Snowmass Village.",
+      "author": "Michael & Sarah Thompson",
+      "role": "Second Home Buyers",
+      "location": "Snowmass Village",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": true
+    },
+    {
+      "_key": "t2",
+      "quote": "The marketing campaign they created for our property was extraordinary. Professional photography, cinematic video tours, and strategic digital marketing brought in qualified buyers from around the world. We sold above asking price in just two weeks.",
+      "author": "Jennifer & David Chen",
+      "role": "Sold in Aspen",
+      "location": "Aspen Core",
+      "transactionType": "seller",
+      "year": "2024",
+      "featured": true
+    },
+    {
+      "_key": "t3",
+      "quote": "As out-of-state buyers, we were worried about navigating the Aspen real estate market remotely. Klug Properties made it effortless with virtual tours, detailed market analysis, and constant communication. They truly went above and beyond.",
+      "author": "Robert & Lisa Martinez",
+      "role": "California Buyers",
+      "location": "Woody Creek",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": true
+    },
+    {
+      "_key": "t4",
+      "quote": "Professional, knowledgeable, and genuinely dedicated to finding the perfect property. They listened to our needs and found us an amazing family home with stunning views. Highly recommend!",
+      "author": "The Anderson Family",
+      "role": "Relocated from Texas",
+      "location": "Starwood",
+      "transactionType": "buyer",
+      "year": "2023",
+      "featured": true
+    },
+    {
+      "_key": "t5",
+      "quote": "I've bought and sold multiple properties over the years, and this was hands-down the smoothest transaction I've ever experienced. Their expertise in luxury real estate is evident in everything they do.",
+      "author": "William Patterson",
+      "role": "Investment Property",
+      "location": "Aspen",
+      "transactionType": "both",
+      "year": "2024",
+      "featured": false
+    },
+    {
+      "_key": "t6",
+      "quote": "They helped us find our dream retirement home in the mountains. Patient, thorough, and always available to answer our questions. We're so grateful for their guidance through the entire process.",
+      "author": "George & Martha Wilson",
+      "role": "Retirees from Chicago",
+      "location": "Basalt",
+      "transactionType": "buyer",
+      "year": "2023",
+      "featured": false
+    },
+    {
+      "_key": "t7",
+      "quote": "The level of service was exceptional. From market research to closing, every step was handled with professionalism and care. They truly understand the luxury market in Aspen.",
+      "author": "Alexandra Novak",
+      "role": "NYC Buyer",
+      "location": "Red Mountain",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": false
+    },
+    {
+      "_key": "t8",
+      "quote": "Selling our family home of 20 years was emotional, but they made it as smooth as possible. They found the perfect buyers who will love the property as much as we did.",
+      "author": "The Morrison Family",
+      "role": "Long-time Aspen Residents",
+      "location": "West End",
+      "transactionType": "seller",
+      "year": "2023",
+      "featured": false
+    },
+    {
+      "_key": "t9",
+      "quote": "Incredible attention to detail and market knowledge. They negotiated an exceptional deal for us and made the complex process of buying a luxury property feel effortless.",
+      "author": "James & Emily Brooks",
+      "role": "First Aspen Home",
+      "location": "Mountain Valley",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": false
+    },
+    {
+      "_key": "t10",
+      "quote": "We were impressed by their deep understanding of both the local market and our specific needs. They found us the perfect property that checked every box on our wishlist.",
+      "author": "Dr. & Mrs. Patel",
+      "role": "Denver Buyers",
+      "location": "Snowmass",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": false
+    },
+    {
+      "_key": "t11",
+      "quote": "Their marketing expertise helped us sell our condo in record time. The virtual tours and professional photos attracted serious buyers from day one.",
+      "author": "Catherine Reynolds",
+      "role": "Condo Seller",
+      "location": "Aspen Core",
+      "transactionType": "seller",
+      "year": "2023",
+      "featured": false
+    },
+    {
+      "_key": "t12",
+      "quote": "Responsive, knowledgeable, and genuinely passionate about helping clients. They made buying our vacation home a wonderful experience.",
+      "author": "The Fitzgerald Family",
+      "role": "Vacation Home Buyers",
+      "location": "Carbondale",
+      "transactionType": "buyer",
+      "year": "2024",
+      "featured": false
+    }
+  ],
+  "statsTitle": "Our Track Record",
+  "statistics": [
+    {
+      "_key": "stat1",
+      "value": "200+",
+      "label": "Happy Clients"
+    },
+    {
+      "_key": "stat2",
+      "value": "98%",
+      "label": "Client Satisfaction"
+    },
+    {
+      "_key": "stat3",
+      "value": "$500M+",
+      "label": "In Sales"
+    },
+    {
+      "_key": "stat4",
+      "value": "15+",
+      "label": "Years Experience"
+    }
+  ],
+  "ctaTitle": "Ready to Write Your Success Story?",
+  "ctaSubtitle": "Join our growing family of satisfied clients. Whether you're buying or selling, we're here to help you achieve your real estate goals.",
+  "ctaButtonText": "Contact Us Today",
+  "ctaButtonLink": "/contact-us",
+  "seo": {
+    "metaTitle": "Client Testimonials | Klug Properties - Aspen Real Estate",
+    "metaDescription": "Read what our clients say about working with Klug Properties. Discover why families trust us for luxury real estate in Aspen, Snowmass, and the Roaring Fork Valley."
+  }
+}
