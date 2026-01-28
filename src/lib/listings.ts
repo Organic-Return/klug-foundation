@@ -52,7 +52,6 @@ interface GraphQLListing {
   attached_garage_yn: boolean | null;
   parking_features: string[] | null;
   association_amenities: string[] | null;
-  virtual_tour_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -544,6 +543,48 @@ export async function getNewestHighPricedByCity(
   }
 
   return (data || []).map(transformListing);
+}
+
+/**
+ * Get price range for a city: lowest priced condo and highest priced single family home
+ */
+export async function getCommunityPriceRange(
+  city: string
+): Promise<{ lowestCondo: number | null; highestSingleFamily: number | null }> {
+  // Get lowest priced active condo
+  const { data: condoData, error: condoError } = await supabase
+    .from('graphql_listings')
+    .select('list_price')
+    .ilike('city', city)
+    .eq('property_sub_type', 'Condominium')
+    .eq('status', 'Active')
+    .not('list_price', 'is', null)
+    .order('list_price', { ascending: true })
+    .limit(1);
+
+  if (condoError) {
+    console.error('Error fetching lowest condo price:', condoError);
+  }
+
+  // Get highest priced active single family home
+  const { data: sfhData, error: sfhError } = await supabase
+    .from('graphql_listings')
+    .select('list_price')
+    .ilike('city', city)
+    .eq('property_sub_type', 'Single Family Residence')
+    .eq('status', 'Active')
+    .not('list_price', 'is', null)
+    .order('list_price', { ascending: false })
+    .limit(1);
+
+  if (sfhError) {
+    console.error('Error fetching highest single family price:', sfhError);
+  }
+
+  return {
+    lowestCondo: condoData?.[0]?.list_price ?? null,
+    highestSingleFamily: sfhData?.[0]?.list_price ?? null,
+  };
 }
 
 /**
