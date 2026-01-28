@@ -620,3 +620,4 @@ export async function getNewestHighPricedByCities(
 
   return (data || []).map(transformListing);
 }
+
