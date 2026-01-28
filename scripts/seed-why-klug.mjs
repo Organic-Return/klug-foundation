@@ -1,7 +1,7 @@
 import { createClient } from '@sanity/client'
 
 const client = createClient({
-  projectId: '1zb39xqr',
+  projectId: 'ujo0cv7k',
   dataset: 'production',
   apiVersion: '2024-01-01',
   useCdn: false,
@@ -225,7 +225,7 @@ async function seedContent() {
       console.log('\n---')
       console.log('To run this script, you need a Sanity write token.')
       console.log('1. Go to https://www.sanity.io/manage')
-      console.log('2. Select your project (1zb39xqr)')
+      console.log('2. Select your project (ujo0cv7k)')
       console.log('3. Go to API > Tokens')
       console.log('4. Create a token with "Editor" permissions')
       console.log('5. Run: SANITY_WRITE_TOKEN=your_token node scripts/seed-why-klug.mjs')

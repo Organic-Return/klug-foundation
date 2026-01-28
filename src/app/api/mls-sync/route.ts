@@ -8,7 +8,7 @@ import {
 
 // Create a Sanity client with write access
 const sanityWriteClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '1zb39xqr',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || 'ujo0cv7k',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2024-01-01',
   useCdn: false,
