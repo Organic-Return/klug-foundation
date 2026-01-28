@@ -369,7 +369,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         </div>
 
         {/* Photo Gallery - 16:9 Aspect Ratio with Navigation */}
-        <PropertyGallery photos={listing.photos || []} address={listing.address} />
+        <PropertyGallery photos={listing.photos || []} address={listing.address ?? undefined} />
 
         {/* Content */}
         <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
