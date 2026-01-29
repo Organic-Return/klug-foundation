@@ -23,15 +23,23 @@ const urlFor = (source: any) =>
 
 const options = { next: { revalidate: 30 } };
 
-export const metadata: Metadata = {
-  title: 'Market Reports | Real Estate Insights',
-  description: 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.',
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  return {
     title: 'Market Reports | Real Estate Insights',
     description: 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.',
-    type: 'website',
-  },
-};
+    alternates: {
+      canonical: `${baseUrl}/market-reports`,
+    },
+    openGraph: {
+      title: 'Market Reports | Real Estate Insights',
+      description: 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.',
+      type: 'website',
+      url: `${baseUrl}/market-reports`,
+    },
+  };
+}
 
 export default async function MarketReportsPage() {
   const reports = await client.fetch<SanityDocument[]>(MARKET_REPORTS_QUERY, {}, options);

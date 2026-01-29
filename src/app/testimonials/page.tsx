@@ -77,13 +77,19 @@ export async function generateMetadata(): Promise<Metadata> {
     ? urlFor(data.heroImage)?.width(1200).height(630).url()
     : null;
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
   return {
     title: metaTitle,
     description: metaDescription,
+    alternates: {
+      canonical: `${baseUrl}/testimonials`,
+    },
     openGraph: {
       title: metaTitle,
       description: metaDescription,
       type: 'website',
+      url: `${baseUrl}/testimonials`,
       images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
     },
   };
@@ -138,7 +144,7 @@ export default async function TestimonialsPage() {
     return (
       <main className="min-h-screen pt-32">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4">
+          <h1 className="font-serif text-[#1a1a1a] dark:text-white mb-4">
             Page Not Found
           </h1>
           <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-8">
@@ -179,7 +185,7 @@ export default async function TestimonialsPage() {
         )}
 
         <div className="relative max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 pb-16 md:pb-20">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-white tracking-wide mb-4 max-w-4xl">
+          <h1 className="font-serif text-white mb-4 max-w-4xl">
             {data.heroTitle}
           </h1>
           {data.heroSubtitle && (

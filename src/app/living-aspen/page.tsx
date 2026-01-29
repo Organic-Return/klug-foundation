@@ -23,15 +23,23 @@ const urlFor = (source: any) =>
 
 const options = { next: { revalidate: 30 } };
 
-export const metadata: Metadata = {
-  title: 'Living Aspen | Luxury Lifestyle Magazine',
-  description: 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.',
-  openGraph: {
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  return {
     title: 'Living Aspen | Luxury Lifestyle Magazine',
     description: 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.',
-    type: 'website',
-  },
-};
+    alternates: {
+      canonical: `${baseUrl}/living-aspen`,
+    },
+    openGraph: {
+      title: 'Living Aspen | Luxury Lifestyle Magazine',
+      description: 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.',
+      type: 'website',
+      url: `${baseUrl}/living-aspen`,
+    },
+  };
+}
 
 export default async function LivingAspenPage() {
   const magazines = await client.fetch<SanityDocument[]>(MAGAZINES_QUERY, {}, options);
@@ -45,7 +53,7 @@ export default async function LivingAspenPage() {
       {/* Hero Section */}
       <section className="bg-[var(--color-navy)] pt-32 pb-16 md:pt-40 md:pb-20">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light text-white tracking-wide mb-6">
+          <h1 className="font-serif text-white mb-6">
             Living Aspen
           </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">

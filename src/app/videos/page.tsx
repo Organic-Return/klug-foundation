@@ -1,5 +1,23 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { getYouTubeCredentials } from "@/lib/settings";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  return {
+    title: 'Videos | Real Estate Tours & Content',
+    description: 'Watch our latest real estate videos and virtual tours.',
+    alternates: {
+      canonical: `${baseUrl}/videos`,
+    },
+    openGraph: {
+      title: 'Videos | Real Estate Tours & Content',
+      description: 'Watch our latest real estate videos and virtual tours.',
+      url: `${baseUrl}/videos`,
+    },
+  };
+}
 
 interface YouTubeVideo {
   id: {
@@ -64,7 +82,7 @@ export default async function VideosPage() {
         <Link href="/" className="text-blue-600 hover:underline mb-4 inline-block">
           ← Back to home
         </Link>
-        <h1 className="text-4xl font-bold mb-2">Videos</h1>
+        <h1 className="text-[var(--color-sothebys-blue)] mb-2">Videos</h1>
         <p className="text-gray-600 dark:text-gray-400">
           Watch our latest real estate videos and virtual tours
         </p>
@@ -73,7 +91,7 @@ export default async function VideosPage() {
       {videos.length === 0 ? (
         <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-12 text-center">
           <div className="text-6xl mb-4">🎥</div>
-          <h2 className="text-2xl font-semibold mb-2">No videos available</h2>
+          <h2 className="text-2xl font-semibold text-[var(--color-sothebys-blue)] mb-2">No videos available</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             Configure your YouTube API credentials to display videos.
           </p>

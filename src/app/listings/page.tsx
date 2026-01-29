@@ -16,13 +16,27 @@ import {
   getAllowedCities,
   getExcludedStatuses,
 } from '@/lib/mlsConfiguration';
+import { getSettings } from '@/lib/settings';
 import ListingsContent from '@/components/ListingsContent';
 import ListingFilters from '@/components/ListingFilters';
 
-export const metadata: Metadata = {
-  title: 'Property Listings | MLS Listings',
-  description: 'Browse all available property listings from the MLS database.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings();
+  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  return {
+    title: 'Property Listings | MLS Listings',
+    description: 'Browse all available property listings from the MLS database.',
+    alternates: {
+      canonical: `${baseUrl}/listings`,
+    },
+    openGraph: {
+      title: 'Property Listings | MLS Listings',
+      description: 'Browse all available property listings from the MLS database.',
+      url: `${baseUrl}/listings`,
+    },
+  };
+}
 
 // Force dynamic rendering to ensure fresh data on each request
 export const dynamic = 'force-dynamic';

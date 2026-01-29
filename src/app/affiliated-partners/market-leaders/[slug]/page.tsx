@@ -41,9 +41,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const canonicalUrl = `${baseUrl}/affiliated-partners/market-leaders/${slug}`;
+
   return {
     title: `${partner.firstName} ${partner.lastName} | Market Leader | Klug Properties`,
     description: `Meet ${partner.firstName} ${partner.lastName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${partner.firstName} ${partner.lastName} | Market Leader | Klug Properties`,
+      description: `Meet ${partner.firstName} ${partner.lastName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
+      url: canonicalUrl,
+    },
   };
 }
 
@@ -96,7 +107,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
             </div>
 
             {/* Name & Title */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-3 text-center">
+            <h1 className="font-serif text-white mb-3 text-center">
               {enrichedPartner.firstName} {enrichedPartner.lastName}
             </h1>
             {enrichedPartner.title && (

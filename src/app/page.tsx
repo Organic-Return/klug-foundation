@@ -20,14 +20,19 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const seo = homepage?.seo;
   const siteTitle = settings?.title || 'Real Estate';
+  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
   return {
     title: seo?.metaTitle || siteTitle,
     description: seo?.metaDescription || settings?.description,
     keywords: seo?.keywords,
+    alternates: {
+      canonical: baseUrl,
+    },
     openGraph: {
       title: seo?.metaTitle || siteTitle,
       description: seo?.metaDescription || settings?.description,
+      url: baseUrl,
       images: seo?.metaImage?.asset?.url
         ? [{ url: urlFor(seo.metaImage).width(1200).url() }]
         : undefined,

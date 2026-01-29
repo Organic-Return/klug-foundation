@@ -219,8 +219,9 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const baseUrl = getBaseUrl();
   const listingUrl = `${baseUrl}/listings/${listing.id}`;
   const title = `${listing.address || 'Property'} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
-  const description = listing.description
+  const rawDescription = listing.description
     || `${listing.bedrooms || 0} bed, ${listing.bathrooms || 0} bath ${listing.property_type || 'property'} for ${listing.status === 'Closed' ? 'sale (sold)' : 'sale'} in ${listing.city}, ${listing.state}. ${listing.square_feet ? `${listing.square_feet.toLocaleString()} sq ft.` : ''} MLS# ${listing.mls_number}`;
+  const description = rawDescription.length > 300 ? rawDescription.slice(0, 297) + '...' : rawDescription;
   const images = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const primaryImage = images[0] || `${baseUrl}/og-default.jpg`;
 
