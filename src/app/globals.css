@@ -67,26 +67,32 @@ p {
 /* Headings - elegant serif typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-lora), Georgia, serif;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.3; /* Slightly more line height for better readability */
   letter-spacing: -0.02em;
   margin-top: 1.5em;
   margin-bottom: 0.75em;
 }
 
-/* H1: Hero/Page titles - 40-72px */
+/* H1: Hero/Page titles - 46px */
 h1 {
-  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 40px-72px */
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.5em;
+  display: block;
+  font-size: 46px;
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.13;
+  letter-spacing: 1px;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
 }
 
 /* H2: Section titles - 32-56px */
 h2 {
   font-size: clamp(2rem, 4vw, 3.5rem); /* 32px-56px */
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
@@ -127,14 +133,9 @@ a {
   transition: color 0.2s ease-in-out;
 }
 
-/* Buttons */
+/* Buttons - base font family only, size controlled via Tailwind classes */
 button, .btn {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: 0.875rem; /* 14px - standard button size */
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  line-height: 1.5;
 }
 
 /* Input elements */
@@ -439,6 +440,22 @@ address {
 .focus-luxury:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-gold);
+}
+
+/* Fade in animation for tabs */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
 /* Elegant scrollbar */
