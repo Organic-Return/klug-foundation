@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import StructuredData from "@/components/StructuredData";
 
 const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
   heroTitle,
@@ -139,6 +140,7 @@ const TransactionBadge = ({ type }: { type?: string }) => {
 
 export default async function TestimonialsPage() {
   const data = await client.fetch<SanityDocument>(TESTIMONIALS_QUERY, {}, options);
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
   if (!data) {
     return (
@@ -164,9 +166,73 @@ export default async function TestimonialsPage() {
 
   const featuredTestimonials = data.testimonials?.filter((t: any) => t.featured) || [];
   const regularTestimonials = data.testimonials?.filter((t: any) => !t.featured) || [];
+  const allTestimonials = [...(data.testimonials || [])];
+
+  // Generate Review schema for each testimonial
+  const reviewSchemas = allTestimonials.map((testimonial: any, index: number) => ({
+    '@type': 'Review',
+    '@id': `${baseUrl}/testimonials#review-${index}`,
+    reviewBody: testimonial.quote,
+    author: {
+      '@type': 'Person',
+      name: testimonial.author,
+      ...(testimonial.role && { jobTitle: testimonial.role }),
+    },
+    ...(testimonial.year && { datePublished: `${testimonial.year}-01-01` }),
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: 5,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  }));
+
+  // AggregateRating schema
+  const aggregateRatingSchema = allTestimonials.length > 0 ? {
+    '@type': 'AggregateRating',
+    ratingValue: 5,
+    bestRating: 5,
+    worstRating: 1,
+    ratingCount: allTestimonials.length,
+    reviewCount: allTestimonials.length,
+  } : undefined;
+
+  // Main LocalBusiness/RealEstateAgent schema with reviews
+  const businessWithReviewsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateAgent',
+    '@id': `${baseUrl}#organization`,
+    name: 'Real Estate Agency',
+    url: baseUrl,
+    ...(aggregateRatingSchema && { aggregateRating: aggregateRatingSchema }),
+    review: reviewSchemas,
+  };
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Testimonials',
+        item: `${baseUrl}/testimonials`,
+      },
+    ],
+  };
 
   return (
-    <main className="min-h-screen">
+    <>
+      <StructuredData data={businessWithReviewsSchema} />
+      <StructuredData data={breadcrumbSchema} />
+      <main className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[50vh] md:h-[60vh] min-h-[400px] flex items-end">
         {heroImageUrl ? (
@@ -479,5 +545,6 @@ export default async function TestimonialsPage() {
         </section>
       )}
     </main>
+    </>
   );
 }

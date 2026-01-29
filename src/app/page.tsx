@@ -57,13 +57,16 @@ export default async function Home() {
     ? urlFor(hero.fallbackImage).width(1920).url()
     : undefined;
 
-  // Structured data for SEO
-  const structuredData = {
+  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  // RealEstateAgent / Organization structured data
+  const organizationSchema = {
     '@context': 'https://schema.org',
-    '@type': 'RealEstateAgent',
+    '@type': ['RealEstateAgent', 'Organization'],
+    '@id': `${baseUrl}#organization`,
     name: settings?.title || 'Real Estate',
     description: settings?.description,
-    url: settings?.siteUrl,
+    url: baseUrl,
     telephone: settings?.contactInfo?.phone,
     email: settings?.contactInfo?.email,
     address: settings?.contactInfo?.address
@@ -81,9 +84,52 @@ export default async function Home() {
     ].filter(Boolean),
   };
 
+  // WebSite schema with SearchAction for sitelinks search box
+  const websiteSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${baseUrl}#website`,
+    name: settings?.title || 'Real Estate',
+    url: baseUrl,
+    description: settings?.description,
+    publisher: {
+      '@id': `${baseUrl}#organization`,
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${baseUrl}/listings?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  // WebPage schema for homepage
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${baseUrl}#webpage`,
+    url: baseUrl,
+    name: settings?.title || 'Real Estate',
+    description: settings?.description,
+    isPartOf: {
+      '@id': `${baseUrl}#website`,
+    },
+    about: {
+      '@id': `${baseUrl}#organization`,
+    },
+    primaryImageOfPage: fallbackImageUrl ? {
+      '@type': 'ImageObject',
+      url: fallbackImageUrl,
+    } : undefined,
+  };
+
   return (
     <>
-      <StructuredData data={structuredData} />
+      <StructuredData data={organizationSchema} />
+      <StructuredData data={websiteSchema} />
+      <StructuredData data={webPageSchema} />
 
       <HomepageContent
         template={homepage?.template}

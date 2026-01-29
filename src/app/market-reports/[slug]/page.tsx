@@ -196,25 +196,102 @@ export default async function MarketReportPage({
 
   const pdfUrl = report.pdfFile?.asset?.url;
 
-  // JSON-LD structured data
-  const jsonLd = {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const reportUrl = `${baseUrl}/market-reports/${slug}`;
+
+  // Article/Report schema with enhanced details
+  const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'Report',
+    '@id': reportUrl,
+    headline: report.title,
     name: report.title,
     description: report.excerpt || report.title,
+    url: reportUrl,
     image: heroImageUrl || undefined,
     datePublished: report.publishedAt,
-    publisher: {
+    dateModified: report._updatedAt || report.publishedAt,
+    author: {
       '@type': 'Organization',
+      '@id': `${baseUrl}#organization`,
       name: 'Real Estate',
     },
+    publisher: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}#organization`,
+      name: 'Real Estate',
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': reportUrl,
+    },
+    ...(pdfUrl && {
+      associatedMedia: {
+        '@type': 'MediaObject',
+        contentUrl: pdfUrl,
+        encodingFormat: 'application/pdf',
+      },
+    }),
+  };
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Market Reports',
+        item: `${baseUrl}/market-reports`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: report.title,
+        item: reportUrl,
+      },
+    ],
+  };
+
+  // WebPage schema
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${reportUrl}#webpage`,
+    url: reportUrl,
+    name: report.title,
+    description: report.excerpt || report.title,
+    isPartOf: {
+      '@id': `${baseUrl}#website`,
+    },
+    primaryImageOfPage: heroImageUrl ? {
+      '@type': 'ImageObject',
+      url: heroImageUrl,
+    } : undefined,
+    datePublished: report.publishedAt,
+    dateModified: report._updatedAt || report.publishedAt,
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <main className="min-h-screen">
         {/* Hero Section */}

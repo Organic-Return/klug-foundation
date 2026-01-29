@@ -7,7 +7,9 @@ import {
   getDistinctStatuses,
   getDistinctNeighborhoods,
   getNeighborhoodsByCity,
+  formatPrice,
   type SortOption,
+  type MLSProperty,
 } from '@/lib/listings';
 import {
   getMLSConfiguration,
@@ -19,6 +21,83 @@ import {
 import { getSettings } from '@/lib/settings';
 import ListingsContent from '@/components/ListingsContent';
 import ListingFilters from '@/components/ListingFilters';
+import StructuredData from '@/components/StructuredData';
+
+// Generate ItemList schema for listings
+function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total: number) {
+  // ItemList schema for search results
+  const itemListSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Property Listings',
+    description: 'Browse all available property listings',
+    numberOfItems: total,
+    itemListElement: listings.slice(0, 10).map((listing, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      item: {
+        '@type': 'RealEstateListing',
+        '@id': `${baseUrl}/listings/${listing.id}`,
+        url: `${baseUrl}/listings/${listing.id}`,
+        name: listing.address || `Property ${listing.mls_number}`,
+        description: listing.description || `${listing.property_type || 'Property'} in ${listing.city}, ${listing.state}`,
+        ...(listing.list_price && {
+          offers: {
+            '@type': 'Offer',
+            price: listing.list_price,
+            priceCurrency: 'USD',
+          },
+        }),
+        ...(listing.photos && listing.photos.length > 0 && {
+          image: listing.photos[0],
+        }),
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: listing.address,
+          addressLocality: listing.city,
+          addressRegion: listing.state,
+          postalCode: listing.zip_code,
+          addressCountry: 'US',
+        },
+      },
+    })),
+  };
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Listings',
+        item: `${baseUrl}/listings`,
+      },
+    ],
+  };
+
+  // CollectionPage schema
+  const collectionPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': `${baseUrl}/listings`,
+    name: 'Property Listings',
+    description: 'Browse all available property listings from the MLS database.',
+    url: `${baseUrl}/listings`,
+    mainEntity: {
+      '@id': `${baseUrl}/listings#itemlist`,
+    },
+  };
+
+  return [itemListSchema, breadcrumbSchema, collectionPageSchema];
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
@@ -125,6 +204,10 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
 
   const { listings, total, totalPages } = listingsResult;
 
+  // Generate structured data
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const schemas = generateListingsSchema(listings, baseUrl, total);
+
   // Build current search params for pagination
   const currentSearchParams = new URLSearchParams();
   if (status) currentSearchParams.set('status', status);
@@ -140,39 +223,44 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   if (keyword) currentSearchParams.set('q', keyword);
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      {/* Filters */}
-      <div className="bg-white shadow-sm flex-shrink-0">
-        <div className="px-4 py-3 sm:px-6 lg:px-8">
-          <ListingFilters
-            keyword={keyword}
-            status={status}
-            propertyType={propertyType}
-            propertySubType={propertySubType}
-            city={city}
-            neighborhood={neighborhood}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            beds={beds}
-            baths={baths}
-            statuses={filteredStatuses}
-            propertyTypes={filteredPropertyTypes}
-            propertySubTypes={filteredPropertySubTypes}
-            cities={filteredCities}
-            initialNeighborhoods={neighborhoods}
-          />
+    <>
+      {schemas.map((schema, index) => (
+        <StructuredData key={index} data={schema} />
+      ))}
+      <div className="h-full flex flex-col overflow-hidden">
+        {/* Filters */}
+        <div className="bg-white shadow-sm flex-shrink-0">
+          <div className="px-4 py-3 sm:px-6 lg:px-8">
+            <ListingFilters
+              keyword={keyword}
+              status={status}
+              propertyType={propertyType}
+              propertySubType={propertySubType}
+              city={city}
+              neighborhood={neighborhood}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              beds={beds}
+              baths={baths}
+              statuses={filteredStatuses}
+              propertyTypes={filteredPropertyTypes}
+              propertySubTypes={filteredPropertySubTypes}
+              cities={filteredCities}
+              initialNeighborhoods={neighborhoods}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Listings Content with View Toggle */}
-      <ListingsContent
-        listings={listings}
-        currentPage={page}
-        totalPages={totalPages}
-        total={total}
-        searchParams={currentSearchParams}
-        currentSort={sort}
-      />
-    </div>
+        {/* Listings Content with View Toggle */}
+        <ListingsContent
+          listings={listings}
+          currentPage={page}
+          totalPages={totalPages}
+          total={total}
+          searchParams={currentSearchParams}
+          currentSort={sort}
+        />
+      </div>
+    </>
   );
 }

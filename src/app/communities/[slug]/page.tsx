@@ -320,25 +320,97 @@ export default async function CommunityPage({
     }
   }
 
-  // Generate JSON-LD structured data for SEO
-  const jsonLd = {
+  // Get the base URL
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const communityUrl = `${baseUrl}/communities/${community.slug.current}`;
+
+  // Generate JSON-LD structured data for SEO - Place schema
+  const placeSchema = {
     '@context': 'https://schema.org',
     '@type': 'Place',
+    '@id': communityUrl,
     name: community.title,
     description: community.description || community.title,
+    url: communityUrl,
     image: heroImageUrl || undefined,
     geo: community.coordinates ? {
       '@type': 'GeoCoordinates',
       latitude: community.coordinates.lat,
       longitude: community.coordinates.lng,
     } : undefined,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: community.title,
+      addressRegion: 'CO',
+      addressCountry: 'US',
+    },
+    ...(community.amenities && community.amenities.length > 0 && {
+      amenityFeature: community.amenities.map((amenity: string) => ({
+        '@type': 'LocationFeatureSpecification',
+        name: amenity,
+      })),
+    }),
+  };
+
+  // BreadcrumbList schema
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: baseUrl,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Communities',
+        item: `${baseUrl}/communities`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: community.title,
+        item: communityUrl,
+      },
+    ],
+  };
+
+  // WebPage schema
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${communityUrl}#webpage`,
+    url: communityUrl,
+    name: community.title,
+    description: community.description || community.title,
+    isPartOf: {
+      '@id': `${baseUrl}#website`,
+    },
+    primaryImageOfPage: heroImageUrl ? {
+      '@type': 'ImageObject',
+      url: heroImageUrl,
+    } : undefined,
+    breadcrumb: {
+      '@id': `${communityUrl}#breadcrumb`,
+    },
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(placeSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
       <main className="min-h-screen">
         {/* Hero Section */}
