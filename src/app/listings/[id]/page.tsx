@@ -10,7 +10,10 @@ import {
   type MLSProperty,
 } from '@/lib/listings';
 import PropertyGallery from '@/components/PropertyGallery';
+import PropertyDetailsTabs from '@/components/PropertyDetailsTabs';
 import SavePropertyButton from '@/components/SavePropertyButton';
+import ScheduleTourButton from '@/components/ScheduleTourButton';
+import RequestInfoButton from '@/components/RequestInfoButton';
 
 interface ListingPageProps {
   params: Promise<{ id: string }>;
@@ -342,7 +345,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         />
       ))}
 
-      <div className="min-h-screen bg-gray-50" itemScope itemType="https://schema.org/RealEstateListing">
+      <div className="min-h-screen bg-[#f8f7f5]" itemScope itemType="https://schema.org/RealEstateListing">
         {/* Hidden microformat data */}
         <meta itemProp="url" content={`${getBaseUrl()}/listings/${listing.id}`} />
         <meta itemProp="datePosted" content={listing.listing_date || ''} />
@@ -368,66 +371,69 @@ export default async function ListingPage({ params }: ListingPageProps) {
           </div>
         </div>
 
-        {/* Photo Gallery - 16:9 Aspect Ratio with Navigation */}
+        {/* Photo Gallery */}
         <PropertyGallery photos={listing.photos || []} address={listing.address ?? undefined} />
 
-        {/* Content */}
-        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Header */}
-              <header>
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span
-                      className={`px-3 py-1 text-sm font-semibold rounded-full ${
-                        listing.status === 'Active'
-                          ? 'bg-green-100 text-green-800'
-                          : listing.status === 'Pending'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : listing.status === 'Closed'
-                          ? 'bg-gray-100 text-gray-800'
-                          : 'bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {listing.status}
+        {/* Property Header Section */}
+        <section className="bg-white border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              {/* Left: Address and Status */}
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span
+                    className={`px-4 py-1.5 text-xs font-medium uppercase tracking-[0.15em] ${
+                      listing.status === 'Active'
+                        ? 'bg-green-50 text-green-700 border border-green-200'
+                        : listing.status === 'Pending'
+                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                        : listing.status === 'Closed'
+                        ? 'bg-gray-100 text-gray-600 border border-gray-200'
+                        : 'bg-blue-50 text-blue-700 border border-blue-200'
+                    }`}
+                  >
+                    {listing.status}
+                  </span>
+                  {listing.property_type && (
+                    <span className="px-4 py-1.5 text-xs font-medium uppercase tracking-[0.15em] bg-[#f8f7f5] text-gray-600 border border-gray-200">
+                      {listing.property_type}
                     </span>
-                    {listing.property_type && (
-                      <span className="px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
-                        {listing.property_type}
-                      </span>
-                    )}
-                  </div>
+                  )}
                   <SavePropertyButton listingId={listing.id} listingType="mls" variant="button" />
                 </div>
 
-                <h1 className="text-[var(--color-sothebys-blue)] mb-2" itemProp="name">
-                  <span itemProp="price" content={listing.list_price?.toString()}>
-                    {formatPrice(listing.list_price)}
-                  </span>
-                  <meta itemProp="priceCurrency" content="USD" />
-                </h1>
-
-                {listing.status === 'Closed' && listing.sold_price && (
-                  <p className="text-lg text-gray-600 mb-2">
-                    Sold for {formatPrice(listing.sold_price)}
-                    {listing.sold_date && (
-                      <span className="text-sm ml-2">
-                        on <time dateTime={listing.sold_date}>{new Date(listing.sold_date).toLocaleDateString()}</time>
-                      </span>
-                    )}
-                  </p>
-                )}
-
                 <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-                  <p className="text-xl text-gray-600" itemProp="streetAddress">{listing.address}</p>
-                  <p className="text-gray-500">
-                    <span itemProp="addressLocality">{listing.city}</span>,
-                    <span itemProp="addressRegion"> {listing.state}</span>
-                    <span itemProp="postalCode"> {listing.zip_code}</span>
-                  </p>
+                  <h1 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a]">
+                    <span itemProp="streetAddress" className="block">
+                      {listing.address?.split(',')[0] || listing.address}
+                    </span>
+                    <span className="block text-xl md:text-2xl text-gray-500 mt-1">
+                      <span itemProp="addressLocality">{listing.city}</span>,{' '}
+                      <span itemProp="addressRegion">{listing.state}</span>{' '}
+                      <span itemProp="postalCode">{listing.zip_code}</span>
+                    </span>
+                  </h1>
                   <meta itemProp="addressCountry" content="US" />
+                </div>
+
+                {/* Price below address */}
+                <div className="mt-4" itemProp="name">
+                  <div className="text-3xl md:text-4xl font-serif font-light text-[var(--color-sothebys-blue)]">
+                    <span itemProp="price" content={listing.list_price?.toString()}>
+                      {formatPrice(listing.list_price)}
+                    </span>
+                    <meta itemProp="priceCurrency" content="USD" />
+                  </div>
+                  {listing.status === 'Closed' && listing.sold_price && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Sold for {formatPrice(listing.sold_price)}
+                      {listing.sold_date && (
+                        <span className="ml-1">
+                          on <time dateTime={listing.sold_date}>{new Date(listing.sold_date).toLocaleDateString()}</time>
+                        </span>
+                      )}
+                    </p>
+                  )}
                 </div>
 
                 {/* Hidden geo data */}
@@ -437,97 +443,127 @@ export default async function ListingPage({ params }: ListingPageProps) {
                     <meta itemProp="longitude" content={listing.longitude.toString()} />
                   </div>
                 )}
-              </header>
-
-              {/* Quick Stats */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {listing.bedrooms !== null && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-2xl font-bold text-gray-900" itemProp="numberOfRooms">{listing.bedrooms}</div>
-                    <div className="text-sm text-gray-500">Bedrooms</div>
-                  </div>
-                )}
-                {listing.bathrooms !== null && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-2xl font-bold text-gray-900">{listing.bathrooms}</div>
-                    <div className="text-sm text-gray-500">Bathrooms</div>
-                    {(listing.bathrooms_full || listing.bathrooms_three_quarter || listing.bathrooms_half) && (
-                      <div className="text-xs text-gray-400 mt-1">
-                        {[
-                          listing.bathrooms_full && `${listing.bathrooms_full} full`,
-                          listing.bathrooms_three_quarter && `${listing.bathrooms_three_quarter} ¾`,
-                          listing.bathrooms_half && `${listing.bathrooms_half} half`,
-                        ].filter(Boolean).join(', ')}
-                      </div>
-                    )}
-                  </div>
-                )}
-                {listing.square_feet && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm" itemProp="floorSize" itemScope itemType="https://schema.org/QuantitativeValue">
-                    <div className="text-2xl font-bold text-gray-900">
-                      <span itemProp="value">{listing.square_feet.toLocaleString()}</span>
-                    </div>
-                    <div className="text-sm text-gray-500"><span itemProp="unitText">Sq Ft</span></div>
-                  </div>
-                )}
-                {listing.year_built && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-2xl font-bold text-gray-900" itemProp="yearBuilt">{listing.year_built}</div>
-                    <div className="text-sm text-gray-500">Year Built</div>
-                  </div>
-                )}
-                {listing.lot_size && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-2xl font-bold text-gray-900">
-                      {listing.lot_size >= 1 ? listing.lot_size.toFixed(2) : (listing.lot_size * 43560).toLocaleString()}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {listing.lot_size >= 1 ? 'Acres' : 'Sq Ft Lot'}
-                    </div>
-                  </div>
-                )}
-                {listing.days_on_market !== null && (
-                  <div className="bg-white p-4 rounded-lg shadow-sm">
-                    <div className="text-2xl font-bold text-gray-900">{listing.days_on_market}</div>
-                    <div className="text-sm text-gray-500">Days on Market</div>
-                  </div>
-                )}
               </div>
 
-              {/* Description */}
-              {listing.description && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Description</h2>
-                  <p className="text-gray-600 whitespace-pre-wrap leading-relaxed" itemProp="description">
-                    {listing.description}
-                  </p>
-                </div>
-              )}
+              {/* Right: CTA */}
+              <div className="flex items-start">
+                <ScheduleTourButton propertyAddress={listing.address || `Property ${listing.mls_number}`} />
+              </div>
+            </div>
 
-              {/* Features */}
-              {listing.features && Object.keys(listing.features).length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Features</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(listing.features).map(([key, value]) => (
-                      <div key={key} className="flex items-center gap-2">
-                        <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-600">
-                          {key}: {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
-                        </span>
-                      </div>
-                    ))}
+            {/* Key Stats Bar */}
+            <div className="flex flex-wrap items-center gap-6 md:gap-10 mt-8 pt-8 border-t border-gray-100">
+              {listing.bedrooms !== null && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  <div>
+                    <span className="text-2xl font-light text-[#1a1a1a]" itemProp="numberOfRooms">{listing.bedrooms}</span>
+                    <span className="text-sm text-gray-500 ml-2">Bedrooms</span>
                   </div>
                 </div>
               )}
+              {listing.bathrooms !== null && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 12m4-4v12" />
+                  </svg>
+                  <div>
+                    <span className="text-2xl font-light text-[#1a1a1a]">{listing.bathrooms}</span>
+                    <span className="text-sm text-gray-500 ml-2">Bathrooms</span>
+                  </div>
+                </div>
+              )}
+              {listing.square_feet && (
+                <div className="flex items-center gap-3" itemProp="floorSize" itemScope itemType="https://schema.org/QuantitativeValue">
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                  </svg>
+                  <div>
+                    <span className="text-2xl font-light text-[#1a1a1a]" itemProp="value">{listing.square_feet.toLocaleString()}</span>
+                    <span className="text-sm text-gray-500 ml-2" itemProp="unitText">Sq Ft</span>
+                  </div>
+                </div>
+              )}
+              {listing.lot_size && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                  <div>
+                    <span className="text-2xl font-light text-[#1a1a1a]">
+                      {listing.lot_size >= 1 ? listing.lot_size.toFixed(2) : (listing.lot_size * 43560).toLocaleString()}
+                    </span>
+                    <span className="text-sm text-gray-500 ml-2">
+                      {listing.lot_size >= 1 ? 'Acres' : 'Sq Ft Lot'}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {listing.year_built && (
+                <div className="flex items-center gap-3">
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <div>
+                    <span className="text-2xl font-light text-[#1a1a1a]" itemProp="yearBuilt">{listing.year_built}</span>
+                    <span className="text-sm text-gray-500 ml-2">Year Built</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content - Tabbed Section */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Tabbed Content */}
+              <div className="bg-white rounded-sm shadow-sm overflow-hidden">
+                <PropertyDetailsTabs
+                  description={listing.description}
+                  overview={{
+                    bedrooms: listing.bedrooms,
+                    bathrooms: listing.bathrooms,
+                    bathroomsFull: listing.bathrooms_full,
+                    bathroomsThreeQuarter: listing.bathrooms_three_quarter,
+                    bathroomsHalf: listing.bathrooms_half,
+                    squareFeet: listing.square_feet,
+                    lotSize: listing.lot_size,
+                    yearBuilt: listing.year_built,
+                    propertyType: listing.property_type,
+                    subdivisionName: listing.subdivision_name,
+                    mlsAreaMinor: listing.mls_area_minor,
+                    mlsNumber: listing.mls_number,
+                    listingDate: listing.listing_date,
+                    daysOnMarket: listing.days_on_market,
+                    furnished: listing.furnished,
+                  }}
+                  features={{
+                    fireplaceYn: listing.fireplace_yn,
+                    fireplaceTotal: listing.fireplace_total,
+                    fireplaceFeatures: listing.fireplace_features,
+                    cooling: listing.cooling,
+                    heating: listing.heating,
+                    laundryFeatures: listing.laundry_features,
+                    attachedGarageYn: listing.attached_garage_yn,
+                    parkingFeatures: listing.parking_features,
+                    associationAmenities: listing.association_amenities,
+                    otherFeatures: listing.features,
+                  }}
+                />
+              </div>
 
               {/* Virtual Tour - Matterport only */}
               {listing.virtual_tour_url && listing.virtual_tour_url.includes('matterport') && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Virtual Tour</h2>
-                  <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
+                <div className="bg-white p-6 rounded-sm shadow-sm">
+                  <h2 className="text-sm font-medium uppercase tracking-[0.15em] text-[var(--color-sothebys-blue)] mb-6">
+                    Virtual Tour
+                  </h2>
+                  <div className="aspect-video bg-gray-100 rounded overflow-hidden">
                     <iframe
                       width="100%"
                       height="100%"
@@ -541,205 +577,159 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 </div>
               )}
 
-              {/* Map */}
-              {listing.latitude && listing.longitude && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-[var(--color-sothebys-blue)] mb-4">Location</h2>
-                  <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
-                    <iframe
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      loading="lazy"
-                      allowFullScreen
-                      src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${listing.latitude},${listing.longitude}&zoom=15`}
-                      title={`Map of ${listing.address}`}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Sidebar */}
             <aside className="space-y-6">
-              {/* Agent Info */}
-              {listing.agent_name && (
-                <div className="bg-white p-6 rounded-lg shadow-sm" itemProp="seller" itemScope itemType="https://schema.org/RealEstateAgent">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Listing Agent</h3>
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900" itemProp="name">{listing.agent_name}</p>
-                      {listing.agent_email && (
-                        <a
-                          href={`mailto:${listing.agent_email}`}
-                          className="text-sm text-blue-600 hover:underline"
-                          itemProp="email"
-                        >
-                          {listing.agent_email}
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Property Details */}
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Property Details</h3>
-                <dl className="space-y-3">
-                  <div className="flex justify-between">
-                    <dt className="text-gray-500">MLS #</dt>
-                    <dd className="font-medium text-gray-900" itemProp="identifier">{listing.mls_number}</dd>
-                  </div>
-                  {listing.property_type && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Type</dt>
-                      <dd className="font-medium text-gray-900">{listing.property_type}</dd>
-                    </div>
-                  )}
-                  {listing.subdivision_name && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Subdivision</dt>
-                      <dd className="font-medium text-gray-900">{listing.subdivision_name}</dd>
-                    </div>
-                  )}
-                  {listing.mls_area_minor && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Area</dt>
-                      <dd className="font-medium text-gray-900">{listing.mls_area_minor}</dd>
-                    </div>
-                  )}
-                  {listing.listing_date && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Listed</dt>
-                      <dd className="font-medium text-gray-900">
-                        <time dateTime={listing.listing_date}>
-                          {new Date(listing.listing_date).toLocaleDateString()}
-                        </time>
-                      </dd>
-                    </div>
-                  )}
-                  {listing.year_built && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Year Built</dt>
-                      <dd className="font-medium text-gray-900">{listing.year_built}</dd>
-                    </div>
-                  )}
-                  {listing.lot_size && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Lot Size</dt>
-                      <dd className="font-medium text-gray-900">{formatLotSize(listing.lot_size)}</dd>
-                    </div>
-                  )}
-                  {listing.square_feet && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Living Area</dt>
-                      <dd className="font-medium text-gray-900">{formatSqft(listing.square_feet)}</dd>
-                    </div>
-                  )}
-                  {listing.furnished && (
-                    <div className="flex justify-between">
-                      <dt className="text-gray-500">Furnished</dt>
-                      <dd className="font-medium text-gray-900">{listing.furnished}</dd>
-                    </div>
-                  )}
-                </dl>
+              {/* Request Info CTA */}
+              <div className="bg-[var(--color-sothebys-blue)] p-6 rounded-sm">
+                <h3 className="font-serif text-xl font-light text-white mb-2">Request Information</h3>
+                <p className="text-white/70 text-sm mb-6 leading-relaxed">
+                  Have questions about this property? We're here to help.
+                </p>
+                <RequestInfoButton propertyAddress={listing.address || `Property ${listing.mls_number}`} />
               </div>
 
-              {/* Interior Features */}
-              {(listing.fireplace_yn || listing.cooling?.length || listing.heating?.length || listing.laundry_features?.length) && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Interior Features</h3>
-                  <dl className="space-y-3">
-                    {listing.fireplace_yn && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Fireplace</dt>
-                        <dd className="font-medium text-gray-900">
-                          {listing.fireplace_total ? `${listing.fireplace_total} fireplace${listing.fireplace_total > 1 ? 's' : ''}` : 'Yes'}
-                        </dd>
-                      </div>
-                    )}
-                    {listing.fireplace_features && listing.fireplace_features.length > 0 && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Fireplace Features</dt>
-                        <dd className="font-medium text-gray-900 text-right max-w-[60%]">{listing.fireplace_features.join(', ')}</dd>
-                      </div>
-                    )}
-                    {listing.cooling && listing.cooling.length > 0 && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Cooling</dt>
-                        <dd className="font-medium text-gray-900 text-right max-w-[60%]">{listing.cooling.join(', ')}</dd>
-                      </div>
-                    )}
-                    {listing.heating && listing.heating.length > 0 && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Heating</dt>
-                        <dd className="font-medium text-gray-900 text-right max-w-[60%]">{listing.heating.join(', ')}</dd>
-                      </div>
-                    )}
-                    {listing.laundry_features && listing.laundry_features.length > 0 && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Laundry</dt>
-                        <dd className="font-medium text-gray-900 text-right max-w-[60%]">{listing.laundry_features.join(', ')}</dd>
-                      </div>
-                    )}
-                  </dl>
-                </div>
-              )}
-
-              {/* Parking & Garage */}
-              {(listing.attached_garage_yn !== null || listing.parking_features?.length) && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Parking</h3>
-                  <dl className="space-y-3">
-                    {listing.attached_garage_yn !== null && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Attached Garage</dt>
-                        <dd className="font-medium text-gray-900">{listing.attached_garage_yn ? 'Yes' : 'No'}</dd>
-                      </div>
-                    )}
-                    {listing.parking_features && listing.parking_features.length > 0 && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">Parking Features</dt>
-                        <dd className="font-medium text-gray-900 text-right max-w-[60%]">{listing.parking_features.join(', ')}</dd>
-                      </div>
-                    )}
-                  </dl>
-                </div>
-              )}
-
-              {/* Association Amenities */}
-              {listing.association_amenities && listing.association_amenities.length > 0 && (
-                <div className="bg-white p-6 rounded-lg shadow-sm">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Association Amenities</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {listing.association_amenities.map((amenity, index) => (
-                      <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full">
-                        {amenity}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Contact CTA */}
-              <div className="bg-blue-600 p-6 rounded-lg text-white">
-                <h3 className="text-lg font-semibold mb-2">Interested in this property?</h3>
-                <p className="text-blue-100 text-sm mb-4">
-                  Contact us for more information or to schedule a viewing.
+              {/* MLS Disclaimer */}
+              <div className="text-xs text-gray-400 leading-relaxed">
+                <p>MLS# {listing.mls_number}</p>
+                <p className="mt-2">
+                  Listing information is deemed reliable but not guaranteed. All measurements and square footage are approximate.
                 </p>
-                <button className="w-full bg-white text-blue-600 font-semibold py-3 px-4 rounded-md hover:bg-blue-50 transition-colors">
-                  Request Information
-                </button>
               </div>
             </aside>
           </div>
         </div>
+
+        {/* Full Width Map Section */}
+        {listing.latitude && listing.longitude && (
+          <section className="bg-white border-t border-gray-100">
+            <div className="max-w-7xl mx-auto px-4 pt-6 pb-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium uppercase tracking-[0.15em] text-[var(--color-sothebys-blue)]">
+                  Location
+                </h2>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${listing.latitude},${listing.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-[var(--color-sothebys-blue)] hover:underline flex items-center gap-1"
+                >
+                  Get Directions
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div className="w-full h-[600px] grayscale">
+              <iframe
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${listing.latitude},${listing.longitude}&zoom=15`}
+                title={`Map of ${listing.address}`}
+              />
+            </div>
+          </section>
+        )}
+
+        {/* Contact Form Section */}
+        <section className="py-16 md:py-24 bg-[var(--color-sothebys-blue)]">
+          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-light text-white mb-4">
+                Learn More About {listing.address?.split(',')[0] || listing.address}
+              </h2>
+              <p className="text-white/70 font-light">
+                Fill out the form below and we'll be in touch shortly.
+              </p>
+            </div>
+
+            <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm text-white/80 mb-2 uppercase tracking-wider">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/50 transition-colors"
+                    placeholder="First Name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm text-white/80 mb-2 uppercase tracking-wider">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/50 transition-colors"
+                    placeholder="Last Name"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="email" className="block text-sm text-white/80 mb-2 uppercase tracking-wider">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/50 transition-colors"
+                    placeholder="Email Address"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-sm text-white/80 mb-2 uppercase tracking-wider">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/50 transition-colors"
+                    placeholder="Phone Number"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm text-white/80 mb-2 uppercase tracking-wider">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  className="w-full px-4 py-3 bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-white/50 transition-colors resize-none"
+                  placeholder={`I'm interested in learning more about ${listing.address?.split(',')[0] || listing.address}...`}
+                />
+              </div>
+
+              <div className="text-center pt-4">
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-3 px-12 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+                >
+                  Send Message
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
       </div>
     </>
   );
