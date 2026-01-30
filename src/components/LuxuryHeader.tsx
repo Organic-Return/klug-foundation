@@ -125,12 +125,26 @@ export default function LuxuryHeader({
             : 'bg-transparent'
         }`}
       >
-        {/* Top Bar - Contact Info */}
-        <div className="hidden lg:block border-b border-white/10">
-          <div className="mx-auto max-w-[1800px] px-8">
-            <div className="flex items-center justify-between h-10">
-              {/* Left - Contact Icons */}
-              <div className="flex items-center gap-6">
+        {/* Main Header - Logo, Contact Info all in one row */}
+        <div className="mx-auto max-w-[1800px] px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20 lg:h-24">
+            {/* Left - Mobile Menu Button / Desktop Contact Icons */}
+            <div className="flex items-center gap-6">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden flex items-center gap-2 p-2 -ml-2 text-white hover:text-white/70 transition-colors"
+                aria-label="Toggle menu"
+              >
+                <div className="flex flex-col gap-1.5 w-5">
+                  <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
+                  <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
+                  <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
+                </div>
+              </button>
+
+              {/* Desktop Contact Icons */}
+              <div className="hidden lg:flex items-center gap-6">
                 {phoneNumber && (
                   <a
                     href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
@@ -156,35 +170,7 @@ export default function LuxuryHeader({
                   </a>
                 )}
               </div>
-
-              {/* Right - Newsletter/Contact */}
-              <div className="flex items-center gap-6">
-                <Link
-                  href="/contact-us"
-                  className="text-white/70 hover:text-white text-xs tracking-wide transition-colors"
-                >
-                  Contact
-                </Link>
-              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Main Header */}
-        <div className="mx-auto max-w-[1800px] px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden flex items-center gap-2 p-2 -ml-2 text-white hover:text-white/70 transition-colors"
-              aria-label="Toggle menu"
-            >
-              <div className="flex flex-col gap-1.5 w-5">
-                <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? 'rotate-45 translate-y-[7px]' : ''}`} />
-                <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? 'opacity-0' : ''}`} />
-                <span className={`block h-[1px] bg-current transition-all duration-300 ${mobileMenuOpen ? '-rotate-45 -translate-y-[7px]' : ''}`} />
-              </div>
-            </button>
 
             {/* Centered Logo */}
             <Link
@@ -193,7 +179,7 @@ export default function LuxuryHeader({
               onClick={() => setMobileMenuOpen(false)}
             >
               {logo?.asset?.url ? (
-                <div className="relative h-18 w-54 sm:h-21 sm:w-66 lg:h-24 lg:w-78">
+                <div className="relative h-16 w-48 sm:h-18 sm:w-54 lg:h-20 lg:w-64">
                   <Image
                     src={urlFor(logo).width(600).url()}
                     alt={logoAlt}
@@ -209,11 +195,19 @@ export default function LuxuryHeader({
               )}
             </Link>
 
-            {/* Right - Empty placeholder for balance on mobile */}
-            <div className="lg:hidden w-8" />
+            {/* Right - Contact Button */}
+            <div className="flex items-center gap-6">
+              {/* Mobile placeholder for balance */}
+              <div className="lg:hidden w-8" />
 
-            {/* Desktop - Empty (navigation is below) */}
-            <div className="hidden lg:block" />
+              {/* Desktop Contact Link */}
+              <Link
+                href="/contact-us"
+                className="hidden lg:block text-white/70 hover:text-white text-xs tracking-wide transition-colors"
+              >
+                Contact
+              </Link>
+            </div>
           </div>
         </div>
 
