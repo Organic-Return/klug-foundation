@@ -126,7 +126,7 @@ export default function LuxuryHeader({
         }`}
       >
         {/* Main Header - Logo, Contact Info all in one row */}
-        <div className="mx-auto max-w-[1800px] px-6 lg:px-8">
+        <div className="mx-auto max-w-[1800px] px-6 lg:px-8 border-b border-white/20">
           <div className="flex items-center justify-between h-20 lg:h-24">
             {/* Left - Mobile Menu Button / Desktop Contact Icons */}
             <div className="flex items-center gap-6">
