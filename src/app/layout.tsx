@@ -62,6 +62,7 @@ export default async function RootLayout({
                 siteTitle={settings?.title}
                 navItems={mainNav}
                 phoneNumber={settings?.contactInfo?.phone}
+                email={settings?.contactInfo?.email}
               />
             ) : (
               <Header
