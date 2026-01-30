@@ -193,7 +193,7 @@ export default function LuxuryHeader({
               onClick={() => setMobileMenuOpen(false)}
             >
               {logo?.asset?.url ? (
-                <div className="relative h-12 w-36 sm:h-14 sm:w-44 lg:h-16 lg:w-52">
+                <div className="relative h-18 w-54 sm:h-21 sm:w-66 lg:h-24 lg:w-78">
                   <Image
                     src={urlFor(logo).width(600).url()}
                     alt={logoAlt}
