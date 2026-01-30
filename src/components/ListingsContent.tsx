@@ -15,6 +15,7 @@ interface ListingsContentProps {
   total: number;
   searchParams: URLSearchParams;
   currentSort: SortOption;
+  hasLocationFilter?: boolean;
 }
 
 function formatPrice(price: number | null): string {
@@ -338,6 +339,7 @@ export default function ListingsContent({
   total,
   searchParams,
   currentSort,
+  hasLocationFilter,
 }: ListingsContentProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -553,6 +555,7 @@ export default function ListingsContent({
                 listings={listings}
                 onDrawComplete={handleDrawComplete}
                 onDrawClear={handleDrawClear}
+                hasLocationFilter={hasLocationFilter}
               />
             </div>
           </>

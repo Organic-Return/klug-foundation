@@ -65,21 +65,18 @@ export default function Demographics({ demographics }: DemographicsProps) {
   return (
     <div className="bg-[#f8f7f5] dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800">
       {/* Header */}
-      <div className="p-5 border-b border-[#e8e6e3] dark:border-gray-800">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-8 h-px bg-[var(--color-gold)]" />
-          <span className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">
-            Demographics
-          </span>
-        </div>
+      <header className="p-5 border-b border-[#e8e6e3] dark:border-gray-800">
+        <span className="flex items-center gap-3 mb-2 text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">
+          <span className="w-8 h-px bg-[var(--color-gold)]" />
+          Demographics
+        </span>
         <h3 className="text-lg font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
           Community Profile
         </h3>
-      </div>
+      </header>
 
       {/* Stats Grid */}
-      <div className="p-5">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="p-5 grid grid-cols-2 gap-4">
           {population && (
             <div className="p-4 bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800">
               <div className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2">
@@ -137,25 +134,19 @@ export default function Demographics({ demographics }: DemographicsProps) {
 
           {elevation && (
             <div className="p-4 bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800">
-              <div className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2">
-                Elevation
-              </div>
-              <div className="text-xl font-light text-[#1a1a1a] dark:text-white">
-                {formatNumber(elevation)} ft
-              </div>
+              <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2 block">Elevation</span>
+              <span className="text-xl font-light text-[#1a1a1a] dark:text-white">{formatNumber(elevation)} ft</span>
             </div>
           )}
-        </div>
       </div>
 
       {/* Housing Statistics */}
       {(housingUnits || medianHomeValue || medianGrossRent) && (
-        <div className="px-5 pb-5">
-          <div className="border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
-            <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">
-              Housing Market
-            </h4>
-            <div className="grid grid-cols-2 gap-4">
+        <div className="px-5 pb-5 border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
+          <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">
+            Housing Market
+          </h4>
+          <div className="grid grid-cols-2 gap-4">
               {medianHomeValue && medianHomeValue > 0 && (
                 <div className="p-4 bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800">
                   <div className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2">
@@ -169,52 +160,38 @@ export default function Demographics({ demographics }: DemographicsProps) {
 
               {medianGrossRent && medianGrossRent > 0 && (
                 <div className="p-4 bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800">
-                  <div className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2">
-                    Avg. Rent
-                  </div>
-                  <div className="text-xl font-light text-[#1a1a1a] dark:text-white">
-                    {formatCurrency(medianGrossRent)}
-                  </div>
+                  <span className="text-[10px] uppercase tracking-[0.15em] text-[#8a8a8a] mb-2 block">Avg. Rent</span>
+                  <span className="text-xl font-light text-[#1a1a1a] dark:text-white">{formatCurrency(medianGrossRent)}</span>
                 </div>
               )}
-            </div>
           </div>
         </div>
       )}
 
-      {/* Housing Tenure - Elegant Bar */}
+      {/* Housing Tenure */}
       {tenure && tenure.ownerOccupiedPercent !== undefined && (
-        <div className="px-5 pb-5">
-          <div className="border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
-            <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">
-              Ownership
-            </h4>
-            <div className="bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800 p-4">
-              <div className="w-full bg-[#e8e6e3] dark:bg-gray-700 h-2 overflow-hidden">
-                <div className="flex h-full">
-                  <div
-                    className="bg-[var(--color-navy)] dark:bg-[var(--color-gold)] h-full transition-all duration-500"
-                    style={{ width: `${tenure.ownerOccupiedPercent}%` }}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-between text-[10px] uppercase tracking-[0.1em] text-[#6a6a6a] mt-3">
-                <span>{tenure.ownerOccupiedPercent}% Owners</span>
-                <span>{100 - tenure.ownerOccupiedPercent}% Renters</span>
-              </div>
+        <div className="px-5 pb-5 border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
+          <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">Ownership</h4>
+          <div className="bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800 p-4">
+            <div className="w-full bg-[#e8e6e3] dark:bg-gray-700 h-2 overflow-hidden">
+              <div
+                className="bg-[var(--color-navy)] dark:bg-[var(--color-gold)] h-full transition-all duration-500"
+                style={{ width: `${tenure.ownerOccupiedPercent}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] uppercase tracking-[0.1em] text-[#6a6a6a] mt-3">
+              <span>{tenure.ownerOccupiedPercent}% Owners</span>
+              <span>{100 - tenure.ownerOccupiedPercent}% Renters</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Age Distribution - Minimal Design */}
+      {/* Age Distribution */}
       {ageDistribution && (
-        <div className="px-5 pb-5">
-          <div className="border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
-            <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">
-              Age Distribution
-            </h4>
-            <div className="bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800 p-4 space-y-3">
+        <div className="px-5 pb-5 border-t border-[#e8e6e3] dark:border-gray-800 pt-5">
+          <h4 className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] mb-4 font-light">Age Distribution</h4>
+          <div className="bg-white dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800 p-4 space-y-3">
               {ageDistribution.under18 !== undefined && (
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-[#6a6a6a] dark:text-gray-400 font-light">Under 18</span>
@@ -282,7 +259,6 @@ export default function Demographics({ demographics }: DemographicsProps) {
                   </div>
                 </div>
               )}
-            </div>
           </div>
         </div>
       )}

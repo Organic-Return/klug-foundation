@@ -53,31 +53,29 @@ export default function LuxuryAbout({
     <section ref={sectionRef} className="py-32 md:py-44 bg-white">
       <div className="max-w-[1400px] mx-auto px-8 lg:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-28 items-center">
-          {/* Image Side - Hermès style clean presentation */}
+          {/* Image Side */}
           <div
-            className={`relative transition-all duration-1000 delay-200 ${
+            className={`aspect-[3/4] relative overflow-hidden bg-[var(--color-cream)] transition-all duration-1000 delay-200 ${
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'
             }`}
           >
-            <div className="aspect-[3/4] relative overflow-hidden bg-[var(--color-cream)]">
-              {displayImage ? (
-                <Image
-                  src={displayImage}
-                  alt={teamMember?.name || 'About Us'}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              ) : teamMember?.image && (
-                <Image
-                  src={teamMember.image}
-                  alt={teamMember?.name || 'About Us'}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              )}
-            </div>
+            {displayImage ? (
+              <Image
+                src={displayImage}
+                alt={teamMember?.name || 'About Us'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            ) : teamMember?.image && (
+              <Image
+                src={teamMember.image}
+                alt={teamMember?.name || 'About Us'}
+                fill
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+            )}
           </div>
 
           {/* Content Side - Four Seasons inspired elegant typography */}

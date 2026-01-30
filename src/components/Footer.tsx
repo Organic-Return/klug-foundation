@@ -109,16 +109,14 @@ export default function Footer({
         <div className="relative bg-[#00254a] max-w-none w-full flex flex-col items-center p-0">
           <div className="flex flex-wrap xl:flex-nowrap w-full mx-0 px-6 pb-6 md:px-0 md:py-10 md:max-w-xl xl:max-w-screen-xl justify-center items-center">
             {/* Chris Portrait */}
-            <div className="lg:max-w-none md:w-4/12 xl:w-2/12">
-              <div className="relative w-full m-0 flex flex-col justify-center items-center">
-                <Image
-                  src={portraitUrl}
-                  alt="Chris Klug"
-                  width={184}
-                  height={237}
-                  className="w-[165px] -mt-6 md:mt-0 md:absolute"
-                />
-              </div>
+            <div className="lg:max-w-none md:w-4/12 xl:w-2/12 relative w-full m-0 flex flex-col justify-center items-center">
+              <Image
+                src={portraitUrl}
+                alt="Chris Klug"
+                width={184}
+                height={237}
+                className="w-[165px] -mt-6 md:mt-0 md:absolute"
+              />
             </div>
 
             {/* Tagline Image */}
@@ -134,8 +132,7 @@ export default function Footer({
             </Link>
 
             {/* Social Icons */}
-            <div className="w-full xl:w-3/12 lg:max-w-none flex pt-4 md:pt-24 xl:pt-0">
-              <div className="flex flex-wrap justify-center w-full pb-2 text-4xl">
+            <nav className="w-full xl:w-3/12 lg:max-w-none flex flex-wrap justify-center pt-4 md:pt-24 xl:pt-0 pb-2 text-4xl" aria-label="Social media">
                 {(socialMedia?.facebook || true) && (
                   <a
                     className="p-3 text-white"
@@ -188,8 +185,7 @@ export default function Footer({
                     </svg>
                   </a>
                 )}
-              </div>
-            </div>
+            </nav>
 
             {/* ASSIR Logo */}
             <div className="w-1/2 md:w-1/4 lg:w-auto xl:w-1/4 lg:max-w-none">
@@ -288,9 +284,7 @@ export default function Footer({
       </div>
 
       {/* Divider */}
-      <div className="w-full pt-9 px-4">
-        <div className="max-w-[1440px] w-full mx-auto border-t border-gray-200"></div>
-      </div>
+      <hr className="w-full max-w-[1440px] mx-auto mt-9 border-t border-gray-200" />
 
       {/* Legal Disclaimer */}
       <div className="w-full py-9 px-4">

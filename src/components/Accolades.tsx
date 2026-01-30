@@ -48,11 +48,9 @@ export default function Accolades({
       <div className="relative py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Section Header */}
-          <div className="text-center mb-12 md:mb-16">
-            <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white">
-              {title}
-            </h1>
-          </div>
+          <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white text-center mb-12 md:mb-16">
+            {title}
+          </h1>
 
           <div className="bg-white/80 dark:bg-[#1a1a1a]/80 py-12 px-6 md:px-8">
             <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8">

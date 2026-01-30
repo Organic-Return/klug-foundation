@@ -1,13 +1,14 @@
 'use client';
 
 import { useCallback, useState, useRef, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, PolygonF } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, PolygonF, OverlayViewF, OverlayView } from '@react-google-maps/api';
 import type { MLSProperty } from '@/lib/listings';
 
 interface ListingsMapProps {
   listings: MLSProperty[];
   onDrawComplete?: (filteredListings: MLSProperty[]) => void;
   onDrawClear?: () => void;
+  hasLocationFilter?: boolean; // true when city or neighborhood is selected
 }
 
 function formatPrice(price: number | null): string {
@@ -20,17 +21,78 @@ function formatPrice(price: number | null): string {
   }).format(price);
 }
 
-function getMarkerIcon(status: string): string {
-  switch (status) {
-    case 'Active':
-      return 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
-    case 'Pending':
-      return 'http://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
-    case 'Closed':
-      return 'http://maps.google.com/mapfiles/ms/icons/grey-dot.png';
-    default:
-      return 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+// Format price for map markers (e.g., $4.9M, $799K)
+function formatPriceShort(price: number | null): string {
+  if (!price) return 'N/A';
+  if (price >= 1000000) {
+    const millions = price / 1000000;
+    // Show one decimal if not a whole number
+    return `$${millions % 1 === 0 ? millions.toFixed(0) : millions.toFixed(1)}M`;
   }
+  if (price >= 1000) {
+    const thousands = price / 1000;
+    return `$${thousands % 1 === 0 ? thousands.toFixed(0) : thousands.toFixed(0)}K`;
+  }
+  return `$${price}`;
+}
+
+// Sotheby's blue color
+const SOTHEBYS_BLUE = '#00254a';
+
+// Price flag marker component
+interface PriceMarkerProps {
+  position: google.maps.LatLngLiteral;
+  price: number | null;
+  status: string;
+  onClick: () => void;
+  isSelected: boolean;
+}
+
+function PriceMarker({ position, price, status, onClick, isSelected }: PriceMarkerProps) {
+  const isClosed = status === 'Closed';
+
+  return (
+    <OverlayViewF
+      position={position}
+      mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+      getPixelPositionOffset={(width, height) => ({
+        x: -(width / 2),
+        y: -height,
+      })}
+    >
+      <div
+        onClick={onClick}
+        className={`cursor-pointer transition-transform hover:scale-110 ${isSelected ? 'scale-110 z-10' : ''}`}
+        style={{ position: 'relative' }}
+      >
+        {/* Flag body */}
+        <div
+          className={`px-2 py-1 rounded-sm text-white text-xs font-semibold whitespace-nowrap shadow-md ${
+            isClosed ? 'opacity-60' : ''
+          }`}
+          style={{
+            backgroundColor: isSelected ? '#c5a047' : SOTHEBYS_BLUE,
+            minWidth: '45px',
+            textAlign: 'center',
+          }}
+        >
+          {formatPriceShort(price)}
+        </div>
+        {/* Flag pointer/triangle */}
+        <div
+          className="mx-auto"
+          style={{
+            width: 0,
+            height: 0,
+            borderLeft: '6px solid transparent',
+            borderRight: '6px solid transparent',
+            borderTop: `8px solid ${isSelected ? '#c5a047' : SOTHEBYS_BLUE}`,
+            opacity: isClosed ? 0.6 : 1,
+          }}
+        />
+      </div>
+    </OverlayViewF>
+  );
 }
 
 // Check if a point is inside a polygon using ray casting algorithm
@@ -58,23 +120,63 @@ const mapContainerStyle = {
   height: '100%',
 };
 
+// Grayscale map styles to match the individual listing page
+const grayscaleStyles: google.maps.MapTypeStyle[] = [
+  {
+    // Apply grayscale to all elements
+    elementType: 'all',
+    stylers: [{ saturation: -100 }],
+  },
+  {
+    // Slightly lighten water for better contrast
+    featureType: 'water',
+    elementType: 'geometry',
+    stylers: [{ lightness: 20 }],
+  },
+  {
+    // Make roads slightly lighter
+    featureType: 'road',
+    elementType: 'geometry.fill',
+    stylers: [{ lightness: 40 }],
+  },
+  {
+    // Subtle road outlines
+    featureType: 'road',
+    elementType: 'geometry.stroke',
+    stylers: [{ lightness: 60 }],
+  },
+  {
+    // Lighten POI backgrounds
+    featureType: 'poi',
+    elementType: 'geometry',
+    stylers: [{ lightness: 20 }],
+  },
+  {
+    // Make labels more readable
+    featureType: 'all',
+    elementType: 'labels.text.fill',
+    stylers: [{ lightness: -20 }],
+  },
+];
+
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: false,
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: true,
+  styles: grayscaleStyles,
 };
 
 const polygonOptions = {
-  fillColor: '#3b82f6',
+  fillColor: SOTHEBYS_BLUE,
   fillOpacity: 0.2,
-  strokeColor: '#3b82f6',
+  strokeColor: SOTHEBYS_BLUE,
   strokeOpacity: 0.8,
   strokeWeight: 2,
 };
 
-export default function ListingsMap({ listings, onDrawComplete, onDrawClear }: ListingsMapProps) {
+export default function ListingsMap({ listings, onDrawComplete, onDrawClear, hasLocationFilter }: ListingsMapProps) {
   const [selectedListing, setSelectedListing] = useState<MLSProperty | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawingPoints, setDrawingPoints] = useState<google.maps.LatLngLiteral[]>([]);
@@ -114,8 +216,18 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear }: L
         bounds.extend({ lat: listing.latitude!, lng: listing.longitude! });
       });
       map.fitBounds(bounds);
+
+      // When a city/neighborhood is selected, zoom in more after fitBounds
+      if (hasLocationFilter) {
+        google.maps.event.addListenerOnce(map, 'bounds_changed', () => {
+          const currentZoom = map.getZoom();
+          if (currentZoom && currentZoom < 13) {
+            map.setZoom(13);
+          }
+        });
+      }
     }
-  }, [listingsWithCoords]);
+  }, [listingsWithCoords, hasLocationFilter]);
 
   const handleMapClick = useCallback((e: google.maps.MapMouseEvent) => {
     if (!isDrawing || !e.latLng) return;
@@ -302,7 +414,7 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear }: L
             icon={{
               path: google.maps.SymbolPath.CIRCLE,
               scale: 6,
-              fillColor: '#3b82f6',
+              fillColor: SOTHEBYS_BLUE,
               fillOpacity: 1,
               strokeColor: '#ffffff',
               strokeWeight: 2,
@@ -310,13 +422,15 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear }: L
           />
         ))}
 
-        {/* Listing markers */}
+        {/* Listing price markers */}
         {listingsWithCoords.map((listing) => (
-          <MarkerF
+          <PriceMarker
             key={listing.id}
             position={{ lat: listing.latitude!, lng: listing.longitude! }}
-            icon={getMarkerIcon(listing.status)}
+            price={listing.list_price}
+            status={listing.status}
             onClick={() => setSelectedListing(listing)}
+            isSelected={selectedListing?.id === listing.id}
           />
         ))}
 
@@ -343,7 +457,7 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear }: L
               </p>
               <a
                 href={`/listings/${selectedListing.id}`}
-                className="mt-2 inline-block text-sm text-blue-600 hover:underline"
+                className="mt-2 inline-block text-sm text-[#00254a] hover:underline font-medium"
               >
                 View Details
               </a>

@@ -111,14 +111,14 @@ export default function NearbyAttractions({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </div>
-        <div>
+        <hgroup>
           <h3 className="text-xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
             {title}
           </h3>
           <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
             {subtitle}
           </p>
-        </div>
+        </hgroup>
       </div>
 
       {/* Attractions Grid */}
@@ -155,9 +155,9 @@ export default function NearbyAttractions({
               </div>
             ) : (
               <div className="relative h-32 bg-gradient-to-br from-[#f8f7f5] to-[#e8e6e3] dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
-                <div className="text-[var(--color-sothebys-blue)]/30 dark:text-white/20">
+                <span className="text-[var(--color-sothebys-blue)]/30 dark:text-white/20">
                   <CategoryIcon category={attraction.category} />
-                </div>
+                </span>
                 {/* Category badge */}
                 {attraction.category && (
                   <div className="absolute bottom-4 left-4 flex items-center gap-2">

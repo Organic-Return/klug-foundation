@@ -57,6 +57,31 @@ export default function ListingFilters({
   const [neighborhoods, setNeighborhoods] = useState<string[]>(initialNeighborhoods);
   const [loadingNeighborhoods, setLoadingNeighborhoods] = useState(false);
 
+  // Sync state when URL params change (e.g., on back navigation)
+  useEffect(() => {
+    setKeyword(initialKeyword || '');
+    setStatus(initialStatus || '');
+    setPropertyType(initialPropertyType || '');
+    setPropertySubType(initialPropertySubType || '');
+    setSelectedCity(initialCity || '');
+    setSelectedNeighborhood(initialNeighborhood || '');
+    setMinPrice(initialMinPrice?.toString() || '');
+    setMaxPrice(initialMaxPrice?.toString() || '');
+    setBeds(initialBeds?.toString() || '');
+    setBaths(initialBaths?.toString() || '');
+  }, [
+    initialKeyword,
+    initialStatus,
+    initialPropertyType,
+    initialPropertySubType,
+    initialCity,
+    initialNeighborhood,
+    initialMinPrice,
+    initialMaxPrice,
+    initialBeds,
+    initialBaths,
+  ]);
+
   // Build URL and navigate
   const navigateWithFilters = useCallback(() => {
     const params = new URLSearchParams();

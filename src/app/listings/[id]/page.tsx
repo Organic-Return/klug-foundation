@@ -11,6 +11,7 @@ import {
 } from '@/lib/listings';
 import PropertyGallery from '@/components/PropertyGallery';
 import PropertyDetailsTabs from '@/components/PropertyDetailsTabs';
+import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import ScheduleTourButton from '@/components/ScheduleTourButton';
 import RequestInfoButton from '@/components/RequestInfoButton';
@@ -623,15 +624,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 </a>
               </div>
             </div>
-            <div className="w-full h-[600px] grayscale">
-              <iframe
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                loading="lazy"
-                allowFullScreen
-                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${listing.latitude},${listing.longitude}&zoom=15`}
-                title={`Map of ${listing.address}`}
+            <div className="w-full h-[600px]">
+              <PropertyMap
+                latitude={listing.latitude}
+                longitude={listing.longitude}
+                address={listing.address || undefined}
               />
             </div>
           </section>
