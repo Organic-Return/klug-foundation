@@ -9,12 +9,14 @@ import {
   formatLotSize,
   type MLSProperty,
 } from '@/lib/listings';
+import { client } from '@/sanity/client';
 import PropertyGallery from '@/components/PropertyGallery';
 import PropertyDetailsTabs from '@/components/PropertyDetailsTabs';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import ScheduleTourButton from '@/components/ScheduleTourButton';
 import RequestInfoButton from '@/components/RequestInfoButton';
+import PropertyMedia from '@/components/PropertyMedia';
 
 interface ListingPageProps {
   params: Promise<{ id: string }>;
@@ -333,6 +335,50 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
+  // Fetch property enhancements (videos/documents) from Sanity
+  const propertyEnhancement = await client.fetch<{
+    videos?: Array<{
+      _key: string;
+      title: string;
+      videoType: 'mux' | 'youtube' | 'vimeo' | 'url';
+      muxPlaybackId?: string;
+      youtubeId?: string;
+      vimeoId?: string;
+      externalUrl?: string;
+      thumbnail?: { asset: { url: string } };
+      description?: string;
+    }>;
+    documents?: Array<{
+      _key: string;
+      title: string;
+      documentType: string;
+      file: { asset: { url: string; originalFilename?: string } };
+      description?: string;
+    }>;
+  } | null>(
+    `*[_type == "propertyEnhancement" && mlsNumber == $mlsNumber][0]{
+      videos[]{
+        _key,
+        title,
+        videoType,
+        muxPlaybackId,
+        youtubeId,
+        vimeoId,
+        externalUrl,
+        thumbnail{ asset->{ url } },
+        description
+      },
+      documents[]{
+        _key,
+        title,
+        documentType,
+        file{ asset->{ url, originalFilename } },
+        description
+      }
+    }`,
+    { mlsNumber: listing.mls_number }
+  );
+
   const hasPhotos = listing.photos && listing.photos.length > 0;
   const schemas = generateRealEstateSchema(listing);
 
@@ -577,6 +623,14 @@ export default async function ListingPage({ params }: ListingPageProps) {
                     />
                   </div>
                 </div>
+              )}
+
+              {/* Property Videos & Documents from Sanity */}
+              {propertyEnhancement && (
+                <PropertyMedia
+                  videos={propertyEnhancement.videos}
+                  documents={propertyEnhancement.documents}
+                />
               )}
 
             </div>
