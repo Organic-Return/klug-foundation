@@ -38,15 +38,25 @@ const PROPERTY_SUB_TYPE_FILTERS: Record<string, string[]> = {
   'condo-townhome': ['Condominium', 'Townhouse'],
 };
 
+// Default cities to show if none configured in Sanity
+const DEFAULT_CITIES = [
+  'Aspen',
+  'Woody Creek',
+  'Snowmass Village',
+  'Snowmass',
+  'Basalt',
+  'Carbondale',
+];
+
 // Core function to fetch and calculate city stats
 async function computeCityStats(propertyFilter: string): Promise<{ cities: string[]; stats: CityStats[] }> {
   // Get MLS configuration to filter by allowed cities
   const mlsConfig = await getMLSConfiguration();
-  const allowedCities = getAllowedCities(mlsConfig);
+  let allowedCities = getAllowedCities(mlsConfig);
 
-  // If no allowed cities configured, return empty results
+  // If no allowed cities configured, use default cities
   if (allowedCities.length === 0) {
-    return { cities: [], stats: [] };
+    allowedCities = DEFAULT_CITIES;
   }
 
   // Calculate date ranges for sold listings query
