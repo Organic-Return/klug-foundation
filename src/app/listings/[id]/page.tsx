@@ -468,8 +468,8 @@ export default async function ListingPage({ params }: ListingPageProps) {
               )}
               {listing.bathrooms !== null && (
                 <div className="flex items-center gap-3">
-                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0L8 12m4-4v12" />
+                  <svg className="w-6 h-6 text-[var(--color-sothebys-blue)]" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 2C8 1.44772 8.44772 1 9 1H10C10.5523 1 11 1.44772 11 2V4H13V2C13 1.44772 13.4477 1 14 1H15C15.5523 1 16 1.44772 16 2V4H17C17.5523 4 18 4.44772 18 5V8C18 8.55228 17.5523 9 17 9H7C6.44772 9 6 8.55228 6 8V5C6 4.44772 6.44772 4 7 4H8V2ZM7 11H17C17.5523 11 18 11.4477 18 12V14C18 14.5523 17.5523 15 17 15H16.9L16.5 20C16.4481 20.5447 15.9931 21 15.4444 21H8.55556C8.00693 21 7.55191 20.5447 7.5 20L7.1 15H7C6.44772 15 6 14.5523 6 14V12C6 11.4477 6.44772 11 7 11Z" />
                   </svg>
                   <div>
                     <span className="text-2xl font-light text-[#1a1a1a]">{listing.bathrooms}</span>

@@ -66,7 +66,7 @@ export default function ClassicFeaturedProperty({
   const mainPhoto = property.photos?.[0];
 
   return (
-    <section className="relative w-full h-[70vh] min-h-[500px] max-h-[800px]">
+    <section className="relative w-full aspect-video">
       {/* Full-width background image */}
       <div className="absolute inset-0">
         {mainPhoto ? (
@@ -102,7 +102,7 @@ export default function ClassicFeaturedProperty({
 
       {/* Property details overlay - Right side, top aligned */}
       <div className="relative h-full">
-        <div className="absolute top-8 md:top-12 lg:top-16 right-4 sm:right-6 lg:right-12 xl:right-20 text-right text-white">
+        <div className="absolute top-[232px] md:top-[248px] lg:top-[264px] right-[216px] sm:right-[224px] lg:right-[248px] xl:right-[280px] text-right text-white">
           {/* Location - City, State */}
           <div className="mb-4 md:mb-6 lg:mb-8">
             <span className="text-2xl md:text-3xl lg:text-4xl uppercase tracking-wide font-light">
@@ -141,8 +141,8 @@ export default function ClassicFeaturedProperty({
             {property.bathrooms !== null && (
               <div className="flex items-center justify-end gap-2">
                 <span className="text-base md:text-lg font-medium">{property.bathrooms}</span>
-                <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M21 10H7V7c0-1.103.897-2 2-2s2 .897 2 2h2c0-2.206-1.794-4-4-4S5 4.794 5 7v3H3a1 1 0 0 0-1 1v2c0 2.606 1.674 4.823 4 5.65V22h2v-3h8v3h2v-3.35c2.326-.827 4-3.044 4-5.65v-2a1 1 0 0 0-1-1zm-1 3c0 2.206-1.794 4-4 4H8c-2.206 0-4-1.794-4-4v-1h16v1z" />
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="currentColor" viewBox="0 0 448 512">
+                  <path d="M384 0H64C28.7 0 0 28.7 0 64v160h448V64c0-35.3-28.7-64-64-64zM16 240v48c0 66.3 53.7 120 120 120h24l-16 88h160l-16-88h24c66.3 0 120-53.7 120-120v-48H16zm208 152c-48.6 0-88-39.4-88-88h176c0 48.6-39.4 88-88 88z" />
                 </svg>
               </div>
             )}
@@ -168,7 +168,7 @@ export default function ClassicFeaturedProperty({
           {/* View Property Button */}
           <Link
             href={`/listings/${property.id}`}
-            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-medium transition-all duration-300 bg-white/90 text-[#1a1a1a] px-6 py-3 hover:bg-white"
+            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-medium transition-all duration-300 bg-[var(--color-gold)] text-white px-6 py-3 hover:bg-transparent border border-transparent hover:border-white"
           >
             {buttonText}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
