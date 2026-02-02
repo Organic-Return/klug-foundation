@@ -16,6 +16,7 @@ interface ListingsContentProps {
   searchParams: URLSearchParams;
   currentSort: SortOption;
   hasLocationFilter?: boolean;
+  template?: 'classic' | 'luxury' | 'modern';
 }
 
 function formatPrice(price: number | null): string {
@@ -66,8 +67,8 @@ function getStreetAddress(fullAddress: string | null, city: string | null, state
   return streetAddress.trim() || 'Address not available';
 }
 
-// Sotheby's-inspired property card with elegant minimal design
-function PropertyCard({ listing }: { listing: MLSProperty }) {
+// Property card - style varies by template
+function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty; template?: 'classic' | 'luxury' | 'modern' }) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
@@ -85,157 +86,225 @@ function PropertyCard({ listing }: { listing: MLSProperty }) {
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
 
+  // Determine card container classes based on template
+  const cardContainerClasses = template === 'classic'
+    ? 'border border-gray-200 overflow-hidden'
+    : template === 'modern'
+    ? 'border border-[var(--modern-gray-lighter)] bg-white overflow-hidden hover:border-[var(--modern-gold)] transition-all duration-300'
+    : '';
+
+  // Determine aspect ratio based on template
+  const aspectRatioClasses = template === 'luxury'
+    ? 'aspect-[4/5] mb-3'
+    : template === 'modern'
+    ? 'aspect-[4/3]'
+    : 'aspect-[4/3]';
+
   return (
-    <Link
-      href={`/listings/${listing.id}`}
-      className="group block"
-    >
-      {/* Image Container */}
-      <div className="relative aspect-[4/3] bg-[#f5f5f5] overflow-hidden">
-        {currentPhoto ? (
-          <Image
-            src={currentPhoto}
-            alt={listing.address || 'Property'}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-[#c0c0c0]">
-            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-              />
-            </svg>
-          </div>
-        )}
-
-        {/* Elegant hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
-
-        {/* Photo navigation - minimal arrows */}
-        {hasMultiplePhotos && (
-          <>
-            <button
-              onClick={handlePrevPhoto}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-              aria-label="Previous photo"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+    <div className={`group ${cardContainerClasses}`}>
+      {/* Card Image */}
+      <Link href={`/listings/${listing.id}`} className="block">
+        <div className={`relative ${aspectRatioClasses} overflow-hidden bg-[var(--color-taupe)]`}>
+          {currentPhoto ? (
+            <Image
+              src={currentPhoto}
+              alt={listing.address || 'Property'}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-            </button>
-            <button
-              onClick={handleNextPhoto}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-              aria-label="Next photo"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-
-            {/* Minimal photo indicator dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {photos.slice(0, 5).map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                    idx === currentPhotoIndex ? 'bg-white' : 'bg-white/50'
-                  }`}
-                />
-              ))}
-              {photos.length > 5 && (
-                <span className="text-white text-[10px] ml-1">+{photos.length - 5}</span>
-              )}
             </div>
-          </>
-        )}
-
-        {/* Status badge - minimal style */}
-        <div className="absolute top-3 left-3 flex gap-2">
-          {/* New Listing badge - show if listed within last 7 days */}
-          {listing.listing_date && (() => {
-            const listingDate = new Date(listing.listing_date);
-            const now = new Date();
-            const daysDiff = Math.floor((now.getTime() - listingDate.getTime()) / (1000 * 60 * 60 * 24));
-            return daysDiff <= 7;
-          })() && (
-            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-[var(--color-gold)] text-white">
-              New
-            </span>
           )}
-          {/* Status badge - only show for non-Active */}
-          {listing.status && listing.status !== 'Active' && (
-            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-white/95 text-[#1a1a1a]">
-              {listing.status}
-            </span>
+
+          {/* Photo navigation arrows */}
+          {hasMultiplePhotos && (
+            <>
+              <button
+                onClick={handlePrevPhoto}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                aria-label="Previous photo"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={handleNextPhoto}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                aria-label="Next photo"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+
+              {/* Photo indicator dots */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {photos.slice(0, 5).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                      idx === currentPhotoIndex ? 'bg-white' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+                {photos.length > 5 && (
+                  <span className="text-white text-[10px] ml-1">+{photos.length - 5}</span>
+                )}
+              </div>
+            </>
           )}
+
+          {/* Status badges */}
+          <div className="absolute top-3 left-3 flex gap-2">
+            {listing.listing_date && (() => {
+              const listingDate = new Date(listing.listing_date);
+              const now = new Date();
+              const daysDiff = Math.floor((now.getTime() - listingDate.getTime()) / (1000 * 60 * 60 * 24));
+              return daysDiff <= 7;
+            })() && (
+              <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-[var(--color-gold)] text-white">
+                New
+              </span>
+            )}
+            {listing.status && listing.status !== 'Active' && (
+              <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-white/95 text-[var(--color-charcoal)]">
+                {listing.status}
+              </span>
+            )}
+          </div>
+
+          {/* Save button */}
+          <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <SavePropertyButton listingId={listing.id} listingType="mls" />
+          </div>
         </div>
+      </Link>
 
-        {/* Save button */}
-        <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <SavePropertyButton listingId={listing.id} listingType="mls" />
-        </div>
-
-      </div>
-
-      {/* Content */}
-      <div className="pt-4 pb-2">
-        {/* Price */}
-        <div className="text-xl font-light text-[#1a1a1a] tracking-wide mb-2">
+      {/* Card Content */}
+      <div className={template === 'classic' ? 'p-4' : template === 'modern' ? 'p-5' : 'px-1'}>
+        <h3
+          className={`line-clamp-1 ${
+            template === 'luxury'
+              ? 'text-[var(--color-charcoal)] tracking-wide font-luxury'
+              : template === 'modern'
+              ? 'text-[var(--modern-gold)] font-light tracking-wider'
+              : 'text-gray-900 font-semibold'
+          }`}
+          style={template === 'luxury'
+            ? { fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 400, lineHeight: 1.0, marginBottom: '0.25rem' }
+            : template === 'modern'
+            ? { fontSize: '1.25rem', fontWeight: 300, lineHeight: 1.2, marginBottom: '0.5rem' }
+            : { fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }
+          }
+        >
           {formatPrice(listing.list_price)}
           {listing.status === 'Closed' && listing.sold_price && (
-            <span className="text-sm font-light text-[#8a8a8a] ml-2">
+            <span className={`text-sm font-light ml-2 ${template === 'luxury' ? 'text-[var(--color-warm-gray)]' : 'text-gray-500'}`}>
               Sold: {formatPrice(listing.sold_price)}
             </span>
           )}
-        </div>
+        </h3>
 
-        {/* Street Address */}
-        <p className="text-sm text-[#4a4a4a] font-light line-clamp-1">
+        <p
+          className={`text-sm leading-tight line-clamp-1 ${
+            template === 'luxury'
+              ? 'text-[var(--color-warm-gray)] font-light font-luxury'
+              : template === 'modern'
+              ? 'text-[var(--modern-dark)] font-normal tracking-wide'
+              : 'text-gray-700'
+          }`}
+          style={{ marginBottom: '0.125rem' }}
+        >
           {getStreetAddress(listing.address, listing.city, listing.state, listing.zip_code)}
         </p>
+        <p
+          className={`text-xs leading-tight line-clamp-1 ${
+            template === 'luxury'
+              ? 'text-[var(--color-warm-gray)]/70 font-light font-luxury'
+              : template === 'modern'
+              ? 'text-[var(--modern-gray)] uppercase tracking-[0.1em]'
+              : 'text-gray-500'
+          }`}
+          style={{ marginBottom: '0.5rem' }}
+        >
+          {[listing.city, listing.state].filter(Boolean).join(', ')}{listing.zip_code ? ` ${listing.zip_code}` : ''}
+        </p>
 
-        {/* City, State, Zip */}
-        {(listing.city || listing.state || listing.zip_code) && (
-          <p className="text-sm text-[#6a6a6a] font-light mb-2">
-            {[listing.city, listing.state].filter(Boolean).join(', ')}
-            {listing.zip_code && ` ${listing.zip_code}`}
-          </p>
-        )}
-
-        {/* Property details - minimal separator style */}
-        <div className="flex items-center text-xs text-[#6a6a6a] font-light">
+        {/* Property Details */}
+        <div
+          className={`flex items-center gap-4 text-[10px] uppercase tracking-wider ${
+            template === 'luxury'
+              ? 'text-[var(--color-warm-gray)]/70 tracking-[0.15em]'
+              : template === 'modern'
+              ? 'text-[var(--modern-gray)] tracking-[0.15em] pt-3 border-t border-[var(--modern-gray-lighter)]'
+              : 'text-gray-500'
+          } ${template === 'classic' ? '' : 'mb-2'}`}
+          style={template === 'luxury' ? { marginBottom: '0.5rem' } : undefined}
+        >
           {listing.bedrooms !== null && (
-            <>
-              <span>{listing.bedrooms} Beds</span>
-              <span className="mx-2 text-[#d0d0d0]">|</span>
-            </>
+            <span>{listing.bedrooms} Beds</span>
           )}
           {listing.bathrooms !== null && (
             <>
+              <span className={`w-px h-3 ${
+                template === 'luxury'
+                  ? 'bg-[var(--color-sand)]'
+                  : template === 'modern'
+                  ? 'bg-[var(--modern-gray-lighter)]'
+                  : 'bg-gray-300'
+              }`} />
               <span>{listing.bathrooms} Baths</span>
-              {(listing.square_feet || listing.lot_size) && <span className="mx-2 text-[#d0d0d0]">|</span>}
             </>
           )}
-          {listing.square_feet && (
-            <span>{formatSqft(listing.square_feet)}</span>
-          )}
-          {!listing.square_feet && listing.lot_size && (
-            <span>{formatLotSize(listing.lot_size)}</span>
+          {listing.square_feet !== null && (
+            <>
+              <span className={`w-px h-3 ${
+                template === 'luxury'
+                  ? 'bg-[var(--color-sand)]'
+                  : template === 'modern'
+                  ? 'bg-[var(--modern-gray-lighter)]'
+                  : 'bg-gray-300'
+              }`} />
+              <span>{listing.square_feet.toLocaleString()} SF</span>
+            </>
           )}
         </div>
 
-        {/* MLS Number */}
-        <p className="text-[10px] text-[#9a9a9a] font-light uppercase tracking-[0.1em] mt-3">
-          MLS# {listing.mls_number}
-        </p>
+        {/* CTA Button - Rosewood style (luxury template only) */}
+        {template === 'luxury' && (
+          <Link
+            href={`/listings/${listing.id}`}
+            className="inline-block text-[11px] uppercase tracking-[0.2em] font-light text-[var(--color-charcoal)] border-b border-[var(--color-charcoal)]/30 pb-1 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors duration-300 font-luxury mb-4"
+          >
+            Discover
+          </Link>
+        )}
+
+        {/* CTA Button - Modern template */}
+        {template === 'modern' && (
+          <Link
+            href={`/listings/${listing.id}`}
+            className="inline-flex items-center gap-2 mt-4 text-[10px] uppercase tracking-[0.2em] text-[var(--modern-dark)] hover:text-[var(--modern-gold)] transition-colors duration-300 group/link"
+          >
+            <span>View Details</span>
+            <svg
+              className="w-3 h-3 transform group-hover/link:translate-x-1 transition-transform duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
 
@@ -290,7 +359,7 @@ function Pagination({
         <Link
           href={createPageUrl(currentPage - 1)}
           onClick={handlePageClick}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)]"
         >
           Previous
         </Link>
@@ -310,7 +379,7 @@ function Pagination({
               className={`px-4 py-2 text-sm font-medium rounded-md ${
                 page === currentPage
                   ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                  : 'text-gray-700 bg-white border border-gray-300 hover:bg-[var(--color-cream)]'
               }`}
             >
               {page}
@@ -323,7 +392,7 @@ function Pagination({
         <Link
           href={createPageUrl(currentPage + 1)}
           onClick={handlePageClick}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)]"
         >
           Next
         </Link>
@@ -340,6 +409,7 @@ export default function ListingsContent({
   searchParams,
   currentSort,
   hasLocationFilter,
+  template = 'classic',
 }: ListingsContentProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -433,7 +503,7 @@ export default function ListingsContent({
             className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
               viewMode === 'list'
                 ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-[var(--color-cream)]'
             }`}
           >
             <span className="flex items-center gap-2">
@@ -449,7 +519,7 @@ export default function ListingsContent({
             className={`px-4 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
               viewMode === 'map'
                 ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                : 'bg-white text-gray-700 border-gray-300 hover:bg-[var(--color-cream)]'
             }`}
           >
             <span className="flex items-center gap-2">
@@ -466,7 +536,7 @@ export default function ListingsContent({
       <div className="flex-1 flex min-h-0">
         {viewMode === 'list' ? (
           /* List View - Full width grid */
-          <div id="listings-scroll-container" className="w-full overflow-y-auto p-4 lg:p-6 bg-gray-50">
+          <div id="listings-scroll-container" className="w-full overflow-y-auto p-4 lg:p-6 bg-[var(--color-cream)]">
             <div className="max-w-7xl mx-auto">
               {displayListings.length === 0 ? (
                 <div className="text-center py-12">
@@ -490,7 +560,7 @@ export default function ListingsContent({
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} />
                     ))}
                   </div>
 
@@ -510,7 +580,7 @@ export default function ListingsContent({
           /* Map View - Split screen */
           <>
             {/* Left Side - Property Cards */}
-            <div id="listings-scroll-container" className="w-full lg:w-1/2 overflow-y-auto p-4 lg:p-6 bg-gray-50">
+            <div id="listings-scroll-container" className="w-full lg:w-1/2 overflow-y-auto p-4 lg:p-6 bg-[var(--color-cream)]">
               {displayListings.length === 0 ? (
                 <div className="text-center py-12">
                   <svg
@@ -531,9 +601,9 @@ export default function ListingsContent({
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} />
                     ))}
                   </div>
 

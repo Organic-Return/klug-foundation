@@ -132,7 +132,7 @@ export default async function Home() {
       <StructuredData data={webPageSchema} />
 
       <HomepageContent
-        template={homepage?.template}
+        template={settings?.template}
         videoUrl={videoUrl}
         fallbackImageUrl={fallbackImageUrl}
         heroTitle={hero?.title}

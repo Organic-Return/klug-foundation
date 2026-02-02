@@ -27,6 +27,8 @@ export interface Partner {
   title?: string;
   company?: string;
   location?: string;
+  latitude?: number;
+  longitude?: number;
   email?: string;
   phone?: string;
   website?: string;
@@ -34,6 +36,33 @@ export interface Partner {
   overrideBio?: string;
   specialties?: string[];
   featured?: boolean;
+}
+
+export interface PageContent {
+  _id: string;
+  pageType: "main" | "market_leaders" | "ski_town";
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: any;
+  logo?: any;
+  skiTownCard?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    image?: any;
+  };
+  marketLeadersCard?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    image?: any;
+  };
+  featuredSectionTitle?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaButtonText?: string;
+  ctaButtonAction?: string;
+  ctaButtonLink?: string;
 }
 
 export interface EnrichedPartner extends Partner {

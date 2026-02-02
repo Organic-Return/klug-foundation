@@ -1,6 +1,7 @@
 import { client } from '@/sanity/client';
 
 interface SiteSettings {
+  template?: 'classic' | 'luxury' | 'modern';
   title?: string;
   description?: string;
   siteUrl?: string;
@@ -45,7 +46,14 @@ interface SiteSettings {
 }
 
 const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
-  ...,
+  template,
+  title,
+  description,
+  siteUrl,
+  apiKeys,
+  socialMedia,
+  contactInfo,
+  seo,
   branding {
     logo {
       asset->
@@ -87,6 +95,15 @@ export async function getSettings(): Promise<SiteSettings | null> {
     console.error('Error fetching settings:', error);
     return null;
   }
+}
+
+/**
+ * Gets the site template from Sanity settings
+ * Returns 'classic', 'luxury', or 'modern', defaults to 'classic'
+ */
+export async function getSiteTemplate(): Promise<'classic' | 'luxury' | 'modern'> {
+  const settings = await getSettings();
+  return settings?.template || 'classic';
 }
 
 /**

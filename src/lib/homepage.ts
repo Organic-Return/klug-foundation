@@ -2,7 +2,6 @@ import { client } from '@/sanity/client';
 
 interface HomepageData {
   title?: string;
-  template?: 'classic' | 'luxury';
   hero?: {
     title?: string;
     subtitle?: string;
@@ -89,7 +88,6 @@ interface HomepageData {
 
 const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
   title,
-  template,
   hero {
     title,
     subtitle,

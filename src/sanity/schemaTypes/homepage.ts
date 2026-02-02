@@ -14,20 +14,6 @@ export const homepage = defineType({
       initialValue: 'Homepage',
     }),
     defineField({
-      name: 'template',
-      title: 'Homepage Template',
-      type: 'string',
-      description: 'Choose the visual style for the homepage',
-      options: {
-        list: [
-          { title: 'Classic', value: 'classic' },
-          { title: 'Luxury', value: 'luxury' },
-        ],
-        layout: 'radio',
-      },
-      initialValue: 'classic',
-    }),
-    defineField({
       name: 'hero',
       title: 'Hero Section',
       type: 'object',

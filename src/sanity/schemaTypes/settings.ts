@@ -6,6 +6,21 @@ export const settings = defineType({
   type: 'document',
   fields: [
     defineField({
+      name: 'template',
+      title: 'Site Template',
+      type: 'string',
+      description: 'Choose the visual style for the entire website. This applies globally to all pages.',
+      options: {
+        list: [
+          { title: 'Klug Custom', value: 'classic' },
+          { title: 'Luxury', value: 'luxury' },
+          { title: 'Modern', value: 'modern' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'classic',
+    }),
+    defineField({
       name: 'title',
       title: 'Site Title',
       type: 'string',

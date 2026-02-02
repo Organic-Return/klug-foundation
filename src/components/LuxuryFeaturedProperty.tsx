@@ -29,11 +29,10 @@ interface LuxuryFeaturedPropertyProps {
 export default function LuxuryFeaturedProperty({
   mlsId,
   headline = 'Featured Residence',
-  buttonText = 'Explore This Property',
+  buttonText = 'Discover',
 }: LuxuryFeaturedPropertyProps) {
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
     async function fetchProperty() {
@@ -58,127 +57,108 @@ export default function LuxuryFeaturedProperty({
     return null;
   }
 
-  const mainPhoto = property.photos?.[activeImageIndex] || property.photos?.[0];
-  const thumbnails = property.photos?.slice(0, 4) || [];
+  const mainPhoto = property.photos?.[0];
 
   return (
-    <section className="py-24 md:py-32 bg-white">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <p className="text-[var(--color-gold)] text-sm uppercase tracking-[0.3em] font-medium mb-4">
+    <section className="py-12 md:py-16 lg:py-20 bg-[var(--color-cream)]">
+      <div className="relative w-[90%] max-w-[1800px] mx-auto h-screen min-h-[600px] max-h-[800px] overflow-hidden rounded-sm">
+      {/* Fullscreen Background Image */}
+      <div className="absolute inset-0">
+        {mainPhoto ? (
+          <Image
+            src={mainPhoto}
+            alt={property.address}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-[var(--color-charcoal)]" />
+        )}
+
+        {/* Gradient Overlay - subtle center gradient for text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+      </div>
+
+      {/* Content Overlay */}
+      <div className="relative h-full flex flex-col justify-end pb-16 md:pb-24 lg:pb-32">
+        <div className="max-w-[1800px] mx-auto px-6 lg:px-12 w-full">
+          {/* Pretitle */}
+          <p className="text-white/70 text-[11px] uppercase tracking-[0.3em] font-light mb-4 font-luxury">
             {headline}
           </p>
-          <h2 className="text-[var(--color-navy)] text-4xl md:text-5xl font-light tracking-wide">
+
+          {/* Property Address - Large elegant typography */}
+          <h2 className="text-white text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light tracking-[0.02em] leading-[1.1] mb-4 font-luxury max-w-4xl">
             {property.address}
           </h2>
-          <p className="text-gray-500 mt-4 text-lg">
+
+          {/* Location */}
+          <p className="text-white/80 text-lg md:text-xl font-light tracking-wide mb-8 font-luxury">
             {property.city}, {property.state}
           </p>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          {/* Image Gallery */}
-          <div>
-            {/* Main Image */}
-            <div className="relative aspect-[4/3] mb-4 overflow-hidden bg-gray-100">
-              {mainPhoto && (
-                <Image
-                  src={mainPhoto}
-                  alt={property.address}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {thumbnails.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {thumbnails.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setActiveImageIndex(index)}
-                    className={`relative aspect-square overflow-hidden ${
-                      activeImageIndex === index ? 'ring-2 ring-[var(--color-gold)]' : ''
-                    }`}
-                  >
-                    <Image
-                      src={photo}
-                      alt={`View ${index + 1}`}
-                      fill
-                      className="object-cover hover:opacity-80 transition-opacity"
-                      sizes="100px"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Property Details */}
-          <div className="flex flex-col justify-center">
-            <div className="mb-8">
-              <p className="text-5xl md:text-6xl font-light text-[var(--color-navy)] mb-2">
+          {/* Property Details Row */}
+          <div className="flex flex-wrap items-center gap-6 md:gap-10 mb-10">
+            {/* Price */}
+            <div>
+              <p className="text-white text-2xl md:text-3xl font-light tracking-wide font-luxury">
                 {formatPrice(property.list_price)}
               </p>
-              <span className="inline-block px-3 py-1 bg-[var(--color-gold)]/10 text-[var(--color-gold)] text-xs uppercase tracking-wider">
-                {property.status}
-              </span>
             </div>
 
-            <div className="w-16 h-px bg-[var(--color-gold)] mb-8" />
+            {/* Divider */}
+            <span className="hidden sm:block w-px h-8 bg-white/30" />
 
-            {/* Property Stats */}
-            <div className="grid grid-cols-3 gap-8 mb-10">
+            {/* Stats */}
+            <div className="flex items-center gap-6 text-white/80 text-sm uppercase tracking-[0.15em] font-light">
               {property.bedrooms !== null && (
-                <div>
-                  <p className="text-3xl font-light text-[var(--color-navy)]">{property.bedrooms}</p>
-                  <p className="text-gray-500 text-sm uppercase tracking-wider">Bedrooms</p>
-                </div>
+                <span>{property.bedrooms} Beds</span>
               )}
               {property.bathrooms !== null && (
-                <div>
-                  <p className="text-3xl font-light text-[var(--color-navy)]">{property.bathrooms}</p>
-                  <p className="text-gray-500 text-sm uppercase tracking-wider">Bathrooms</p>
-                </div>
+                <>
+                  <span className="w-px h-4 bg-white/30" />
+                  <span>{property.bathrooms} Baths</span>
+                </>
               )}
               {property.square_feet && (
-                <div>
-                  <p className="text-3xl font-light text-[var(--color-navy)]">
-                    {property.square_feet.toLocaleString()}
-                  </p>
-                  <p className="text-gray-500 text-sm uppercase tracking-wider">Sq Ft</p>
-                </div>
+                <>
+                  <span className="w-px h-4 bg-white/30" />
+                  <span>{property.square_feet.toLocaleString()} Sq Ft</span>
+                </>
               )}
             </div>
+          </div>
 
-            <p className="text-gray-500 text-sm mb-2">
-              MLS# {property.mls_number}
-            </p>
-            <p className="text-gray-500 mb-10">
-              {property.property_type}
-            </p>
-
-            {/* CTA */}
-            <Link
-              href={`/listings/${property.id}`}
-              className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] w-fit"
-            >
+          {/* CTA Button - One&Only style */}
+          <Link
+            href={`/listings/${property.id}`}
+            className="group inline-flex items-center gap-4"
+          >
+            <span className="text-white text-[11px] uppercase tracking-[0.2em] font-light border-b border-white/50 pb-1 group-hover:border-white transition-colors duration-300 font-luxury">
               {buttonText}
+            </span>
+            <span className="w-10 h-10 rounded-full border border-white/50 flex items-center justify-center group-hover:border-white group-hover:bg-white/10 transition-all duration-300">
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 text-white transform group-hover:translate-x-0.5 transition-transform duration-300"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </Link>
-          </div>
+            </span>
+          </Link>
         </div>
+      </div>
+
+      {/* Scroll Indicator - Optional elegant touch */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2">
+        <span className="text-white/50 text-[10px] uppercase tracking-[0.2em] font-light">Scroll</span>
+        <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent" />
+      </div>
       </div>
     </section>
   );

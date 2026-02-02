@@ -35,6 +35,8 @@
   --color-sand: var(--color-sand);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-lora);
+  /* Luxury font - Atacama with Cormorant Garamond fallback */
+  --font-luxury: var(--font-atacama, var(--font-cormorant)), "Cormorant Garamond", Georgia, serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -475,4 +477,289 @@ address {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold-dark);
+}
+
+/* ========================================
+   LUXURY TEMPLATE TYPOGRAPHY - ATACAMA/CORMORANT
+   ======================================== */
+
+/* Luxury font utility class */
+.font-luxury {
+  font-family: var(--font-luxury);
+}
+
+/* Luxury template specific styles */
+.luxury-template {
+  font-family: var(--font-luxury);
+}
+
+.luxury-template h1,
+.luxury-template h2,
+.luxury-template h3,
+.luxury-template h4,
+.luxury-template h5,
+.luxury-template h6 {
+  font-family: var(--font-luxury);
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+.luxury-template h1 {
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
+.luxury-template h2 {
+  font-weight: 300;
+  letter-spacing: 0.06em;
+}
+
+/* Luxury navigation typography */
+.luxury-nav {
+  font-family: var(--font-luxury);
+  letter-spacing: 0.15em;
+  font-weight: 300;
+}
+
+/* Luxury hero text */
+.luxury-hero-title {
+  font-family: var(--font-luxury);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  line-height: 1.1;
+}
+
+.luxury-hero-subtitle {
+  font-family: var(--font-luxury);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* ========================================
+   MODERN TEMPLATE - ROLEX/OMEGA/PATEK INSPIRED
+   ======================================== */
+
+/* Modern color palette */
+:root {
+  --modern-black: #000000;
+  --modern-white: #ffffff;
+  --modern-dark: #0d0d0d;
+  --modern-darker: #1a1a1a;
+  --modern-gray: #4a4a4a;
+  --modern-gray-light: #8a8a8a;
+  --modern-gray-lighter: #e5e5e5;
+  --modern-gray-bg: #f8f8f8;
+  --modern-gold: #c9a962;
+  --modern-gold-light: #d4b978;
+  --modern-green: #006039;
+  --modern-green-light: #00825c;
+}
+
+/* Modern font utility class */
+.font-modern {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+/* Modern template specific styles */
+.modern-template {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.modern-template h1,
+.modern-template h2,
+.modern-template h3,
+.modern-template h4,
+.modern-template h5,
+.modern-template h6 {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  font-weight: 200;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.modern-template h1 {
+  font-weight: 100;
+  letter-spacing: 0.2em;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+}
+
+.modern-template h2 {
+  font-weight: 200;
+  letter-spacing: 0.12em;
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+/* Modern navigation typography */
+.modern-nav {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.2em;
+  font-weight: 500;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+}
+
+/* Modern hero styles */
+.modern-hero-title {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  font-weight: 100;
+  letter-spacing: 0.25em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+}
+
+.modern-hero-subtitle {
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+/* Modern button styles */
+.btn-modern-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  background-color: var(--modern-black);
+  color: var(--modern-white);
+  font-family: var(--font-montserrat), system-ui, -apple-system, sans-serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  border: 1px solid var(--modern-black);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-modern-primary:hover {
+  background-color: var(--modern-white);
+  color: var(--modern-black);
+}
+
+.btn-modern-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  background-color: transparent;
+  color: var(--modern-black);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--modern-black);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-modern-outline:hover {
+  background-color: var(--modern-black);
+  color: var(--modern-white);
+}
+
+.btn-modern-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2.5rem;
+  background-color: transparent;
+  color: var(--modern-white);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--modern-white);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.btn-modern-white:hover {
+  background-color: var(--modern-white);
+  color: var(--modern-black);
+}
+
+/* Modern divider */
+.modern-divider {
+  width: 60px;
+  height: 1px;
+  background-color: var(--modern-gold);
+}
+
+/* Modern animations */
+@keyframes modern-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modern-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modern-animate-fade-up {
+  animation: modern-fade-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.modern-animate-scale-in {
+  animation: modern-scale-in 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Modern card styles */
+.modern-card {
+  background: var(--modern-white);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Modern text link */
+.modern-link {
+  position: relative;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--modern-black);
+  text-decoration: none;
+}
+
+.modern-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--modern-black);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modern-link:hover::after {
+  width: 100%;
 }

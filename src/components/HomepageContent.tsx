@@ -10,15 +10,23 @@ import CityStats from '@/components/CityStats';
 
 // Luxury template components
 import LuxuryHero from '@/components/LuxuryHero';
-import LuxuryPropertyGrid from '@/components/LuxuryPropertyGrid';
+import LuxuryPropertyCarousel from '@/components/LuxuryPropertyCarousel';
 import LuxuryAbout from '@/components/LuxuryAbout';
 import LuxuryQuoteBlock from '@/components/LuxuryQuoteBlock';
 import LuxuryCityStats from '@/components/LuxuryCityStats';
 import LuxuryFeaturedProperty from '@/components/LuxuryFeaturedProperty';
 
+// Modern template components
+import ModernHero from '@/components/ModernHero';
+import ModernAbout from '@/components/ModernAbout';
+import ModernQuoteBlock from '@/components/ModernQuoteBlock';
+import ModernFeaturedProperty from '@/components/ModernFeaturedProperty';
+import ModernPropertyCarousel from '@/components/ModernPropertyCarousel';
+import ModernCityStats from '@/components/ModernCityStats';
+
 interface HomepageContentProps {
   // Template selection from Sanity
-  template?: 'classic' | 'luxury';
+  template?: 'classic' | 'luxury' | 'modern';
   // Hero data
   videoUrl?: string;
   fallbackImageUrl?: string;
@@ -95,6 +103,65 @@ export default function HomepageContent({
   const marketStatsCities = marketStatsSection?.cities
     ?.filter(c => c.enabled)
     ?.map(c => c.city) || [];
+  // Modern Template
+  if (template === 'modern') {
+    return (
+      <>
+        {/* Modern Hero - Rolex/Patek Philippe inspired */}
+        <ModernHero
+          videoUrl={videoUrl}
+          fallbackImageUrl={fallbackImageUrl}
+          title={heroTitle || 'Exceptional Properties'}
+          subtitle={heroSubtitle || 'Discover a curated collection of the world\'s finest residences'}
+        />
+
+        {/* About Section - Clean, sophisticated layout */}
+        <ModernAbout
+          title={teamSection?.title || 'Uncompromising Excellence'}
+          teamMember={teamSection?.featuredTeamMember}
+          primaryButtonText={teamSection?.primaryButtonText}
+          primaryButtonLink={teamSection?.primaryButtonLink}
+        />
+
+        {/* Stats/Quote Block - Dark section with gold accents */}
+        {accolades?.items && accolades.items.length > 0 && (
+          <ModernQuoteBlock
+            title={accolades.title || 'The Standard of Excellence'}
+            items={accolades.items}
+          />
+        )}
+
+        {/* Featured Property Section */}
+        {featuredProperty?.enabled && featuredProperty?.mlsId && (
+          <ModernFeaturedProperty
+            mlsId={featuredProperty.mlsId}
+            headline={featuredProperty.headline}
+            buttonText={featuredProperty.buttonText}
+          />
+        )}
+
+        {/* Property Carousel - Horizontal scroll gallery */}
+        {featuredPropertiesCarousel?.enabled !== false && (
+          <ModernPropertyCarousel
+            cities={featuredPropertiesCarousel?.cities}
+            title={featuredPropertiesCarousel?.title || 'Featured Properties'}
+            subtitle={featuredPropertiesCarousel?.subtitle}
+            limit={featuredPropertiesCarousel?.limit || 8}
+          />
+        )}
+
+        {/* City Stats Section */}
+        {marketStatsSection?.enabled !== false && (
+          <ModernCityStats
+            title={marketStatsSection?.title}
+            subtitle={marketStatsSection?.subtitle}
+            configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
+          />
+        )}
+      </>
+    );
+  }
+
   // Classic Template (Template One)
   if (template === 'classic') {
     return (
@@ -199,13 +266,13 @@ export default function HomepageContent({
         />
       )}
 
-      {/* Property Grid - Clean 3-column layout */}
+      {/* Property Carousel - Rosewood-style horizontal gallery */}
       {featuredPropertiesCarousel?.enabled !== false && (
-        <LuxuryPropertyGrid
+        <LuxuryPropertyCarousel
           cities={featuredPropertiesCarousel?.cities}
           title={featuredPropertiesCarousel?.title || 'Curated Residences'}
           subtitle={featuredPropertiesCarousel?.subtitle}
-          limit={featuredPropertiesCarousel?.limit || 6}
+          limit={featuredPropertiesCarousel?.limit || 8}
         />
       )}
 

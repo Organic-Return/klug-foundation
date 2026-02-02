@@ -152,9 +152,10 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const sort = params.sort || 'newest';
   const keyword = params.q;
 
-  // Fetch MLS configuration and data in parallel
-  const [mlsConfig, cities, propertyTypes, propertySubTypes, statuses, allNeighborhoods] = await Promise.all([
+  // Fetch MLS configuration, settings, and data in parallel
+  const [mlsConfig, settings, cities, propertyTypes, propertySubTypes, statuses, allNeighborhoods] = await Promise.all([
     getMLSConfiguration(),
+    getSettings(),
     getDistinctCities(),
     getDistinctPropertyTypes(),
     getDistinctPropertySubTypes(),
@@ -259,6 +260,8 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           total={total}
           searchParams={currentSearchParams}
           currentSort={sort}
+          hasLocationFilter={!!(city || neighborhood)}
+          template={settings?.template || 'classic'}
         />
       </div>
     </>
