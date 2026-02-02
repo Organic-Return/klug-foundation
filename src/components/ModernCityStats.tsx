@@ -13,6 +13,15 @@ interface CityData {
   };
 }
 
+interface ApiCityStat {
+  city: string;
+  totalActiveListings: number;
+  avgListPrice: number;
+  avgSoldPrice: number | null;
+  avgDaysOnMarket: number | null;
+  priorYearAvgSoldPrice: number | null;
+}
+
 interface ModernCityStatsProps {
   title?: string;
   subtitle?: string;
@@ -53,10 +62,30 @@ export default function ModernCityStats({
         const cityParam = configuredCities?.length
           ? `?cities=${configuredCities.join(',')}`
           : '';
-        const response = await fetch(`/api/market-stats${cityParam}`);
+        const response = await fetch(`/api/city-stats${cityParam}`);
         if (response.ok) {
           const data = await response.json();
-          setCityData(data.cities || []);
+          // Transform the API response to the expected format
+          const transformedData: CityData[] = (data.stats || []).map((stat: ApiCityStat) => {
+            // Calculate YoY price change
+            let priceChange = 0;
+            if (stat.avgSoldPrice && stat.priorYearAvgSoldPrice) {
+              priceChange = Math.round(
+                ((stat.avgSoldPrice - stat.priorYearAvgSoldPrice) / stat.priorYearAvgSoldPrice) * 100
+              );
+            }
+
+            return {
+              city: stat.city,
+              stats: {
+                medianPrice: stat.avgSoldPrice || stat.avgListPrice,
+                activeListings: stat.totalActiveListings,
+                avgDaysOnMarket: stat.avgDaysOnMarket || 0,
+                priceChange,
+              },
+            };
+          });
+          setCityData(transformedData);
         }
       } catch (error) {
         console.error('Error fetching city stats:', error);
