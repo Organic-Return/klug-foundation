@@ -1,6 +1,6 @@
 import { PortableText, type SanityDocument, type PortableTextComponents } from "next-sanity";
 import imageUrlBuilder from "@sanity/image-url";
-import { client } from "@/sanity/client";
+import { client, writeClient } from "@/sanity/client";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
@@ -271,17 +271,20 @@ export default async function CommunityPage({
         lastUpdated: new Date().toISOString(),
       };
 
-      // Update Sanity with the fetched demographics (optional, async)
-      // You might want to do this in a separate API route or background job
-      try {
-        console.log('💾 Saving demographics to Sanity...');
-        await client
-          .patch(community._id)
-          .set({ demographics })
-          .commit();
-        console.log('✅ Demographics saved successfully');
-      } catch (error) {
-        console.error('❌ Failed to update demographics in Sanity:', error);
+      // Update Sanity with the fetched demographics (requires SANITY_API_TOKEN env var)
+      if (process.env.SANITY_API_TOKEN) {
+        try {
+          console.log('💾 Saving demographics to Sanity...');
+          await writeClient
+            .patch(community._id)
+            .set({ demographics })
+            .commit();
+          console.log('✅ Demographics saved successfully');
+        } catch (error) {
+          console.error('❌ Failed to update demographics in Sanity:', error);
+        }
+      } else {
+        console.log('ℹ️  SANITY_API_TOKEN not configured, demographics will be fetched on each request');
       }
     }
   } else {
