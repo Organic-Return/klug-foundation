@@ -136,7 +136,7 @@ export const publication = defineType({
           ],
         },
       ],
-      validation: (Rule) => Rule.required(),
+      description: 'Optional: Add text content for the publication page. You can also just upload a PDF.',
     }),
     defineField({
       name: 'publishedAt',
