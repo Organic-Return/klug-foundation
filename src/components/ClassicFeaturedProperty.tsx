@@ -105,9 +105,9 @@ export default function ClassicFeaturedProperty({
         <div className="absolute top-[232px] md:top-[248px] lg:top-[264px] right-[216px] sm:right-[224px] lg:right-[248px] xl:right-[280px] text-right text-white">
           {/* Location - City, State */}
           <div className="mb-4 md:mb-6 lg:mb-8">
-            <span className="text-2xl md:text-3xl lg:text-4xl uppercase tracking-wide font-light">
-              {property.city} - {property.state || 'Colorado'}
-            </span>
+            <h1 className="!mt-0 !pt-0 mb-0 text-2xl md:text-3xl lg:text-4xl text-white">
+              {property.city}, {property.state || 'Colorado'}
+            </h1>
             <p className="text-lg md:text-xl lg:text-2xl font-light text-white/80 mt-2 md:mt-3">
               {property.address}
             </p>
