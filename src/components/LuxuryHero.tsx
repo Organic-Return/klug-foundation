@@ -70,7 +70,7 @@ export default function LuxuryHero({
       <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
         {/* Title - Hermès inspired refined typography */}
         <h1
-          className={`text-white uppercase mb-8 max-w-5xl transition-all duration-1000 delay-400 ${
+          className={`font-luxury text-white uppercase mb-8 max-w-5xl transition-all duration-1000 delay-400 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -79,7 +79,7 @@ export default function LuxuryHero({
 
         {/* Subtitle - refined and elegant */}
         <p
-          className={`text-white/60 text-sm md:text-base font-light tracking-[0.03em] max-w-lg mb-12 leading-[1.8] transition-all duration-1000 delay-500 ${
+          className={`font-luxury-body text-white/60 text-sm md:text-base font-light tracking-[0.03em] max-w-lg mb-12 leading-[1.8] transition-all duration-1000 delay-500 ${
             isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
@@ -99,16 +99,16 @@ export default function LuxuryHero({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Address, city, neighborhood..."
-              className="flex-1 px-6 py-4 bg-white/5 backdrop-blur-sm border border-white/20 border-r-0 text-white text-sm placeholder-white/30 tracking-[0.05em] focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all duration-500"
+              className="font-luxury-body flex-1 px-6 py-4 bg-white/5 backdrop-blur-sm border border-white/20 border-r-0 text-white text-sm placeholder-white/30 tracking-[0.05em] focus:outline-none focus:border-white/40 focus:bg-white/10 transition-all duration-500"
             />
             <button
               type="submit"
-              className="group flex items-center gap-3 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-[11px] uppercase tracking-[0.2em] font-normal hover:bg-white/20 hover:border-white/40 transition-all duration-500"
+              className="font-luxury-body group flex items-center gap-4 px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 text-white text-[13px] uppercase tracking-[0.25em] font-normal hover:bg-white/20 hover:border-white/40 transition-all duration-500"
             >
-              <span className="hidden sm:inline">Explore Properties</span>
-              <span className="sm:hidden">Search</span>
+              <span className="hidden sm:inline border-b border-white/30 pb-1 group-hover:border-white transition-colors duration-500">Explore Properties</span>
+              <span className="sm:hidden border-b border-white/30 pb-1 group-hover:border-white transition-colors duration-500">Search</span>
               <svg
-                className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300"
+                className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

@@ -15,6 +15,7 @@ import LuxuryAbout from '@/components/LuxuryAbout';
 import LuxuryQuoteBlock from '@/components/LuxuryQuoteBlock';
 import LuxuryCityStats from '@/components/LuxuryCityStats';
 import LuxuryFeaturedProperty from '@/components/LuxuryFeaturedProperty';
+import LuxuryCommunities from '@/components/LuxuryCommunities';
 
 // Modern template components
 import ModernHero from '@/components/ModernHero';
@@ -59,9 +60,13 @@ interface HomepageContentProps {
   featuredProperty?: {
     enabled?: boolean;
     mlsId?: string;
+    title?: string;
     headline?: string;
     buttonText?: string;
   };
+
+  // Agent MLS ID from team member (for featured property gallery)
+  agentMlsId?: string;
 
   // Featured properties carousel data
   featuredPropertiesCarousel?: {
@@ -71,6 +76,18 @@ interface HomepageContentProps {
     cities?: string[];
     limit?: number;
     buttonText?: string;
+  };
+
+  // Featured Communities data
+  featuredCommunities?: {
+    title?: string;
+    communities?: Array<{
+      _id: string;
+      title: string;
+      slug: { current: string };
+      description?: string;
+      imageUrl?: string;
+    }>;
   };
 
   // Market Stats section data
@@ -96,7 +113,9 @@ export default function HomepageContent({
   teamSection,
   accolades,
   featuredProperty,
+  agentMlsId,
   featuredPropertiesCarousel,
+  featuredCommunities,
   marketStatsSection,
 }: HomepageContentProps) {
   // Extract enabled cities from market stats configuration
@@ -258,9 +277,11 @@ export default function HomepageContent({
       )}
 
       {/* Featured Property Section */}
-      {featuredProperty?.enabled && featuredProperty?.mlsId && (
+      {featuredProperty?.enabled && (featuredProperty?.mlsId || agentMlsId) && (
         <LuxuryFeaturedProperty
           mlsId={featuredProperty.mlsId}
+          agentMlsId={agentMlsId}
+          title={featuredProperty.title}
           headline={featuredProperty.headline}
           buttonText={featuredProperty.buttonText}
         />
@@ -282,6 +303,14 @@ export default function HomepageContent({
           title={marketStatsSection?.title}
           subtitle={marketStatsSection?.subtitle}
           configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
+        />
+      )}
+
+      {/* Communities Section */}
+      {featuredCommunities?.communities && featuredCommunities.communities.length > 0 && (
+        <LuxuryCommunities
+          title={featuredCommunities.title}
+          communities={featuredCommunities.communities}
         />
       )}
     </>

@@ -11,6 +11,7 @@ function urlFor(source: any) {
 
 interface TeamMember {
   name?: string;
+  slug?: { current: string };
   title?: string;
   bio?: string;
   image?: any;
@@ -45,6 +46,7 @@ export default function TeamSection({
   }
 
   const isImageLeft = imagePosition === 'left';
+  const teamMemberUrl = teamMember.slug?.current ? `/team/${teamMember.slug.current}` : null;
 
   return (
     <section className="w-full py-16 md:py-24 lg:py-32" itemScope itemType="https://schema.org/Person">
@@ -52,16 +54,31 @@ export default function TeamSection({
         {/* Image */}
         <div className="w-full md:w-1/2 lg:w-[55%] flex-shrink-0">
           {teamMember.image && (
-            <Image
-              src={urlFor(teamMember.image).width(1000).url()}
-              alt={teamMember.name || 'Team member'}
-              width={1000}
-              height={1000}
-              className="w-full h-auto"
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 55vw"
-              loading="lazy"
-              itemProp="image"
-            />
+            teamMemberUrl ? (
+              <Link href={teamMemberUrl}>
+                <Image
+                  src={urlFor(teamMember.image).width(1000).url()}
+                  alt={teamMember.name || 'Team member'}
+                  width={1000}
+                  height={1000}
+                  className="w-full h-auto"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 55vw"
+                  loading="lazy"
+                  itemProp="image"
+                />
+              </Link>
+            ) : (
+              <Image
+                src={urlFor(teamMember.image).width(1000).url()}
+                alt={teamMember.name || 'Team member'}
+                width={1000}
+                height={1000}
+                className="w-full h-auto"
+                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 55vw"
+                loading="lazy"
+                itemProp="image"
+              />
+            )
           )}
         </div>
 

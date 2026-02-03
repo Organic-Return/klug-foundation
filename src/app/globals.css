@@ -4,19 +4,21 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Hermès/Four Seasons/One&Only inspired luxury palette */
+  /* Christie's International Real Estate inspired palette */
   --color-navy: #1a1a1a;
   --color-navy-light: #2d2d2d;
   --color-sothebys-blue: #00254a;
-  --color-gold: #b8860b;
-  --color-gold-light: #d4a84b;
-  --color-gold-dark: #96700a;
+  --color-charcoal: #384249;
+  --color-gold: #c9ac77;
+  --color-gold-light: #d4bc92;
+  --color-gold-dark: #b09660;
+  --color-red: #ed1c24;
   --color-cream: #fffcf7;
   --color-cream-dark: #f7f4ef;
-  --color-charcoal: #444444;
-  --color-warm-gray: #696969;
+  --color-warm-gray: #76787b;
+  --color-light-gray: #a3aaad;
   --color-taupe: #e2d8ce;
-  --color-sand: #c9b99a;
+  --color-sand: #a3aaad;
 }
 
 @theme inline {
@@ -24,19 +26,23 @@
   --color-foreground: var(--foreground);
   --color-navy: var(--color-navy);
   --color-navy-light: var(--color-navy-light);
+  --color-charcoal: var(--color-charcoal);
   --color-gold: var(--color-gold);
   --color-gold-light: var(--color-gold-light);
   --color-gold-dark: var(--color-gold-dark);
+  --color-red: var(--color-red);
   --color-cream: var(--color-cream);
   --color-cream-dark: var(--color-cream-dark);
-  --color-charcoal: var(--color-charcoal);
   --color-warm-gray: var(--color-warm-gray);
+  --color-light-gray: var(--color-light-gray);
   --color-taupe: var(--color-taupe);
   --color-sand: var(--color-sand);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-lora);
-  /* Luxury font - Atacama with Cormorant Garamond fallback */
-  --font-luxury: var(--font-atacama, var(--font-cormorant)), "Cormorant Garamond", Georgia, serif;
+  /* Luxury heading font - Playfair Display (Didot-style high contrast serif) */
+  --font-luxury: var(--font-atacama, var(--font-playfair)), "Playfair Display", Didot, "Bodoni MT", "Noto Serif Display", serif;
+  /* Luxury body font - clean sans-serif */
+  --font-luxury-body: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -211,7 +217,7 @@ address {
 .btn-luxury-primary:hover {
   background-color: var(--color-navy-light);
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0, 35, 73, 0.3);
+  box-shadow: 0 10px 30px rgba(56, 66, 73, 0.3);
 }
 
 .btn-luxury-primary:hover::before {
@@ -480,17 +486,25 @@ address {
 }
 
 /* ========================================
-   LUXURY TEMPLATE TYPOGRAPHY - ATACAMA/CORMORANT
+   LUXURY TEMPLATE TYPOGRAPHY - ONE&ONLY INSPIRED
    ======================================== */
 
-/* Luxury font utility class */
+/* Luxury heading font utility class */
 .font-luxury {
   font-family: var(--font-luxury);
 }
 
+/* Luxury body font utility class */
+.font-luxury-body {
+  font-family: var(--font-luxury-body);
+}
+
 /* Luxury template specific styles */
 .luxury-template {
-  font-family: var(--font-luxury);
+  font-family: var(--font-luxury-body);
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .luxury-template h1,
@@ -500,40 +514,61 @@ address {
 .luxury-template h5,
 .luxury-template h6 {
   font-family: var(--font-luxury);
-  font-weight: 300;
-  letter-spacing: 0.05em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 .luxury-template h1 {
-  font-weight: 300;
-  letter-spacing: 0.08em;
+  font-weight: 400;
+  letter-spacing: 0.03em;
 }
 
 .luxury-template h2 {
-  font-weight: 300;
-  letter-spacing: 0.06em;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
 }
 
 /* Luxury navigation typography */
 .luxury-nav {
-  font-family: var(--font-luxury);
-  letter-spacing: 0.15em;
+  font-family: var(--font-luxury-body);
+  letter-spacing: 0.18em;
   font-weight: 300;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
 }
 
 /* Luxury hero text */
 .luxury-hero-title {
   font-family: var(--font-luxury);
-  font-weight: 300;
-  letter-spacing: 0.1em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
   line-height: 1.1;
 }
 
 .luxury-hero-subtitle {
-  font-family: var(--font-luxury);
+  font-family: var(--font-luxury-body);
   font-weight: 300;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+/* Luxury label/pretitle text */
+.luxury-label {
+  font-family: var(--font-luxury-body);
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+}
+
+/* Luxury body text */
+.luxury-body {
+  font-family: var(--font-luxury-body);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  line-height: 1.8;
 }
 
 /* ========================================

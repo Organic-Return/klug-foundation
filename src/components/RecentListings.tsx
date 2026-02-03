@@ -25,6 +25,7 @@ interface RecentListingsProps {
   limit?: number;
   title?: string;
   subtitle?: string;
+  variant?: 'classic' | 'luxury';
 }
 
 function formatPrice(price: number | null): string {
@@ -67,7 +68,7 @@ function getStreetAddress(fullAddress: string | null, city: string | null, state
 }
 
 // Sotheby's-inspired property card with elegant minimal design
-function PropertyCard({ listing }: { listing: Listing }) {
+function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; variant?: 'classic' | 'luxury' }) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
@@ -181,35 +182,35 @@ function PropertyCard({ listing }: { listing: Listing }) {
       {/* Content */}
       <div className="pt-4 pb-2">
         {/* Price */}
-        <div className="text-xl font-light text-[#1a1a1a] dark:text-white tracking-wide mb-2">
+        <div className={`text-xl font-light tracking-wide mb-2 ${variant === 'luxury' ? 'font-luxury text-[var(--color-charcoal)]' : 'text-[#1a1a1a] dark:text-white'}`}>
           {formatPrice(listing.list_price)}
         </div>
 
         {/* Street Address */}
-        <p className="text-sm text-[#4a4a4a] dark:text-gray-300 font-light line-clamp-1">
+        <p className={`text-sm font-light line-clamp-1 ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#4a4a4a] dark:text-gray-300'}`}>
           {getStreetAddress(listing.address, listing.city, listing.state, listing.zip_code)}
         </p>
 
         {/* City, State, Zip */}
         {(listing.city || listing.state || listing.zip_code) && (
-          <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light mb-2">
+          <p className={`text-sm font-light mb-2 ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
             {[listing.city, listing.state].filter(Boolean).join(', ')}
             {listing.zip_code && ` ${listing.zip_code}`}
           </p>
         )}
 
         {/* Property details - minimal separator style */}
-        <div className="flex items-center text-xs text-[#6a6a6a] dark:text-gray-400 font-light">
+        <div className={`flex items-center text-xs font-light ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
           {listing.bedrooms && (
             <>
               <span>{listing.bedrooms} Beds</span>
-              <span className="mx-2 text-[#d0d0d0]">|</span>
+              <span className={`mx-2 ${variant === 'luxury' ? 'text-[var(--color-taupe)]' : 'text-[#d0d0d0]'}`}>|</span>
             </>
           )}
           {listing.bathrooms && (
             <>
               <span>{listing.bathrooms} Baths</span>
-              {listing.square_feet && <span className="mx-2 text-[#d0d0d0]">|</span>}
+              {listing.square_feet && <span className={`mx-2 ${variant === 'luxury' ? 'text-[var(--color-taupe)]' : 'text-[#d0d0d0]'}`}>|</span>}
             </>
           )}
           {listing.square_feet && (
@@ -226,6 +227,7 @@ export default function RecentListings({
   limit = 10,
   title = 'Recent Listings',
   subtitle,
+  variant = 'classic',
 }: RecentListingsProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -256,9 +258,11 @@ export default function RecentListings({
     return null;
   }
 
+  const isLuxury = variant === 'luxury';
+
   if (isLoading) {
     return (
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+      <section className={`py-16 md:py-24 ${isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}`}>
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="animate-pulse">
             <div className="h-10 bg-[#e8e6e3] rounded w-72 mx-auto mb-4" />
@@ -287,37 +291,66 @@ export default function RecentListings({
   }
 
   return (
-    <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+    <section className={`${isLuxury ? 'py-24 md:py-36 bg-white' : 'py-16 md:py-24 bg-white dark:bg-[#1a1a1a]'}`}>
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
         {/* Section Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-            {title}
-          </h2>
-          <p className="text-[#6a6a6a] dark:text-gray-400 font-light max-w-2xl mx-auto">
-            {subtitle || `The most recently listed properties in ${city}`}
-          </p>
-        </div>
+        {isLuxury ? (
+          <div className="text-center mb-16 md:mb-20">
+            <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+              Properties
+            </p>
+            <div className="w-px h-8 bg-[var(--color-taupe)] mx-auto mb-6" />
+            <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] tracking-wide mb-5">
+              {title}
+            </h2>
+            <p className="font-luxury-body text-[var(--color-warm-gray)] font-light max-w-xl mx-auto text-sm tracking-wide">
+              {subtitle || `The most recently listed properties in ${city}`}
+            </p>
+          </div>
+        ) : (
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              {title}
+            </h2>
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light max-w-2xl mx-auto">
+              {subtitle || `The most recently listed properties in ${city}`}
+            </p>
+          </div>
+        )}
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 md:gap-x-8 md:gap-y-12">
           {listings.slice(0, 6).map((listing) => (
-            <PropertyCard key={listing.id} listing={listing} />
+            <PropertyCard key={listing.id} listing={listing} variant={variant} />
           ))}
         </div>
 
-        {/* View All Link - Elegant button */}
+        {/* View All Link */}
         {listings.length > 0 && (
           <div className="text-center mt-14 md:mt-16">
-            <Link
-              href={`/listings?city=${encodeURIComponent(city)}`}
-              className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-3.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
-            >
-              View All Listings
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+            {isLuxury ? (
+              <Link
+                href={`/listings?city=${encodeURIComponent(city)}`}
+                className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em]"
+              >
+                <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-300">
+                  View All Listings
+                </span>
+                <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            ) : (
+              <Link
+                href={`/listings?city=${encodeURIComponent(city)}`}
+                className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-3.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
+              >
+                View All Listings
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            )}
           </div>
         )}
       </div>

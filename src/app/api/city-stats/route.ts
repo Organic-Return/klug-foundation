@@ -25,6 +25,7 @@ interface CityStats {
   avgSoldPrice: number | null;
   avgSoldPricePerSqFt: number | null;
   avgDaysOnMarket: number | null;
+  avgSpLpRatio: number | null;
   monthlyData: MonthlyData[];
   priorYearMonthlyData: MonthlyData[];
   priorYearAvgSoldPrice: number | null;
@@ -92,7 +93,7 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
 
   let closedQuery = supabase
     .from('graphql_listings')
-    .select('city, sold_price, square_feet, listing_date, close_date')
+    .select('city, sold_price, list_price, square_feet, listing_date, close_date')
     .in('status', ['Closed', 'Sold'])
     .in('city', allowedCities)
     .not('sold_price', 'is', null)
@@ -139,7 +140,7 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
   const cityData: Record<string, {
     activeListings: Array<{ list_price: number; square_feet: number | null }>;
     pendingCount: number;
-    soldListings: Array<{ sold_price: number; square_feet: number | null; listing_date: string | null; close_date: string | null }>;
+    soldListings: Array<{ sold_price: number; list_price: number | null; square_feet: number | null; listing_date: string | null; close_date: string | null }>;
   }> = {};
 
   // Process active listings
@@ -171,6 +172,7 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
     }
     cityData[city].soldListings.push({
       sold_price: listing.sold_price as number,
+      list_price: listing.list_price as number | null,
       square_feet: listing.square_feet as number | null,
       listing_date: listing.listing_date as string | null,
       close_date: listing.close_date as string | null,
@@ -263,6 +265,16 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
         avgDaysOnMarket = Math.round(totalDaysOnMarket / soldWithDates.length);
       }
 
+      // Calculate average SP/LP ratio for the last year
+      let avgSpLpRatio: number | null = null;
+      const soldWithListPrice = currentYearSoldListings.filter(l => l.list_price && l.list_price > 0);
+      if (soldWithListPrice.length > 0) {
+        const totalSpLpRatio = soldWithListPrice.reduce((sum, l) => {
+          return sum + (l.sold_price / (l.list_price as number));
+        }, 0);
+        avgSpLpRatio = Math.round((totalSpLpRatio / soldWithListPrice.length) * 10000) / 100; // e.g. 97.45%
+      }
+
       // Calculate monthly data for the last 12 months (current year)
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       const monthlyData: MonthlyData[] = [];
@@ -349,6 +361,7 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
         avgSoldPrice,
         avgSoldPricePerSqFt,
         avgDaysOnMarket,
+        avgSpLpRatio,
         monthlyData,
         priorYearMonthlyData,
         priorYearAvgSoldPrice,

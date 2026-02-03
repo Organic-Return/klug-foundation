@@ -1,7 +1,7 @@
 import { createClient } from "next-sanity";
 
 export const client = createClient({
-  projectId: "ujo0cv7k",
+  projectId: "1zb39xqr",
   dataset: "production",
   apiVersion: "2024-01-01",
   useCdn: true, // Enable CDN for faster reads
@@ -13,7 +13,7 @@ export const client = createClient({
 
 // Write client for mutations (requires SANITY_API_TOKEN env var)
 export const writeClient = createClient({
-  projectId: "ujo0cv7k",
+  projectId: "1zb39xqr",
   dataset: "production",
   apiVersion: "2024-01-01",
   useCdn: false, // Don't use CDN for writes

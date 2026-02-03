@@ -139,7 +139,7 @@ export default function LuxuryHeader({
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className={`lg:hidden flex items-center gap-2 p-2 -ml-2 transition-colors ${
-                  showScrolledState ? 'text-[#00254a] hover:text-[#00254a]/70' : 'text-white hover:text-white/70'
+                  showScrolledState ? 'text-[#384249] hover:text-[#384249]/70' : 'text-white hover:text-white/70'
                 }`}
                 aria-label="Toggle menu"
               >
@@ -156,7 +156,7 @@ export default function LuxuryHeader({
                   <a
                     href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
                     className={`flex items-center gap-2 transition-colors group ${
-                      showScrolledState ? 'text-gray-500 hover:text-[#00254a]' : 'text-white/70 hover:text-white'
+                      showScrolledState ? 'text-gray-500 hover:text-[#384249]' : 'text-white/70 hover:text-white'
                     }`}
                     aria-label={phoneNumber}
                   >
@@ -170,7 +170,7 @@ export default function LuxuryHeader({
                   <a
                     href={`mailto:${email}`}
                     className={`flex items-center gap-2 transition-colors ${
-                      showScrolledState ? 'text-gray-500 hover:text-[#00254a]' : 'text-white/70 hover:text-white'
+                      showScrolledState ? 'text-gray-500 hover:text-[#384249]' : 'text-white/70 hover:text-white'
                     }`}
                     aria-label={email}
                   >
@@ -190,7 +190,7 @@ export default function LuxuryHeader({
               onClick={() => setMobileMenuOpen(false)}
             >
               {logo?.asset?.url ? (
-                <div className="relative h-16 w-48 sm:h-18 sm:w-54 lg:h-20 lg:w-64">
+                <div className="relative h-20 w-60 sm:h-24 sm:w-72 lg:h-28 lg:w-80">
                   <Image
                     src={urlFor(logo).width(600).url()}
                     alt={logoAlt}
@@ -203,7 +203,7 @@ export default function LuxuryHeader({
                 </div>
               ) : (
                 <span className={`text-sm lg:text-base font-light tracking-[0.2em] uppercase transition-colors duration-500 font-luxury ${
-                  showScrolledState ? 'text-[#00254a]' : 'text-white'
+                  showScrolledState ? 'text-[#384249]' : 'text-white'
                 }`}>
                   {siteTitle}
                 </span>
@@ -218,8 +218,8 @@ export default function LuxuryHeader({
               {/* Desktop Contact Link */}
               <Link
                 href="/contact-us"
-                className={`hidden lg:block text-xs tracking-wide transition-colors font-luxury ${
-                  showScrolledState ? 'text-gray-500 hover:text-[#00254a]' : 'text-white/70 hover:text-white'
+                className={`hidden lg:block text-[11px] uppercase tracking-[0.18em] font-light transition-colors font-luxury-body ${
+                  showScrolledState ? 'text-gray-500 hover:text-[#384249]' : 'text-white/70 hover:text-white'
                 }`}
               >
                 Contact
@@ -239,7 +239,7 @@ export default function LuxuryHeader({
                       href={item.url}
                       target={item.openInNewTab ? '_blank' : undefined}
                       rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                      className={`relative block px-5 py-4 text-[13px] tracking-[0.15em] font-light transition-colors font-luxury group ${
+                      className={`relative block px-5 py-4 text-[11px] uppercase tracking-[0.18em] font-light transition-colors font-luxury-body group ${
                         showScrolledState ? 'text-[var(--color-charcoal)]' : 'text-white'
                       }`}
                     >
@@ -251,7 +251,7 @@ export default function LuxuryHeader({
                   ) : (
                     <button
                       onClick={() => toggleDropdown(index)}
-                      className={`relative flex items-center gap-1 px-5 py-4 text-[13px] tracking-[0.15em] font-light transition-colors font-luxury group ${
+                      className={`relative flex items-center gap-1 px-5 py-4 text-[11px] uppercase tracking-[0.18em] font-light transition-colors font-luxury-body group ${
                         activeDropdown === index
                           ? showScrolledState ? 'text-[var(--color-charcoal)]' : 'text-white'
                           : showScrolledState
@@ -288,13 +288,13 @@ export default function LuxuryHeader({
                           column.titleUrl ? (
                             <Link
                               href={column.titleUrl}
-                              className="block mb-4 text-[var(--color-charcoal)] text-sm font-medium tracking-wide hover:text-[var(--color-gold)] transition-colors font-luxury"
+                              className="block mb-4 text-[var(--color-charcoal)] text-xs font-medium tracking-wider uppercase hover:text-[var(--color-gold)] transition-colors font-luxury-body"
                               onClick={() => setActiveDropdown(null)}
                             >
                               {column.title}
                             </Link>
                           ) : (
-                            <p className="mb-4 text-[var(--color-charcoal)] text-sm font-medium tracking-wide font-luxury">
+                            <p className="mb-4 text-[var(--color-charcoal)] text-xs font-medium tracking-wider uppercase font-luxury-body">
                               {column.title}
                             </p>
                           )
@@ -316,12 +316,12 @@ export default function LuxuryHeader({
                                 href={link.url}
                                 target={link.openInNewTab ? '_blank' : undefined}
                                 rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
-                                className="block text-[var(--color-warm-gray)] text-sm font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury"
+                                className="block text-[var(--color-warm-gray)] text-xs font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury-body"
                                 onClick={() => setActiveDropdown(null)}
                               >
                                 {link.label}
                                 {link.description && (
-                                  <span className="block text-[var(--color-warm-gray)]/60 text-xs mt-0.5 font-luxury">
+                                  <span className="block text-[var(--color-warm-gray)]/60 text-[10px] mt-0.5 font-luxury-body">
                                     {link.description}
                                   </span>
                                 )}
@@ -342,7 +342,7 @@ export default function LuxuryHeader({
                           href={link.url}
                           target={link.openInNewTab ? '_blank' : undefined}
                           rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
-                          className="block text-[var(--color-warm-gray)] text-sm font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury"
+                          className="block text-[var(--color-warm-gray)] text-xs font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury-body"
                           onClick={() => setActiveDropdown(null)}
                         >
                           {link.label}
@@ -363,7 +363,7 @@ export default function LuxuryHeader({
           mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
       >
-        <div className="absolute inset-0 bg-[#00254a]" />
+        <div className="absolute inset-0 bg-[#384249]" />
 
         <div className="relative h-full pt-20 overflow-y-auto">
           <div className="px-6 py-8">
@@ -377,7 +377,7 @@ export default function LuxuryHeader({
                         href={item.url}
                         target={item.openInNewTab ? '_blank' : undefined}
                         rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                        className="block py-4 text-white text-lg font-light tracking-wide hover:text-[var(--color-gold)] transition-colors font-luxury"
+                        className="block py-4 text-white text-sm uppercase font-light tracking-[0.15em] hover:text-[var(--color-gold)] transition-colors font-luxury-body"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {item.label}
@@ -386,7 +386,7 @@ export default function LuxuryHeader({
                       <div>
                         <button
                           onClick={() => toggleMobileDropdown(index)}
-                          className="w-full flex items-center justify-between py-4 text-white text-lg font-light tracking-wide hover:text-[var(--color-gold)] transition-colors font-luxury"
+                          className="w-full flex items-center justify-between py-4 text-white text-sm uppercase font-light tracking-[0.15em] hover:text-[var(--color-gold)] transition-colors font-luxury-body"
                         >
                           <span>{item.label}</span>
                           <svg
@@ -410,7 +410,7 @@ export default function LuxuryHeader({
                             {item.hasMegaMenu && item.megaMenuColumns?.map((column, colIndex) => (
                               <div key={colIndex} className="mb-4">
                                 {column.title && (
-                                  <p className="text-[var(--color-gold)] text-xs uppercase tracking-[0.2em] mb-2 font-luxury">
+                                  <p className="text-[var(--color-gold)] text-[10px] uppercase tracking-[0.25em] mb-2 font-luxury-body">
                                     {column.title}
                                   </p>
                                 )}
@@ -421,7 +421,7 @@ export default function LuxuryHeader({
                                         href={link.url}
                                         target={link.openInNewTab ? '_blank' : undefined}
                                         rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
-                                        className="block text-white/70 text-sm font-light hover:text-white transition-colors font-luxury"
+                                        className="block text-white/70 text-xs font-light hover:text-white transition-colors font-luxury-body"
                                         onClick={() => setMobileMenuOpen(false)}
                                       >
                                         {link.label}
@@ -438,7 +438,7 @@ export default function LuxuryHeader({
                                 href={link.url}
                                 target={link.openInNewTab ? '_blank' : undefined}
                                 rel={link.openInNewTab ? 'noopener noreferrer' : undefined}
-                                className="block py-2 text-white/70 text-sm font-light hover:text-white transition-colors font-luxury"
+                                className="block py-2 text-white/70 text-xs font-light hover:text-white transition-colors font-luxury-body"
                                 onClick={() => setMobileMenuOpen(false)}
                               >
                                 {link.label}
@@ -481,10 +481,15 @@ export default function LuxuryHeader({
                 )}
                 <Link
                   href="/contact-us"
-                  className="inline-block mt-4 text-[11px] uppercase tracking-[0.2em] font-light bg-[var(--color-gold)] text-white px-6 py-3 hover:bg-white hover:text-[#00254a] transition-all font-luxury"
+                  className="group inline-flex items-center gap-4 mt-4 font-luxury-body text-white text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Contact Us
+                  <span className="border-b border-white/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
+                    Contact Us
+                  </span>
+                  <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
                 </Link>
               </div>
             </div>

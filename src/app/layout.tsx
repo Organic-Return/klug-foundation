@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Cormorant_Garamond, Montserrat } from "next/font/google";
+import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
 import LuxuryHeader from "@/components/LuxuryHeader";
 import ModernHeader from "@/components/ModernHeader";
 import Footer from "@/components/Footer";
+import LuxuryStayConnected from "@/components/LuxuryStayConnected";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { AuthProvider } from "@/components/AuthProvider";
 import { getSettings, getBranding } from "@/lib/settings";
@@ -42,6 +43,15 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Playfair Display - High-contrast Didot-style serif for luxury template
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -116,25 +126,36 @@ export default async function RootLayout({
   };
 
   // Determine template-specific body class
-  const templateClass = template === 'modern' ? 'modern-template' : '';
+  const templateClass = template === 'modern' ? 'modern-template' : template === 'luxury' ? 'luxury-template' : '';
 
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} antialiased ${templateClass}`}>
+      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} antialiased ${templateClass}`}>
         <AuthProvider>
         <LayoutWrapper
           header={renderHeader()}
           footer={
-            <Footer
-              logo={branding?.logo}
-              logoAlt={branding?.logoAlt || settings?.title}
-              siteTitle={settings?.title}
-              description={settings?.description}
-              columns={footerColumns}
-              socialMedia={settings?.socialMedia}
-              contactInfo={settings?.contactInfo}
-              footer={settings?.footer}
-            />
+            template === 'luxury' ? (
+              <LuxuryStayConnected
+                logo={branding?.logo}
+                logoAlt={branding?.logoAlt || settings?.title}
+                siteTitle={settings?.title}
+                columns={footerColumns}
+                socialMedia={settings?.socialMedia}
+                contactInfo={settings?.contactInfo}
+              />
+            ) : (
+              <Footer
+                logo={branding?.logo}
+                logoAlt={branding?.logoAlt || settings?.title}
+                siteTitle={settings?.title}
+                description={settings?.description}
+                columns={footerColumns}
+                socialMedia={settings?.socialMedia}
+                contactInfo={settings?.contactInfo}
+                footer={settings?.footer}
+              />
+            )
           }
         >
           {children}

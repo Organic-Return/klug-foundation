@@ -41,6 +41,9 @@ interface GraphQLListing {
   longitude: number | null;
   list_office_name: string | null;
   list_agent_mls_id: string | null;
+  co_list_agent_mls_id: string | null;
+  buyer_agent_mls_id: string | null;
+  co_buyer_agent_mls_id: string | null;
   virtual_tour_url: string | null;
   furnished: string | null;
   fireplace_yn: boolean | null;
@@ -101,6 +104,10 @@ export interface MLSProperty {
   parking_features: string[] | null;
   association_amenities: string[] | null;
   virtual_tour_url: string | null;
+  list_agent_mls_id: string | null;
+  co_list_agent_mls_id: string | null;
+  buyer_agent_mls_id: string | null;
+  co_buyer_agent_mls_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -177,6 +184,10 @@ function transformListing(row: GraphQLListing): MLSProperty {
     parking_features: row.parking_features,
     association_amenities: row.association_amenities,
     virtual_tour_url: row.virtual_tour_url,
+    list_agent_mls_id: row.list_agent_mls_id,
+    co_list_agent_mls_id: row.co_list_agent_mls_id,
+    buyer_agent_mls_id: row.buyer_agent_mls_id,
+    co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -619,4 +630,63 @@ export async function getNewestHighPricedByCities(
   }
 
   return (data || []).map(transformListing);
+}
+
+// Get listings by agent MLS ID, separated into active and sold
+export interface AgentListingsResult {
+  activeListings: MLSProperty[];
+  soldListings: MLSProperty[];
+}
+
+export async function getListingsByAgentId(
+  agentMlsId: string,
+  soldAgentMlsId?: string
+): Promise<AgentListingsResult> {
+  const buildFilter = (id: string) =>
+    `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
+
+  const activeFilter = buildFilter(agentMlsId);
+  const soldId = soldAgentMlsId || agentMlsId;
+  const soldFilter = soldId === agentMlsId
+    ? activeFilter
+    : `${buildFilter(agentMlsId)},${buildFilter(soldId)}`;
+
+  const [activeResult, soldResult] = await Promise.all([
+    supabase
+      .from('graphql_listings')
+      .select('*')
+      .or(activeFilter)
+      .not('status', 'eq', 'Closed')
+      .order('listing_date', { ascending: false })
+      .limit(200),
+    supabase
+      .from('graphql_listings')
+      .select('*')
+      .or(soldFilter)
+      .eq('status', 'Closed')
+      .order('sold_price', { ascending: false, nullsFirst: false })
+      .limit(200),
+  ]);
+
+  if (activeResult.error) {
+    console.error('Error fetching active agent listings:', activeResult.error);
+  }
+  if (soldResult.error) {
+    console.error('Error fetching sold agent listings:', soldResult.error);
+  }
+
+  // Deduplicate in case agent appears in multiple roles on the same listing
+  const dedup = (listings: any[]) => {
+    const seen = new Set<string>();
+    return listings.filter((row) => {
+      if (seen.has(row.id)) return false;
+      seen.add(row.id);
+      return true;
+    });
+  };
+
+  return {
+    activeListings: dedup(activeResult.data || []).map(transformListing),
+    soldListings: dedup(soldResult.data || []).map(transformListing),
+  };
 }

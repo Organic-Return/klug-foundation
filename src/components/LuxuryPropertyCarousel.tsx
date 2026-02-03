@@ -26,12 +26,13 @@ interface LuxuryPropertyCarouselProps {
 }
 
 export default function LuxuryPropertyCarousel({
-  cities = ['Aspen'],
+  cities: citiesProp,
   pretitle = 'The Collection',
   title = 'Curated Residences',
   subtitle = 'Discover exceptional properties that define luxury living in the most coveted destinations',
   limit = 8,
 }: LuxuryPropertyCarouselProps) {
+  const cities = citiesProp && citiesProp.length > 0 ? citiesProp : ['Aspen'];
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -119,7 +120,7 @@ export default function LuxuryPropertyCarousel({
           <div className="lg:w-1/4 lg:max-w-[300px] flex-shrink-0">
             <div className="lg:sticky lg:top-32">
               {/* Pretitle */}
-              <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-4 font-luxury">
+              <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-4 font-luxury-body">
                 {pretitle}
               </p>
 
@@ -129,7 +130,7 @@ export default function LuxuryPropertyCarousel({
               </h2>
 
               {/* Subtitle/Description */}
-              <p className="text-[var(--color-warm-gray)] text-sm font-light leading-[1.8] tracking-wide font-luxury">
+              <p className="text-[var(--color-warm-gray)] text-sm font-light leading-[1.8] tracking-wide font-luxury-body">
                 {subtitle}
               </p>
 
@@ -168,13 +169,13 @@ export default function LuxuryPropertyCarousel({
               {/* View All Link */}
               <Link
                 href="/listings"
-                className="hidden lg:inline-flex items-center gap-3 mt-8 text-[var(--color-charcoal)] text-[11px] uppercase tracking-[0.2em] font-light group font-luxury"
+                className="hidden lg:inline-flex items-center gap-4 mt-8 group font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
               >
-                <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-300">
+                <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
                   View All
                 </span>
-                <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
             </div>
@@ -223,7 +224,7 @@ export default function LuxuryPropertyCarousel({
                     {/* Card Content */}
                     <div className="px-1">
                       <h3
-                        className="text-[var(--color-charcoal)] tracking-wide mb-2 font-luxury line-clamp-1"
+                        className="text-[var(--color-charcoal)] tracking-wide mb-2 font-luxury-body line-clamp-1"
                         style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 400, lineHeight: 1.0 }}
                       >
                         {formatPrice(property.list_price)}
@@ -234,7 +235,7 @@ export default function LuxuryPropertyCarousel({
                       </p>
 
                       {/* Property Details */}
-                      <div className="flex items-center gap-4 text-[10px] text-[var(--color-warm-gray)]/70 uppercase tracking-[0.15em] mb-5">
+                      <div className="flex items-center gap-4 text-[10px] text-[var(--color-warm-gray)]/70 uppercase tracking-[0.15em] mb-5 font-luxury-body">
                         {property.bedrooms !== null && (
                           <span>{property.bedrooms} Beds</span>
                         )}
@@ -252,12 +253,17 @@ export default function LuxuryPropertyCarousel({
                         )}
                       </div>
 
-                      {/* CTA Button - Rosewood style */}
+                      {/* CTA Button */}
                       <Link
                         href={`/listings/${property.id}`}
-                        className="inline-block text-[11px] uppercase tracking-[0.2em] font-light text-[var(--color-charcoal)] border-b border-[var(--color-charcoal)]/30 pb-1 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors duration-300 font-luxury"
+                        className="group/cta inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
                       >
-                        Discover
+                        <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover/cta:border-[var(--color-gold)] transition-colors duration-500">
+                          Discover
+                        </span>
+                        <svg className="w-4 h-4 transform group-hover/cta:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
                       </Link>
                     </div>
                   </div>
@@ -300,11 +306,13 @@ export default function LuxuryPropertyCarousel({
 
               <Link
                 href="/listings"
-                className="inline-flex items-center gap-2 text-[var(--color-charcoal)] text-[11px] uppercase tracking-[0.2em] font-light font-luxury"
+                className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
               >
-                View All
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
+                  View All
+                </span>
+                <svg className="w-4 h-4 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </Link>
             </div>

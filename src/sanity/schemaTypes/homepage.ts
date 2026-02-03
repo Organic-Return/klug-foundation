@@ -227,6 +227,13 @@ export const homepage = defineType({
           description: 'Enter the MLS ID of the property to feature',
         },
         {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          description: 'Title displayed above the featured property section',
+          initialValue: 'Our Featured Properties',
+        },
+        {
           name: 'headline',
           title: 'Headline',
           type: 'string',

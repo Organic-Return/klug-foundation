@@ -47,9 +47,9 @@ export default function LuxuryQuoteBlock({
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-32 md:py-44 bg-[#1a1a1a] text-white relative overflow-hidden">
+    <section ref={sectionRef} className="py-32 md:py-44 bg-[#f6f1eb] relative overflow-hidden">
       {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] via-[#222222] to-[#1a1a1a]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#f6f1eb] via-[#f3ede5] to-[#f6f1eb]" />
 
       <div className="relative max-w-[1200px] mx-auto px-8 lg:px-12">
         {/* Section Header - Hermès minimal style */}
@@ -58,13 +58,13 @@ export default function LuxuryQuoteBlock({
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <span className="text-[var(--color-gold)] text-[10px] uppercase tracking-[0.4em] font-normal">
+          <span className="font-luxury-body text-[var(--color-gold)] text-[10px] uppercase tracking-[0.3em] font-light">
             Why Choose Us
           </span>
 
-          <div className="w-px h-8 bg-white/20 mx-auto my-6" />
+          <div className="w-px h-8 bg-[var(--color-taupe)] mx-auto my-6" />
 
-          <h2 className="text-white text-2xl md:text-3xl lg:text-[36px] font-extralight tracking-[0.08em]">
+          <h2 className="font-luxury text-[var(--color-charcoal)] text-2xl md:text-3xl lg:text-[36px] font-extralight tracking-[0.08em]">
             {title}
           </h2>
         </div>
@@ -81,16 +81,16 @@ export default function LuxuryQuoteBlock({
             >
               <div className="flex items-baseline justify-center mb-4">
                 {item.type === 'numberWithPrefix' && item.prefix && (
-                  <span className="text-[var(--color-gold)] text-xl md:text-2xl font-extralight mr-1">
+                  <span className="font-luxury text-[var(--color-gold)] text-xl md:text-2xl font-extralight mr-1">
                     {item.prefix}
                   </span>
                 )}
-                <span className="text-white text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
+                <span className="font-luxury text-[var(--color-charcoal)] text-5xl md:text-6xl lg:text-7xl font-extralight tracking-tight">
                   {item.value}
                 </span>
               </div>
               <div className="w-8 h-px bg-[var(--color-gold)]/50 mx-auto mb-4" />
-              <p className="text-white/50 font-light text-[11px] uppercase tracking-[0.2em] leading-relaxed">
+              <p className="font-luxury-body text-[var(--color-warm-gray)] font-light text-[11px] uppercase tracking-[0.2em] leading-relaxed">
                 {item.label}
               </p>
             </div>
@@ -103,9 +103,9 @@ export default function LuxuryQuoteBlock({
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          <div className="w-px h-12 bg-white/10 mx-auto mb-10" />
+          <div className="w-px h-12 bg-[var(--color-taupe)] mx-auto mb-10" />
 
-          <blockquote className="text-white/60 text-lg md:text-xl lg:text-2xl font-extralight italic leading-[1.8] tracking-wide mb-10">
+          <blockquote className="font-luxury text-[var(--color-warm-gray)] text-lg md:text-xl lg:text-2xl font-extralight italic leading-[1.8] tracking-wide mb-10">
             "Excellence is not a destination but a continuous journey. We are committed to
             exceeding expectations at every turn."
           </blockquote>

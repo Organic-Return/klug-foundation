@@ -84,22 +84,22 @@ export default function LuxuryAbout({
               isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-12'
             }`}
           >
-            <span className="text-[var(--color-gold)] text-[10px] uppercase tracking-[0.4em] font-normal">
+            <span className="font-luxury-body text-[var(--color-gold)] text-[10px] uppercase tracking-[0.3em] font-light">
               Our Philosophy
             </span>
 
             <div className="w-px h-8 bg-[var(--color-sand)] my-6" />
 
-            <h2 className="text-[var(--color-charcoal)] text-2xl md:text-3xl lg:text-[38px] font-extralight tracking-[0.04em] mb-10 leading-[1.3]">
+            <h2 className="font-luxury text-[var(--color-charcoal)] text-2xl md:text-3xl lg:text-[38px] font-extralight tracking-[0.04em] mb-10 leading-[1.3]">
               {title}
             </h2>
 
-            <p className="text-[var(--color-charcoal)]/70 text-base font-light leading-[2] mb-6">
+            <p className="font-luxury-body text-[var(--color-charcoal)]/70 text-base font-light leading-[2] mb-6">
               {teamMember?.bio ||
                 `We believe that finding the perfect home is about more than square footage and amenities—it's about discovering a space that reflects your aspirations and enhances your way of life.`}
             </p>
 
-            <p className="text-[var(--color-warm-gray)] text-sm font-light leading-[2] mb-12">
+            <p className="font-luxury-body text-[var(--color-warm-gray)] text-sm font-light leading-[2] mb-12">
               Our dedicated team brings decades of experience and an unwavering commitment to excellence,
               ensuring every client receives the personalized attention their search deserves.
             </p>
@@ -108,19 +108,19 @@ export default function LuxuryAbout({
             <div className="flex items-center gap-16 mb-12 pb-12 border-b border-[var(--color-taupe)]">
               <div>
                 <p className="text-[var(--color-charcoal)] text-3xl font-extralight tracking-tight">25+</p>
-                <p className="text-[var(--color-warm-gray)] text-[9px] uppercase tracking-[0.25em] mt-2">Years Experience</p>
+                <p className="font-luxury-body text-[var(--color-warm-gray)] text-[9px] uppercase tracking-[0.25em] mt-2">Years Experience</p>
               </div>
               <div className="w-px h-12 bg-[var(--color-taupe)]" />
               <div>
                 <p className="text-[var(--color-charcoal)] text-3xl font-extralight tracking-tight">$2B+</p>
-                <p className="text-[var(--color-warm-gray)] text-[9px] uppercase tracking-[0.25em] mt-2">In Sales Volume</p>
+                <p className="font-luxury-body text-[var(--color-warm-gray)] text-[9px] uppercase tracking-[0.25em] mt-2">In Sales Volume</p>
               </div>
             </div>
 
             {/* CTA - Hermès elegant link style */}
             <Link
               href={primaryButtonLink}
-              className="group inline-flex items-center gap-4 text-[var(--color-charcoal)] text-[11px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
+              className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
             >
               <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
                 {primaryButtonText}

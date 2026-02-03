@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import imageUrlBuilder from '@sanity/image-url';
 import { client } from '@/sanity/client';
-import { getHomepageData } from '@/lib/homepage';
+import { getHomepageData, getAllCommunities } from '@/lib/homepage';
 import { getSettings } from '@/lib/settings';
 import StructuredData from '@/components/StructuredData';
 import HomepageContent from '@/components/HomepageContent';
@@ -50,12 +50,28 @@ export default async function Home() {
   const teamSection = homepage?.teamSection;
   const accolades = homepage?.accolades;
   const featuredProperty = homepage?.featuredProperty;
+  const featuredCommunitiesConfig = homepage?.featuredCommunities;
 
   // Get video URL (either from Mux/uploaded file or external URL)
   const videoUrl = hero?.videoFile?.asset?.url || hero?.videoUrl;
   const fallbackImageUrl = hero?.fallbackImage?.asset?.url
     ? urlFor(hero.fallbackImage).width(1920).url()
     : undefined;
+
+  // Resolve communities: use showAll query or referenced communities
+  const rawCommunities = featuredCommunitiesConfig?.showAll
+    ? await getAllCommunities(featuredCommunitiesConfig?.limit || 12)
+    : featuredCommunitiesConfig?.communities || [];
+
+  const processedCommunities = rawCommunities.map((c: any) => ({
+    _id: c._id,
+    title: c.title,
+    slug: c.slug,
+    description: c.description,
+    imageUrl: c.featuredImage?.asset?.url
+      ? urlFor(c.featuredImage).width(800).height(1067).url()
+      : undefined,
+  }));
 
   const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
@@ -155,9 +171,11 @@ export default async function Home() {
           backgroundImage: accolades?.backgroundImage,
           items: accolades?.items,
         }}
+        agentMlsId={teamSection?.featuredTeamMember?.mlsAgentId}
         featuredProperty={{
           enabled: featuredProperty?.enabled,
           mlsId: featuredProperty?.mlsId,
+          title: featuredProperty?.title,
           headline: featuredProperty?.headline,
           buttonText: featuredProperty?.buttonText,
         }}
@@ -168,6 +186,10 @@ export default async function Home() {
           cities: homepage?.featuredPropertiesCarousel?.cities,
           limit: homepage?.featuredPropertiesCarousel?.limit,
           buttonText: homepage?.featuredPropertiesCarousel?.buttonText,
+        }}
+        featuredCommunities={{
+          title: featuredCommunitiesConfig?.title,
+          communities: processedCommunities,
         }}
         marketStatsSection={{
           enabled: homepage?.marketStatsSection?.enabled,

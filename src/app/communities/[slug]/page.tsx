@@ -14,6 +14,7 @@ import CommunityHero from "@/components/CommunityHero";
 import CommunityNeighborhoods from "@/components/CommunityNeighborhoods";
 import { fetchDemographicData } from "@/lib/census";
 import { getCommunityPriceRange } from "@/lib/listings";
+import { getSettings } from "@/lib/settings";
 
 const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
   ...,
@@ -231,13 +232,115 @@ const components: PortableTextComponents = {
   },
 };
 
+// Luxury template PortableText components
+const luxuryComponents: PortableTextComponents = {
+  block: {
+    normal: ({ children }: { children?: ReactNode }) => (
+      <p className="mb-6 text-[var(--color-warm-gray)] leading-[1.8] font-luxury-body font-light text-[17px]">{children}</p>
+    ),
+    h1: ({ children }: { children?: ReactNode }) => (
+      <h1 className="font-luxury text-[var(--color-charcoal)] mt-12 mb-6 font-light tracking-wide">{children}</h1>
+    ),
+    h2: ({ children }: { children?: ReactNode }) => (
+      <h2 className="text-2xl md:text-3xl font-luxury font-light text-[var(--color-charcoal)] mt-10 mb-5 tracking-wide">{children}</h2>
+    ),
+    h3: ({ children }: { children?: ReactNode }) => (
+      <h3 className="text-xl md:text-2xl font-luxury font-light text-[var(--color-charcoal)] mt-8 mb-4 tracking-wide">{children}</h3>
+    ),
+    blockquote: ({ children }: { children?: ReactNode }) => (
+      <blockquote className="border-l-2 border-[var(--color-gold)] pl-6 my-8 italic text-[var(--color-warm-gray)] font-luxury text-lg">{children}</blockquote>
+    ),
+  },
+  marks: {
+    strong: ({ children }: { children?: ReactNode }) => <strong className="font-medium text-[var(--color-charcoal)]">{children}</strong>,
+    em: ({ children }: { children?: ReactNode }) => <em className="italic font-luxury">{children}</em>,
+    code: ({ children }: { children?: ReactNode }) => <code className="bg-[#f6f1eb] px-2 py-1 text-sm font-mono">{children}</code>,
+    link: ({ children, value }: { children?: ReactNode; value?: { href?: string } }) => {
+      const href = value?.href || '';
+      return (
+        <a
+          href={href}
+          className="text-[var(--color-charcoal)] border-b border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors duration-300"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {children}
+        </a>
+      );
+    },
+  },
+  list: {
+    bullet: ({ children }: { children?: ReactNode }) => <ul className="ml-6 mb-6 space-y-2">{children}</ul>,
+    number: ({ children }: { children?: ReactNode }) => <ol className="ml-6 mb-6 space-y-2 list-decimal">{children}</ol>,
+  },
+  listItem: {
+    bullet: ({ children }: { children?: ReactNode }) => (
+      <li className="text-[var(--color-warm-gray)] leading-relaxed font-luxury-body font-light pl-2 relative before:content-[''] before:absolute before:left-[-1rem] before:top-[0.6rem] before:w-1.5 before:h-1.5 before:bg-[var(--color-gold)] before:rounded-full">{children}</li>
+    ),
+    number: ({ children }: { children?: ReactNode }) => (
+      <li className="text-[var(--color-warm-gray)] leading-relaxed font-luxury-body font-light pl-2">{children}</li>
+    ),
+  },
+  types: {
+    image: ({ value }: { value: { asset: any; alt?: string; caption?: string } }) => {
+      const imageUrl = urlFor(value.asset)?.width(1200).url();
+      return (
+        <figure className="my-12">
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt={value.alt || ''}
+              className="w-full h-auto"
+            />
+          )}
+          {value.caption && (
+            <figcaption className="text-sm text-[var(--color-warm-gray)] mt-4 font-luxury-body font-light italic tracking-wide">
+              {value.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
+    },
+    'mux.video': ({ value }: { value: { asset?: { playbackId?: string } } }) => {
+      const playbackId = value?.asset?.playbackId;
+      if (!playbackId) return null;
+      return (
+        <div className="my-12">
+          <MuxVideoPlayer playbackId={playbackId} />
+        </div>
+      );
+    },
+    code: ({ value }: { value: { code?: string; language?: string; filename?: string } }) => {
+      return (
+        <div className="my-8">
+          {value.filename && (
+            <div className="bg-[var(--color-charcoal)] text-gray-300 px-5 py-3 text-sm font-mono border-b border-gray-700">
+              {value.filename}
+            </div>
+          )}
+          <pre className="bg-[var(--color-charcoal)] text-gray-100 p-5 overflow-x-auto">
+            <code className="text-sm font-mono">{value.code}</code>
+          </pre>
+        </div>
+      );
+    },
+  },
+};
+
 export default async function CommunityPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const community = await client.fetch<SanityDocument>(COMMUNITY_QUERY, { slug }, options);
+  const [community, settings] = await Promise.all([
+    client.fetch<SanityDocument>(COMMUNITY_QUERY, { slug }, options),
+    getSettings(),
+  ]);
+
+  const template = settings?.template || 'classic';
+  const isLuxury = template === 'luxury';
+  const variant = isLuxury ? 'luxury' : 'classic';
 
   if (!community) {
     return (
@@ -423,16 +526,17 @@ export default async function CommunityPage({
             description={community.description}
             imageUrl={heroImageUrl}
             priceRange={priceRange || undefined}
+            variant={variant}
           />
         ) : (
           /* Fallback hero when no featured image - pt-20 for fixed header */
-          <div className="bg-[var(--color-navy)] pt-28 pb-16 px-6">
+          <div className={isLuxury ? 'bg-[var(--color-charcoal)] pt-28 pb-16 px-6' : 'bg-[var(--color-navy)] pt-28 pb-16 px-6'}>
             <div className="max-w-7xl mx-auto">
-              <h1 className="text-white">
+              <h1 className={isLuxury ? 'font-luxury text-white font-light tracking-wide' : 'text-white'}>
                 {community.title}
               </h1>
               {community.description && (
-                <p className="text-lg text-white/80 mt-6 max-w-2xl">
+                <p className={isLuxury ? 'text-lg text-white/70 mt-6 max-w-2xl font-luxury-body font-light' : 'text-lg text-white/80 mt-6 max-w-2xl'}>
                   {community.description}
                 </p>
               )}
@@ -444,19 +548,31 @@ export default async function CommunityPage({
         <div className="flex flex-col">
 
           {/* About & Demographics - Elegant Two Column Layout */}
-          <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+          <section className={isLuxury ? 'py-24 md:py-36 bg-white' : 'py-16 md:py-24 bg-white dark:bg-[#1a1a1a]'}>
             <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
                 {/* Left Column - About This Community */}
                 <div className="lg:col-span-7">
                   {Array.isArray(community.body) && community.body.length > 0 && (
                     <>
-                      <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-10 tracking-wide leading-tight">
-                        Discover {community.title}
-                      </h2>
+                      {isLuxury ? (
+                        <>
+                          <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+                            About
+                          </p>
+                          <div className="w-px h-8 bg-[var(--color-taupe)] mb-6" />
+                          <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] mb-10 tracking-wide leading-tight">
+                            Discover {community.title}
+                          </h2>
+                        </>
+                      ) : (
+                        <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-10 tracking-wide leading-tight">
+                          Discover {community.title}
+                        </h2>
+                      )}
 
                       <div className="max-w-none">
-                        <PortableText value={community.body} components={components} />
+                        <PortableText value={community.body} components={isLuxury ? luxuryComponents : components} />
                       </div>
                     </>
                   )}
@@ -465,7 +581,7 @@ export default async function CommunityPage({
                 {/* Right Column - Demographics Sidebar */}
                 <div className="lg:col-span-5">
                   <div className="lg:sticky lg:top-28">
-                    <Demographics demographics={demographics} />
+                    <Demographics demographics={demographics} variant={variant} />
                   </div>
                 </div>
               </div>
@@ -473,29 +589,49 @@ export default async function CommunityPage({
           </section>
 
           {/* Elegant Divider */}
-          <div className="w-full flex justify-center py-4 bg-[#f8f7f5] dark:bg-[#141414]">
-            <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent" />
-          </div>
+          {!isLuxury && (
+            <div className="w-full flex justify-center py-4 bg-[#f8f7f5] dark:bg-[#141414]">
+              <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent" />
+            </div>
+          )}
 
           {/* Amenities Section - Refined Grid */}
           {community.amenities && community.amenities.length > 0 && (
-            <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
+            <section className={isLuxury ? 'py-24 md:py-36 bg-[#f6f1eb]' : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'}>
               <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
                 {/* Section Header */}
-                <div className="text-center mb-12 md:mb-16">
-                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                    Community Amenities
-                  </h2>
-                </div>
+                {isLuxury ? (
+                  <div className="text-center mb-16 md:mb-20">
+                    <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+                      Lifestyle
+                    </p>
+                    <div className="w-px h-8 bg-[var(--color-taupe)] mx-auto mb-6" />
+                    <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] tracking-wide">
+                      Community Amenities
+                    </h2>
+                  </div>
+                ) : (
+                  <div className="text-center mb-12 md:mb-16">
+                    <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
+                      Community Amenities
+                    </h2>
+                  </div>
+                )}
 
                 {/* Amenities Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                   {community.amenities.map((amenity: string, index: number) => (
                     <div
                       key={index}
-                      className="group bg-white dark:bg-[#1a1a1a] p-5 md:p-6 border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300"
+                      className={isLuxury
+                        ? 'group bg-white p-5 md:p-6 border border-[var(--color-taupe)]/20 hover:border-[var(--color-gold)] transition-all duration-300'
+                        : 'group bg-white dark:bg-[#1a1a1a] p-5 md:p-6 border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300'
+                      }
                     >
-                      <span className="text-sm md:text-base text-[#4a4a4a] dark:text-gray-300 font-light tracking-wide group-hover:text-[#1a1a1a] dark:group-hover:text-white transition-colors">
+                      <span className={isLuxury
+                        ? 'text-sm md:text-base font-luxury-body text-[var(--color-warm-gray)] font-light tracking-wide group-hover:text-[var(--color-charcoal)] transition-colors'
+                        : 'text-sm md:text-base text-[#4a4a4a] dark:text-gray-300 font-light tracking-wide group-hover:text-[#1a1a1a] dark:group-hover:text-white transition-colors'
+                      }>
                         {amenity}
                       </span>
                     </div>
@@ -511,28 +647,31 @@ export default async function CommunityPage({
               neighborhoods={community.neighborhoods}
               communitySlug={community.slug.current}
               communityTitle={community.title}
+              variant={variant}
             />
           )}
 
           {/* Market Insights Section */}
           {community.marketInsightsCity && (
-            <div className="bg-[#f8f7f5] dark:bg-[#141414]">
+            <div className={isLuxury ? 'bg-[#f6f1eb]' : 'bg-[#f8f7f5] dark:bg-[#141414]'}>
               <CommunityMarketStats
                 city={community.marketInsightsCity}
                 title={`${community.title} Market Insights`}
                 subtitle={`Real-time market data for ${community.marketInsightsCity}`}
+                variant={variant}
               />
             </div>
           )}
 
           {/* Recent Listings Section */}
           {community.marketInsightsCity && (
-            <div className="bg-white dark:bg-[#1a1a1a]">
+            <div className={isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
               <RecentListings
                 city={community.marketInsightsCity}
                 limit={10}
                 title={`Recent Listings in ${community.title}`}
                 subtitle={`The most recently listed properties in ${community.marketInsightsCity}`}
+                variant={variant}
               />
             </div>
           )}
@@ -540,23 +679,38 @@ export default async function CommunityPage({
           {/* Schools & Attractions Combined Section */}
           {((community.nearbySchools && community.nearbySchools.length > 0) ||
             (community.nearbyAttractions && community.nearbyAttractions.length > 0)) && (
-            <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
+            <section className={isLuxury ? 'py-24 md:py-36 bg-[#f6f1eb]' : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'}>
               <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
                 {/* Section Header */}
-                <div className="text-center mb-14 md:mb-20">
-                  <span className="text-[var(--color-gold)] text-xs uppercase tracking-[0.3em] font-light mb-4 block">
-                    Explore
-                  </span>
-                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
-                    {community.localHighlights?.sectionTitle || 'Local Highlights'}
-                  </h2>
-                  <div className="flex justify-center mb-6">
-                    <div className="w-20 h-px bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent" />
+                {isLuxury ? (
+                  <div className="text-center mb-16 md:mb-20">
+                    <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+                      Explore
+                    </p>
+                    <div className="w-px h-8 bg-[var(--color-taupe)] mx-auto mb-6" />
+                    <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] tracking-wide mb-5">
+                      {community.localHighlights?.sectionTitle || 'Local Highlights'}
+                    </h2>
+                    <p className="font-luxury-body text-[var(--color-warm-gray)] font-light max-w-xl mx-auto text-sm tracking-wide">
+                      {community.localHighlights?.sectionSubtitle || 'Discover the exceptional schools, dining, and attractions that make this community truly special.'}
+                    </p>
                   </div>
-                  <p className="text-[#6a6a6a] dark:text-gray-400 font-light max-w-2xl mx-auto text-lg leading-relaxed">
-                    {community.localHighlights?.sectionSubtitle || 'Discover the exceptional schools, dining, and attractions that make this community truly special.'}
-                  </p>
-                </div>
+                ) : (
+                  <div className="text-center mb-14 md:mb-20">
+                    <span className="text-[var(--color-gold)] text-xs uppercase tracking-[0.3em] font-light mb-4 block">
+                      Explore
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
+                      {community.localHighlights?.sectionTitle || 'Local Highlights'}
+                    </h2>
+                    <div className="flex justify-center mb-6">
+                      <div className="w-20 h-px bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent" />
+                    </div>
+                    <p className="text-[#6a6a6a] dark:text-gray-400 font-light max-w-2xl mx-auto text-lg leading-relaxed">
+                      {community.localHighlights?.sectionSubtitle || 'Discover the exceptional schools, dining, and attractions that make this community truly special.'}
+                    </p>
+                  </div>
+                )}
 
                 {/* Schools */}
                 {community.nearbySchools && community.nearbySchools.length > 0 && (
@@ -582,31 +736,60 @@ export default async function CommunityPage({
           )}
 
           {/* Contact CTA Section */}
-          <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] relative overflow-hidden">
-            {/* Subtle Background Pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-            </div>
+          {isLuxury ? (
+            <section className="py-24 md:py-36 bg-[var(--color-charcoal)] relative overflow-hidden">
+              <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
+                <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+                  Connect
+                </p>
+                <div className="w-px h-8 bg-white/20 mx-auto mb-6" />
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-luxury font-light text-white tracking-wide mb-6">
+                  Begin Your Journey
+                </h2>
+                <p className="font-luxury-body text-white/60 font-light mb-10 max-w-xl mx-auto text-sm tracking-wide leading-relaxed">
+                  Connect with our team to discover the exceptional lifestyle awaiting you in {community.title}.
+                </p>
 
-            <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-                Begin Your Journey
-              </h2>
-              <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-                Connect with our team to discover the exceptional lifestyle awaiting you in {community.title}.
-              </p>
+                <Link
+                  href="/contact-us"
+                  className="group inline-flex items-center gap-4 font-luxury-body text-white text-[13px] uppercase tracking-[0.25em]"
+                >
+                  <span className="border-b border-white/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-300">
+                    Schedule a Consultation
+                  </span>
+                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] relative overflow-hidden">
+              {/* Subtle Background Pattern */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
+              </div>
 
-              <Link
-                href="/contact-us"
-                className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
-              >
-                Schedule a Consultation
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-          </section>
+              <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
+                  Begin Your Journey
+                </h2>
+                <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+                  Connect with our team to discover the exceptional lifestyle awaiting you in {community.title}.
+                </p>
+
+                <Link
+                  href="/contact-us"
+                  className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+                >
+                  Schedule a Consultation
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            </section>
+          )}
         </div>
       </main>
     </>

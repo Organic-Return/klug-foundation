@@ -12,6 +12,17 @@ export const teamMember = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      description: 'URL-friendly identifier (auto-generated from name)',
+      options: {
+        source: 'name',
+        slugify: (input: string) => input.toLowerCase().replace(/\s+/g, '-').slice(0, 96),
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
       name: 'title',
       title: 'Job Title',
       type: 'string',
@@ -89,6 +100,18 @@ export const teamMember = defineType({
           type: 'url',
         },
       ],
+    }),
+    defineField({
+      name: 'mlsAgentId',
+      title: 'MLS Agent ID',
+      type: 'string',
+      description: 'The agent\'s MLS ID for active listings. Enter the ID exactly as it appears in the MLS.',
+    }),
+    defineField({
+      name: 'mlsAgentIdSold',
+      title: 'MLS Agent ID (Sold Listings)',
+      type: 'string',
+      description: 'An additional MLS ID to use for sold listing data. Leave blank to use the same ID as above.',
     }),
     defineField({
       name: 'order',

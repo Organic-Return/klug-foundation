@@ -18,8 +18,10 @@ interface HomepageData {
     textAlign?: 'left' | 'right';
     featuredTeamMember?: {
       name?: string;
+      slug?: { current: string };
       title?: string;
       bio?: string;
+      mlsAgentId?: string;
       image?: any;
       email?: string;
       phone?: string;
@@ -47,6 +49,7 @@ interface HomepageData {
   featuredProperty?: {
     enabled?: boolean;
     mlsId?: string;
+    title?: string;
     headline?: string;
     buttonText?: string;
   };
@@ -61,7 +64,14 @@ interface HomepageData {
   featuredCommunities?: {
     title?: string;
     showAll?: boolean;
-    communities?: any[];
+    communities?: Array<{
+      _id: string;
+      title: string;
+      slug: { current: string };
+      status?: string;
+      description?: string;
+      featuredImage?: any;
+    }>;
     limit?: number;
   };
   neighborhoodsSection?: {
@@ -113,8 +123,10 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
     textAlign,
     featuredTeamMember-> {
       name,
+      slug,
       title,
       bio,
+      mlsAgentId,
       image {
         asset-> {
           _id,
@@ -157,6 +169,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
   featuredProperty {
     enabled,
     mlsId,
+    title,
     headline,
     buttonText
   },
@@ -176,7 +189,13 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
       title,
       slug,
       status,
-      description
+      description,
+      featuredImage {
+        asset-> {
+          _id,
+          url
+        }
+      }
     },
     limit
   },
@@ -222,5 +241,36 @@ export async function getHomepageData(): Promise<HomepageData | null> {
   } catch (error) {
     console.error('Error fetching homepage data:', error);
     return null;
+  }
+}
+
+const ALL_COMMUNITIES_QUERY = `*[_type == "community" && status != "Sold Out"] | order(title asc) [0...$limit] {
+  _id,
+  title,
+  slug,
+  status,
+  description,
+  featuredImage {
+    asset-> {
+      _id,
+      url
+    }
+  }
+}`;
+
+/**
+ * Fetches all active communities from Sanity (for "show all" mode)
+ */
+export async function getAllCommunities(limit: number = 12) {
+  try {
+    const communities = await client.fetch(
+      ALL_COMMUNITIES_QUERY,
+      { limit },
+      { next: { revalidate: 60 } }
+    );
+    return communities || [];
+  } catch (error) {
+    console.error('Error fetching all communities:', error);
+    return [];
   }
 }

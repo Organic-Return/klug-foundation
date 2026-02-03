@@ -171,7 +171,7 @@ export default function LuxuryPropertyGrid({
         <div className="text-center mt-24">
           <Link
             href="/listings"
-            className="group inline-flex items-center gap-4 text-[var(--color-charcoal)] text-[11px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
+            className="group inline-flex items-center gap-4 text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
           >
             <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
               View All Properties

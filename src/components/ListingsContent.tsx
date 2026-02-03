@@ -95,7 +95,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
 
   // Determine aspect ratio based on template
   const aspectRatioClasses = template === 'luxury'
-    ? 'aspect-[4/5] mb-3'
+    ? 'aspect-[4/5]'
     : template === 'modern'
     ? 'aspect-[4/3]'
     : 'aspect-[4/3]';
@@ -104,7 +104,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
     <div className={`group ${cardContainerClasses}`}>
       {/* Card Image */}
       <Link href={`/listings/${listing.id}`} className="block">
-        <div className={`relative ${aspectRatioClasses} overflow-hidden bg-[var(--color-taupe)]`}>
+        <div className={`relative ${aspectRatioClasses} overflow-hidden bg-[var(--color-taupe)] ${template === 'luxury' ? 'border border-transparent group-hover:border-[var(--color-gold)] transition-[border-color] duration-500 ease-in-out' : ''}`}>
           {currentPhoto ? (
             <Image
               src={currentPhoto}
@@ -187,17 +187,17 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
       </Link>
 
       {/* Card Content */}
-      <div className={template === 'classic' ? 'p-4' : template === 'modern' ? 'p-5' : 'px-1'}>
+      <div className={template === 'classic' ? 'p-4' : template === 'modern' ? 'p-5' : 'px-0 pt-1 pb-2'}>
         <h3
           className={`line-clamp-1 ${
             template === 'luxury'
-              ? 'text-[var(--color-charcoal)] tracking-wide font-luxury'
+              ? 'text-[var(--color-charcoal)] font-luxury'
               : template === 'modern'
               ? 'text-[var(--modern-gold)] font-light tracking-wider'
               : 'text-gray-900 font-semibold'
           }`}
           style={template === 'luxury'
-            ? { fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 400, lineHeight: 1.0, marginBottom: '0.25rem' }
+            ? { fontSize: '20px', fontWeight: 400, lineHeight: 1.3, letterSpacing: '0.02em', marginBottom: '1px' }
             : template === 'modern'
             ? { fontSize: '1.25rem', fontWeight: 300, lineHeight: 1.2, marginBottom: '0.5rem' }
             : { fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }
@@ -205,47 +205,46 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
         >
           {formatPrice(listing.list_price)}
           {listing.status === 'Closed' && listing.sold_price && (
-            <span className={`text-sm font-light ml-2 ${template === 'luxury' ? 'text-[var(--color-warm-gray)]' : 'text-gray-500'}`}>
+            <span className={`text-xs font-light ml-2 ${template === 'luxury' ? 'text-[var(--color-warm-gray)]' : 'text-gray-500'}`}>
               Sold: {formatPrice(listing.sold_price)}
             </span>
           )}
         </h3>
 
         <p
-          className={`text-sm leading-tight line-clamp-1 ${
+          className={`leading-snug line-clamp-1 ${
             template === 'luxury'
               ? 'text-[var(--color-warm-gray)] font-light font-luxury'
               : template === 'modern'
-              ? 'text-[var(--modern-dark)] font-normal tracking-wide'
-              : 'text-gray-700'
+              ? 'text-sm text-[var(--modern-dark)] font-normal tracking-wide'
+              : 'text-sm text-gray-700'
           }`}
-          style={{ marginBottom: '0.125rem' }}
+          style={template === 'luxury' ? { fontSize: '16px', marginBottom: '0' } : { marginBottom: '0.125rem' }}
         >
           {getStreetAddress(listing.address, listing.city, listing.state, listing.zip_code)}
         </p>
         <p
-          className={`text-xs leading-tight line-clamp-1 ${
+          className={`leading-snug line-clamp-1 ${
             template === 'luxury'
-              ? 'text-[var(--color-warm-gray)]/70 font-light font-luxury'
+              ? 'text-[var(--color-warm-gray)] font-light font-luxury'
               : template === 'modern'
-              ? 'text-[var(--modern-gray)] uppercase tracking-[0.1em]'
-              : 'text-gray-500'
+              ? 'text-xs text-[var(--modern-gray)] uppercase tracking-[0.1em]'
+              : 'text-xs text-gray-500'
           }`}
-          style={{ marginBottom: '0.5rem' }}
+          style={template === 'luxury' ? { fontSize: '16px', marginBottom: '4px' } : { marginBottom: '0.5rem' }}
         >
           {[listing.city, listing.state].filter(Boolean).join(', ')}{listing.zip_code ? ` ${listing.zip_code}` : ''}
         </p>
 
         {/* Property Details */}
         <div
-          className={`flex items-center gap-4 text-[10px] uppercase tracking-wider ${
+          className={`flex items-center gap-3 text-[10px] uppercase ${
             template === 'luxury'
-              ? 'text-[var(--color-warm-gray)]/70 tracking-[0.15em]'
+              ? 'text-[var(--color-warm-gray)] tracking-[0.12em]'
               : template === 'modern'
-              ? 'text-[var(--modern-gray)] tracking-[0.15em] pt-3 border-t border-[var(--modern-gray-lighter)]'
-              : 'text-gray-500'
-          } ${template === 'classic' ? '' : 'mb-2'}`}
-          style={template === 'luxury' ? { marginBottom: '0.5rem' } : undefined}
+              ? 'text-[var(--modern-gray)] tracking-[0.15em] pt-3 border-t border-[var(--modern-gray-lighter)] mb-2'
+              : 'text-gray-500 tracking-wider'
+          }`}
         >
           {listing.bedrooms !== null && (
             <span>{listing.bedrooms} Beds</span>
@@ -254,7 +253,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
             <>
               <span className={`w-px h-3 ${
                 template === 'luxury'
-                  ? 'bg-[var(--color-sand)]'
+                  ? 'bg-[var(--color-light-gray)]'
                   : template === 'modern'
                   ? 'bg-[var(--modern-gray-lighter)]'
                   : 'bg-gray-300'
@@ -266,7 +265,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
             <>
               <span className={`w-px h-3 ${
                 template === 'luxury'
-                  ? 'bg-[var(--color-sand)]'
+                  ? 'bg-[var(--color-light-gray)]'
                   : template === 'modern'
                   ? 'bg-[var(--modern-gray-lighter)]'
                   : 'bg-gray-300'
@@ -275,16 +274,6 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
             </>
           )}
         </div>
-
-        {/* CTA Button - Rosewood style (luxury template only) */}
-        {template === 'luxury' && (
-          <Link
-            href={`/listings/${listing.id}`}
-            className="inline-block text-[11px] uppercase tracking-[0.2em] font-light text-[var(--color-charcoal)] border-b border-[var(--color-charcoal)]/30 pb-1 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors duration-300 font-luxury mb-4"
-          >
-            Discover
-          </Link>
-        )}
 
         {/* CTA Button - Modern template */}
         {template === 'modern' && (

@@ -10,6 +10,7 @@ import {
   type MLSProperty,
 } from '@/lib/listings';
 import { client } from '@/sanity/client';
+import imageUrlBuilder from '@sanity/image-url';
 import PropertyGallery from '@/components/PropertyGallery';
 import PropertyDetailsTabs from '@/components/PropertyDetailsTabs';
 import PropertyMap from '@/components/PropertyMap';
@@ -17,6 +18,49 @@ import SavePropertyButton from '@/components/SavePropertyButton';
 import ScheduleTourButton from '@/components/ScheduleTourButton';
 import RequestInfoButton from '@/components/RequestInfoButton';
 import PropertyMedia from '@/components/PropertyMedia';
+
+const builder = imageUrlBuilder(client);
+function urlFor(source: any) {
+  return builder.image(source);
+}
+
+interface ListingAgent {
+  name: string;
+  slug: { current: string };
+  title?: string;
+  image?: any;
+  email?: string;
+  phone?: string;
+  mobile?: string;
+}
+
+async function getListingAgent(listing: MLSProperty): Promise<ListingAgent | null> {
+  const agentIds = [
+    listing.list_agent_mls_id,
+    listing.co_list_agent_mls_id,
+    listing.buyer_agent_mls_id,
+    listing.co_buyer_agent_mls_id,
+  ].filter(Boolean);
+
+  if (agentIds.length === 0) return null;
+
+  // Find a team member whose mlsAgentId or mlsAgentIdSold matches any of the listing's agent IDs
+  const agent = await client.fetch<ListingAgent | null>(
+    `*[_type == "teamMember" && (mlsAgentId in $ids || mlsAgentIdSold in $ids)][0]{
+      name,
+      slug,
+      title,
+      image,
+      email,
+      phone,
+      mobile
+    }`,
+    { ids: agentIds },
+    { next: { revalidate: 60 } }
+  );
+
+  return agent;
+}
 
 interface ListingPageProps {
   params: Promise<{ id: string }>;
@@ -379,6 +423,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
     { mlsNumber: listing.mls_number }
   );
 
+  // Look up team member matching this listing's agent IDs
+  const listingAgent = await getListingAgent(listing);
+
   const hasPhotos = listing.photos && listing.photos.length > 0;
   const schemas = generateRealEstateSchema(listing);
 
@@ -641,8 +688,69 @@ export default async function ListingPage({ params }: ListingPageProps) {
               <div className="bg-[var(--color-sothebys-blue)] p-6 rounded-sm">
                 <h3 className="font-serif text-xl font-light text-white mb-2">Request Information</h3>
                 <p className="text-white/70 text-sm mb-6 leading-relaxed">
-                  Have questions about this property? We're here to help.
+                  Have questions about this property? We&apos;re here to help.
                 </p>
+
+                {/* Agent Info */}
+                {listingAgent && (
+                  <div className="mb-6 pb-6 border-b border-white/20">
+                    <div className="flex items-center gap-4">
+                      {listingAgent.image ? (
+                        <Link href={`/team/${listingAgent.slug.current}`}>
+                          <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-gold)]/30 flex-shrink-0">
+                            <Image
+                              src={urlFor(listingAgent.image).width(128).height(128).url()}
+                              alt={listingAgent.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-8 h-8 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <Link href={`/team/${listingAgent.slug.current}`} className="text-white font-serif text-base hover:text-[var(--color-gold)] transition-colors">
+                          {listingAgent.name}
+                        </Link>
+                        {listingAgent.title && (
+                          <p className="text-white/50 text-xs font-light mt-0.5">{listingAgent.title}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      {listingAgent.email && (
+                        <a href={`mailto:${listingAgent.email}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          {listingAgent.email}
+                        </a>
+                      )}
+                      {listingAgent.phone && (
+                        <a href={`tel:${listingAgent.phone}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          {listingAgent.phone}
+                        </a>
+                      )}
+                      {listingAgent.mobile && listingAgent.mobile !== listingAgent.phone && (
+                        <a href={`tel:${listingAgent.mobile}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                          <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          {listingAgent.mobile}
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <RequestInfoButton propertyAddress={listing.address || `Property ${listing.mls_number}`} />
               </div>
 
