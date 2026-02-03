@@ -1,0 +1,572 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Content Management Guide</title>
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.5; max-width: 8.5in; margin: 0 auto; padding: 1in; }
+h1 { font-size: 24pt; color: #1a365d; border-bottom: 2px solid #1a365d; padding-bottom: 8pt; margin-top: 24pt; }
+h2 { font-size: 16pt; color: #2c5282; margin-top: 18pt; border-bottom: 1px solid #e2e8f0; padding-bottom: 4pt; }
+h3 { font-size: 13pt; color: #2d3748; margin-top: 14pt; }
+h4 { font-size: 11pt; color: #4a5568; margin-top: 12pt; font-weight: bold; }
+p { margin: 8pt 0; }
+table { border-collapse: collapse; width: 100%; margin: 12pt 0; }
+th, td { border: 1px solid #cbd5e0; padding: 8pt; text-align: left; }
+th { background-color: #edf2f7; font-weight: bold; }
+code { font-family: Consolas, monospace; background-color: #f7fafc; padding: 2pt 4pt; border-radius: 3pt; font-size: 10pt; }
+pre { background-color: #f7fafc; padding: 12pt; border-radius: 4pt; overflow-x: auto; font-family: Consolas, monospace; font-size: 10pt; border: 1px solid #e2e8f0; }
+ul, ol { margin: 8pt 0; padding-left: 24pt; }
+li { margin: 4pt 0; }
+hr { border: none; border-top: 1px solid #e2e8f0; margin: 16pt 0; }
+.note { background-color: #ebf8ff; border-left: 4px solid #3182ce; padding: 12pt; margin: 12pt 0; }
+.tip { background-color: #f0fff4; border-left: 4px solid #38a169; padding: 12pt; margin: 12pt 0; }
+</style>
+</head>
+<body>
+
+<h1>Content Management Guide</h1>
+<p>This guide explains how to manage all content on the Real Estate Website using Sanity Studio.</p>
+
+<hr>
+
+<h2>Accessing Sanity Studio</h2>
+
+<p><strong>Local Development:</strong></p>
+<pre>npm run dev</pre>
+<p>Then visit: <code>http://localhost:3000/studio</code></p>
+
+<p><strong>Production:</strong> <code>https://yourdomain.com/studio</code></p>
+
+<hr>
+
+<h2>Content Types Overview</h2>
+
+<table>
+<tr><th>Content Type</th><th>Purpose</th><th>Location in Studio</th></tr>
+<tr><td>Homepage</td><td>Main landing page configuration</td><td>Top of sidebar</td></tr>
+<tr><td>Site Settings</td><td>Global settings, branding, API keys</td><td>Top of sidebar</td></tr>
+<tr><td>Post</td><td>Blog articles</td><td>Content list</td></tr>
+<tr><td>Community</td><td>Neighborhood/city profiles</td><td>Content list</td></tr>
+<tr><td>Team Member</td><td>Agent profiles</td><td>Content list</td></tr>
+<tr><td>Publication</td><td>Market reports, magazines</td><td>Content list</td></tr>
+<tr><td>Navigation</td><td>Site menus</td><td>Content list</td></tr>
+<tr><td>Why Klug Properties</td><td>About page content</td><td>Content list</td></tr>
+<tr><td>Testimonials Page</td><td>Client testimonials</td><td>Content list</td></tr>
+<tr><td>Affiliated Partner</td><td>Partner agent profiles</td><td>Content list</td></tr>
+<tr><td>Affiliated Partners Page</td><td>Partner directory pages</td><td>Content list</td></tr>
+<tr><td>Off Market Listing</td><td>Properties not in MLS</td><td>Content list</td></tr>
+<tr><td>Property Enhancement</td><td>Videos/docs for MLS properties</td><td>Content list</td></tr>
+<tr><td>MLS Configuration</td><td>Filter which MLS listings appear</td><td>Content list</td></tr>
+</table>
+
+<hr>
+
+<h2>Singleton Documents (One Instance Only)</h2>
+
+<h3>Homepage</h3>
+<p>Controls the entire landing page. Sections include:</p>
+
+<h4>Hero Section</h4>
+<ul>
+<li>Upload background video (Mux) or fallback image</li>
+<li>Toggle search form visibility</li>
+<li>Set hero title text</li>
+</ul>
+
+<h4>Team Section</h4>
+<ul>
+<li>Select featured team member</li>
+<li>Choose positioning (left/right)</li>
+</ul>
+
+<h4>Accolades Section</h4>
+<ul>
+<li>Add up to 12 achievement stats</li>
+<li>Each can be: number, number with prefix, or image</li>
+<li>Example: "$500M+" with label "In Sales Volume"</li>
+</ul>
+
+<h4>Featured Property</h4>
+<ul>
+<li>Enter MLS Number to showcase a single property</li>
+<li>Customize button text</li>
+</ul>
+
+<h4>Featured Properties Carousel</h4>
+<ul>
+<li>Select cities to show newest high-priced listings</li>
+<li>Properties auto-populate from MLS data</li>
+</ul>
+
+<h4>Featured Communities</h4>
+<ul>
+<li>Choose to show all or select specific communities</li>
+<li>Links to community detail pages</li>
+</ul>
+
+<h4>Market Stats Section</h4>
+<ul>
+<li>Enable/disable the section</li>
+<li>Select which cities to display stats for</li>
+<li>Available cities: Aspen, Snowmass Village, Basalt, Carbondale, Glenwood Springs, etc.</li>
+</ul>
+
+<h4>SEO Settings</h4>
+<ul>
+<li>Meta title and description</li>
+<li>Open Graph image</li>
+<li>Keywords</li>
+</ul>
+
+<hr>
+
+<h3>Site Settings</h3>
+<p>Global configuration for the entire site.</p>
+
+<h4>Template Selection</h4>
+<ul>
+<li>Classic (Klug Custom)</li>
+<li>Luxury</li>
+<li>Modern</li>
+</ul>
+
+<h4>Branding</h4>
+<ul>
+<li>Logo image</li>
+<li>Favicon</li>
+<li>Apple touch icon</li>
+</ul>
+
+<h4>API Keys (can also be set in .env.local)</h4>
+<ul>
+<li>Census API Key</li>
+<li>YouTube API Key &amp; Channel ID</li>
+<li>Google Maps API Key</li>
+<li>Google Analytics ID</li>
+<li>Google Tag Manager ID</li>
+<li>Google Ads Conversion ID &amp; Label</li>
+<li>Facebook Pixel ID</li>
+</ul>
+
+<h4>Social Media Links</h4>
+<ul>
+<li>Facebook, Instagram, Twitter/X, LinkedIn, YouTube</li>
+</ul>
+
+<h4>Contact Information</h4>
+<ul>
+<li>Email, phone, address</li>
+</ul>
+
+<h4>Default SEO</h4>
+<ul>
+<li>Default meta image</li>
+<li>Site-wide keywords</li>
+</ul>
+
+<h4>Footer Settings</h4>
+<ul>
+<li>Portrait image</li>
+<li>Tagline/logo image</li>
+<li>Brokerage logo</li>
+</ul>
+
+<hr>
+
+<h2>Regular Content Documents</h2>
+
+<h3>Posts (Blog)</h3>
+<p>Create blog articles with:</p>
+<ul>
+<li>Title and auto-generated slug</li>
+<li>Main image with hotspot cropping</li>
+<li>Rich text body supporting:
+    <ul>
+    <li>Headings (H1, H2, H3)</li>
+    <li>Block quotes</li>
+    <li>Bullet and numbered lists</li>
+    <li>Links</li>
+    <li>Embedded images</li>
+    <li>Mux videos</li>
+    <li>Code blocks</li>
+    </ul>
+</li>
+<li>Published date</li>
+<li>SEO metadata</li>
+</ul>
+
+<hr>
+
+<h3>Communities</h3>
+<p>Detailed neighborhood/city profiles.</p>
+
+<h4>Basic Info</h4>
+<ul>
+<li>Name, slug, type (city/neighborhood/complex)</li>
+</ul>
+
+<h4>MLS Linking</h4>
+<ul>
+<li>Select MLS Neighborhood (dropdown populated from MLS data)</li>
+<li>Select Subdivision/Complex Name (dropdown populated from MLS data)</li>
+</ul>
+
+<h4>Demographics (auto-populated from Census API)</h4>
+<ul>
+<li>Population, households, median age</li>
+<li>Median income, education stats</li>
+<li>Housing data, elevation</li>
+</ul>
+
+<h4>Price Range</h4>
+<ul>
+<li>Set min/max prices for the community</li>
+</ul>
+
+<h4>Amenities</h4>
+<ul>
+<li>Tag-based list (pool, golf, hiking, etc.)</li>
+</ul>
+
+<h4>Description</h4>
+<ul>
+<li>Rich text content about the community</li>
+</ul>
+
+<h4>Nearby Schools</h4>
+<ul>
+<li>Add schools with name, type, rating (1-10), distance, address, website</li>
+</ul>
+
+<h4>Nearby Attractions</h4>
+<ul>
+<li>Add restaurants, parks, shopping, etc.</li>
+<li>Categories: restaurant, shopping, park, entertainment, fitness, healthcare, grocery, coffee, museum, outdoor, other</li>
+</ul>
+
+<h4>Status</h4>
+<ul>
+<li>Active, Coming Soon, or Sold Out</li>
+</ul>
+
+<h4>Featured Flag</h4>
+<ul>
+<li>Mark to show in featured communities section</li>
+</ul>
+
+<hr>
+
+<h3>Team Members</h3>
+<p>Agent/team member profiles:</p>
+<ul>
+<li>Name and title</li>
+<li>Biography</li>
+<li>Professional photo</li>
+<li>Contact info (email, phone, mobile, office)</li>
+<li>Office address</li>
+<li>Social media links</li>
+<li>Display order (for sorting)</li>
+<li>Featured on homepage flag</li>
+</ul>
+
+<hr>
+
+<h3>Publications</h3>
+<p>Market reports and magazines:</p>
+<ul>
+<li>Title and slug</li>
+<li>Type: Magazine or Market Report</li>
+<li>Header image</li>
+<li>Excerpt</li>
+<li>PDF file upload</li>
+<li>Rich text content</li>
+<li>Published date</li>
+<li>Featured flag</li>
+<li>SEO metadata</li>
+</ul>
+
+<hr>
+
+<h3>Navigation</h3>
+<p>Configure site menus:</p>
+
+<h4>Main Navigation</h4>
+<ul>
+<li>Create with identifier: <code>main</code></li>
+<li>Add navigation items with labels and URLs</li>
+<li>Enable mega menu for complex dropdowns:
+    <ul>
+    <li>Columns with titles, subtitles, and link lists</li>
+    <li>Featured images per column</li>
+    </ul>
+</li>
+</ul>
+
+<h4>Footer Navigation</h4>
+<ul>
+<li>Create with identifier: <code>footer</code></li>
+<li>Add footer link groups</li>
+</ul>
+
+<hr>
+
+<h3>Why Klug Properties (About Page)</h3>
+<p>Configure the about/company page:</p>
+<ul>
+<li>Hero section with title, subtitle, background</li>
+<li>Introduction with rich text</li>
+<li>Services/differentiators with icons</li>
+<li>Marketing approach section</li>
+<li>Statistics display</li>
+<li>Process steps</li>
+<li>Testimonials</li>
+<li>Call to action</li>
+</ul>
+
+<hr>
+
+<h3>Testimonials Page</h3>
+<p>Dedicated testimonials page:</p>
+<ul>
+<li>Hero section</li>
+<li>Introduction</li>
+<li>Featured testimonial (highlighted)</li>
+<li>Testimonials grid</li>
+<li>Video testimonials (YouTube/Vimeo)</li>
+<li>Statistics section</li>
+<li>CTA section</li>
+</ul>
+
+<hr>
+
+<h3>Affiliated Partners</h3>
+<p>Partner agent profiles:</p>
+<ul>
+<li>Partner type: Ski Town or Market Leader</li>
+<li>Search and select from database of agents</li>
+<li>Override photo and bio if needed</li>
+<li>Location with coordinates for map display</li>
+<li>Contact information</li>
+<li>Specialties tags</li>
+<li>Sort order and featured flag</li>
+</ul>
+
+<hr>
+
+<h3>Affiliated Partners Page</h3>
+<p>Landing pages for partner directories:</p>
+<ul>
+<li>Page type: Main Landing, Ski Town Partners, or Market Leaders</li>
+<li>Hero section</li>
+<li>Category cards (main page only)</li>
+<li>Featured section</li>
+<li>CTA with contact modal option</li>
+</ul>
+
+<hr>
+
+<h3>Off Market Listings</h3>
+<p>Properties not in MLS:</p>
+<ul>
+<li>Full property details (beds, baths, sqft, lot size)</li>
+<li>Address and location with coordinates</li>
+<li>Photos and virtual tour</li>
+<li>Status: Active, Pending, Closed, Coming Soon</li>
+<li>Agent information</li>
+<li>Featured flag</li>
+<li>Registration requirement option</li>
+</ul>
+
+<hr>
+
+<h3>Property Enhancement</h3>
+<p>Add videos and documents to MLS properties:</p>
+
+<h4>How to Use:</h4>
+<ol>
+<li>Find the MLS Number of the property you want to enhance</li>
+<li>Create a new Property Enhancement document</li>
+<li>Enter the MLS Number</li>
+<li>Add videos and/or documents</li>
+<li>Save</li>
+</ol>
+
+<h4>Video Types Supported:</h4>
+<ul>
+<li>Mux (upload directly)</li>
+<li>YouTube (enter video ID)</li>
+<li>Vimeo (enter video ID)</li>
+<li>External URL (direct video link)</li>
+</ul>
+
+<h4>Document Types:</h4>
+<ul>
+<li>Floor Plan</li>
+<li>Brochure</li>
+<li>Survey</li>
+<li>Disclosures</li>
+<li>HOA Documents</li>
+<li>Inspection Report</li>
+<li>Other</li>
+</ul>
+
+<p>Videos and documents automatically appear on the listing detail page.</p>
+
+<hr>
+
+<h3>MLS Configuration</h3>
+<p>Control which MLS listings appear on the site:</p>
+
+<h4>Excluded Property Types</h4>
+<ul>
+<li>Commercial Land, Commercial Lease, Commercial Sale</li>
+<li>Fractional, RES Vacant Land</li>
+<li>Residential, Residential Lease</li>
+</ul>
+
+<h4>Excluded Property Subtypes</h4>
+<ul>
+<li>Agricultural, Business with Real Estate, Commercial</li>
+<li>Condominium, Duplex, Half Duplex</li>
+<li>Mobile Home, Townhouse, etc.</li>
+</ul>
+
+<h4>Allowed Cities</h4>
+<ul>
+<li>Whitelist specific cities to display</li>
+<li>Aspen, Basalt, Carbondale, Snowmass Village, etc.</li>
+</ul>
+
+<h4>Excluded Statuses</h4>
+<ul>
+<li>Active, Active Under Contract, Closed, Pending</li>
+</ul>
+
+<hr>
+
+<h2>MLS Data vs Sanity Content</h2>
+
+<h3>MLS Data (Read-Only)</h3>
+<ul>
+<li>Property listings come from third-party MLS feed</li>
+<li>Data stored in Supabase database</li>
+<li>Updates automatically from MLS source</li>
+<li>Cannot edit individual listings in Sanity</li>
+</ul>
+
+<h3>Sanity Content (Editable)</h3>
+<ul>
+<li>All content types listed above</li>
+<li>Full control over content</li>
+<li>Changes publish immediately</li>
+</ul>
+
+<h3>Integration Points</h3>
+<ol>
+<li><strong>Homepage</strong> pulls featured properties from MLS by city</li>
+<li><strong>Communities</strong> link to MLS neighborhoods for listing counts</li>
+<li><strong>Property Enhancement</strong> adds rich media to MLS listings</li>
+<li><strong>MLS Configuration</strong> filters which MLS listings appear</li>
+</ol>
+
+<hr>
+
+<h2>Environment Variables</h2>
+<p>Set these in <code>.env.local</code> for local development or in your hosting platform (Vercel) for production:</p>
+
+<pre>
+# Required
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
+
+# Optional - can also be set in Site Settings
+CENSUS_API_KEY=your_census_api_key
+YOUTUBE_API_KEY=your_youtube_api_key
+YOUTUBE_CHANNEL_ID=your_channel_id
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_maps_key
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID=GTM-XXXXXXX
+NEXT_PUBLIC_FACEBOOK_PIXEL_ID=your_pixel_id
+</pre>
+
+<hr>
+
+<h2>Common Tasks</h2>
+
+<h3>Add a New Blog Post</h3>
+<ol>
+<li>Go to Studio &gt; Post</li>
+<li>Click "Create new Post"</li>
+<li>Fill in title, content, image</li>
+<li>Set published date</li>
+<li>Publish</li>
+</ol>
+
+<h3>Feature a Property on Homepage</h3>
+<ol>
+<li>Go to Studio &gt; Homepage</li>
+<li>Find "Featured Property" section</li>
+<li>Enter the MLS Number</li>
+<li>Save</li>
+</ol>
+
+<h3>Add Video to a Listing</h3>
+<ol>
+<li>Go to Studio &gt; Property Enhancement</li>
+<li>Click "Create new Property Enhancement"</li>
+<li>Enter the MLS Number of the property</li>
+<li>Add videos (YouTube, Vimeo, Mux, or external URL)</li>
+<li>Save</li>
+</ol>
+
+<h3>Update Navigation Menu</h3>
+<ol>
+<li>Go to Studio &gt; Navigation</li>
+<li>Find the navigation with identifier "main"</li>
+<li>Edit navigation items</li>
+<li>For mega menus, enable the toggle and configure columns</li>
+<li>Save</li>
+</ol>
+
+<h3>Create a New Community Page</h3>
+<ol>
+<li>Go to Studio &gt; Community</li>
+<li>Click "Create new Community"</li>
+<li>Fill in name, select type (city/neighborhood/complex)</li>
+<li>Link to MLS area for automatic listing association</li>
+<li>Add schools, attractions, amenities</li>
+<li>Save</li>
+</ol>
+
+<h3>Change Site Template</h3>
+<ol>
+<li>Go to Studio &gt; Site Settings</li>
+<li>Find "Site Template" section</li>
+<li>Select Classic, Luxury, or Modern</li>
+<li>Save (changes apply site-wide)</li>
+</ol>
+
+<h3>Hide Certain Property Types</h3>
+<ol>
+<li>Go to Studio &gt; MLS Configuration</li>
+<li>Check the property types to exclude</li>
+<li>Save (listings update immediately)</li>
+</ol>
+
+<hr>
+
+<h2>Tips</h2>
+
+<div class="tip">
+<ul>
+<li><strong>Images:</strong> Use high-quality images. Hotspot cropping lets you control focal points.</li>
+<li><strong>SEO:</strong> Fill in meta titles and descriptions for better search rankings.</li>
+<li><strong>Preview:</strong> Use the Vision tool in Studio to test GROQ queries.</li>
+<li><strong>Videos:</strong> Mux provides best performance; YouTube/Vimeo are good alternatives.</li>
+<li><strong>Order:</strong> Use display order fields to control how items appear in lists.</li>
+<li><strong>Featured Flags:</strong> Use these to highlight important content on the homepage.</li>
+</ul>
+</div>
+
+</body>
+</html>
