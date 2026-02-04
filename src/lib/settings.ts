@@ -99,11 +99,12 @@ export async function getSettings(): Promise<SiteSettings | null> {
 
 /**
  * Gets the site template from Sanity settings
- * Returns 'classic', 'luxury', or 'modern', defaults to 'classic'
+ * Priority: Sanity setting > NEXT_PUBLIC_SITE_TEMPLATE env var > 'classic'
  */
 export async function getSiteTemplate(): Promise<'classic' | 'luxury' | 'modern' | 'custom-one'> {
   const settings = await getSettings();
-  return settings?.template || 'classic';
+  const envTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE as SiteSettings['template'];
+  return settings?.template || envTemplate || 'classic';
 }
 
 /**
