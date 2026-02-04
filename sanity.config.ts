@@ -9,8 +9,8 @@ export default defineConfig({
   name: 'default',
   title: 'Real Estate Website',
 
-  projectId: '1zb39xqr',
-  dataset: 'production',
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '1zb39xqr',
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
 
   plugins: [
     structureTool({
