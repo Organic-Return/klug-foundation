@@ -410,6 +410,53 @@ address {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Ken Burns slow zoom for luxury hero images */
+@keyframes kenBurns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.animate-ken-burns {
+  animation: kenBurns 20s linear forwards;
+}
+
+/* Scroll indicator bounce for luxury community hero */
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+.animate-scroll-bounce {
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+/* Gallery carousel — responsive slide width */
+.gallery-carousel-track {
+  --gallery-slide-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .gallery-carousel-track {
+    --gallery-slide-width: 50%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gallery-carousel-track {
+    --gallery-slide-width: 25%;
+  }
+}
+
 /* Image zoom effect on hover */
 .img-zoom-container {
   overflow: hidden;

@@ -20,6 +20,7 @@ interface NearbyAttractionsProps {
   attractions: Attraction[];
   title?: string;
   subtitle?: string;
+  variant?: 'classic' | 'luxury';
 }
 
 const categoryLabels: Record<string, string> = {
@@ -96,37 +97,55 @@ export default function NearbyAttractions({
   attractions,
   title = 'Points of Interest',
   subtitle = 'Dining, shopping, and entertainment nearby',
+  variant = 'classic',
 }: NearbyAttractionsProps) {
   if (!attractions || attractions.length === 0) {
     return null;
   }
 
+  const isLuxury = variant === 'luxury';
+
   return (
     <div className="space-y-6">
       {/* Subsection Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-sothebys-blue)]/10 dark:bg-white/10">
-          <svg className="w-6 h-6 text-[var(--color-sothebys-blue)] dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <hgroup>
-          <h3 className="text-xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
+      {isLuxury ? (
+        <div className="mb-10">
+          <h3 className="text-xl font-luxury font-light text-[var(--color-charcoal)] tracking-wide mb-2">
             {title}
           </h3>
-          <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
+          <p className="text-sm text-[var(--color-warm-gray)] font-luxury-body font-light tracking-wide">
             {subtitle}
           </p>
-        </hgroup>
-      </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-4 mb-8">
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-[var(--color-sothebys-blue)]/10 dark:bg-white/10">
+            <svg className="w-6 h-6 text-[var(--color-sothebys-blue)] dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <hgroup>
+            <h3 className="text-xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
+              {title}
+            </h3>
+            <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
+              {subtitle}
+            </p>
+          </hgroup>
+        </div>
+      )}
 
       {/* Attractions Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className={`grid grid-cols-1 md:grid-cols-2 ${isLuxury ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-5`}>
         {attractions.map((attraction, index) => (
           <div
             key={index}
-            className="group relative bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 overflow-hidden hover:border-[var(--color-gold)] hover:shadow-lg transition-all duration-300"
+            className={`group relative overflow-hidden transition-all duration-500 ${
+              isLuxury
+                ? 'bg-[#fffcf7] border border-[var(--color-taupe)]/20 hover:border-[var(--color-gold)]/50 hover:shadow-sm'
+                : 'bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] hover:shadow-lg'
+            }`}
           >
             {/* Image or Placeholder */}
             {attraction.image?.asset?.url ? (
@@ -143,39 +162,68 @@ export default function NearbyAttractions({
 
                 {/* Category badge on image */}
                 {attraction.category && (
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-white/90 dark:bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                    <span className="text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]">
+                  <div className={`absolute bottom-4 left-4 flex items-center gap-2 backdrop-blur-sm px-3 py-1.5 ${
+                    isLuxury
+                      ? 'bg-white/95 border border-[var(--color-taupe)]/30'
+                      : 'bg-white/90 dark:bg-black/80 rounded-full'
+                  }`}>
+                    <span className={isLuxury ? 'text-[var(--color-gold)]' : 'text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]'}>
                       <CategoryIcon category={attraction.category} />
                     </span>
-                    <span className="text-xs uppercase tracking-[0.1em] font-medium text-[#1a1a1a] dark:text-white">
+                    <span className={`text-xs uppercase font-light ${
+                      isLuxury
+                        ? 'tracking-[0.2em] font-luxury-body text-[var(--color-charcoal)]'
+                        : 'tracking-[0.1em] font-medium text-[#1a1a1a] dark:text-white'
+                    }`}>
                       {categoryLabels[attraction.category] || attraction.category}
                     </span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="relative h-32 bg-gradient-to-br from-[#f8f7f5] to-[#e8e6e3] dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
-                <span className="text-[var(--color-sothebys-blue)]/30 dark:text-white/20">
-                  <CategoryIcon category={attraction.category} />
-                </span>
-                {/* Category badge */}
-                {attraction.category && (
-                  <div className="absolute bottom-4 left-4 flex items-center gap-2">
-                    <span className="text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]">
-                      <CategoryIcon category={attraction.category} />
-                    </span>
-                    <span className="text-xs uppercase tracking-[0.1em] font-medium text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]">
-                      {categoryLabels[attraction.category] || attraction.category}
-                    </span>
-                  </div>
-                )}
-              </div>
+              isLuxury ? (
+                <div className="relative h-32 bg-gradient-to-br from-[#f6f1eb] to-[var(--color-taupe)]/20 flex items-center justify-center">
+                  <span className="text-[var(--color-gold)]/30">
+                    <CategoryIcon category={attraction.category} />
+                  </span>
+                  {attraction.category && (
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                      <span className="text-[var(--color-gold)]">
+                        <CategoryIcon category={attraction.category} />
+                      </span>
+                      <span className="text-xs uppercase tracking-[0.2em] font-luxury-body font-light text-[var(--color-charcoal)]">
+                        {categoryLabels[attraction.category] || attraction.category}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="relative h-32 bg-gradient-to-br from-[#f8f7f5] to-[#e8e6e3] dark:from-gray-800 dark:to-gray-900 flex items-center justify-center">
+                  <span className="text-[var(--color-sothebys-blue)]/30 dark:text-white/20">
+                    <CategoryIcon category={attraction.category} />
+                  </span>
+                  {attraction.category && (
+                    <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                      <span className="text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]">
+                        <CategoryIcon category={attraction.category} />
+                      </span>
+                      <span className="text-xs uppercase tracking-[0.1em] font-medium text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)]">
+                        {categoryLabels[attraction.category] || attraction.category}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )
             )}
 
             {/* Content */}
             <div className="p-5">
               <div className="flex items-start justify-between gap-3 mb-2">
-                <h4 className="font-medium text-[#1a1a1a] dark:text-white group-hover:text-[var(--color-sothebys-blue)] dark:group-hover:text-[var(--color-gold)] transition-colors duration-300 line-clamp-1">
+                <h4 className={`line-clamp-1 transition-colors duration-300 ${
+                  isLuxury
+                    ? 'font-luxury-body font-medium text-[var(--color-charcoal)] group-hover:text-[var(--color-gold)]'
+                    : 'font-medium text-[#1a1a1a] dark:text-white group-hover:text-[var(--color-sothebys-blue)] dark:group-hover:text-[var(--color-gold)]'
+                }`}>
                   {attraction.website ? (
                     <a
                       href={attraction.website}
@@ -190,20 +238,32 @@ export default function NearbyAttractions({
                   )}
                 </h4>
                 {attraction.distance && (
-                  <span className="text-xs text-[#6a6a6a] dark:text-gray-400 font-light whitespace-nowrap bg-[#f8f7f5] dark:bg-gray-800 px-2 py-1 rounded">
+                  <span className={`text-xs font-light whitespace-nowrap px-2 py-1 ${
+                    isLuxury
+                      ? 'font-luxury-body text-[var(--color-warm-gray)] bg-white border border-[var(--color-taupe)]/20'
+                      : 'text-[#6a6a6a] dark:text-gray-400 bg-[#f8f7f5] dark:bg-gray-800 rounded'
+                  }`}>
                     {attraction.distance}
                   </span>
                 )}
               </div>
 
               {attraction.description && (
-                <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light line-clamp-2 leading-relaxed">
+                <p className={`text-sm font-light line-clamp-2 leading-relaxed ${
+                  isLuxury
+                    ? 'font-luxury-body text-[var(--color-warm-gray)]'
+                    : 'text-[#6a6a6a] dark:text-gray-400'
+                }`}>
                   {attraction.description}
                 </p>
               )}
 
               {attraction.address && (
-                <p className="mt-3 text-xs text-[#8a8a8a] dark:text-gray-500 font-light truncate flex items-center gap-1.5">
+                <p className={`mt-3 text-xs font-light truncate flex items-center gap-1.5 ${
+                  isLuxury
+                    ? 'font-luxury-body text-[var(--color-warm-gray)]'
+                    : 'text-[#8a8a8a] dark:text-gray-500'
+                }`}>
                   <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>

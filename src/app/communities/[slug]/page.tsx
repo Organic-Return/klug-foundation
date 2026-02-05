@@ -2,6 +2,7 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import imageUrlBuilder from "@sanity/image-url";
 import { client, writeClient } from "@/sanity/client";
 import Link from "next/link";
+import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
@@ -12,7 +13,10 @@ import NearbySchools from "@/components/NearbySchools";
 import NearbyAttractions from "@/components/NearbyAttractions";
 import CommunityHero from "@/components/CommunityHero";
 import CommunityNeighborhoods from "@/components/CommunityNeighborhoods";
-import { fetchDemographicData } from "@/lib/census";
+import ModernContactCTA from "@/components/ModernContactCTA";
+import CustomOneMarketStats from "@/components/CustomOneMarketStats";
+import CustomOneLocalHighlights from "@/components/CustomOneLocalHighlights";
+import { fetchDemographicData, formatCurrency, formatNumber } from "@/lib/census";
 import { getCommunityPriceRange } from "@/lib/listings";
 import { getSettings } from "@/lib/settings";
 
@@ -339,7 +343,8 @@ export default async function CommunityPage({
   ]);
 
   const template = settings?.template || 'classic';
-  const isLuxury = template === 'luxury';
+  const isLuxury = template === 'luxury' || template === 'custom-one';
+  const isCustomOne = template === 'custom-one';
   const variant = isLuxury ? 'luxury' : 'classic';
 
   if (!community) {
@@ -548,45 +553,180 @@ export default async function CommunityPage({
         <div className="flex flex-col">
 
           {/* About & Demographics - Elegant Two Column Layout */}
-          <section className={isLuxury ? 'py-24 md:py-36 bg-white' : 'py-16 md:py-24 bg-white dark:bg-[#1a1a1a]'}>
-            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
-                {/* Left Column - About This Community */}
-                <div className="lg:col-span-7">
+          <section className={isLuxury ? 'py-32 md:py-44 bg-white' : 'py-16 md:py-24 bg-white dark:bg-[#1a1a1a]'}>
+            <div className={isLuxury ? 'max-w-[1440px] mx-auto px-8 lg:px-12' : 'max-w-7xl mx-auto px-6 md:px-12 lg:px-16'}>
+              {isCustomOne ? (
+                /* Custom-one: centered full-width about content, no sidebar */
+                <div className="max-w-4xl mx-auto text-center">
                   {Array.isArray(community.body) && community.body.length > 0 && (
                     <>
-                      {isLuxury ? (
-                        <>
-                          <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
-                            About
-                          </p>
-                          <div className="w-px h-8 bg-[var(--color-taupe)] mb-6" />
-                          <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] mb-10 tracking-wide leading-tight">
-                            Discover {community.title}
-                          </h2>
-                        </>
-                      ) : (
-                        <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-10 tracking-wide leading-tight">
-                          Discover {community.title}
-                        </h2>
-                      )}
-
-                      <div className="max-w-none">
+                      <div className="w-16 h-[1px] bg-[var(--modern-gold)] mx-auto mb-8" />
+                      <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-[var(--modern-black)] mb-10 tracking-wide leading-tight">
+                        Discover {community.title}
+                      </h2>
+                      <div className="max-w-none text-left mx-auto">
                         <PortableText value={community.body} components={isLuxury ? luxuryComponents : components} />
                       </div>
                     </>
                   )}
                 </div>
+              ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+                  {/* Left Column - About This Community */}
+                  <div className="lg:col-span-7">
+                    {Array.isArray(community.body) && community.body.length > 0 && (
+                      <>
+                        {isLuxury ? (
+                          <>
+                            <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
+                              About
+                            </p>
+                            <div className="w-px h-8 bg-[var(--color-taupe)] mb-6" />
+                            <h2 className="text-3xl md:text-4xl font-luxury font-light text-[var(--color-charcoal)] mb-10 tracking-wide leading-tight">
+                              Discover {community.title}
+                            </h2>
+                          </>
+                        ) : (
+                          <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-10 tracking-wide leading-tight">
+                            Discover {community.title}
+                          </h2>
+                        )}
 
-                {/* Right Column - Demographics Sidebar */}
-                <div className="lg:col-span-5">
-                  <div className="lg:sticky lg:top-28">
-                    <Demographics demographics={demographics} variant={variant} />
+                        <div className="max-w-none">
+                          <PortableText value={community.body} components={isLuxury ? luxuryComponents : components} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Right Column - Demographics Sidebar */}
+                  <div className="lg:col-span-5">
+                    <div className="lg:sticky lg:top-28">
+                      <Demographics demographics={demographics} variant={variant} />
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
           </section>
+
+          {/* Demographics - Horizontal section (custom-one only) */}
+          {isCustomOne && demographics && demographics.population && (
+            <section className="py-24 md:py-32 bg-[var(--modern-black)] relative overflow-hidden">
+              {/* Texture overlay */}
+              <div className="absolute inset-0 opacity-5">
+                <div className="absolute inset-0" style={{
+                  backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 40px, var(--modern-gold) 40px, var(--modern-gold) 41px)`
+                }} />
+              </div>
+
+              <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
+                <div className="text-center mb-16 md:mb-20">
+                  <div className="w-16 h-[1px] bg-[var(--modern-gold)] mx-auto mb-8" />
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide">
+                    Community Profile
+                  </h2>
+                </div>
+
+                {/* Primary Stats Row */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-12">
+                  {demographics.population && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {formatNumber(demographics.population)}
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        Population
+                      </div>
+                    </div>
+                  )}
+                  {demographics.households && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {formatNumber(demographics.households)}
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        Households
+                      </div>
+                    </div>
+                  )}
+                  {demographics.medianAge && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {demographics.medianAge}
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        Median Age
+                      </div>
+                    </div>
+                  )}
+                  {demographics.medianIncome && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {formatCurrency(demographics.medianIncome)}
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        Median Income
+                      </div>
+                    </div>
+                  )}
+                  {demographics.medianHomeValue && demographics.medianHomeValue > 0 && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {formatCurrency(demographics.medianHomeValue)}
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        Home Value
+                      </div>
+                    </div>
+                  )}
+                  {demographics.bachelorsDegreePercent && (
+                    <div className="text-center">
+                      <div className="text-2xl md:text-3xl lg:text-4xl font-light text-[var(--modern-gold)] mb-3 tracking-wide">
+                        {demographics.bachelorsDegreePercent}%
+                      </div>
+                      <div className="text-[10px] text-white/60 uppercase tracking-[0.2em]">
+                        College Educated
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Ownership bar */}
+                {demographics.tenure && demographics.tenure.ownerOccupiedPercent !== undefined && (
+                  <>
+                    <div className="w-24 h-[1px] bg-[var(--modern-gold)] mx-auto my-12 md:my-16" />
+                    <div className="max-w-md mx-auto">
+                      <div
+                        className="w-full bg-white/10 h-2 overflow-hidden"
+                        role="progressbar"
+                        aria-valuenow={demographics.tenure.ownerOccupiedPercent}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${demographics.tenure.ownerOccupiedPercent}% owner-occupied, ${100 - demographics.tenure.ownerOccupiedPercent}% renter-occupied`}
+                      >
+                        <div
+                          className="bg-[var(--modern-gold)] h-full transition-all duration-500"
+                          style={{ width: `${demographics.tenure.ownerOccupiedPercent}%` }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] uppercase tracking-[0.15em] text-white/50 mt-3">
+                        <span>{demographics.tenure.ownerOccupiedPercent}% Owners</span>
+                        <span>{100 - demographics.tenure.ownerOccupiedPercent}% Renters</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Source */}
+                <div className="text-center mt-12">
+                  <p className="text-[10px] uppercase tracking-[0.15em] text-white/30">
+                    Source: U.S. Census Bureau, ACS 5-Year Estimates
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* Elegant Divider */}
           {!isLuxury && (
@@ -595,12 +735,48 @@ export default async function CommunityPage({
             </div>
           )}
 
+          {/* Full-width community image break - luxury only (not custom-one) */}
+          {isLuxury && !isCustomOne && community.featuredImage && (
+            <section className="relative w-full h-[50vh] min-h-[400px] max-h-[600px] overflow-hidden">
+              <Image
+                src={urlFor(community.featuredImage)?.width(2400).height(1200).url() || ''}
+                alt={community.title}
+                fill
+                className="object-cover"
+                sizes="100vw"
+              />
+              <div className={`absolute inset-0 bg-gradient-to-b ${isCustomOne ? 'from-white via-transparent to-[var(--modern-black)]' : 'from-white via-transparent to-[#f6f1eb]'}`} />
+            </section>
+          )}
+
           {/* Amenities Section - Refined Grid */}
           {community.amenities && community.amenities.length > 0 && (
-            <section className={isLuxury ? 'py-24 md:py-36 bg-[#f6f1eb]' : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'}>
-              <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <section className={
+              isCustomOne
+                ? 'py-32 md:py-44 bg-[var(--modern-black)] relative overflow-hidden'
+                : isLuxury
+                  ? 'py-32 md:py-44 bg-[#f6f1eb]'
+                  : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'
+            }>
+              {/* Texture overlay - custom-one only */}
+              {isCustomOne && (
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 40px, var(--modern-gold) 40px, var(--modern-gold) 41px)`
+                  }} />
+                </div>
+              )}
+
+              <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
                 {/* Section Header */}
-                {isLuxury ? (
+                {isCustomOne ? (
+                  <div className="text-center mb-16 md:mb-20">
+                    <div className="w-16 h-[1px] bg-[var(--modern-gold)] mx-auto mb-8" />
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide">
+                      Community Amenities
+                    </h2>
+                  </div>
+                ) : isLuxury ? (
                   <div className="text-center mb-16 md:mb-20">
                     <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
                       Lifestyle
@@ -619,24 +795,48 @@ export default async function CommunityPage({
                 )}
 
                 {/* Amenities Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-                  {community.amenities.map((amenity: string, index: number) => (
-                    <div
-                      key={index}
-                      className={isLuxury
-                        ? 'group bg-white p-5 md:p-6 border border-[var(--color-taupe)]/20 hover:border-[var(--color-gold)] transition-all duration-300'
-                        : 'group bg-white dark:bg-[#1a1a1a] p-5 md:p-6 border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300'
-                      }
-                    >
-                      <span className={isLuxury
-                        ? 'text-sm md:text-base font-luxury-body text-[var(--color-warm-gray)] font-light tracking-wide group-hover:text-[var(--color-charcoal)] transition-colors'
-                        : 'text-sm md:text-base text-[#4a4a4a] dark:text-gray-300 font-light tracking-wide group-hover:text-[#1a1a1a] dark:group-hover:text-white transition-colors'
-                      }>
-                        {amenity}
-                      </span>
-                    </div>
-                  ))}
-                </div>
+                {isCustomOne ? (
+                  <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 list-none">
+                    {community.amenities.map((amenity: string, index: number) => (
+                      <li
+                        key={index}
+                        className="group bg-white/[0.06] p-7 md:p-8 border border-white/10 hover:border-[var(--modern-gold)]/60 transition-all duration-500 flex items-center gap-5"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-[var(--modern-gold)] flex-shrink-0 group-hover:scale-125 transition-transform duration-500" aria-hidden="true" />
+                        <span className="text-sm md:text-[15px] text-white/70 font-light tracking-wide group-hover:text-white transition-colors duration-500">
+                          {amenity}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : isLuxury ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                    {community.amenities.map((amenity: string, index: number) => (
+                      <div
+                        key={index}
+                        className="group bg-white p-7 md:p-8 border border-[var(--color-taupe)]/20 hover:border-[var(--color-gold)]/60 transition-all duration-500 flex items-center gap-5"
+                      >
+                        <span className="w-2 h-2 rounded-full bg-[var(--color-gold)] flex-shrink-0 group-hover:scale-125 transition-transform duration-500" />
+                        <span className="text-sm md:text-[15px] font-luxury-body text-[var(--color-warm-gray)] font-light tracking-wide group-hover:text-[var(--color-charcoal)] transition-colors duration-500">
+                          {amenity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                    {community.amenities.map((amenity: string, index: number) => (
+                      <div
+                        key={index}
+                        className="group bg-white dark:bg-[#1a1a1a] p-5 md:p-6 border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300"
+                      >
+                        <span className="text-sm md:text-base text-[#4a4a4a] dark:text-gray-300 font-light tracking-wide group-hover:text-[#1a1a1a] dark:group-hover:text-white transition-colors">
+                          {amenity}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
           )}
@@ -648,27 +848,36 @@ export default async function CommunityPage({
               communitySlug={community.slug.current}
               communityTitle={community.title}
               variant={variant}
+              colorScheme="light"
+              layout={isCustomOne ? 'gallery' : 'default'}
             />
           )}
 
           {/* Market Insights Section */}
           {community.marketInsightsCity && (
-            <div className={isLuxury ? 'bg-[#f6f1eb]' : 'bg-[#f8f7f5] dark:bg-[#141414]'}>
-              <CommunityMarketStats
+            isCustomOne ? (
+              <CustomOneMarketStats
                 city={community.marketInsightsCity}
                 title={`${community.title} Market Insights`}
-                subtitle={`Real-time market data for ${community.marketInsightsCity}`}
-                variant={variant}
               />
-            </div>
+            ) : (
+              <div className={isLuxury ? 'bg-[#f6f1eb]' : 'bg-[#f8f7f5] dark:bg-[#141414]'}>
+                <CommunityMarketStats
+                  city={community.marketInsightsCity}
+                  title={`${community.title} Market Insights`}
+                  subtitle={`Real-time market data for ${community.marketInsightsCity}`}
+                  variant={variant}
+                />
+              </div>
+            )
           )}
 
           {/* Recent Listings Section */}
           {community.marketInsightsCity && (
-            <div className={isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
+            <div className={isCustomOne ? 'bg-white' : isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
               <RecentListings
                 city={community.marketInsightsCity}
-                limit={10}
+                limit={isCustomOne ? 3 : 10}
                 title={`Recent Listings in ${community.title}`}
                 subtitle={`The most recently listed properties in ${community.marketInsightsCity}`}
                 variant={variant}
@@ -679,10 +888,37 @@ export default async function CommunityPage({
           {/* Schools & Attractions Combined Section */}
           {((community.nearbySchools && community.nearbySchools.length > 0) ||
             (community.nearbyAttractions && community.nearbyAttractions.length > 0)) && (
-            <section className={isLuxury ? 'py-24 md:py-36 bg-[#f6f1eb]' : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'}>
-              <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <section
+              className={
+                isCustomOne
+                  ? 'py-32 md:py-44 bg-[var(--modern-black)] relative overflow-hidden'
+                  : isLuxury
+                    ? 'py-32 md:py-44 bg-[#f6f1eb]'
+                    : 'py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]'
+              }
+            >
+              {/* Texture overlay - custom-one only */}
+              {isCustomOne && (
+                <div className="absolute inset-0 opacity-5">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `repeating-linear-gradient(45deg, transparent, transparent 40px, var(--modern-gold) 40px, var(--modern-gold) 41px)`
+                  }} />
+                </div>
+              )}
+
+              <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 relative z-10">
                 {/* Section Header */}
-                {isLuxury ? (
+                {isCustomOne ? (
+                  <div className="text-center mb-16 md:mb-20">
+                    <div className="w-16 h-[1px] bg-[var(--modern-gold)] mx-auto mb-8" />
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide mb-5">
+                      {community.localHighlights?.sectionTitle || 'Local Highlights'}
+                    </h2>
+                    <p className="text-white/60 font-light max-w-xl mx-auto text-sm tracking-wide">
+                      {community.localHighlights?.sectionSubtitle || 'Discover the exceptional schools, dining, and attractions that make this community truly special.'}
+                    </p>
+                  </div>
+                ) : isLuxury ? (
                   <div className="text-center mb-16 md:mb-20">
                     <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
                       Explore
@@ -712,41 +948,68 @@ export default async function CommunityPage({
                   </div>
                 )}
 
-                {/* Schools */}
-                {community.nearbySchools && community.nearbySchools.length > 0 && (
-                  <div className="mb-16">
-                    <NearbySchools
-                      schools={community.nearbySchools}
-                      title={community.localHighlights?.schoolsTitle}
-                      subtitle={community.localHighlights?.schoolsSubtitle}
-                    />
-                  </div>
-                )}
-
-                {/* Attractions */}
-                {community.nearbyAttractions && community.nearbyAttractions.length > 0 && (
-                  <NearbyAttractions
+                {isCustomOne ? (
+                  <CustomOneLocalHighlights
                     attractions={community.nearbyAttractions}
-                    title={community.localHighlights?.attractionsTitle}
-                    subtitle={community.localHighlights?.attractionsSubtitle}
+                    schools={community.nearbySchools}
+                    attractionsTitle={community.localHighlights?.attractionsTitle}
+                    schoolsTitle={community.localHighlights?.schoolsTitle}
                   />
+                ) : (
+                  <>
+                    {/* Schools */}
+                    {community.nearbySchools && community.nearbySchools.length > 0 && (
+                      <div className="mb-16">
+                        <NearbySchools
+                          schools={community.nearbySchools}
+                          title={community.localHighlights?.schoolsTitle}
+                          subtitle={community.localHighlights?.schoolsSubtitle}
+                          variant={variant}
+                        />
+                      </div>
+                    )}
+
+                    {/* Attractions */}
+                    {community.nearbyAttractions && community.nearbyAttractions.length > 0 && (
+                      <NearbyAttractions
+                        attractions={community.nearbyAttractions}
+                        title={community.localHighlights?.attractionsTitle}
+                        subtitle={community.localHighlights?.attractionsSubtitle}
+                        variant={variant}
+                      />
+                    )}
+                  </>
                 )}
               </div>
             </section>
           )}
 
           {/* Contact CTA Section */}
-          {isLuxury ? (
-            <section className="py-24 md:py-36 bg-[var(--color-charcoal)] relative overflow-hidden">
+          {isCustomOne ? (
+            <ModernContactCTA />
+          ) : isLuxury ? (
+            <section className="py-32 md:py-44 bg-[var(--color-charcoal)] relative overflow-hidden">
+              {/* Background image with overlay */}
+              {heroImageUrl && (
+                <div className="absolute inset-0">
+                  <img
+                    src={heroImageUrl}
+                    alt=""
+                    className="w-full h-full object-cover opacity-20"
+                    style={{ filter: 'grayscale(100%)' }}
+                  />
+                  <div className="absolute inset-0 bg-[var(--color-charcoal)]/80" />
+                </div>
+              )}
               <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
                 <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
                   Connect
                 </p>
-                <div className="w-px h-8 bg-white/20 mx-auto mb-6" />
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-luxury font-light text-white tracking-wide mb-6">
+                <div className="w-px h-10 bg-white/20 mx-auto mb-8" />
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-luxury font-light text-white tracking-wide mb-8 leading-tight">
                   Begin Your Journey
                 </h2>
-                <p className="font-luxury-body text-white/60 font-light mb-10 max-w-xl mx-auto text-sm tracking-wide leading-relaxed">
+                <p className="font-luxury-body text-white/50 font-light mb-12 max-w-xl mx-auto text-sm tracking-wide leading-relaxed">
                   Connect with our team to discover the exceptional lifestyle awaiting you in {community.title}.
                 </p>
 
@@ -754,10 +1017,10 @@ export default async function CommunityPage({
                   href="/contact-us"
                   className="group inline-flex items-center gap-4 font-luxury-body text-white text-[13px] uppercase tracking-[0.25em]"
                 >
-                  <span className="border-b border-white/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-300">
+                  <span className="border-b border-white/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
                     Schedule a Consultation
                   </span>
-                  <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Link>
