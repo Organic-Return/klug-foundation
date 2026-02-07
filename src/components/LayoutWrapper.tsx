@@ -7,9 +7,10 @@ interface LayoutWrapperProps {
   header: ReactNode;
   footer: ReactNode;
   children: ReactNode;
+  template?: string;
 }
 
-export default function LayoutWrapper({ header, footer, children }: LayoutWrapperProps) {
+export default function LayoutWrapper({ header, footer, children, template }: LayoutWrapperProps) {
   const pathname = usePathname();
 
   // Check if we're on any Sanity Studio route or its sub-routes
@@ -65,8 +66,11 @@ export default function LayoutWrapper({ header, footer, children }: LayoutWrappe
     );
   }
 
-  // Regular pages: include header/footer with padding (except homepage and community pages)
-  const needsPadding = !isHomepage && !isCommunityPage;
+  // Custom-one property pages handle their own padding
+  const isCustomOnePropertyPage = template === 'custom-one' && isPropertyPage;
+
+  // Regular pages: include header/footer with padding (except homepage, community pages, and custom-one property pages)
+  const needsPadding = !isHomepage && !isCommunityPage && !isCustomOnePropertyPage;
 
   return (
     <>

@@ -135,6 +135,7 @@ export default async function RootLayout({
         <AuthProvider>
         <LayoutWrapper
           header={renderHeader()}
+          template={template}
           footer={
             template === 'luxury' ? (
               <LuxuryStayConnected
