@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 
 const POSTS_COUNT_QUERY = `count(*[_type == "post"])`;
 
-const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) [$start...$end] {
+const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) [$start..$end] {
   _id,
   title,
   slug,
@@ -52,7 +52,7 @@ export default async function BlogPage({
   const { page: pageParam } = await searchParams;
   const currentPage = Math.max(1, parseInt(pageParam || '1', 10) || 1);
   const start = (currentPage - 1) * POSTS_PER_PAGE;
-  const end = start + POSTS_PER_PAGE;
+  const end = start + POSTS_PER_PAGE - 1;
 
   const [posts, totalCount] = await Promise.all([
     client.fetch<SanityDocument[]>(POSTS_QUERY, { start, end }, options),
