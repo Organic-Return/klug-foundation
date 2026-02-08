@@ -191,7 +191,7 @@ export default async function PostPage({
   if (!post) {
     return (
       <main className="container mx-auto min-h-screen max-w-3xl p-8">
-        <Link href="/" className="hover:underline">
+        <Link href="/blog" className="hover:underline">
           ← Back to posts
         </Link>
         <h1 className="text-[var(--color-sothebys-blue)] mb-8">Post not found</h1>
@@ -234,7 +234,7 @@ export default async function PostPage({
       />
       <main className="container mx-auto min-h-screen flex flex-col gap-4">
         <div className="max-w-3xl mx-auto w-full px-8 pt-8">
-          <Link href="/" className="hover:underline">
+          <Link href="/blog" className="hover:underline">
             ← Back to posts
           </Link>
         </div>

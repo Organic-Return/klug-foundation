@@ -36,10 +36,19 @@ export default defineConfig({
                   .schemaType('settings')
                   .documentId('settings')
               ),
+            // Buy Page singleton
+            S.listItem()
+              .title('Buy Page')
+              .icon(() => '🏡')
+              .child(
+                S.document()
+                  .schemaType('buyPage')
+                  .documentId('buyPage')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),
