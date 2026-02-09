@@ -59,7 +59,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     return (
       <div className="h-screen flex flex-col overflow-hidden">
         {headerWithProps}
-        <div className="flex-1 pt-16 overflow-hidden">
+        <div className="flex-1 pt-20 overflow-hidden">
           {children}
         </div>
       </div>

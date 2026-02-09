@@ -258,13 +258,11 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
               maxPrice={maxPrice}
               beds={beds}
               baths={baths}
-              ourTeam={ourTeam}
               statuses={filteredStatuses}
               propertyTypes={filteredPropertyTypes}
               propertySubTypes={filteredPropertySubTypes}
               cities={filteredCities}
               initialNeighborhoods={neighborhoods}
-              hasTeamMembers={teamAgentIds.length > 0}
             />
           </div>
         </div>
@@ -279,7 +277,6 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           currentSort={sort}
           hasLocationFilter={!!(city || neighborhood)}
           template={settings?.template || 'classic'}
-          listingsPerRow={settings?.listingsPerRow || 2}
         />
       </div>
     </>
