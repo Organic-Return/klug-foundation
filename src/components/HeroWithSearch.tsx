@@ -86,7 +86,7 @@ export default function HeroWithSearch({
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full -mt-20 overflow-hidden" style={{ minHeight: 'calc(100vh + 5rem)' }}>
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-full">
         {videoUrl ? (
@@ -112,7 +112,7 @@ export default function HeroWithSearch({
       </div>
 
       {/* Content */}
-      <div className="relative z-10 h-screen flex flex-col items-center justify-between px-4 sm:px-6 lg:px-8 py-16">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-between px-4 sm:px-6 lg:px-8 pt-36 pb-16">
         {/* Hero Text - Centered */}
         <div className="flex-1 flex items-center justify-center">
           {showTitleSubtitle && (
