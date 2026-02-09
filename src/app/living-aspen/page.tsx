@@ -198,7 +198,7 @@ export default async function LivingAspenPage() {
       )}
 
       {/* Subscribe CTA */}
-      <section className="py-20 md:py-28 bg-[var(--color-navy)] dark:bg-[#0a0a0a] relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
         </div>

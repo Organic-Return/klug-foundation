@@ -291,7 +291,7 @@ export default async function WhyKlugPropertiesPage() {
 
       {/* Statistics Section */}
       {data.statistics && data.statistics.length > 0 && (
-        <section className="py-16 md:py-24 bg-[var(--color-navy)] dark:bg-[#0a0a0a]">
+        <section className="py-16 md:py-24 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             {data.statsTitle && (
               <h2 className="text-3xl md:text-4xl font-serif font-light text-white text-center mb-12 md:mb-16 tracking-wide">

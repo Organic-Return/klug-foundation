@@ -302,7 +302,7 @@ export default async function TestimonialsPage() {
 
       {/* Featured Testimonial */}
       {data.featuredTestimonial && (
-        <section className="py-16 md:py-24 bg-[var(--color-navy)] dark:bg-[#0a0a0a]">
+        <section className="py-16 md:py-24 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
           <div className="max-w-6xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>

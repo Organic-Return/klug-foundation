@@ -29,23 +29,8 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   // Check if we're on the listings page (no footer, fixed height layout)
   const isListingsPage = pathname === '/listings';
 
-  // Check if we're on a property detail page
-  const isPropertyPage = pathname?.startsWith('/listings/');
-
-  // Check if we're on the why-klug-properties page
-  const isWhyKlugPage = pathname === '/why-klug-properties';
-
-  // Check if we're on an off-market page
-  const isOffMarketPage = pathname?.startsWith('/off-market');
-
-  // Check if we're on the saved properties page
-  const isSavedPropertiesPage = pathname === '/saved-properties';
-
-  // Check if we're on the testimonials page
-  const isTestimonialsPage = pathname === '/testimonials';
-
-  // Pages that need forced blue background on header
-  const needsForceBackground = isListingsPage || isPropertyPage || isWhyKlugPage || isOffMarketPage || isSavedPropertiesPage || isTestimonialsPage;
+  // Force blue header on ALL pages except homepage and community pages (which have transparent hero overlays)
+  const needsForceBackground = !isHomepage && !isCommunityPage;
 
   // Clone header element to add forceBackground prop if needed
   const headerWithProps = needsForceBackground && isValidElement(header)
@@ -70,6 +55,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   }
 
   // Custom-one property pages handle their own padding
+  const isPropertyPage = pathname?.startsWith('/listings/');
   const isCustomOnePropertyPage = template === 'custom-one' && isPropertyPage;
 
   // Regular pages: include header/footer with padding (except homepage, community pages, and custom-one property pages)

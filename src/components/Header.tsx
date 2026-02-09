@@ -517,7 +517,7 @@ export default function Header({
 
       {/* Search Panel - Slides down from header */}
       {searchOpen && (
-        <div className="absolute top-full left-0 right-0 bg-[#1a1a1a] shadow-xl border-t border-gray-800 z-40">
+        <div className="absolute top-full left-0 right-0 bg-[var(--color-sothebys-blue)] shadow-xl border-t border-gray-800 z-40">
           <div className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 py-6">
             <form onSubmit={handleSearch} className="flex flex-wrap items-end justify-center gap-4 lg:gap-0">
               {/* Location Dropdown */}
@@ -535,9 +535,9 @@ export default function Header({
                     paddingRight: '1.5rem'
                   }}
                 >
-                  <option value="" className="bg-[#1a1a1a]">All Locations</option>
+                  <option value="" className="bg-[var(--color-sothebys-blue)]">All Locations</option>
                   {LOCATIONS.map((loc) => (
-                    <option key={loc} value={loc} className="bg-[#1a1a1a]">{loc}</option>
+                    <option key={loc} value={loc} className="bg-[var(--color-sothebys-blue)]">{loc}</option>
                   ))}
                 </select>
               </div>
@@ -560,9 +560,9 @@ export default function Header({
                     paddingRight: '1.5rem'
                   }}
                 >
-                  <option value="" className="bg-[#1a1a1a]">All Types</option>
+                  <option value="" className="bg-[var(--color-sothebys-blue)]">All Types</option>
                   {PROPERTY_TYPES.map((type) => (
-                    <option key={type.value} value={type.value} className="bg-[#1a1a1a]">{type.label}</option>
+                    <option key={type.value} value={type.value} className="bg-[var(--color-sothebys-blue)]">{type.label}</option>
                   ))}
                 </select>
               </div>
@@ -585,9 +585,9 @@ export default function Header({
                     paddingRight: '1.5rem'
                   }}
                 >
-                  <option value="" className="bg-[#1a1a1a]">Any</option>
+                  <option value="" className="bg-[var(--color-sothebys-blue)]">Any</option>
                   {PRICE_OPTIONS.slice(1).map((price) => (
-                    <option key={`min-${price.value}`} value={price.value} className="bg-[#1a1a1a]">{price.label}</option>
+                    <option key={`min-${price.value}`} value={price.value} className="bg-[var(--color-sothebys-blue)]">{price.label}</option>
                   ))}
                 </select>
               </div>
@@ -610,9 +610,9 @@ export default function Header({
                     paddingRight: '1.5rem'
                   }}
                 >
-                  <option value="" className="bg-[#1a1a1a]">Any</option>
+                  <option value="" className="bg-[var(--color-sothebys-blue)]">Any</option>
                   {PRICE_OPTIONS.slice(1).map((price) => (
-                    <option key={`max-${price.value}`} value={price.value} className="bg-[#1a1a1a]">{price.label}</option>
+                    <option key={`max-${price.value}`} value={price.value} className="bg-[var(--color-sothebys-blue)]">{price.label}</option>
                   ))}
                 </select>
               </div>
