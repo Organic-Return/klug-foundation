@@ -41,8 +41,11 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   // Check if we're on the saved properties page
   const isSavedPropertiesPage = pathname === '/saved-properties';
 
+  // Check if we're on the testimonials page
+  const isTestimonialsPage = pathname === '/testimonials';
+
   // Pages that need forced blue background on header
-  const needsForceBackground = isListingsPage || isPropertyPage || isWhyKlugPage || isOffMarketPage || isSavedPropertiesPage;
+  const needsForceBackground = isListingsPage || isPropertyPage || isWhyKlugPage || isOffMarketPage || isSavedPropertiesPage || isTestimonialsPage;
 
   // Clone header element to add forceBackground prop if needed
   const headerWithProps = needsForceBackground && isValidElement(header)
