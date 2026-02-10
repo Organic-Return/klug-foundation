@@ -3,9 +3,6 @@ import { client } from '@/sanity/client';
 import { getListings } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
 
-// Generate at request time, not during build (GraphQL pagination is too slow for build)
-export const dynamic = 'force-dynamic';
-
 // Sanity queries for dynamic content
 const COMMUNITIES_QUERY = `*[_type == "community"]{ "slug": slug.current, _updatedAt }`;
 const MARKET_REPORTS_QUERY = `*[_type == "publication" && publicationType == "market-report"]{ "slug": slug.current, _updatedAt, publishedAt }`;
