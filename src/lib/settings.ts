@@ -1,7 +1,7 @@
 import { client } from '@/sanity/client';
 
 interface SiteSettings {
-  template?: 'classic' | 'luxury' | 'modern' | 'custom-one';
+  template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
   listingsPerRow?: 2 | 3;
   title?: string;
   description?: string;
@@ -103,7 +103,7 @@ export async function getSettings(): Promise<SiteSettings | null> {
  * Gets the site template from Sanity settings
  * Priority: Sanity setting > NEXT_PUBLIC_SITE_TEMPLATE env var > 'classic'
  */
-export async function getSiteTemplate(): Promise<'classic' | 'luxury' | 'modern' | 'custom-one'> {
+export async function getSiteTemplate(): Promise<'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom'> {
   const settings = await getSettings();
   const envTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE as SiteSettings['template'];
   return settings?.template || envTemplate || 'classic';

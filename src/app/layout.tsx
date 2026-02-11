@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display } from "next/font/google";
+import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display, Figtree } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
 import LuxuryHeader from "@/components/LuxuryHeader";
 import ModernHeader from "@/components/ModernHeader";
+import RCSothebysHeader from "@/components/RCSothebysHeader";
 import Footer from "@/components/Footer";
 import ModernFooter from "@/components/ModernFooter";
 import LuxuryStayConnected from "@/components/LuxuryStayConnected";
+import RCSothebysFooter from "@/components/RCSothebysFooter";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import { AuthProvider } from "@/components/AuthProvider";
 import { getSettings, getBranding } from "@/lib/settings";
 import { getMainNavigation, getFooterNavigation, groupFooterLinks } from "@/lib/navigation";
+import { getAllCommunities } from "@/lib/homepage";
 
 // Inter - Clean, modern sans-serif for body text
 const inter = Inter({
@@ -44,6 +47,14 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+// Figtree - Modern sans-serif for RCSothebys template
+const figtree = Figtree({
+  variable: "--font-figtree",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "800", "900"],
   display: "swap",
 });
 
@@ -80,15 +91,17 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   // Fetch settings and navigation
-  const [settings, branding, mainNav, footerNav] = await Promise.all([
+  const [settings, branding, mainNav, footerNav, communities] = await Promise.all([
     getSettings(),
     getBranding(),
     getMainNavigation(),
     getFooterNavigation(),
+    getAllCommunities(20),
   ]);
 
   const footerColumns = groupFooterLinks(footerNav);
   const template = settings?.template || 'classic';
+  const communityNames = (communities || []).map((c: any) => c.title).filter(Boolean) as string[];
 
   // Render appropriate header based on template
   const renderHeader = () => {
@@ -116,6 +129,18 @@ export default async function RootLayout({
         />
       );
     }
+    if (template === 'rcsothebys-custom') {
+      return (
+        <RCSothebysHeader
+          logo={branding?.logo}
+          logoAlt={branding?.logoAlt || settings?.title}
+          siteTitle={settings?.title}
+          navItems={mainNav}
+          phoneNumber={settings?.contactInfo?.phone}
+          email={settings?.contactInfo?.email}
+        />
+      );
+    }
     return (
       <Header
         logo={branding?.logo}
@@ -127,11 +152,11 @@ export default async function RootLayout({
   };
 
   // Determine template-specific body class
-  const templateClass = template === 'modern' ? 'modern-template' : template === 'custom-one' ? 'custom-one-template' : template === 'luxury' ? 'luxury-template' : '';
+  const templateClass = template === 'modern' ? 'modern-template' : template === 'custom-one' ? 'custom-one-template' : template === 'luxury' ? 'luxury-template' : template === 'rcsothebys-custom' ? 'rcsothebys-template' : '';
 
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} antialiased ${templateClass}`}>
+      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} antialiased ${templateClass}`}>
         <AuthProvider>
         <LayoutWrapper
           header={renderHeader()}
@@ -145,6 +170,17 @@ export default async function RootLayout({
                 columns={footerColumns}
                 socialMedia={settings?.socialMedia}
                 contactInfo={settings?.contactInfo}
+              />
+            ) : template === 'rcsothebys-custom' ? (
+              <RCSothebysFooter
+                logo={branding?.logo}
+                logoAlt={branding?.logoAlt || settings?.title}
+                siteTitle={settings?.title}
+                columns={footerColumns}
+                socialMedia={settings?.socialMedia}
+                contactInfo={settings?.contactInfo}
+                footer={settings?.footer}
+                cities={communityNames}
               />
             ) : template === 'custom-one' ? (
               <ModernFooter

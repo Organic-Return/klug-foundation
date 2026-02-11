@@ -16,6 +16,7 @@ export const settings = defineType({
           { title: 'Luxury', value: 'luxury' },
           { title: 'Modern', value: 'modern' },
           { title: 'Custom One', value: 'custom-one' },
+          { title: 'RC Sothebys Custom', value: 'rcsothebys-custom' },
         ],
         layout: 'radio',
       },

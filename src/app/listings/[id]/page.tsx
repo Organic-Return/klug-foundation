@@ -20,6 +20,7 @@ import ScheduleTourButton from '@/components/ScheduleTourButton';
 import RequestInfoButton from '@/components/RequestInfoButton';
 import PropertyMedia from '@/components/PropertyMedia';
 import CustomOneListingContent from '@/components/CustomOneListingContent';
+import RCSothebysListingContent from '@/components/RCSothebysListingContent';
 import StickyRequestInfo from '@/components/StickyRequestInfo';
 
 const builder = imageUrlBuilder(client);
@@ -469,6 +470,37 @@ export default async function ListingPage({ params }: ListingPageProps) {
             mobile: listingAgent.mobile,
           } : null}
           documents={propertyEnhancement?.documents}
+        />
+      </>
+    );
+  }
+
+  // RC Sotheby's Custom template
+  if (template === 'rcsothebys-custom') {
+    const agentImageUrl = listingAgent?.image
+      ? urlFor(listingAgent.image).width(256).height(320).url()
+      : null;
+
+    return (
+      <>
+        {schemas.map((schema, index) => (
+          <script
+            key={index}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
+        <RCSothebysListingContent
+          listing={listing}
+          agent={listingAgent ? {
+            name: listingAgent.name,
+            slug: listingAgent.slug,
+            title: listingAgent.title,
+            imageUrl: agentImageUrl,
+            email: listingAgent.email,
+            phone: listingAgent.phone,
+            mobile: listingAgent.mobile,
+          } : null}
         />
       </>
     );

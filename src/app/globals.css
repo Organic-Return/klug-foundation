@@ -967,3 +967,171 @@ address {
   font-weight: 400;
   letter-spacing: 0.1em;
 }
+
+/* ========================================
+   RC SOTHEBY'S CUSTOM TEMPLATE
+   Retter & Co. Sotheby's International Realty
+   Navy + Cream + Gold palette, Figtree font
+   ======================================== */
+
+:root {
+  --rc-navy: #002349;
+  --rc-cream: #FFFFF8;
+  --rc-gold: #c19b5f;
+  --rc-gold-hover: #a8834d;
+  --rc-brown: #776954;
+  --rc-gray: #3D3D3D;
+  --rc-divider: #002349;
+  --rc-divider-inverted: #c19b5f;
+}
+
+.rcsothebys-template {
+  font-family: var(--font-figtree), "Figtree", sans-serif;
+  background-color: var(--rc-cream);
+  color: var(--rc-brown);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.rcsothebys-template h1,
+.rcsothebys-template h2,
+.rcsothebys-template h3,
+.rcsothebys-template h4,
+.rcsothebys-template h5,
+.rcsothebys-template h6 {
+  font-family: var(--font-figtree), "Figtree", sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  color: var(--rc-navy);
+  line-height: 1em;
+  letter-spacing: 0.05em;
+}
+
+.rcsothebys-template h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.rcsothebys-template h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.rcsothebys-template h3 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+/* RC Sotheby's links */
+.rcsothebys-template a {
+  color: var(--rc-navy);
+}
+
+/* RC Sotheby's button styles */
+.btn-rc-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background-color: var(--rc-gold);
+  color: white;
+  font-family: var(--font-figtree), "Figtree", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--rc-gold);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-rc-primary:hover {
+  background-color: var(--rc-navy);
+  border-color: var(--rc-navy);
+  color: white;
+}
+
+.btn-rc-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.875rem 2rem;
+  background-color: transparent;
+  color: var(--rc-navy);
+  font-family: var(--font-figtree), "Figtree", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--rc-navy);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.btn-rc-outline:hover {
+  background-color: var(--rc-gold);
+  border-color: var(--rc-gold);
+  color: white;
+}
+
+/* RC Sotheby's inverted sections (navy background) */
+.rc-inverted {
+  background-color: var(--rc-navy);
+  color: white;
+}
+
+.rc-inverted h1,
+.rc-inverted h2,
+.rc-inverted h3,
+.rc-inverted h4,
+.rc-inverted h5,
+.rc-inverted h6 {
+  color: white;
+}
+
+.rc-inverted a {
+  color: white;
+}
+
+/* RC Sotheby's navigation typography */
+.rc-nav {
+  font-family: var(--font-figtree), "Figtree", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+/* RC Sotheby's market stats */
+.rcsothebys-template .market-stat-value {
+  font-weight: 300;
+  font-size: 48px;
+  line-height: 1em;
+  text-transform: uppercase;
+  color: var(--rc-navy);
+}
+
+.rcsothebys-template .market-stat-label {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.8em;
+  text-align: center;
+  letter-spacing: 0.1em;
+  color: var(--rc-brown);
+}
+
+/* RC Sotheby's divider */
+.rc-divider {
+  width: 4rem;
+  height: 2px;
+  background-color: var(--rc-gold);
+}
+
+/* RC Sotheby's card hover */
+.rcsothebys-template .listing-card-rc:hover {
+  border-color: var(--rc-gold);
+}
+
+/* RC Sotheby's listing vitals */
+.rcsothebys-template .listing-vitals-rc {
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--rc-navy);
+}

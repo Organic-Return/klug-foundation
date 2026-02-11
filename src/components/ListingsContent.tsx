@@ -16,7 +16,7 @@ interface ListingsContentProps {
   searchParams: URLSearchParams;
   currentSort: SortOption;
   hasLocationFilter?: boolean;
-  template?: 'classic' | 'luxury' | 'modern' | 'custom-one';
+  template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
 }
 
 function formatPrice(price: number | null): string {
@@ -68,8 +68,9 @@ function getStreetAddress(fullAddress: string | null, city: string | null, state
 }
 
 // Property card - style varies by template
-function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty; template?: 'classic' | 'luxury' | 'modern' | 'custom-one' }) {
+function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty; template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom' }) {
   const isModernStyle = template === 'modern' || template === 'custom-one';
+  const isRCSothebys = template === 'rcsothebys-custom';
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
@@ -90,6 +91,8 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
   // Determine card container classes based on template
   const cardContainerClasses = template === 'classic'
     ? 'border border-gray-200 overflow-hidden'
+    : isRCSothebys
+    ? 'border border-[var(--rc-brown)]/30 bg-[var(--rc-cream)] overflow-hidden hover:border-[var(--rc-gold)] transition-all duration-300'
     : isModernStyle
     ? 'border border-[var(--modern-gray-lighter)] bg-white overflow-hidden hover:border-[var(--modern-gold)] transition-all duration-300'
     : '';

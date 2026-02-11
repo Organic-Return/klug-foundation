@@ -8,6 +8,11 @@ import ClassicFeaturedProperty from '@/components/ClassicFeaturedProperty';
 import FeaturedAspenProperties from '@/components/FeaturedAspenProperties';
 import CityStats from '@/components/CityStats';
 
+// RC Sotheby's template components
+import RCSothebysHero from '@/components/RCSothebysHero';
+import RCSothebysPropertyCarousel from '@/components/RCSothebysPropertyCarousel';
+import RCSothebysAbout from '@/components/RCSothebysAbout';
+
 // Luxury template components
 import LuxuryHero from '@/components/LuxuryHero';
 import LuxuryPropertyCarousel from '@/components/LuxuryPropertyCarousel';
@@ -31,7 +36,7 @@ import ModernContactCTA from '@/components/ModernContactCTA';
 
 interface HomepageContentProps {
   // Template selection from Sanity
-  template?: 'classic' | 'luxury' | 'modern' | 'custom-one';
+  template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
   // Hero data
   videoUrl?: string;
   fallbackImageUrl?: string;
@@ -211,6 +216,71 @@ export default function HomepageContent({
             title={marketStatsSection?.title}
             subtitle={marketStatsSection?.subtitle}
             configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
+          />
+        )}
+      </>
+    );
+  }
+
+  // RC Sotheby's Custom Template (reuses classic sections with CSS overrides + custom carousel)
+  if (template === 'rcsothebys-custom') {
+    return (
+      <>
+        {/* Hero — full-screen property slideshow with search bar */}
+        <RCSothebysHero
+          cities={featuredPropertiesCarousel?.cities}
+          limit={featuredPropertiesCarousel?.limit || 8}
+          videoUrl={videoUrl}
+          fallbackImageUrl={fallbackImageUrl}
+        />
+
+        {/* About Section — unique RC Sotheby's editorial layout */}
+        {teamSection?.enabled !== false && teamSection?.featuredTeamMember && (
+          <RCSothebysAbout
+            title={teamSection.title}
+            teamMember={teamSection.featuredTeamMember}
+            primaryButtonText={teamSection.primaryButtonText}
+            primaryButtonLink={teamSection.primaryButtonLink}
+            secondaryButtonText={teamSection.secondaryButtonText}
+            secondaryButtonLink={teamSection.secondaryButtonLink}
+          />
+        )}
+
+        {/* Featured Property Section */}
+        {featuredProperty?.enabled && featuredProperty?.mlsId && (
+          <ClassicFeaturedProperty
+            mlsId={featuredProperty.mlsId}
+            headline={featuredProperty.headline}
+            buttonText={featuredProperty.buttonText}
+          />
+        )}
+
+        {/* RC Sotheby's Property Carousel - Center-mode with signature arrows */}
+        {featuredPropertiesCarousel?.enabled !== false && (
+          <RCSothebysPropertyCarousel
+            cities={featuredPropertiesCarousel?.cities}
+            title={featuredPropertiesCarousel?.title || 'Featured Listings'}
+            subtitle={featuredPropertiesCarousel?.subtitle}
+            limit={featuredPropertiesCarousel?.limit || 8}
+            buttonText={featuredPropertiesCarousel?.buttonText || 'View All Properties'}
+          />
+        )}
+
+        {/* City Stats Section */}
+        {marketStatsSection?.enabled !== false && (
+          <CityStats
+            title={marketStatsSection?.title}
+            subtitle={marketStatsSection?.subtitle}
+            configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
+          />
+        )}
+
+        {/* Accolades Section */}
+        {accolades?.enabled !== false && accolades?.items && accolades.items.length > 0 && (
+          <Accolades
+            title={accolades.title}
+            backgroundImage={accolades.backgroundImage}
+            items={accolades.items}
           />
         )}
       </>

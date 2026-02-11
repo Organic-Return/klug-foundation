@@ -1,0 +1,326 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+
+interface Property {
+  id: string;
+  address: string;
+  city: string;
+  state?: string;
+  list_price: number;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  square_feet: number | null;
+  photos: string[] | null;
+  mls_number: string;
+}
+
+interface RCSothebysPropertyCarouselProps {
+  cities?: string[];
+  title?: string;
+  subtitle?: string;
+  limit?: number;
+  buttonText?: string;
+}
+
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
+// Left arrow — triangle points left, internal arrows point left
+function PrevArrow() {
+  return (
+    <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+      <path fillRule="evenodd" clipRule="evenodd" d="M86.0014 0.407227L2.98023e-06 86.4086L86.0014 172.41V0.407227Z" fill="#FFFFF8" fillOpacity="0.7"/>
+      <path d="M0 86.4086L-0.707107 85.7015L-1.41421 86.4086L-0.707107 87.1157L0 86.4086ZM86.0014 0.407227H87.0014V-2.00699L85.2943 -0.29988L86.0014 0.407227ZM86.0014 172.41L85.2943 173.117L87.0014 174.824V172.41H86.0014ZM0.707107 87.1157L86.7085 1.11433L85.2943 -0.29988L-0.707107 85.7015L0.707107 87.1157ZM86.7085 171.703L0.707107 85.7015L-0.707107 87.1157L85.2943 173.117L86.7085 171.703ZM87.0014 172.41V0.407227H85.0014V172.41H87.0014Z" fill="#C19B5F"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M57.7344 85.6572L65.7344 85.6572L65.7344 87.1572L57.7344 87.1572L23.6069 87.1572L36.7919 100.35L35.7344 101.407L21.4844 87.1572L15.6069 87.1572L28.7919 100.35L27.7344 101.407L12.7344 86.4072L27.7344 71.4072L28.7994 72.4647L15.6069 85.6572L21.4844 85.6572L35.7344 71.4072L36.7994 72.4647L23.6069 85.6572L57.7344 85.6572Z" fill="#002349"/>
+    </svg>
+  );
+}
+
+// Right arrow — triangle points right, internal arrows point right
+function NextArrow() {
+  return (
+    <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+      <path fillRule="evenodd" clipRule="evenodd" d="M-0.00140381 172.407L86 86.4058L-0.00141885 0.404426L-0.00140381 172.407Z" fill="#FFFFF8" fillOpacity="0.7"/>
+      <path d="M86 86.4058L86.7071 87.1129L87.4142 86.4058L86.7071 85.6987L86 86.4058ZM-0.00140381 172.407L-1.0014 172.407L-1.0014 174.821L0.705704 173.114L-0.00140381 172.407ZM-0.00141885 0.404426L0.705689 -0.302681L-1.00142 -2.00979L-1.00142 0.404427L-0.00141885 0.404426ZM85.2929 85.6987L-0.708511 171.7L0.705704 173.114L86.7071 87.1129L85.2929 85.6987ZM-0.708526 1.11153L85.2929 87.1129L86.7071 85.6987L0.705689 -0.302681L-0.708526 1.11153ZM-1.00142 0.404427L-1.0014 172.407L0.998596 172.407L0.998581 0.404426L-1.00142 0.404427Z" fill="#C19B5F"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M28.2656 87.1572H20.2656L20.2656 85.6572H28.2656L62.3931 85.6572L49.2081 72.4647L50.2656 71.4072L64.5156 85.6572H70.3931L57.2081 72.4647L58.2656 71.4072L73.2656 86.4072L58.2656 101.407L57.2006 100.35L70.3931 87.1572H64.5156L50.2656 101.407L49.2006 100.35L62.3931 87.1572L28.2656 87.1572Z" fill="#002349"/>
+    </svg>
+  );
+}
+
+export default function RCSothebysPropertyCarousel({
+  cities,
+  title = 'Featured Listings',
+  subtitle,
+  limit = 8,
+  buttonText = 'View All Properties',
+}: RCSothebysPropertyCarouselProps) {
+  const resolvedCities = cities || ['Aspen'];
+
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [activeIndex, setActiveIndex] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+
+  useEffect(() => {
+    async function fetchProperties() {
+      try {
+        const citiesParam = resolvedCities.length > 1
+          ? `cities=${encodeURIComponent(resolvedCities.join(','))}`
+          : `city=${encodeURIComponent(resolvedCities[0] || 'Aspen')}`;
+        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}`);
+        const data = await response.json();
+        setProperties(data.properties || []);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProperties();
+  }, [resolvedCities, limit]);
+
+  const goToSlide = useCallback((index: number) => {
+    if (properties.length === 0) return;
+    if (index < 0) index = properties.length - 1;
+    if (index >= properties.length) index = 0;
+    setActiveIndex(index);
+  }, [properties.length]);
+
+  const handlePrev = () => goToSlide(activeIndex - 1);
+  const handleNext = () => goToSlide(activeIndex + 1);
+
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    setDragStart(clientX);
+  };
+
+  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = dragStart - clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) handleNext();
+      else handlePrev();
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') handlePrev();
+      if (e.key === 'ArrowRight') handleNext();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeIndex, properties.length]);
+
+  if (isLoading) {
+    return (
+      <section className="py-16 md:py-24 bg-[var(--rc-cream)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-[var(--rc-brown)]/10 rounded w-64 mx-auto mb-4" />
+              <div className="h-[400px] bg-[var(--rc-brown)]/10 rounded mx-auto mt-8" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!properties || properties.length === 0) return null;
+
+  const listingsHref = resolvedCities.length === 1
+    ? `/listings?city=${encodeURIComponent(resolvedCities[0])}`
+    : '/listings';
+
+  return (
+    <section className="py-16 md:py-24 bg-[var(--rc-cream)] overflow-hidden">
+      {/* Section Header */}
+      <div className="text-center mb-6 md:mb-8 max-w-7xl mx-auto px-6">
+        <h2
+          className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-4"
+          style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' }}
+        >
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-[var(--rc-brown)] text-base md:text-lg font-normal max-w-2xl mx-auto">
+            {subtitle}
+          </p>
+        )}
+      </div>
+
+      {/* Numbered Pagination — above carousel */}
+      <div className="flex justify-center items-center gap-1 mb-6 flex-wrap px-4">
+        {properties.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`px-2 py-1 text-sm transition-all duration-300 ${
+              index === activeIndex
+                ? 'text-[var(--rc-navy)] font-bold text-lg border-b-[3px] border-[var(--rc-navy)]'
+                : 'text-[var(--rc-brown)]/50 hover:text-[var(--rc-navy)]'
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            {String(index + 1).padStart(2, '0')}
+          </button>
+        ))}
+      </div>
+
+      {/* Full-width Carousel — center mode with adjacent card peeks */}
+      <div
+        className="relative max-w-[1800px] mx-auto flex items-center"
+        onMouseDown={handleDragStart}
+        onMouseUp={handleDragEnd}
+        onMouseLeave={() => setIsDragging(false)}
+        onTouchStart={handleDragStart}
+        onTouchEnd={handleDragEnd}
+      >
+        {/* Prev Arrow */}
+        <button
+          onClick={handlePrev}
+          className="flex-shrink-0 z-20 mx-1 md:mx-2"
+          aria-label="Previous property"
+        >
+          <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
+            <PrevArrow />
+          </div>
+        </button>
+
+        {/* Cards Track */}
+        <div className="overflow-hidden select-none flex-1">
+          <div
+            className="flex transition-transform duration-500 ease-out"
+            style={{
+              transform: `translateX(calc(-${activeIndex * 60}% + 20%))`,
+            }}
+          >
+            {properties.map((property, index) => {
+              const isActive = index === activeIndex;
+              const photo = property.photos?.[0] || null;
+
+              return (
+                <div
+                  key={property.id}
+                  className="flex-shrink-0 px-2 md:px-3 transition-opacity duration-500 cursor-pointer"
+                  style={{ width: '60%' }}
+                  onClick={() => !isActive && goToSlide(index)}
+                >
+                  <div
+                    className={`bg-white overflow-hidden transition-all duration-500 ${
+                      isActive
+                        ? 'border-2 border-[var(--rc-gold)] shadow-lg opacity-100'
+                        : 'border border-gray-200 opacity-50'
+                    }`}
+                  >
+                    {/* Photo */}
+                    <div className="relative aspect-[4/3] overflow-hidden">
+                      {photo ? (
+                        <Image
+                          src={photo}
+                          alt={property.address || 'Property'}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 80vw, 50vw"
+                          priority={index < 3}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                          <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </div>
+                      )}
+
+                      {/* Save icon */}
+                      {isActive && (
+                        <div className="absolute top-3 right-3 z-10">
+                          <svg className="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Property Info */}
+                    <div className="px-5 py-4 md:px-6 md:py-5 text-center">
+                      <div className="flex items-center justify-center gap-3 md:gap-4 mb-2 flex-wrap">
+                        <span className="text-[var(--rc-navy)] text-xl md:text-2xl font-light tracking-wide">
+                          {formatPrice(property.list_price)}
+                        </span>
+                        <span className="text-[var(--rc-brown)]/30">|</span>
+                        <div className="flex items-center gap-3 text-[var(--rc-brown)] text-sm">
+                          {property.bedrooms !== null && (
+                            <span>{property.bedrooms} BD</span>
+                          )}
+                          {property.bathrooms !== null && (
+                            <span>{property.bathrooms} BA</span>
+                          )}
+                          {property.square_feet && (
+                            <span>{property.square_feet.toLocaleString()} SF</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-[var(--rc-brown)] text-sm uppercase tracking-wider line-clamp-1">
+                        {property.address}
+                      </div>
+                      <div className="text-[var(--rc-brown)]/60 text-xs uppercase tracking-wider mt-0.5">
+                        {property.city}
+                      </div>
+
+                      {/* Tour Property Button */}
+                      {isActive && (
+                        <Link
+                          href={`/listings/${property.id}`}
+                          className="inline-block mt-4 bg-[var(--rc-gold)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+                        >
+                          Tour Property
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Next Arrow */}
+        <button
+          onClick={handleNext}
+          className="flex-shrink-0 z-20 mx-1 md:mx-2"
+          aria-label="Next property"
+        >
+          <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
+            <NextArrow />
+          </div>
+        </button>
+      </div>
+
+      {/* View All Button */}
+      <div className="text-center mt-10 max-w-7xl mx-auto px-6">
+        <Link
+          href={listingsHref}
+          className="inline-block bg-[var(--rc-gold)] text-white text-xs font-black uppercase tracking-[0.1em] px-10 py-4 hover:bg-[var(--rc-gold-hover)] transition-colors duration-200"
+        >
+          {buttonText}
+        </Link>
+      </div>
+    </section>
+  );
+}
