@@ -175,8 +175,8 @@ function transformListing(row: GraphQLListing): MLSProperty {
     agent_name: row.list_office_name,
     agent_email: null,
     photos,
-    latitude: row.latitude,
-    longitude: row.longitude,
+    latitude: row.latitude != null ? Number(row.latitude) || null : null,
+    longitude: row.longitude != null ? Number(row.longitude) || null : null,
     // Additional property details
     subdivision_name: row.subdivision_name,
     mls_area_minor: row.mls_area_minor,

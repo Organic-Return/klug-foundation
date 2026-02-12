@@ -189,13 +189,13 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
     googleMapsApiKey: apiKey,
   });
 
-  // Filter listings with valid coordinates
+  // Filter listings with valid finite coordinates
   const listingsWithCoords = listings.filter(
     (listing) =>
-      listing.latitude !== null &&
-      listing.longitude !== null &&
-      !isNaN(listing.latitude) &&
-      !isNaN(listing.longitude)
+      typeof listing.latitude === 'number' &&
+      typeof listing.longitude === 'number' &&
+      isFinite(listing.latitude) &&
+      isFinite(listing.longitude)
   );
 
   // Calculate center of all listings
