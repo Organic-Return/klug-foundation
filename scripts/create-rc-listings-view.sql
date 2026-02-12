@@ -1,0 +1,70 @@
+-- Create a view called "graphql_listings" that maps rc-listings columns
+-- to the column names expected by the Next.js application.
+-- Run this in the Supabase SQL Editor for the rc-foundation project.
+
+DROP VIEW IF EXISTS public.graphql_listings CASCADE;
+CREATE VIEW public.graphql_listings AS
+SELECT
+  id,
+  created_at,
+  "UpdateDate" AS updated_at,
+  "MLSNumber" AS listing_id,
+  "Status" AS status,
+  COALESCE("AskingPrice"::text, "SearchPrice"::text)::numeric AS list_price,
+  CASE WHEN "Status" IN ('Closed', 'Sold') THEN COALESCE("SearchPrice"::text, "AskingPrice"::text)::numeric ELSE NULL END AS sold_price,
+  "Address" AS address,
+  "AddressNumber" AS street_number,
+  "AddressStreet" AS street_name,
+  NULL::text AS street_suffix,
+  NULL::text AS unit_number,
+  "City" AS city,
+  "State" AS state,
+  "County" AS county,
+  "Zip" AS zip_code,
+  "Bedrooms"::text::integer AS bedrooms,
+  "TotalBaths"::text::numeric AS bathrooms_total,
+  "NumberofFullBaths"::text::integer AS bathrooms_full,
+  "Numberof1_2Baths"::text::integer AS bathrooms_half,
+  "Numberof3_4Baths"::text::integer AS bathrooms_three_quarter,
+  COALESCE("TotalSQFT"::text, "FinishedSQFT"::text)::numeric AS square_feet,
+  "FinishedSQFT"::text::numeric AS living_area,
+  "LotSqFt"::text::numeric AS lot_size_square_feet,
+  "NumberofAcres"::text::numeric AS lot_size_acres,
+  "YearBuilt" AS year_built,
+  "Type" AS property_type,
+  "Style1" AS property_sub_type,
+  "ListingDate" AS listing_date,
+  "ClosingDate" AS close_date,
+  "OriginalPrice"::text::numeric AS original_list_price,
+  "PublicRemarks" AS description,
+  "Subdivision" AS subdivision_name,
+  NULL::text AS mls_area_major,
+  "Neighborhood" AS mls_area_minor,
+  NULL::text AS preferred_photo,
+  "Media" AS media,
+  COALESCE("GeoLatitude"::text, "Latitude"::text)::numeric AS latitude,
+  COALESCE("GeoLongitude"::text, "Longitude"::text)::numeric AS longitude,
+  COALESCE("LO1OfficeName", "OfficeName") AS list_office_name,
+  "LA1UserCode" AS list_agent_mls_id,
+  "AgentFirstName" AS list_agent_first_name,
+  "AgentLastName" AS list_agent_last_name,
+  "AgentEmail" AS list_agent_email,
+  "LA2UserCode" AS co_list_agent_mls_id,
+  NULL::text AS buyer_agent_mls_id,
+  NULL::text AS co_buyer_agent_mls_id,
+  "VirtualTour" AS virtual_tour_url,
+  NULL::text AS furnished,
+  CASE WHEN "FIREPLACE_FREESTANDSTOVE" IS NOT NULL AND "FIREPLACE_FREESTANDSTOVE" != '' THEN true ELSE false END AS fireplace_yn,
+  CASE WHEN "FIREPLACE_FREESTANDSTOVE" IS NOT NULL THEN ARRAY["FIREPLACE_FREESTANDSTOVE"] ELSE NULL END AS fireplace_features,
+  NULL::integer AS fireplace_total,
+  CASE WHEN "HVAC" IS NOT NULL THEN ARRAY["HVAC"] ELSE NULL END AS cooling,
+  CASE WHEN "HVAC" IS NOT NULL THEN ARRAY["HVAC"] ELSE NULL END AS heating,
+  NULL::text[] AS laundry_features,
+  CASE WHEN "GarageCapacity" IS NOT NULL AND "GarageCapacity"::text NOT IN ('0', '') THEN true ELSE false END AS attached_garage_yn,
+  CASE WHEN "GARAGE_PARKING" IS NOT NULL THEN ARRAY["GARAGE_PARKING"] ELSE NULL END AS parking_features,
+  NULL::text[] AS association_amenities
+FROM public."rc-listings";
+
+-- Grant read access to the anon role (required for Supabase client)
+GRANT SELECT ON public.graphql_listings TO anon;
+GRANT SELECT ON public.graphql_listings TO authenticated;
