@@ -12,6 +12,7 @@ interface PropertyGalleryProps {
 
 export default function PropertyGallery({ photos, address, constrained = false }: PropertyGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
 
   const goToPrevious = useCallback(() => {
     setCurrentIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
@@ -37,15 +38,27 @@ export default function PropertyGallery({ photos, address, constrained = false }
   return (
     <div className={`relative ${constrained ? 'aspect-[16/10]' : 'h-[calc(100vh-5rem)]'} bg-gray-900`}>
       {/* Main Photo */}
-      <Image
-        src={photos[currentIndex]}
-        alt={address ? `${address} - Photo ${currentIndex + 1}` : `Property photo ${currentIndex + 1}`}
-        fill
-        className="object-cover"
-        priority={currentIndex === 0}
-        sizes="100vw"
-        itemProp="image"
-      />
+      {failedPhotos.has(currentIndex) ? (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+          <div className="text-center text-gray-400">
+            <svg className="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <p className="mt-4">Photo unavailable</p>
+          </div>
+        </div>
+      ) : (
+        <Image
+          src={photos[currentIndex]}
+          alt={address ? `${address} - Photo ${currentIndex + 1}` : `Property photo ${currentIndex + 1}`}
+          fill
+          className="object-cover"
+          priority={currentIndex === 0}
+          sizes="100vw"
+          itemProp="image"
+          onError={() => setFailedPhotos((prev) => new Set(prev).add(currentIndex))}
+        />
+      )}
 
       {/* Navigation Arrows */}
       {photos.length > 1 && (

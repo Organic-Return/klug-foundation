@@ -153,7 +153,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     status: row.status,
     list_price: row.list_price,
     sold_price: row.sold_price,
-    address: row.address,
+    address: row.address || [row.street_number, row.street_name].filter(Boolean).join(' ') || null,
     city: row.city,
     state: row.state,
     zip_code: row.zip_code,

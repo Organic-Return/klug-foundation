@@ -27,6 +27,7 @@ function formatSqft(sqft: number | null): string {
 
 function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: boolean }) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [imageError, setImageError] = useState(false);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
   const currentPhoto = photos[currentPhotoIndex] || null;
@@ -34,12 +35,14 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
   const handlePrevPhoto = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setImageError(false);
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
   };
 
   const handleNextPhoto = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setImageError(false);
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
 
@@ -48,13 +51,14 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
   return (
     <Link href={`/listings/${listing.id}`} className="group block">
       <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden">
-        {currentPhoto ? (
+        {currentPhoto && !imageError ? (
           <Image
             src={currentPhoto}
             alt={listing.address || 'Property'}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            onError={() => setImageError(true)}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#c0c0c0]">

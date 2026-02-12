@@ -60,6 +60,7 @@ export default function RCSothebysListingContent({
 }: RCSothebysListingContentProps) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
   const photos = listing.photos || [];
 
   const handlePrevPhoto = useCallback(() => {
@@ -116,14 +117,25 @@ export default function RCSothebysListingContent({
                     index === activePhotoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                   }`}
                 >
-                  <Image
-                    src={photo}
-                    alt={`${listing.address || 'Property'} - Photo ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="100vw"
-                    priority={index === 0}
-                  />
+                  {failedPhotos.has(index) ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                      <div className="text-center text-gray-400">
+                        <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                      </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src={photo}
+                      alt={`${listing.address || 'Property'} - Photo ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                      priority={index === 0}
+                      onError={() => setFailedPhotos((prev) => new Set(prev).add(index))}
+                    />
+                  )}
                 </div>
               ))}
 
@@ -299,14 +311,23 @@ export default function RCSothebysListingContent({
                           index === activePhotoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
                         }`}
                       >
-                        <Image
-                          src={photo}
-                          alt={`${listing.address || 'Property'} - Photo ${index + 1}`}
-                          fill
-                          className="object-cover"
-                          sizes="900px"
-                          priority={index === 0}
-                        />
+                        {failedPhotos.has(index) ? (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
+                            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <Image
+                            src={photo}
+                            alt={`${listing.address || 'Property'} - Photo ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            sizes="900px"
+                            priority={index === 0}
+                            onError={() => setFailedPhotos((prev) => new Set(prev).add(index))}
+                          />
+                        )}
                       </div>
                     ))}
 
@@ -955,14 +976,26 @@ export default function RCSothebysListingContent({
             </button>
 
             <div className="relative w-full h-full max-w-6xl mx-auto">
-              <Image
-                src={photos[activePhotoIndex]}
-                alt={`${listing.address || 'Property'} - Photo ${activePhotoIndex + 1}`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                priority
-              />
+              {failedPhotos.has(activePhotoIndex) ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-gray-400">
+                    <svg className="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <p className="mt-4">Photo unavailable</p>
+                  </div>
+                </div>
+              ) : (
+                <Image
+                  src={photos[activePhotoIndex]}
+                  alt={`${listing.address || 'Property'} - Photo ${activePhotoIndex + 1}`}
+                  fill
+                  className="object-contain"
+                  sizes="100vw"
+                  priority
+                  onError={() => setFailedPhotos((prev) => new Set(prev).add(activePhotoIndex))}
+                />
+              )}
             </div>
 
             {/* Next */}

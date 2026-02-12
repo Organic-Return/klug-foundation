@@ -72,6 +72,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
   const isModernStyle = template === 'modern' || template === 'custom-one';
   const isRCSothebys = template === 'rcsothebys-custom';
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [imageError, setImageError] = useState(false);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
   const currentPhoto = photos[currentPhotoIndex] || null;
@@ -79,12 +80,14 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
   const handlePrevPhoto = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setImageError(false);
     setCurrentPhotoIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
   };
 
   const handleNextPhoto = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setImageError(false);
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
 
@@ -109,13 +112,14 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
       {/* Card Image */}
       <Link href={`/listings/${listing.id}`} className="block">
         <div className={`relative ${aspectRatioClasses} overflow-hidden bg-[var(--color-taupe)] ${template === 'luxury' ? 'border border-transparent group-hover:border-[var(--color-gold)] transition-[border-color] duration-500 ease-in-out' : ''}`}>
-          {currentPhoto ? (
+          {currentPhoto && !imageError ? (
             <Image
               src={currentPhoto}
               alt={listing.address || 'Property'}
               fill
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
