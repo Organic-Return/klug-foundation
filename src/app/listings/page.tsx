@@ -164,8 +164,8 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     getDistinctPropertySubTypes(),
     getDistinctStatuses(),
     getDistinctNeighborhoods(),
-    client.fetch<{ mlsAgentId?: string; mlsAgentIdSold?: string }[]>(
-      `*[_type == "teamMember" && defined(mlsAgentId)]{ mlsAgentId, mlsAgentIdSold }`,
+    client.fetch<{ name: string; mlsAgentId?: string; mlsAgentIdSold?: string }[]>(
+      `*[_type == "teamMember" && defined(mlsAgentId)]{ name, mlsAgentId, mlsAgentIdSold }`,
       {},
       { next: { revalidate: 3600 } }
     ),
@@ -192,9 +192,12 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   // Filter out excluded statuses and also hide "Closed"/"Sold" from dropdown
   const filteredStatuses = statuses.filter((s) => !excludedStatuses.includes(s) && s !== 'Closed' && s !== 'Sold');
 
-  // Collect all team agent MLS IDs for "Our Properties Only" filter
+  // Collect all team agent MLS IDs and names for "Our Properties Only" filter
   const teamAgentIds = teamMembers
     ? [...new Set(teamMembers.flatMap((m) => [m.mlsAgentId, m.mlsAgentIdSold]).filter(Boolean) as string[])]
+    : [];
+  const teamAgentNames = teamMembers
+    ? [...new Set(teamMembers.map((m) => m.name).filter(Boolean))]
     : [];
 
   // Fetch listings with filters applied
@@ -210,6 +213,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     minBaths: baths,
     keyword,
     agentMlsIds: ourTeam ? teamAgentIds : undefined,
+    agentNames: ourTeam ? teamAgentNames : undefined,
     excludedPropertyTypes,
     excludedPropertySubTypes,
     allowedCities,

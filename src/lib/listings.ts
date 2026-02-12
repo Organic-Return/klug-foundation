@@ -220,6 +220,7 @@ export interface ListingsFilters {
   keyword?: string;
   // Agent filtering (Our Properties Only)
   agentMlsIds?: string[];
+  agentNames?: string[];  // Fallback: also match by agent full name
   // Filters from MLS Configuration
   excludedPropertyTypes?: string[];      // Excluded main property types
   excludedPropertySubTypes?: string[];   // Excluded property subtypes
@@ -301,12 +302,16 @@ export async function getListings(
     query = query.or(`listing_id.ilike.%${filters.keyword}%,address.ilike.%${filters.keyword}%`);
   }
 
-  // Filter by team agent MLS IDs (Our Properties Only)
-  if (filters.agentMlsIds && filters.agentMlsIds.length > 0) {
-    const orConditions = filters.agentMlsIds
+  // Filter by team agent MLS IDs and/or names (Our Properties Only)
+  if ((filters.agentMlsIds && filters.agentMlsIds.length > 0) || (filters.agentNames && filters.agentNames.length > 0)) {
+    const idConditions = (filters.agentMlsIds || [])
       .map((id) => `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`)
       .join(',');
-    query = query.or(orConditions);
+    const nameConditions = (filters.agentNames || [])
+      .map((name) => `list_agent_full_name.ilike.${name}`)
+      .join(',');
+    const allConditions = [idConditions, nameConditions].filter(Boolean).join(',');
+    query = query.or(allConditions);
   }
 
   // Apply filters from MLS Configuration
@@ -321,7 +326,8 @@ export async function getListings(
     query = query.in('city', filters.allowedCities);
   }
   if (filters.excludedStatuses && filters.excludedStatuses.length > 0) {
-    query = query.not('status', 'in', `(${filters.excludedStatuses.join(',')})`);
+    // Use OR to also include rows where status is NULL (NOT IN excludes NULLs in SQL)
+    query = query.or(`status.not.in.(${filters.excludedStatuses.join(',')}),status.is.null`);
   }
 
   // Apply sorting
@@ -577,7 +583,7 @@ export async function getNewestHighPricedByCity(
     .ilike('city', city)
     .eq('property_type', 'Residential')
     .eq('property_sub_type', 'Single Family Residence')
-    .not('status', 'in', '("Closed","Sold")')
+    .or('status.not.in.(Closed,Sold),status.is.null')
     .not('list_price', 'is', null)
     .order('listing_date', { ascending: false })
     .order('list_price', { ascending: false })
@@ -655,7 +661,7 @@ export async function getNewestHighPricedByCities(
     .or(cityFilters)
     .eq('property_type', 'Residential')
     .eq('property_sub_type', 'Single Family Residence')
-    .not('status', 'in', '("Closed","Sold")')
+    .or('status.not.in.(Closed,Sold),status.is.null')
     .not('list_price', 'is', null)
     .order('listing_date', { ascending: false })
     .order('list_price', { ascending: false })
@@ -677,25 +683,32 @@ export interface AgentListingsResult {
 
 export async function getListingsByAgentId(
   agentMlsId: string,
-  soldAgentMlsId?: string
+  soldAgentMlsId?: string,
+  agentName?: string
 ): Promise<AgentListingsResult> {
   if (!isSupabaseConfigured()) return { activeListings: [], soldListings: [] };
 
   const buildFilter = (id: string) =>
     `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
 
-  const activeFilter = buildFilter(agentMlsId);
+  let activeFilter = buildFilter(agentMlsId);
   const soldId = soldAgentMlsId || agentMlsId;
-  const soldFilter = soldId === agentMlsId
+  let soldFilter = soldId === agentMlsId
     ? activeFilter
     : `${buildFilter(agentMlsId)},${buildFilter(soldId)}`;
+
+  // Also match by agent full name as fallback (handles MLS ID format mismatches)
+  if (agentName) {
+    activeFilter += `,list_agent_full_name.ilike.${agentName}`;
+    soldFilter += `,list_agent_full_name.ilike.${agentName}`;
+  }
 
   const [activeResult, soldResult] = await Promise.all([
     supabase
       .from('graphql_listings')
       .select('*')
       .or(activeFilter)
-      .not('status', 'in', '("Closed","Sold")')
+      .or('status.not.in.(Closed,Sold),status.is.null')
       .order('listing_date', { ascending: false })
       .limit(200),
     supabase

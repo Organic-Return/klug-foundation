@@ -89,7 +89,7 @@ export default async function TeamMemberPage({ params }: Props) {
   }
 
   const agentListings = member.mlsAgentId
-    ? await getListingsByAgentId(member.mlsAgentId, member.mlsAgentIdSold)
+    ? await getListingsByAgentId(member.mlsAgentId, member.mlsAgentIdSold, member.name)
     : null;
 
   const hasListings = agentListings && (agentListings.activeListings.length > 0 || agentListings.soldListings.length > 0);
