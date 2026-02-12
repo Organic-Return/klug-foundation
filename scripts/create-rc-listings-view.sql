@@ -3,6 +3,7 @@
 -- Run this in the Supabase SQL Editor for the rc-foundation project.
 --
 -- Updated: now uses RESO standard column names from the updated rc-listings table.
+-- Uses COALESCE for status: prefers StandardStatus (RESO), falls back to MlsStatus.
 
 DROP VIEW IF EXISTS public.graphql_listings CASCADE;
 CREATE VIEW public.graphql_listings AS
@@ -11,7 +12,7 @@ SELECT
   created_at,
   "ModificationTimestamp" AS updated_at,
   "ListingId" AS listing_id,
-  "StandardStatus" AS status,
+  COALESCE("StandardStatus", "MlsStatus") AS status,
   "ListPrice" AS list_price,
   "ClosePrice" AS sold_price,
   "UnparsedAddress" AS address,

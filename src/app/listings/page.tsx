@@ -273,7 +273,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           currentPage={page}
           totalPages={totalPages}
           total={total}
-          searchParams={currentSearchParams}
+          searchParams={currentSearchParams.toString()}
           currentSort={sort}
           hasLocationFilter={!!(city || neighborhood)}
           template={settings?.template || 'classic'}

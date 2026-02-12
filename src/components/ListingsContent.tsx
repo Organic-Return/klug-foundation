@@ -13,7 +13,7 @@ interface ListingsContentProps {
   currentPage: number;
   totalPages: number;
   total: number;
-  searchParams: URLSearchParams;
+  searchParams: string;
   currentSort: SortOption;
   hasLocationFilter?: boolean;
   template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
@@ -309,7 +309,7 @@ function Pagination({
 }: {
   currentPage: number;
   totalPages: number;
-  searchParams: URLSearchParams;
+  searchParams: string;
   scrollContainerId?: string;
 }) {
   if (totalPages <= 1) return null;

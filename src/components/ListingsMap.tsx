@@ -183,8 +183,10 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
   const [completedPolygon, setCompletedPolygon] = useState<google.maps.LatLngLiteral[] | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: apiKey,
   });
 
   // Filter listings with valid coordinates
@@ -290,12 +292,12 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDrawing]);
 
-  if (loadError) {
+  if (!apiKey || loadError) {
     return (
       <div className="w-full h-full bg-gray-100 flex items-center justify-center">
         <div className="text-center text-gray-500">
-          <p>Error loading Google Maps</p>
-          <p className="text-sm mt-1">Please check your API key configuration</p>
+          <p>Map unavailable</p>
+          <p className="text-sm mt-1">Switch to list view to browse properties</p>
         </div>
       </div>
     );
