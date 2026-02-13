@@ -33,9 +33,10 @@ interface CityStats {
 }
 
 // Property sub-type filters (uses property_sub_type column)
+// Includes both RESO standard names and PacMLS-specific names
 const PROPERTY_SUB_TYPE_FILTERS: Record<string, string[]> = {
   all: [], // No additional filter - shows all allowed types
-  'single-family': ['Single Family Residence'],
+  'single-family': ['Single Family Residence', 'Site Built-Owned Lot', 'Residential'],
   'condo-townhome': ['Condominium', 'Townhouse'],
 };
 
@@ -110,10 +111,17 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .not('property_type', 'eq', 'Res Vacant Land');
 
   // Apply property sub-type filter if not "all"
+  // For single-family, also include NULL sub-types since many MLS systems (e.g. PacMLS)
+  // leave this field empty for standard residential listings
   if (filterSubTypes && filterSubTypes.length > 0) {
-    activeQuery = activeQuery.in('property_sub_type', filterSubTypes);
-    pendingQuery = pendingQuery.in('property_sub_type', filterSubTypes);
-    closedQuery = closedQuery.in('property_sub_type', filterSubTypes);
+    const orConditions = filterSubTypes.map(t => `property_sub_type.eq.${t}`).join(',');
+    const includeNull = propertyFilter === 'single-family';
+    const orFilter = includeNull
+      ? `property_sub_type.is.null,${orConditions}`
+      : orConditions;
+    activeQuery = activeQuery.or(orFilter);
+    pendingQuery = pendingQuery.or(orFilter);
+    closedQuery = closedQuery.or(orFilter);
   }
 
   // Execute all three queries in parallel for better performance
