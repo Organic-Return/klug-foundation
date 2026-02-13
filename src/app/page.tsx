@@ -172,6 +172,7 @@ export default async function Home() {
           items: accolades?.items,
         }}
         agentMlsId={teamSection?.featuredTeamMember?.mlsAgentId}
+        officeName={settings?.template === 'rcsothebys-custom' ? 'Sotheby' : undefined}
         featuredProperty={{
           enabled: featuredProperty?.enabled,
           mlsId: featuredProperty?.mlsId,

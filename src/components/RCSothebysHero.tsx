@@ -23,6 +23,7 @@ interface RCSothebysHeroProps {
   limit?: number;
   videoUrl?: string;
   fallbackImageUrl?: string;
+  officeName?: string;
 }
 
 function formatPrice(price: number): string {
@@ -77,6 +78,7 @@ export default function RCSothebysHero({
   limit = 8,
   videoUrl,
   fallbackImageUrl,
+  officeName,
 }: RCSothebysHeroProps) {
   const resolvedCities = cities || ['Aspen'];
   const router = useRouter();
@@ -98,7 +100,10 @@ export default function RCSothebysHero({
         const citiesParam = resolvedCities.length > 1
           ? `cities=${encodeURIComponent(resolvedCities.join(','))}`
           : `city=${encodeURIComponent(resolvedCities[0] || 'Aspen')}`;
-        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}`);
+        const officeParam = officeName
+          ? `&officeName=${encodeURIComponent(officeName)}`
+          : '';
+        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}`);
         const data = await response.json();
         setProperties(data.properties || []);
       } catch (error) {
@@ -108,7 +113,7 @@ export default function RCSothebysHero({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit]);
+  }, [resolvedCities, limit, officeName]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;

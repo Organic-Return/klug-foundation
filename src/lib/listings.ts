@@ -618,18 +618,28 @@ export function formatLotSize(acres: number | null): string {
 // Get newest highest-priced properties for a specific city
 export async function getNewestHighPricedByCity(
   city: string,
-  limit: number = 4
+  limit: number = 4,
+  options?: { agentIds?: string[]; officeName?: string }
 ): Promise<MLSProperty[]> {
   if (!isSupabaseConfigured()) return [];
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('graphql_listings')
     .select('*')
     .ilike('city', city)
     .or('property_type.eq.Residential,property_type.is.null')
     .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
     .or('status.not.in.(Closed,Sold),status.is.null')
-    .not('list_price', 'is', null)
+    .not('list_price', 'is', null);
+
+  if (options?.officeName) {
+    query = query.ilike('list_office_name', `%${options.officeName}%`);
+  } else if (options?.agentIds && options.agentIds.length > 0) {
+    const agentFilter = options.agentIds.map(id => `list_agent_mls_id.ilike.${id}`).join(',');
+    query = query.or(agentFilter);
+  }
+
+  const { data, error } = await query
     .order('listing_date', { ascending: false })
     .order('list_price', { ascending: false })
     .limit(limit);
@@ -691,7 +701,8 @@ export async function getCommunityPriceRange(
  */
 export async function getNewestHighPricedByCities(
   cities: string[],
-  limit: number = 8
+  limit: number = 8,
+  options?: { agentIds?: string[]; officeName?: string }
 ): Promise<MLSProperty[]> {
   if (!isSupabaseConfigured() || !cities || cities.length === 0) {
     return [];
@@ -700,14 +711,23 @@ export async function getNewestHighPricedByCities(
   // Build OR filter for multiple cities (case-insensitive)
   const cityFilters = cities.map(city => `city.ilike.${city}`).join(',');
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('graphql_listings')
     .select('*')
     .or(cityFilters)
     .or('property_type.eq.Residential,property_type.is.null')
     .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
     .or('status.not.in.(Closed,Sold),status.is.null')
-    .not('list_price', 'is', null)
+    .not('list_price', 'is', null);
+
+  if (options?.officeName) {
+    query = query.ilike('list_office_name', `%${options.officeName}%`);
+  } else if (options?.agentIds && options.agentIds.length > 0) {
+    const agentFilter = options.agentIds.map(id => `list_agent_mls_id.ilike.${id}`).join(',');
+    query = query.or(agentFilter);
+  }
+
+  const { data, error } = await query
     .order('listing_date', { ascending: false })
     .order('list_price', { ascending: false })
     .limit(limit);

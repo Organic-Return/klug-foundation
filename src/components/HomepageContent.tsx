@@ -77,6 +77,9 @@ interface HomepageContentProps {
   // Agent MLS ID from team member (for featured property gallery)
   agentMlsId?: string;
 
+  // Office name filter for hero/carousel (only show team listings)
+  officeName?: string;
+
   // Featured properties carousel data
   featuredPropertiesCarousel?: {
     enabled?: boolean;
@@ -123,6 +126,7 @@ export default function HomepageContent({
   accolades,
   featuredProperty,
   agentMlsId,
+  officeName,
   featuredPropertiesCarousel,
   featuredCommunities,
   marketStatsSection,
@@ -232,6 +236,7 @@ export default function HomepageContent({
           limit={featuredPropertiesCarousel?.limit || 8}
           videoUrl={videoUrl}
           fallbackImageUrl={fallbackImageUrl}
+          officeName={officeName}
         />
 
         {/* About Section — unique RC Sotheby's editorial layout */}
@@ -263,6 +268,7 @@ export default function HomepageContent({
             subtitle={featuredPropertiesCarousel?.subtitle}
             limit={featuredPropertiesCarousel?.limit || 8}
             buttonText={featuredPropertiesCarousel?.buttonText || 'View All Properties'}
+            officeName={officeName}
           />
         )}
 

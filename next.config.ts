@@ -71,8 +71,6 @@ const nextConfig: NextConfig = {
     ],
     // Enable AVIF and WebP for better compression and quality
     formats: ['image/avif', 'image/webp'],
-    // Higher quality for property photos (default 75 is too aggressive with AVIF)
-    quality: 85,
   },
 };
 

@@ -23,6 +23,7 @@ interface RCSothebysPropertyCarouselProps {
   subtitle?: string;
   limit?: number;
   buttonText?: string;
+  officeName?: string;
 }
 
 function formatPrice(price: number): string {
@@ -62,6 +63,7 @@ export default function RCSothebysPropertyCarousel({
   subtitle,
   limit = 8,
   buttonText = 'View All Properties',
+  officeName,
 }: RCSothebysPropertyCarouselProps) {
   const resolvedCities = cities || ['Aspen'];
 
@@ -77,7 +79,10 @@ export default function RCSothebysPropertyCarousel({
         const citiesParam = resolvedCities.length > 1
           ? `cities=${encodeURIComponent(resolvedCities.join(','))}`
           : `city=${encodeURIComponent(resolvedCities[0] || 'Aspen')}`;
-        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}`);
+        const officeParam = officeName
+          ? `&officeName=${encodeURIComponent(officeName)}`
+          : '';
+        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}`);
         const data = await response.json();
         setProperties(data.properties || []);
       } catch (error) {
@@ -87,7 +92,7 @@ export default function RCSothebysPropertyCarousel({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit]);
+  }, [resolvedCities, limit, officeName]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;

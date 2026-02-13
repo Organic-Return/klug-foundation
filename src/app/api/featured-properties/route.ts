@@ -6,20 +6,24 @@ export async function GET(request: NextRequest) {
   const citiesParam = searchParams.get('cities');
   const city = searchParams.get('city');
   const limit = parseInt(searchParams.get('limit') || '8', 10);
+  const officeName = searchParams.get('officeName') || undefined;
+  const agentIdsParam = searchParams.get('agentIds');
+  const agentIds = agentIdsParam
+    ? agentIdsParam.split(',').map(id => id.trim()).filter(Boolean)
+    : undefined;
+
+  const filterOptions = officeName ? { officeName } : agentIds ? { agentIds } : undefined;
 
   try {
     let properties;
 
     if (citiesParam) {
-      // Multiple cities passed as comma-separated string
       const cities = citiesParam.split(',').map(c => c.trim()).filter(Boolean);
-      properties = await getNewestHighPricedByCities(cities, limit);
+      properties = await getNewestHighPricedByCities(cities, limit, filterOptions);
     } else if (city) {
-      // Single city (backwards compatible)
-      properties = await getNewestHighPricedByCity(city, limit);
+      properties = await getNewestHighPricedByCity(city, limit, filterOptions);
     } else {
-      // Default to Aspen
-      properties = await getNewestHighPricedByCity('Aspen', limit);
+      properties = await getNewestHighPricedByCity('Aspen', limit, filterOptions);
     }
 
     return NextResponse.json({ properties });
