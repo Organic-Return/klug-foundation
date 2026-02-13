@@ -50,14 +50,20 @@ const DEFAULT_CITIES = [
 ];
 
 // Core function to fetch and calculate city stats
-async function computeCityStats(propertyFilter: string): Promise<{ cities: string[]; stats: CityStats[] }> {
-  // Get MLS configuration to filter by allowed cities
-  const mlsConfig = await getMLSConfiguration();
-  let allowedCities = getAllowedCities(mlsConfig);
+async function computeCityStats(propertyFilter: string, requestedCities?: string[]): Promise<{ cities: string[]; stats: CityStats[] }> {
+  // If specific cities are requested (from CMS/query params), use those directly
+  // Otherwise fall back to MLS configuration or defaults
+  let allowedCities: string[];
 
-  // If no allowed cities configured, use default cities
-  if (allowedCities.length === 0) {
-    allowedCities = DEFAULT_CITIES;
+  if (requestedCities && requestedCities.length > 0) {
+    allowedCities = requestedCities;
+  } else {
+    const mlsConfig = await getMLSConfiguration();
+    allowedCities = getAllowedCities(mlsConfig);
+
+    if (allowedCities.length === 0) {
+      allowedCities = DEFAULT_CITIES;
+    }
   }
 
   // Calculate date ranges for sold listings query
@@ -84,7 +90,7 @@ async function computeCityStats(propertyFilter: string): Promise<{ cities: strin
   let pendingQuery = supabase
     .from('graphql_listings')
     .select('city')
-    .in('status', ['Pending', 'Under Contract', 'Active Under Contract'])
+    .or('status.eq.Pending,status.eq.Under Contract,status.eq.Active Under Contract,status.ilike.Pending%,status.ilike.Active U/C%')
     .in('city', allowedCities)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
@@ -404,29 +410,22 @@ export async function GET(request: Request) {
     const cityFilter = searchParams.get('city'); // Single city filter
     const citiesFilter = searchParams.get('cities'); // Multiple cities filter (comma-separated)
 
-    // Use cached function to get stats
-    const cachedFn = getCachedCityStats(propertyFilter);
-    const result = await cachedFn();
-
-    // If a specific city is requested, filter the results
+    // If specific cities are requested, compute stats for those cities directly
+    // This ensures cities outside the MLS config are still queryable
     if (cityFilter) {
-      const filteredStats = result.stats.filter(s => s.city === cityFilter);
-      return NextResponse.json({
-        cities: filteredStats.map(s => s.city),
-        stats: filteredStats,
-      });
+      const result = await computeCityStats(propertyFilter, [cityFilter]);
+      return NextResponse.json(result);
     }
 
-    // If multiple cities are requested, filter the results
     if (citiesFilter) {
       const requestedCities = citiesFilter.split(',').map(c => c.trim());
-      const filteredStats = result.stats.filter(s => requestedCities.includes(s.city));
-      return NextResponse.json({
-        cities: filteredStats.map(s => s.city),
-        stats: filteredStats,
-      });
+      const result = await computeCityStats(propertyFilter, requestedCities);
+      return NextResponse.json(result);
     }
 
+    // No specific cities requested — use cached default (MLS config cities)
+    const cachedFn = getCachedCityStats(propertyFilter);
+    const result = await cachedFn();
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error in city-stats API:', error);
