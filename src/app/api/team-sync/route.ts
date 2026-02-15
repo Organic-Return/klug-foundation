@@ -45,7 +45,7 @@ interface SanityTeamMember {
   address?: string;
   mlsAgentId?: string;
   inactive?: boolean;
-  _syncPhotoUrl?: string;
+  syncPhotoUrl?: string;
   overrides?: Record<string, boolean>;
 }
 
@@ -138,7 +138,7 @@ async function fetchExistingSyncedMembers(): Promise<SanityTeamMember[]> {
   return client.fetch<SanityTeamMember[]>(
     `*[_type == "teamMember" && syncSource == "realogy_sync"]{
       _id, realogyId, syncSource, name, title, bio, email, phone, mobile,
-      office, address, mlsAgentId, inactive, _syncPhotoUrl, overrides
+      office, address, mlsAgentId, inactive, syncPhotoUrl, overrides
     }`,
     {},
     { next: { revalidate: 0 } }
@@ -265,7 +265,7 @@ async function executeSync() {
           const imageData = await uploadPhotoToSanity(photoUrl);
           if (imageData) {
             doc.image = imageData;
-            doc._syncPhotoUrl = photoUrl;
+            doc.syncPhotoUrl = photoUrl;
           }
         }
 
@@ -284,11 +284,11 @@ async function executeSync() {
         // Handle photo updates
         const photoUrl = normalizePhotoUrl(agent.photo_url);
         const overrides = existing.overrides || {};
-        if (!overrides.image && photoUrl && photoUrl !== existing._syncPhotoUrl) {
+        if (!overrides.image && photoUrl && photoUrl !== existing.syncPhotoUrl) {
           const imageData = await uploadPhotoToSanity(photoUrl);
           if (imageData) {
             patchData.image = imageData;
-            patchData._syncPhotoUrl = photoUrl;
+            patchData.syncPhotoUrl = photoUrl;
           }
         }
 

@@ -191,7 +191,7 @@ export const teamMember = defineType({
       readOnly: true,
     }),
     defineField({
-      name: '_syncPhotoUrl',
+      name: 'syncPhotoUrl',
       title: 'Sync Photo URL',
       type: 'string',
       description: 'Tracks the last synced photo URL to detect changes',
