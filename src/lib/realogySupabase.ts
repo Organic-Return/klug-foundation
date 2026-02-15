@@ -17,7 +17,12 @@ export function getRealogySupabase(): SupabaseClient | null {
       return null;
     }
 
-    _realogy = createClient(url, key);
+    _realogy = createClient(url, key, {
+      global: {
+        fetch: (url, options = {}) =>
+          fetch(url, { ...options, next: { revalidate: 60 } } as any),
+      },
+    });
   }
   return _realogy;
 }

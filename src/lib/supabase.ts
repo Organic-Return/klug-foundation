@@ -20,7 +20,12 @@ export function getSupabase(): SupabaseClient | null {
       return null;
     }
 
-    _supabase = createClient(supabaseUrl, supabaseAnonKey);
+    _supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        fetch: (url, options = {}) =>
+          fetch(url, { ...options, next: { revalidate: 60 } } as any),
+      },
+    });
   }
   return _supabase;
 }

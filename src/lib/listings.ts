@@ -403,7 +403,11 @@ async function getSIRMediaForListing(mlsNumber: string): Promise<SIRMediaAssets 
     .limit(1)
     .maybeSingle();
 
-  if (error || !data) return null;
+  if (error) {
+    console.error(`[SIR Enrichment] Query error for MLS# ${mlsNumber}:`, error.message);
+    return null;
+  }
+  if (!data) return null;
 
   return extractSIRMedia(data);
 }
