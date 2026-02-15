@@ -73,10 +73,10 @@ export interface EnrichedPartner extends Partner {
 
 export async function fetchAgentData(agentStaffId: string): Promise<AgentData | null> {
   try {
-    // Use localhost for development, otherwise use the site URL
-    const baseUrl = process.env.NODE_ENV === 'development'
-      ? 'http://localhost:3000'
-      : (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000');
+    // Build base URL: explicit site URL > Vercel deployment URL > localhost
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+      || 'http://localhost:3000';
 
     const response = await fetch(`${baseUrl}/api/agents?agentStaffId=${encodeURIComponent(agentStaffId)}`, {
       next: { revalidate: 3600 }, // Cache for 1 hour
