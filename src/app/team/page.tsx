@@ -19,7 +19,7 @@ interface TeamMember {
   phone?: string;
 }
 
-const ALL_TEAM_QUERY = `*[_type == "teamMember"] | order(order asc, name asc) {
+const ALL_TEAM_QUERY = `*[_type == "teamMember" && defined(slug.current)] | order(order asc, name asc) {
   _id,
   name,
   slug,
