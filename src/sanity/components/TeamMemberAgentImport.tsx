@@ -142,6 +142,10 @@ export function TeamMemberAgentImport(props: StringInputProps) {
           patchData.mlsAgentId = fullData.mlsNumbers[0]
         }
 
+        // Set sync tracking fields
+        patchData.realogyId = agent.agentStaffId
+        patchData.syncSource = 'manual'
+
         // Upload photo if available
         if (fullData.photoUrl) {
           const imageData = await uploadPhotoToSanity(fullData.photoUrl)

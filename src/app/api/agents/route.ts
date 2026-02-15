@@ -1,85 +1,13 @@
 import { NextResponse } from 'next/server';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { realogySupabase, isRealogyConfigured } from '@/lib/realogySupabase';
-
-interface RemarkItem {
-  type?: string;
-  remark?: string;
-  htmlRemark?: string;
-  languageCode?: string;
-}
-
-function parseRemarks(remarks: RemarkItem[] | string | null): string {
-  if (!remarks) return '';
-
-  // If it's a string, try to parse it as JSON
-  if (typeof remarks === 'string') {
-    try {
-      const parsed = JSON.parse(remarks);
-      if (Array.isArray(parsed)) {
-        // Find the Personal Profile remark or use the first one
-        const personalProfile = parsed.find((r: RemarkItem) => r.type === 'Personal Profile');
-        const remarkItem = personalProfile || parsed[0];
-        return remarkItem?.remark || remarkItem?.htmlRemark || '';
-      }
-      return parsed.remark || parsed.Remark || '';
-    } catch {
-      return remarks;
-    }
-  }
-
-  // If it's an array, extract the remark
-  if (Array.isArray(remarks)) {
-    // Find the Personal Profile remark or use the first one
-    const personalProfile = remarks.find((r: RemarkItem) => r.type === 'Personal Profile');
-    const remarkItem = personalProfile || remarks[0];
-    return remarkItem?.remark || remarkItem?.htmlRemark || '';
-  }
-
-  return '';
-}
-
-function parseRemarksHtml(remarks: RemarkItem[] | string | null): string {
-  if (!remarks) return '';
-
-  if (typeof remarks === 'string') {
-    try {
-      const parsed = JSON.parse(remarks);
-      if (Array.isArray(parsed)) {
-        const personalProfile = parsed.find((r: RemarkItem) => r.type === 'Personal Profile');
-        const remarkItem = personalProfile || parsed[0];
-        return remarkItem?.htmlRemark || remarkItem?.remark || '';
-      }
-      return parsed.htmlRemark || parsed.remark || parsed.Remark || '';
-    } catch {
-      return remarks;
-    }
-  }
-
-  if (Array.isArray(remarks)) {
-    const personalProfile = remarks.find((r: RemarkItem) => r.type === 'Personal Profile');
-    const remarkItem = personalProfile || remarks[0];
-    return remarkItem?.htmlRemark || remarkItem?.remark || '';
-  }
-
-  return '';
-}
-
-function normalizePhotoUrl(url: string | null): string | null {
-  if (!url) return null;
-
-  // If URL starts with //, add https:
-  if (url.startsWith('//')) {
-    return `https:${url}`;
-  }
-
-  // If URL doesn't start with http, add https://
-  if (!url.startsWith('http')) {
-    return `https://${url}`;
-  }
-
-  return url;
-}
+import {
+  parseRemarks,
+  parseRemarksHtml,
+  normalizePhotoUrl,
+  formatOfficeAddress,
+  parseMlsNumbers,
+} from '@/lib/realogyHelpers';
 
 // Search agents from the Realogy database (realogy_agents table)
 async function searchRealogyAgents(search: string) {
@@ -171,40 +99,6 @@ async function getRealogyAgentFull(databaseId: string) {
   const { data, error } = await query.limit(1).single();
   if (error || !data) return null;
 
-  // Parse office_address JSON into a formatted string
-  let formattedAddress = '';
-  if (data.office_address) {
-    try {
-      const addr = typeof data.office_address === 'string'
-        ? JSON.parse(data.office_address)
-        : data.office_address;
-      const parts = [
-        addr.streetAddress,
-        addr.city,
-        addr.stateProvince,
-        addr.postalCode,
-      ].filter(Boolean);
-      formattedAddress = parts.join(', ');
-    } catch {
-      formattedAddress = String(data.office_address);
-    }
-  }
-
-  // Parse mls_numbers
-  let mlsNumbers: string[] = [];
-  if (data.mls_numbers) {
-    try {
-      const parsed = typeof data.mls_numbers === 'string'
-        ? JSON.parse(data.mls_numbers)
-        : data.mls_numbers;
-      if (Array.isArray(parsed)) {
-        mlsNumbers = parsed.map(String);
-      }
-    } catch {
-      mlsNumbers = [String(data.mls_numbers)];
-    }
-  }
-
   return {
     agentStaffId: data.rfg_staff_id || data.entity_id || data.id,
     firstName: data.first_name,
@@ -216,8 +110,8 @@ async function getRealogyAgentFull(databaseId: string) {
     mobilePhone: data.mobile_phone || '',
     officePhone: data.office_phone || '',
     officeName: data.office_name || '',
-    officeAddress: formattedAddress,
-    mlsNumbers,
+    officeAddress: formatOfficeAddress(data.office_address),
+    mlsNumbers: parseMlsNumbers(data.mls_numbers),
     specialty: data.specialty || '',
   };
 }

@@ -268,6 +268,64 @@ export const settings = defineType({
       ],
     }),
     defineField({
+      name: 'teamSync',
+      title: 'Team Sync',
+      type: 'object',
+      description: 'Automatically sync team members from the SIR Realogy database by office',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Enable Auto-Sync',
+          type: 'boolean',
+          description: 'When enabled, team members are synced daily from the configured offices',
+          initialValue: false,
+        },
+        {
+          name: 'offices',
+          title: 'Offices to Sync',
+          type: 'array',
+          description: 'Add offices whose agents should appear on the team page',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                {
+                  name: 'officeName',
+                  title: 'Office Name',
+                  type: 'string',
+                  validation: (Rule: any) => Rule.required(),
+                },
+                {
+                  name: 'officeId',
+                  title: 'Office ID',
+                  type: 'string',
+                  description: 'The office_id from the Realogy database',
+                  validation: (Rule: any) => Rule.required(),
+                },
+              ],
+              preview: {
+                select: {
+                  title: 'officeName',
+                  subtitle: 'officeId',
+                },
+              },
+            },
+          ],
+        },
+        {
+          name: 'defaultOrder',
+          title: 'Default Display Order',
+          type: 'number',
+          description: 'Default order value for newly synced team members (lower = higher on page)',
+          initialValue: 100,
+        },
+      ],
+    }),
+    defineField({
       name: 'footer',
       title: 'Footer Settings',
       type: 'object',

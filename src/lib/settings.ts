@@ -44,6 +44,11 @@ interface SiteSettings {
     taglineImage?: any;
     brokerageLogo?: any;
   };
+  teamSync?: {
+    enabled?: boolean;
+    offices?: Array<{ officeName: string; officeId: string }>;
+    defaultOrder?: number;
+  };
 }
 
 const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
@@ -78,7 +83,8 @@ const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     brokerageLogo {
       asset->
     }
-  }
+  },
+  teamSync
 }`;
 
 /**
@@ -196,4 +202,19 @@ export async function getBranding(): Promise<{
 } | null> {
   const settings = await getSettings();
   return settings?.branding || null;
+}
+
+export interface TeamSyncConfig {
+  enabled: boolean;
+  offices: Array<{ officeName: string; officeId: string }>;
+  defaultOrder: number;
+}
+
+export async function getTeamSyncConfig(): Promise<TeamSyncConfig> {
+  const settings = await getSettings();
+  return {
+    enabled: settings?.teamSync?.enabled ?? false,
+    offices: settings?.teamSync?.offices ?? [],
+    defaultOrder: settings?.teamSync?.defaultOrder ?? 100,
+  };
 }
