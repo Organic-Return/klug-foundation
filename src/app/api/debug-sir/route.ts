@@ -1,10 +1,34 @@
 import { NextResponse } from 'next/server';
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
+import { getListingById } from '@/lib/listings';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const mls = searchParams.get('mls') || '285075';
+  const id = searchParams.get('id');
 
+  // If id is provided, test the full getListingById flow
+  if (id) {
+    try {
+      const listing = await getListingById(id);
+      if (!listing) {
+        return NextResponse.json({ id, listing: null, message: 'getListingById returned null' });
+      }
+      return NextResponse.json({
+        id,
+        mls_number: listing.mls_number,
+        photos_count: listing.photos?.length || 0,
+        photos_source: listing.photos?.[0]?.substring(0, 80) || 'none',
+        video_urls: listing.video_urls || [],
+        virtual_tour_url: listing.virtual_tour_url || null,
+        has_sir_photos: listing.photos?.[0]?.includes('anywhere.re') || false,
+      });
+    } catch (err: any) {
+      return NextResponse.json({ id, error: err.message, stack: err.stack?.substring(0, 500) });
+    }
+  }
+
+  // Otherwise test direct SIR lookup
   const configured = isRealogyConfigured();
   if (!configured) {
     return NextResponse.json({
