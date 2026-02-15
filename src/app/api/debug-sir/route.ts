@@ -18,27 +18,25 @@ export async function GET(request: Request) {
     const client = createClient(url, key);
     const { data, error } = await client
       .from('graphql_listings')
-      .select('id, listing_id, status, address, city, preferred_photo, media')
+      .select('*')
       .eq('id', id)
       .single();
 
     if (error) return NextResponse.json({ error: error.message });
 
-    // Show column names and key values (truncate media)
+    // Show all non-null columns (except media which is huge)
+    const nonNull: Record<string, any> = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== null && key !== 'media') {
+        nonNull[key] = typeof value === 'string' && value.length > 150
+          ? value.substring(0, 150) + '...'
+          : value;
+      }
+    }
     return NextResponse.json({
-      id: data.id,
-      listing_id: data.listing_id,
-      status: data.status,
-      address: data.address,
-      city: data.city,
-      preferred_photo: data.preferred_photo?.substring(0, 100),
-      media_type: typeof data.media,
-      media_is_array: Array.isArray(data.media),
-      media_count: Array.isArray(data.media) ? data.media.length : 0,
-      media_sample: Array.isArray(data.media) && data.media[0]
-        ? JSON.stringify(data.media[0]).substring(0, 200)
-        : null,
       all_columns: Object.keys(data),
+      non_null_values: nonNull,
+      media_count: Array.isArray(data.media) ? data.media.length : 0,
     });
   }
 
