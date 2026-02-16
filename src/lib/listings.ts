@@ -1053,12 +1053,15 @@ export async function getListingsByAgentId(
       ? (async () => {
           const buildFilter = (id: string) =>
             `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
+          // Sold listings: only match listing agent roles (not buyer agent)
+          const buildSoldFilter = (id: string) =>
+            `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
 
           const activeFilter = buildFilter(agentMlsId);
           const soldId = soldAgentMlsId || agentMlsId;
           const soldFilter = soldId === agentMlsId
-            ? activeFilter
-            : `${buildFilter(agentMlsId)},${buildFilter(soldId)}`;
+            ? buildSoldFilter(agentMlsId)
+            : `${buildSoldFilter(agentMlsId)},${buildSoldFilter(soldId)}`;
 
           const [activeRes, soldRes] = await Promise.all([
             supabase
