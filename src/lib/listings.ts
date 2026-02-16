@@ -124,28 +124,46 @@ export interface MLSProperty {
 
 // Transform graphql_listings row to MLSProperty format
 function transformListing(row: GraphQLListing): MLSProperty {
-  // Extract photos from media array
+  // Extract photos from media — handles JSON arrays, JSON strings, and string arrays
   const photos: string[] = [];
   if (row.preferred_photo) {
     photos.push(row.preferred_photo);
   }
-  if (row.media && Array.isArray(row.media)) {
-    for (const mediaItem of row.media) {
+  let mediaItems: any[] = [];
+  if (row.media) {
+    if (Array.isArray(row.media)) {
+      mediaItems = row.media;
+    } else if (typeof row.media === 'string') {
+      // Media may be a JSON string (AWSJSON / text column)
       try {
-        const parsed = typeof mediaItem === 'string' ? JSON.parse(mediaItem) : mediaItem;
-        let url = parsed.MediaURL || parsed.MediaUrl || parsed.mediaUrl || parsed.mediaURL;
-        if (url) {
-          // Fix protocol-relative URLs (e.g. "//cdn.example.com/...")
-          if (url.startsWith('//')) {
-            url = `https:${url}`;
-          }
-          if (!photos.includes(url)) {
-            photos.push(url);
-          }
-        }
+        const parsed = JSON.parse(row.media);
+        mediaItems = Array.isArray(parsed) ? parsed : [];
       } catch {
-        // Skip invalid media items
+        // Not valid JSON
       }
+    }
+  }
+  for (const mediaItem of mediaItems) {
+    try {
+      const parsed = typeof mediaItem === 'string' ? JSON.parse(mediaItem) : mediaItem;
+      let url: string | undefined;
+      if (typeof parsed === 'string') {
+        // Direct URL string
+        url = parsed;
+      } else {
+        url = parsed.MediaURL || parsed.MediaUrl || parsed.mediaUrl || parsed.mediaURL;
+      }
+      if (url) {
+        // Fix protocol-relative URLs (e.g. "//cdn.example.com/...")
+        if (url.startsWith('//')) {
+          url = `https:${url}`;
+        }
+        if (!photos.includes(url)) {
+          photos.push(url);
+        }
+      }
+    } catch {
+      // Skip invalid media items
     }
   }
 
