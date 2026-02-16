@@ -487,20 +487,57 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const { data, error } = await supabase
-    .from('graphql_listings')
-    .select('*')
-    .gte('open_house_date', today)
-    .in('status', ['Active', 'Coming Soon'])
-    .order('open_house_date', { ascending: true })
-    .limit(100);
+  // Open houses are stored as separate rows in rc-listings (with ListingId but no
+  // listing data like address/price). We need to fetch the open house rows first,
+  // then join with the actual listing data from the view.
 
-  if (error) {
-    console.error('Error fetching open house listings:', error);
+  // Step 1: Get open house records with future dates
+  const { data: ohData, error: ohError } = await supabase
+    .from('rc-listings')
+    .select('ListingId, OpenHouseDate, OpenHouseStartTime, OpenHouseEndTime, OpenHouseRemarks')
+    .gte('OpenHouseDate', today)
+    .lte('OpenHouseDate', '2099-12-31') // exclude bogus far-future dates
+    .order('OpenHouseDate', { ascending: true })
+    .limit(200);
+
+  if (ohError || !ohData || ohData.length === 0) {
+    if (ohError) console.error('Error fetching open house records:', ohError);
     return [];
   }
 
-  return (data || []).map(transformListing);
+  // Step 2: Get unique listing IDs and fetch actual listing data
+  const listingIds = [...new Set(ohData.map((oh) => oh.ListingId).filter(Boolean))];
+  if (listingIds.length === 0) return [];
+
+  const { data: listings, error: listError } = await supabase
+    .from('graphql_listings')
+    .select('*')
+    .in('listing_id', listingIds);
+
+  if (listError || !listings) {
+    if (listError) console.error('Error fetching open house listing data:', listError);
+    return [];
+  }
+
+  // Step 3: Merge open house data onto listings
+  const listingMap = new Map(listings.map((l) => [l.listing_id, l]));
+  const results: MLSProperty[] = [];
+
+  for (const oh of ohData) {
+    const listing = listingMap.get(oh.ListingId);
+    if (!listing) continue;
+
+    const merged = transformListing({
+      ...listing,
+      open_house_date: oh.OpenHouseDate,
+      open_house_start_time: oh.OpenHouseStartTime,
+      open_house_end_time: oh.OpenHouseEndTime,
+      open_house_remarks: oh.OpenHouseRemarks,
+    });
+    results.push(merged);
+  }
+
+  return results;
 }
 
 export async function getDistinctCities(): Promise<string[]> {
