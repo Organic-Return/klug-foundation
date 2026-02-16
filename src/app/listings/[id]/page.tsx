@@ -40,32 +40,43 @@ interface ListingAgent {
   mobile?: string;
 }
 
-async function getListingAgent(listing: MLSProperty): Promise<ListingAgent | null> {
-  const agentIds = [
+async function getListingAgents(listing: MLSProperty): Promise<ListingAgent[]> {
+  const ids = [
     listing.list_agent_mls_id,
     listing.co_list_agent_mls_id,
     listing.buyer_agent_mls_id,
     listing.co_buyer_agent_mls_id,
   ].filter(Boolean);
 
-  if (agentIds.length === 0) return null;
+  if (ids.length === 0) return [];
 
-  // Find a team member whose mlsAgentId or mlsAgentIdSold matches any of the listing's agent IDs
-  const agent = await client.fetch<ListingAgent | null>(
-    `*[_type == "teamMember" && (mlsAgentId in $ids || mlsAgentIdSold in $ids)][0]{
+  const agents = await client.fetch<(ListingAgent & { _id: string; mlsAgentId?: string })[]>(
+    `*[_type == "teamMember" && (mlsAgentId in $ids || mlsAgentIdSold in $ids)]{
+      _id,
       name,
       slug,
       title,
       image,
       email,
       phone,
-      mobile
+      mobile,
+      mlsAgentId
     }`,
-    { ids: agentIds },
+    { ids },
     { next: { revalidate: 60 } }
   );
 
-  return agent;
+  if (agents.length === 0) return [];
+
+  // Sort: listing agent first, co-listing agent second, others after
+  const listAgentId = listing.list_agent_mls_id;
+  agents.sort((a, b) => {
+    if (a.mlsAgentId === listAgentId) return -1;
+    if (b.mlsAgentId === listAgentId) return 1;
+    return 0;
+  });
+
+  return agents;
 }
 
 interface ListingPageProps {
@@ -435,8 +446,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
     { mlsNumber: listing.mls_number }
   );
 
-  // Look up team member matching this listing's agent IDs
-  const listingAgent = await getListingAgent(listing);
+  // Look up team members matching this listing's agent IDs
+  const listingAgents = await getListingAgents(listing);
+  const listingAgent = listingAgents[0] || null;
+  const coListingAgent = listingAgents[1] || null;
 
   const hasPhotos = listing.photos && listing.photos.length > 0;
   const schemas = generateRealEstateSchema(listing);
@@ -482,6 +495,9 @@ export default async function ListingPage({ params }: ListingPageProps) {
     const agentImageUrl = listingAgent?.image
       ? urlFor(listingAgent.image).width(256).height(320).url()
       : null;
+    const coAgentImageUrl = coListingAgent?.image
+      ? urlFor(coListingAgent.image).width(256).height(320).url()
+      : null;
 
     return (
       <>
@@ -502,6 +518,15 @@ export default async function ListingPage({ params }: ListingPageProps) {
             email: listingAgent.email,
             phone: listingAgent.phone,
             mobile: listingAgent.mobile,
+          } : null}
+          coAgent={coListingAgent ? {
+            name: coListingAgent.name,
+            slug: coListingAgent.slug,
+            title: coListingAgent.title,
+            imageUrl: coAgentImageUrl,
+            email: coListingAgent.email,
+            phone: coListingAgent.phone,
+            mobile: coListingAgent.mobile,
           } : null}
         />
       </>
@@ -1167,6 +1192,67 @@ export default async function ListingPage({ params }: ListingPageProps) {
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                             </svg>
                             {listingAgent.mobile}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Co-Listing Agent */}
+                  {coListingAgent && (
+                    <div className="mb-6 pb-6 border-b border-white/20">
+                      <p className="text-white/40 text-xs uppercase tracking-wider mb-3">Co-Listing Agent</p>
+                      <div className="flex items-center gap-4">
+                        {coListingAgent.image ? (
+                          <Link href={`/team/${coListingAgent.slug.current}`}>
+                            <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-gold)]/30 flex-shrink-0">
+                              <Image
+                                src={urlFor(coListingAgent.image).width(128).height(128).url()}
+                                alt={coListingAgent.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          </Link>
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg className="w-8 h-8 text-white/50" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="min-w-0">
+                          <Link href={`/team/${coListingAgent.slug.current}`} className="text-white font-serif text-base hover:text-[var(--color-gold)] transition-colors">
+                            {coListingAgent.name}
+                          </Link>
+                          {coListingAgent.title && (
+                            <p className="text-white/50 text-xs font-light mt-0.5">{coListingAgent.title}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-4 space-y-2">
+                        {coListingAgent.email && (
+                          <a href={`mailto:${coListingAgent.email}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            {coListingAgent.email}
+                          </a>
+                        )}
+                        {coListingAgent.phone && (
+                          <a href={`tel:${coListingAgent.phone}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            {coListingAgent.phone}
+                          </a>
+                        )}
+                        {coListingAgent.mobile && coListingAgent.mobile !== coListingAgent.phone && (
+                          <a href={`tel:${coListingAgent.mobile}`} className="flex items-center gap-2 text-white/70 hover:text-white text-sm font-light transition-colors">
+                            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            {coListingAgent.mobile}
                           </a>
                         )}
                       </div>

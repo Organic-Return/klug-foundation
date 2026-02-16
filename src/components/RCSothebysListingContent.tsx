@@ -20,6 +20,7 @@ interface ListingAgentInfo {
 interface RCSothebysListingContentProps {
   listing: MLSProperty;
   agent: ListingAgentInfo | null;
+  coAgent?: ListingAgentInfo | null;
 }
 
 // Left arrow — triangle points left, internal arrows point left
@@ -57,6 +58,7 @@ function formatPrice(price: number | null): string {
 export default function RCSothebysListingContent({
   listing,
   agent,
+  coAgent,
 }: RCSothebysListingContentProps) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
@@ -605,69 +607,138 @@ export default function RCSothebysListingContent({
               </div>
             </div>
 
-            {/* Agent Card */}
+            {/* Agent Cards */}
             {agent && (
-              <div className="flex items-start gap-5">
-                {/* Agent Photo */}
-                {agent.imageUrl ? (
-                  <Link href={`/team/${agent.slug.current}`} className="flex-shrink-0">
-                    <div className="relative w-28 h-36 overflow-hidden grayscale hover:grayscale-0 transition-all duration-300">
-                      <Image
-                        src={agent.imageUrl}
-                        alt={agent.name}
-                        fill
-                        className="object-cover"
-                        sizes="112px"
-                      />
+              <div className="space-y-6">
+                {/* Listing Agent */}
+                <div className="flex items-start gap-5">
+                  {/* Agent Photo */}
+                  {agent.imageUrl ? (
+                    <Link href={`/team/${agent.slug.current}`} className="flex-shrink-0">
+                      <div className="relative w-28 h-36 overflow-hidden grayscale hover:grayscale-0 transition-all duration-300">
+                        <Image
+                          src={agent.imageUrl}
+                          alt={agent.name}
+                          fill
+                          className="object-cover"
+                          sizes="112px"
+                        />
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="w-28 h-36 bg-[var(--rc-navy)]/10 flex items-center justify-center flex-shrink-0">
+                      <svg className="w-10 h-10 text-[var(--rc-brown)]/30" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
                     </div>
-                  </Link>
-                ) : (
-                  <div className="w-28 h-36 bg-[var(--rc-navy)]/10 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-10 h-10 text-[var(--rc-brown)]/30" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
-                  </div>
-                )}
-
-                {/* Agent Info */}
-                <div className="min-w-0 pt-2">
-                  <Link
-                    href={`/team/${agent.slug.current}`}
-                    className="text-[var(--rc-navy)] text-base font-bold uppercase tracking-[0.08em] hover:text-[var(--rc-gold)] transition-colors"
-                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
-                  >
-                    {agent.name}
-                  </Link>
-                  {agent.title && (
-                    <p className="text-[var(--rc-brown)] text-sm mt-0.5">{agent.title}</p>
                   )}
-                  <div className="mt-3 space-y-1.5">
-                    {agent.phone && (
-                      <a href={`tel:${agent.phone}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
-                        <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        {agent.phone}
-                      </a>
+
+                  {/* Agent Info */}
+                  <div className="min-w-0 pt-2">
+                    <Link
+                      href={`/team/${agent.slug.current}`}
+                      className="text-[var(--rc-navy)] text-base font-bold uppercase tracking-[0.08em] hover:text-[var(--rc-gold)] transition-colors"
+                      style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+                    >
+                      {agent.name}
+                    </Link>
+                    {agent.title && (
+                      <p className="text-[var(--rc-brown)] text-sm mt-0.5">{agent.title}</p>
                     )}
-                    {agent.mobile && agent.mobile !== agent.phone && (
-                      <a href={`tel:${agent.mobile}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
-                        <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                        {agent.mobile}
-                      </a>
-                    )}
-                    {agent.email && (
-                      <a href={`mailto:${agent.email}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
-                        <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                        </svg>
-                        {agent.email}
-                      </a>
-                    )}
+                    <div className="mt-3 space-y-1.5">
+                      {agent.phone && (
+                        <a href={`tel:${agent.phone}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                          <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          {agent.phone}
+                        </a>
+                      )}
+                      {agent.mobile && agent.mobile !== agent.phone && (
+                        <a href={`tel:${agent.mobile}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                          <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                          </svg>
+                          {agent.mobile}
+                        </a>
+                      )}
+                      {agent.email && (
+                        <a href={`mailto:${agent.email}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                          <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          {agent.email}
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* Co-Listing Agent */}
+                {coAgent && (
+                  <div>
+                    <p className="text-[var(--rc-brown)]/60 text-xs uppercase tracking-[0.15em] mb-3">Co-Listing Agent</p>
+                    <div className="flex items-start gap-5">
+                      {coAgent.imageUrl ? (
+                        <Link href={`/team/${coAgent.slug.current}`} className="flex-shrink-0">
+                          <div className="relative w-28 h-36 overflow-hidden grayscale hover:grayscale-0 transition-all duration-300">
+                            <Image
+                              src={coAgent.imageUrl}
+                              alt={coAgent.name}
+                              fill
+                              className="object-cover"
+                              sizes="112px"
+                            />
+                          </div>
+                        </Link>
+                      ) : (
+                        <div className="w-28 h-36 bg-[var(--rc-navy)]/10 flex items-center justify-center flex-shrink-0">
+                          <svg className="w-10 h-10 text-[var(--rc-brown)]/30" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="min-w-0 pt-2">
+                        <Link
+                          href={`/team/${coAgent.slug.current}`}
+                          className="text-[var(--rc-navy)] text-base font-bold uppercase tracking-[0.08em] hover:text-[var(--rc-gold)] transition-colors"
+                          style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+                        >
+                          {coAgent.name}
+                        </Link>
+                        {coAgent.title && (
+                          <p className="text-[var(--rc-brown)] text-sm mt-0.5">{coAgent.title}</p>
+                        )}
+                        <div className="mt-3 space-y-1.5">
+                          {coAgent.phone && (
+                            <a href={`tel:${coAgent.phone}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                              <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                              </svg>
+                              {coAgent.phone}
+                            </a>
+                          )}
+                          {coAgent.mobile && coAgent.mobile !== coAgent.phone && (
+                            <a href={`tel:${coAgent.mobile}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                              <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                              </svg>
+                              {coAgent.mobile}
+                            </a>
+                          )}
+                          {coAgent.email && (
+                            <a href={`mailto:${coAgent.email}`} className="flex items-center gap-2 text-[var(--rc-brown)] text-sm hover:text-[var(--rc-gold)] transition-colors">
+                              <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                              </svg>
+                              {coAgent.email}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
