@@ -30,6 +30,16 @@ function formatOpenHouseDate(dateStr: string | null): string {
 }
 
 function formatTime(t: string): string {
+  // Handle ISO timestamps like "2026-02-16 18:00:00+00" and simple "HH:MM" times
+  const date = new Date(t);
+  if (!isNaN(date.getTime())) {
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHours = hours % 12 || 12;
+    return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+  }
+  // Fallback: try splitting by ':'
   const [hours, minutes] = t.split(':').map(Number);
   const period = hours >= 12 ? 'PM' : 'AM';
   const displayHours = hours % 12 || 12;

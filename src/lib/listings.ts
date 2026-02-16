@@ -487,18 +487,17 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Open houses are stored as separate rows in rc-listings (with ListingId but no
-  // listing data like address/price). The graphql_listings view exposes these rows
-  // with open_house_date populated but status/address/price null.
-  // Strategy: query the view for open house rows, then fetch matching listing rows.
+  // Open houses are in a dedicated "open_houses" table with ListingId linking
+  // to the listing. Fetch open house records, then join with graphql_listings
+  // for full listing data (photos, beds, baths, etc.).
 
-  // Step 1: Get open house rows from the view (these have open_house_date but no status)
+  // Step 1: Get upcoming open house records
   const { data: ohData, error: ohError } = await supabase
-    .from('graphql_listings')
-    .select('listing_id, open_house_date, open_house_start_time, open_house_end_time, open_house_remarks')
-    .gte('open_house_date', today)
-    .lte('open_house_date', '2099-12-31') // exclude bogus far-future dates
-    .order('open_house_date', { ascending: true })
+    .from('open_houses')
+    .select('ListingId, OpenHouseDate, OpenHouseStartTime, OpenHouseEndTime, OpenHouseRemarks')
+    .gte('OpenHouseDate', today)
+    .lte('OpenHouseDate', '2099-12-31')
+    .order('OpenHouseDate', { ascending: true })
     .limit(200);
 
   if (ohError || !ohData || ohData.length === 0) {
@@ -506,15 +505,14 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     return [];
   }
 
-  // Step 2: Get unique listing IDs and fetch actual listing data (rows with address/price)
-  const listingIds = [...new Set(ohData.map((oh) => oh.listing_id).filter(Boolean))];
+  // Step 2: Get unique listing IDs and fetch full listing data
+  const listingIds = [...new Set(ohData.map((oh) => oh.ListingId).filter(Boolean))];
   if (listingIds.length === 0) return [];
 
   const { data: listings, error: listError } = await supabase
     .from('graphql_listings')
     .select('*')
-    .in('listing_id', listingIds)
-    .not('status', 'is', null); // actual listing rows have status
+    .in('listing_id', listingIds);
 
   if (listError || !listings) {
     if (listError) console.error('Error fetching open house listing data:', listError);
@@ -526,15 +524,15 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   const results: MLSProperty[] = [];
 
   for (const oh of ohData) {
-    const listing = listingMap.get(oh.listing_id);
+    const listing = listingMap.get(oh.ListingId);
     if (!listing) continue;
 
     const merged = transformListing({
       ...listing,
-      open_house_date: oh.open_house_date,
-      open_house_start_time: oh.open_house_start_time,
-      open_house_end_time: oh.open_house_end_time,
-      open_house_remarks: oh.open_house_remarks,
+      open_house_date: oh.OpenHouseDate,
+      open_house_start_time: oh.OpenHouseStartTime,
+      open_house_end_time: oh.OpenHouseEndTime,
+      open_house_remarks: oh.OpenHouseRemarks,
     });
     results.push(merged);
   }

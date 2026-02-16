@@ -11,7 +11,8 @@ SELECT
   id,
   created_at,
   "ModificationTimestamp" AS updated_at,
-  "ListingId" AS listing_id,
+  -- ListingId: prefer RESO field, fall back to MLS# extracted from PublicRemarks
+  COALESCE("ListingId", (regexp_match("PublicRemarks", 'MLS#\s*(\d+)'))[1]) AS listing_id,
   COALESCE("StandardStatus", "MlsStatus", "Status") AS status,
   COALESCE("ListPrice", "SearchPrice"::bigint) AS list_price,
   "ClosePrice" AS sold_price,
