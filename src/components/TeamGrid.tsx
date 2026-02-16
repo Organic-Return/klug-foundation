@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -22,6 +22,12 @@ interface TeamGridProps {
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
+type SortOption = 'first-asc' | 'last-asc';
+
+function getFirstName(fullName: string): string {
+  return fullName.trim().split(/\s+/)[0] || '';
+}
+
 function getLastName(fullName: string): string {
   const parts = fullName.trim().split(/\s+/);
   return parts[parts.length - 1] || '';
@@ -29,20 +35,83 @@ function getLastName(fullName: string): string {
 
 export default function TeamGrid({ members, isRC }: TeamGridProps) {
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('last-asc');
+
+  // Sort members
+  const sorted = useMemo(() => {
+    return [...members].sort((a, b) => {
+      if (sortBy === 'first-asc') {
+        return getFirstName(a.name).localeCompare(getFirstName(b.name));
+      }
+      return getLastName(a.name).localeCompare(getLastName(b.name));
+    });
+  }, [members, sortBy]);
 
   // Determine which letters have at least one matching member
   const availableLetters = new Set(
-    members.map((m) => getLastName(m.name).charAt(0).toUpperCase())
+    sorted.map((m) => getLastName(m.name).charAt(0).toUpperCase())
   );
 
-  const filtered = activeLetter
-    ? members.filter(
+  // Apply search and letter filter
+  const filtered = useMemo(() => {
+    let result = sorted;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter((m) => m.name.toLowerCase().includes(q));
+    }
+    if (activeLetter) {
+      result = result.filter(
         (m) => getLastName(m.name).charAt(0).toUpperCase() === activeLetter
-      )
-    : members;
+      );
+    }
+    return result;
+  }, [sorted, searchQuery, activeLetter]);
 
   return (
     <>
+      {/* Search & Sort */}
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-8">
+        <div className="relative flex-1 w-full sm:max-w-md">
+          <svg
+            className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${
+              isRC ? 'text-[var(--rc-brown)]/40' : 'text-gray-400'
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setActiveLetter(null);
+            }}
+            className={`w-full pl-10 pr-4 py-2.5 text-sm border outline-none transition-colors ${
+              isRC
+                ? 'border-[var(--rc-brown)]/20 bg-white text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)]'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-[#1a1a1a] dark:text-white placeholder:text-gray-400 focus:border-[var(--color-gold,#c19b5f)]'
+            }`}
+          />
+        </div>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as SortOption)}
+          className={`px-4 py-2.5 text-sm border outline-none cursor-pointer transition-colors ${
+            isRC
+              ? 'border-[var(--rc-brown)]/20 bg-white text-[var(--rc-navy)] focus:border-[var(--rc-gold)]'
+              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-[#1a1a1a] dark:text-white focus:border-[var(--color-gold,#c19b5f)]'
+          }`}
+        >
+          <option value="last-asc">Sort by Last Name</option>
+          <option value="first-asc">Sort by First Name</option>
+        </select>
+      </div>
+
       {/* Letter Filter */}
       <div className="flex flex-wrap justify-center gap-1 md:gap-1.5 mb-10 md:mb-14">
         <button
@@ -89,13 +158,15 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
       </div>
 
       {/* Results count when filtered */}
-      {activeLetter && (
+      {(activeLetter || searchQuery.trim()) && (
         <p
           className={`text-center text-sm mb-8 ${
             isRC ? 'text-[var(--rc-brown)]' : 'text-[#6a6a6a] dark:text-gray-400'
           }`}
         >
-          {filtered.length} {filtered.length === 1 ? 'member' : 'members'} with last name starting with &ldquo;{activeLetter}&rdquo;
+          {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
+          {searchQuery.trim() && <> for &ldquo;{searchQuery.trim()}&rdquo;</>}
+          {activeLetter && <> with last name starting with &ldquo;{activeLetter}&rdquo;</>}
         </p>
       )}
 
