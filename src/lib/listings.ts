@@ -56,6 +56,10 @@ interface GraphQLListing {
   attached_garage_yn: boolean | null;
   parking_features: string[] | null;
   association_amenities: string[] | null;
+  open_house_date: string | null;
+  open_house_start_time: string | null;
+  open_house_end_time: string | null;
+  open_house_remarks: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -110,6 +114,10 @@ export interface MLSProperty {
   co_list_agent_mls_id: string | null;
   buyer_agent_mls_id: string | null;
   co_buyer_agent_mls_id: string | null;
+  open_house_date: string | null;
+  open_house_start_time: string | null;
+  open_house_end_time: string | null;
+  open_house_remarks: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -210,6 +218,10 @@ function transformListing(row: GraphQLListing): MLSProperty {
     co_list_agent_mls_id: row.co_list_agent_mls_id,
     buyer_agent_mls_id: row.buyer_agent_mls_id,
     co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
+    open_house_date: row.open_house_date,
+    open_house_start_time: row.open_house_start_time,
+    open_house_end_time: row.open_house_end_time,
+    open_house_remarks: row.open_house_remarks,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -468,6 +480,27 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
   const listing = transformListing(mlsResult.data);
 
   return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
+}
+
+export async function getOpenHouseListings(): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('*')
+    .gte('open_house_date', today)
+    .in('status', ['Active', 'Coming Soon'])
+    .order('open_house_date', { ascending: true })
+    .limit(100);
+
+  if (error) {
+    console.error('Error fetching open house listings:', error);
+    return [];
+  }
+
+  return (data || []).map(transformListing);
 }
 
 export async function getDistinctCities(): Promise<string[]> {
@@ -904,6 +937,10 @@ function transformRealogyListing(row: any): MLSProperty {
     co_list_agent_mls_id: null,
     buyer_agent_mls_id: null,
     co_buyer_agent_mls_id: null,
+    open_house_date: null,
+    open_house_start_time: null,
+    open_house_end_time: null,
+    open_house_remarks: null,
     created_at: row.created_at || row.synced_at || '',
     updated_at: row.synced_at || '',
   };

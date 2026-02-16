@@ -68,7 +68,12 @@ SELECT
   "LaundryFeatures" AS laundry_features,
   "AttachedGarageYN" AS attached_garage_yn,
   "ParkingFeatures" AS parking_features,
-  NULL::text[] AS association_amenities
+  NULL::text[] AS association_amenities,
+  -- Open House fields (RESO standard)
+  "OpenHouseDate"::text AS open_house_date,
+  "OpenHouseStartTime"::text AS open_house_start_time,
+  "OpenHouseEndTime"::text AS open_house_end_time,
+  "OpenHouseRemarks" AS open_house_remarks
 FROM public."rc-listings";
 
 -- Grant read access to the anon role (required for Supabase client)
