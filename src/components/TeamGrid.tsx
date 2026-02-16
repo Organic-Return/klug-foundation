@@ -10,6 +10,9 @@ interface TeamMember {
   slug: { current: string };
   title?: string;
   imageUrl?: string;
+  email?: string;
+  phone?: string;
+  mobile?: string;
 }
 
 interface TeamGridProps {
@@ -159,6 +162,21 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
               >
                 {member.title}
               </p>
+            )}
+
+            {/* Contact info — RC only */}
+            {isRC && (
+              <div className="mt-2 space-y-0.5 text-xs text-[var(--rc-brown)]/70">
+                {member.mobile && (
+                  <p>C: {member.mobile}</p>
+                )}
+                {member.phone && member.phone !== member.mobile && (
+                  <p>O: {member.phone}</p>
+                )}
+                {member.email && (
+                  <p className="truncate">{member.email}</p>
+                )}
+              </div>
             )}
           </Link>
         ))}
