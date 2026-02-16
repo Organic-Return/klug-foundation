@@ -1069,14 +1069,14 @@ export async function getListingsByAgentId(
               .from('graphql_listings')
               .select('*')
               .or(activeFilter)
-              .or('status.in.(Active,Coming Soon,Pending,Active Under Contract,Contingent)')
+              .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent)')
               .order('listing_date', { ascending: false })
               .limit(200),
             supabase
               .from('graphql_listings')
               .select('*')
               .or(soldFilter)
-              .or('status.eq.Closed,status.eq.Sold')
+              .or('status.eq.Closed,status.eq.Sold,status.like.Pending*')
               .order('sold_price', { ascending: false, nullsFirst: false })
               .limit(200),
           ]);
