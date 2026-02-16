@@ -1085,12 +1085,21 @@ export async function getListingsByAgentId(
           if (soldRes.error) console.error('Error fetching sold MLS listings:', soldRes.error);
 
           const dedup = (listings: any[]) => {
-            const seen = new Set<string>();
+            const seenByListingId = new Set<string>();
+            const seenByAddress = new Set<string>();
             return listings.filter((row) => {
-              // Dedup by listing_id (MLS number) to collapse duplicate rows for the same property
-              const key = row.listing_id || row.id;
-              if (seen.has(String(key))) return false;
-              seen.add(String(key));
+              // Dedup by listing_id (MLS number) first
+              if (row.listing_id) {
+                const lid = String(row.listing_id);
+                if (seenByListingId.has(lid)) return false;
+                seenByListingId.add(lid);
+              }
+              // Also dedup by normalized address to catch rows without listing_id
+              if (row.address) {
+                const addr = String(row.address).toLowerCase().trim();
+                if (seenByAddress.has(addr)) return false;
+                seenByAddress.add(addr);
+              }
               return true;
             });
           };
