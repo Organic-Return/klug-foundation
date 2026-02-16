@@ -5,6 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getListingsByAgentId } from "@/lib/listings";
+import { getSiteTemplate } from "@/lib/settings";
 import AgentListingsGrid from "@/components/AgentListingsGrid";
 
 const builder = createImageUrlBuilder(client);
@@ -82,12 +83,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function TeamMemberPage({ params }: Props) {
   const { slug } = await params;
-  const member = await client.fetch<TeamMember | null>(TEAM_MEMBER_QUERY, { slug }, options);
+  const [member, template] = await Promise.all([
+    client.fetch<TeamMember | null>(TEAM_MEMBER_QUERY, { slug }, options),
+    getSiteTemplate(),
+  ]);
 
   if (!member) {
     notFound();
   }
 
+  const isRC = template === "rcsothebys-custom";
   const agentListings = await getListingsByAgentId(member.mlsAgentId || null, member.mlsAgentIdSold, member.name);
 
   const hasListings = agentListings && (agentListings.activeListings.length > 0 || agentListings.soldListings.length > 0);
@@ -95,7 +100,7 @@ export default async function TeamMemberPage({ params }: Props) {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-[var(--color-navy)] py-16 md:py-24">
+      <section className={`relative py-16 md:py-24 ${isRC ? 'bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'}`}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
           <div className="mb-8 text-center">
@@ -103,33 +108,71 @@ export default async function TeamMemberPage({ params }: Props) {
               Home
             </Link>
             <span className="text-white/30 mx-2">/</span>
+            <Link href="/team" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
+              Team
+            </Link>
+            <span className="text-white/30 mx-2">/</span>
             <span className="text-white/80 text-sm font-light">{member.name}</span>
           </div>
 
           <div className="flex flex-col items-center">
             {/* Photo */}
-            <div className="relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden mb-8 bg-[#f0f0f0] dark:bg-gray-800 border-4 border-[var(--color-gold)]/30">
-              {member.image ? (
-                <Image
-                  src={urlFor(member.image).width(400).height(400).url()}
-                  alt={member.name}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">
-                  <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                  </svg>
-                </div>
-              )}
-            </div>
+            {isRC ? (
+              <div
+                className="relative w-[225px] md:w-[300px] overflow-hidden mb-8 bg-[var(--rc-navy)]/50"
+                style={{ aspectRatio: '450 / 560' }}
+              >
+                {member.image ? (
+                  <Image
+                    src={urlFor(member.image).width(450).height(560).url()}
+                    alt={member.name}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[var(--rc-brown)]/30">
+                    <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="relative w-40 h-40 md:w-52 md:h-52 rounded-full overflow-hidden mb-8 bg-[#f0f0f0] dark:bg-gray-800 border-4 border-[var(--color-gold)]/30">
+                {member.image ? (
+                  <Image
+                    src={urlFor(member.image).width(400).height(400).url()}
+                    alt={member.name}
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">
+                    <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Name & Title */}
-            <h1 className="font-serif text-white mb-3 text-center">{member.name}</h1>
+            <h1
+              className={`text-white mb-3 text-center ${
+                isRC
+                  ? 'text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]'
+                  : 'font-serif'
+              }`}
+              style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' } : undefined}
+            >
+              {member.name}
+            </h1>
             {member.title && (
-              <p className="text-[var(--color-gold)] text-lg font-light mb-4">{member.title}</p>
+              <p className={`text-lg font-light mb-4 ${isRC ? 'text-[var(--rc-gold)]' : 'text-[var(--color-gold)]'}`}>
+                {member.title}
+              </p>
             )}
 
             {/* Contact row */}
@@ -182,13 +225,24 @@ export default async function TeamMemberPage({ params }: Props) {
 
       {/* Bio Section */}
       {member.bio && (
-        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+        <section className={`py-16 md:py-24 ${isRC ? 'bg-[var(--rc-cream)]' : 'bg-white dark:bg-[#1a1a1a]'}`}>
           <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
-            <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
+            <h2
+              className={
+                isRC
+                  ? 'text-2xl md:text-3xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-6'
+                  : 'text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6'
+              }
+              style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif' } : undefined}
+            >
               About {member.name.split(' ')[0]}
             </h2>
             <div
-              className="prose prose-lg dark:prose-invert max-w-none text-[#4a4a4a] dark:text-gray-300 font-light leading-relaxed [&_a]:text-[var(--color-gold)] [&_a]:underline hover:[&_a]:opacity-80"
+              className={`prose prose-lg max-w-none font-light leading-relaxed ${
+                isRC
+                  ? 'text-[var(--rc-brown)] [&_a]:text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80'
+                  : 'dark:prose-invert text-[#4a4a4a] dark:text-gray-300 [&_a]:text-[var(--color-gold)] [&_a]:underline hover:[&_a]:opacity-80'
+              }`}
               dangerouslySetInnerHTML={{ __html: member.bio }}
             />
           </div>
@@ -200,22 +254,28 @@ export default async function TeamMemberPage({ params }: Props) {
         const totalSold = agentListings.soldListings.length;
         const totalVolume = agentListings.soldListings.reduce((sum, listing) => sum + (listing.sold_price || listing.list_price || 0), 0);
         return (
-          <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414]">
+          <section className={`py-12 md:py-16 ${isRC ? 'bg-white' : 'bg-[#f8f7f5] dark:bg-[#141414]'}`}>
             <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
               <div className="grid grid-cols-2 gap-8 text-center">
                 <div>
-                  <p className="text-4xl md:text-5xl font-serif font-light text-[#1a1a1a] dark:text-white mb-2">
+                  <p
+                    className={`text-4xl md:text-5xl font-light mb-2 ${isRC ? 'text-[var(--rc-navy)]' : 'font-serif text-[#1a1a1a] dark:text-white'}`}
+                    style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif' } : undefined}
+                  >
                     {totalSold}
                   </p>
-                  <p className="text-sm uppercase tracking-[0.15em] text-[#6a6a6a] dark:text-gray-400 font-light">
+                  <p className={`text-sm uppercase tracking-[0.15em] font-light ${isRC ? 'text-[var(--rc-brown)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
                     Properties Sold
                   </p>
                 </div>
                 <div>
-                  <p className="text-4xl md:text-5xl font-serif font-light text-[#1a1a1a] dark:text-white mb-2">
+                  <p
+                    className={`text-4xl md:text-5xl font-light mb-2 ${isRC ? 'text-[var(--rc-navy)]' : 'font-serif text-[#1a1a1a] dark:text-white'}`}
+                    style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif' } : undefined}
+                  >
                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(totalVolume)}
                   </p>
-                  <p className="text-sm uppercase tracking-[0.15em] text-[#6a6a6a] dark:text-gray-400 font-light">
+                  <p className={`text-sm uppercase tracking-[0.15em] font-light ${isRC ? 'text-[var(--rc-brown)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
                     Total Sales Volume
                   </p>
                 </div>
@@ -227,12 +287,17 @@ export default async function TeamMemberPage({ params }: Props) {
 
       {/* Listings Section */}
       {hasListings && agentListings && (
-        <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
+        <section className={`py-16 md:py-24 ${isRC ? 'bg-[var(--rc-cream)]' : 'bg-[#f8f7f5] dark:bg-[#141414]'}`}>
           <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4 text-center">
+            <h2
+              className={`text-3xl md:text-4xl font-light tracking-wide mb-4 text-center ${
+                isRC ? 'uppercase tracking-[0.08em] text-[var(--rc-navy)]' : 'font-serif text-[#1a1a1a] dark:text-white'
+              }`}
+              style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif' } : undefined}
+            >
               {member.name.split(' ')[0]}&apos;s Properties
             </h2>
-            <p className="text-[#6a6a6a] dark:text-gray-400 font-light text-center mb-12 max-w-2xl mx-auto">
+            <p className={`font-light text-center mb-12 max-w-2xl mx-auto ${isRC ? 'text-[var(--rc-brown)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
               Browse {member.name.split(' ')[0]}&apos;s exclusive listings and recently sold properties
             </p>
             <AgentListingsGrid
@@ -244,18 +309,27 @@ export default async function TeamMemberPage({ params }: Props) {
       )}
 
       {/* CTA Section */}
-      <section className="py-20 md:py-28 bg-[var(--color-navy)]">
+      <section className={`py-20 md:py-28 ${isRC ? 'bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'}`}>
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
+          <h2
+            className={`text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide mb-6 ${
+              isRC ? 'uppercase tracking-[0.08em]' : 'font-serif'
+            }`}
+            style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' } : undefined}
+          >
             Work With {member.name.split(' ')[0]}
           </h2>
           <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            Get in touch to explore real estate opportunities in the Roaring Fork Valley.
+            Get in touch to explore real estate opportunities.
           </p>
           {member.email ? (
             <a
               href={`mailto:${member.email}`}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+              className={`inline-flex items-center gap-3 px-10 py-4 bg-transparent border text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light ${
+                isRC
+                  ? 'border-[var(--rc-gold)] hover:bg-[var(--rc-gold)] hover:text-[var(--rc-navy)]'
+                  : 'border-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]'
+              }`}
             >
               Get in Touch
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,7 +339,11 @@ export default async function TeamMemberPage({ params }: Props) {
           ) : (
             <Link
               href="/contact-us"
-              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+              className={`inline-flex items-center gap-3 px-10 py-4 bg-transparent border text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light ${
+                isRC
+                  ? 'border-[var(--rc-gold)] hover:bg-[var(--rc-gold)] hover:text-[var(--rc-navy)]'
+                  : 'border-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]'
+              }`}
             >
               Contact Us
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
