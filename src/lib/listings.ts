@@ -1051,17 +1051,18 @@ export async function getListingsByAgentId(
     // MLS data — only if configured and agent has an MLS ID
     (isSupabaseConfigured() && agentMlsId)
       ? (async () => {
-          const buildFilter = (id: string) =>
-            `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
-          // Sold listings: only match listing agent roles (not buyer agent)
-          const buildSoldFilter = (id: string) =>
+          // Active listings: only match listing agent roles (not buyer agent)
+          const buildListingFilter = (id: string) =>
             `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
+          // Sold listings: match all agent roles
+          const buildAllRolesFilter = (id: string) =>
+            `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
 
-          const activeFilter = buildFilter(agentMlsId);
+          const activeFilter = buildListingFilter(agentMlsId);
           const soldId = soldAgentMlsId || agentMlsId;
           const soldFilter = soldId === agentMlsId
-            ? buildSoldFilter(agentMlsId)
-            : `${buildSoldFilter(agentMlsId)},${buildSoldFilter(soldId)}`;
+            ? buildAllRolesFilter(agentMlsId)
+            : `${buildAllRolesFilter(agentMlsId)},${buildAllRolesFilter(soldId)}`;
 
           const [activeRes, soldRes] = await Promise.all([
             supabase
