@@ -235,7 +235,7 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
             {/* Title */}
             {member.title && (
               <p
-                className={`text-xs mt-1 ${
+                className={`text-xs mt-2 ${
                   isRC ? 'text-[var(--rc-brown)]' : 'text-[#6a6a6a] dark:text-gray-400'
                 }`}
               >
@@ -245,7 +245,7 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
 
             {/* Contact info — RC only */}
             {isRC && (
-              <div className="mt-2 space-y-0.5 text-xs text-[var(--rc-brown)]/70">
+              <div className="mt-3 space-y-1 text-xs text-[var(--rc-brown)]/70">
                 {member.mobile && (
                   <p>C: {member.mobile}</p>
                 )}
