@@ -472,8 +472,24 @@ export default async function TeamMemberPage({ params }: Props) {
         <section className="rc-inverted py-20 md:py-28 bg-[var(--rc-cream)]">
           <div className="max-w-6xl mx-auto px-6 md:px-12">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
-              {/* Left — Agent info */}
+              {/* Left — Agent photo + info */}
               <div>
+                {/* Headshot */}
+                {member.image && (
+                  <div
+                    className="relative w-[180px] md:w-[220px] overflow-hidden mb-6 bg-[var(--rc-navy)]/5"
+                    style={{ aspectRatio: '450 / 560' }}
+                  >
+                    <Image
+                      src={agentImageUrl!}
+                      alt={member.name}
+                      fill
+                      className="object-cover"
+                      sizes="220px"
+                    />
+                  </div>
+                )}
+
                 <h2
                   className="text-3xl md:text-4xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-4"
                   style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' }}
