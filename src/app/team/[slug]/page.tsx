@@ -8,6 +8,7 @@ import { getListingsByAgentId } from "@/lib/listings";
 import { getSiteTemplate } from "@/lib/settings";
 import AgentListingsGrid from "@/components/AgentListingsGrid";
 import AgentHeroGallery from "@/components/AgentHeroGallery";
+import AgentContactForm from "@/components/AgentContactForm";
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) {
@@ -466,51 +467,99 @@ export default async function TeamMemberPage({ params }: Props) {
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className={`py-20 md:py-28 ${isRC ? 'bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'}`}>
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
-          <h2
-            className={`text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide mb-6 ${
-              isRC ? 'uppercase tracking-[0.08em]' : 'font-serif'
-            }`}
-            style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' } : undefined}
-          >
-            Work With {member.name.split(' ')[0]}
-          </h2>
-          <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            Get in touch to explore real estate opportunities.
-          </p>
-          {member.email ? (
-            <a
-              href={`mailto:${member.email}`}
-              className={`inline-flex items-center gap-3 px-10 py-4 bg-transparent border text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light ${
-                isRC
-                  ? 'border-[var(--rc-gold)] hover:bg-[var(--rc-gold)] hover:text-[var(--rc-navy)]'
-                  : 'border-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]'
-              }`}
+      {/* CTA / Contact Section */}
+      {isRC ? (
+        <section className="rc-inverted py-20 md:py-28 bg-[var(--rc-cream)]">
+          <div className="max-w-6xl mx-auto px-6 md:px-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
+              {/* Left — Agent info */}
+              <div>
+                <h2
+                  className="text-3xl md:text-4xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-4"
+                  style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' }}
+                >
+                  Work With {member.name.split(' ')[0]}
+                </h2>
+                <p className="text-[var(--rc-brown)] font-light mb-8 leading-relaxed">
+                  Get in touch to explore real estate opportunities with {member.name}.
+                </p>
+
+                <div className="space-y-3">
+                  {member.mobile && (
+                    <div className="flex items-center gap-3">
+                      <svg className="w-4 h-4 text-[var(--rc-gold)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3" />
+                      </svg>
+                      <a href={`tel:${member.mobile}`} className="text-[var(--rc-navy)] text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                        {member.mobile}
+                      </a>
+                    </div>
+                  )}
+                  {(member.office || member.phone) && (
+                    <div className="flex items-center gap-3">
+                      <svg className="w-4 h-4 text-[var(--rc-gold)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                      </svg>
+                      <a href={`tel:${member.office || member.phone}`} className="text-[var(--rc-navy)] text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                        {member.office || member.phone}
+                      </a>
+                    </div>
+                  )}
+                  {member.email && (
+                    <div className="flex items-center gap-3">
+                      <svg className="w-4 h-4 text-[var(--rc-gold)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                      </svg>
+                      <a href={`mailto:${member.email}`} className="text-[var(--rc-navy)] text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                        {member.email}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Right — Contact form */}
+              <div>
+                <AgentContactForm agentName={member.name} agentEmail={member.email} />
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        <section className="py-20 md:py-28 bg-[var(--color-navy)]">
+          <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide mb-6 font-serif"
             >
-              Get in Touch
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-          ) : (
-            <Link
-              href="/contact-us"
-              className={`inline-flex items-center gap-3 px-10 py-4 bg-transparent border text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light ${
-                isRC
-                  ? 'border-[var(--rc-gold)] hover:bg-[var(--rc-gold)] hover:text-[var(--rc-navy)]'
-                  : 'border-[var(--color-gold)] hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]'
-              }`}
-            >
-              Contact Us
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          )}
-        </div>
-      </section>
+              Work With {member.name.split(' ')[0]}
+            </h2>
+            <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+              Get in touch to explore real estate opportunities.
+            </p>
+            {member.email ? (
+              <a
+                href={`mailto:${member.email}`}
+                className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]"
+              >
+                Get in Touch
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </a>
+            ) : (
+              <Link
+                href="/contact-us"
+                className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)]"
+              >
+                Contact Us
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            )}
+          </div>
+        </section>
+      )}
     </main>
   );
 }
