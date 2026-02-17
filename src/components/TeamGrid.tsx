@@ -13,6 +13,7 @@ interface TeamMember {
   email?: string;
   phone?: string;
   mobile?: string;
+  office?: string;
 }
 
 interface TeamGridProps {
@@ -248,8 +249,8 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
                 {member.mobile && (
                   <p>C: {member.mobile}</p>
                 )}
-                {member.phone && member.phone !== member.mobile && (
-                  <p>O: {member.phone}</p>
+                {(member.office || member.phone) && (
+                  <p>O: {member.office || member.phone}</p>
                 )}
                 {member.email && (
                   <p className="truncate">{member.email}</p>

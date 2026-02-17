@@ -18,6 +18,7 @@ interface TeamMember {
   email?: string;
   phone?: string;
   mobile?: string;
+  office?: string;
 }
 
 const ALL_TEAM_QUERY = `*[_type == "teamMember" && defined(slug.current) && inactive != true && defined(title) && title != ""] | order(order asc, name asc) {
@@ -28,7 +29,8 @@ const ALL_TEAM_QUERY = `*[_type == "teamMember" && defined(slug.current) && inac
   image,
   email,
   phone,
-  mobile
+  mobile,
+  office
 }`;
 
 const options = { next: { revalidate: 60 } };
@@ -55,6 +57,7 @@ export default async function TeamPage() {
     email: m.email,
     phone: m.phone,
     mobile: m.mobile,
+    office: m.office,
     imageUrl: m.image
       ? isRC
         ? urlFor(m.image).width(450).height(560).url()
