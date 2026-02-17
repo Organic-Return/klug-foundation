@@ -129,7 +129,7 @@ export default async function TeamMemberPage({ params }: Props) {
           <AgentHeroGallery listings={heroListings} />
 
           {/* Agent Profile Section — photo left, info right */}
-          <section className="bg-[var(--rc-navy)] py-16 md:py-20">
+          <section className="rc-inverted bg-[var(--rc-navy)] py-16 md:py-20">
             <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16">
               <div className="flex flex-col md:flex-row gap-10 md:gap-14">
                 {/* Agent Photo */}
@@ -262,7 +262,7 @@ export default async function TeamMemberPage({ params }: Props) {
         </>
       ) : (
       <>
-      <section className={`relative py-16 md:py-24 ${isRC ? 'bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'}`}>
+      <section className={`relative py-16 md:py-24 ${isRC ? 'rc-inverted bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'}`}>
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
           <div className="mb-8 text-center">
@@ -387,7 +387,7 @@ export default async function TeamMemberPage({ params }: Props) {
 
       {/* Bio Section */}
       {member.bio && (
-        <section className={`py-16 md:py-24 ${isRC ? 'bg-[var(--rc-navy)]' : 'bg-white dark:bg-[#1a1a1a]'}`}>
+        <section className={`py-16 md:py-24 ${isRC ? 'rc-inverted bg-[var(--rc-navy)]' : 'bg-white dark:bg-[#1a1a1a]'}`}>
           <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
             <h2
               className={
