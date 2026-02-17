@@ -252,7 +252,7 @@ export default async function TeamMemberPage({ params }: Props) {
                     About {member.name.split(' ')[0]}
                   </h2>
                   <div
-                    className="prose prose-lg prose-invert max-w-none font-light leading-relaxed text-white/70 [&_a]:text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80"
+                    className="prose prose-lg max-w-none font-light leading-relaxed [&_*]:text-white/80 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_strong]:text-white [&_a]:!text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80"
                     dangerouslySetInnerHTML={{ __html: member.bio }}
                   />
                 </div>
