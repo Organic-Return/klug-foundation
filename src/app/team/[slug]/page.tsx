@@ -227,6 +227,22 @@ export default async function TeamMemberPage({ params }: Props) {
                     </div>
                   )}
 
+                  {/* Bio */}
+                  {member.bio && (
+                    <div className="mb-8">
+                      <h2
+                        className="text-lg md:text-xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-4"
+                        style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+                      >
+                        About {member.name.split(' ')[0]}
+                      </h2>
+                      <div
+                        className="prose prose-sm max-w-none font-light leading-relaxed text-[var(--rc-brown)] [&_a]:text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80"
+                        dangerouslySetInnerHTML={{ __html: member.bio }}
+                      />
+                    </div>
+                  )}
+
                   {/* Contact button */}
                   {member.email && (
                     <a
@@ -241,22 +257,6 @@ export default async function TeamMemberPage({ params }: Props) {
                   )}
                 </div>
               </div>
-
-              {/* Bio — below the photo+info row */}
-              {member.bio && (
-                <div className="mt-12 md:mt-16 pt-10 border-t border-[var(--rc-brown)]/10">
-                  <h2
-                    className="text-2xl md:text-3xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-6"
-                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
-                  >
-                    About {member.name.split(' ')[0]}
-                  </h2>
-                  <div
-                    className="prose prose-lg max-w-none font-light leading-relaxed text-[var(--rc-brown)] [&_a]:text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80"
-                    dangerouslySetInnerHTML={{ __html: member.bio }}
-                  />
-                </div>
-              )}
             </div>
           </section>
         </>
