@@ -83,6 +83,12 @@ interface HomepageContentProps {
   // Minimum price filter for hero gallery
   heroMinPrice?: number;
 
+  // Sort order for hero gallery ('price' = most expensive first)
+  heroSortBy?: 'date' | 'price';
+
+  // Override limit for hero gallery
+  heroLimit?: number;
+
   // Featured properties carousel data
   featuredPropertiesCarousel?: {
     enabled?: boolean;
@@ -131,6 +137,8 @@ export default function HomepageContent({
   agentMlsId,
   officeName,
   heroMinPrice,
+  heroSortBy,
+  heroLimit,
   featuredPropertiesCarousel,
   featuredCommunities,
   marketStatsSection,
@@ -237,11 +245,12 @@ export default function HomepageContent({
         {/* Hero — full-screen property slideshow with search bar */}
         <RCSothebysHero
           cities={featuredPropertiesCarousel?.cities}
-          limit={featuredPropertiesCarousel?.limit || 8}
+          limit={heroLimit || featuredPropertiesCarousel?.limit || 8}
           videoUrl={videoUrl}
           fallbackImageUrl={fallbackImageUrl}
           officeName={officeName}
           minPrice={heroMinPrice}
+          sortBy={heroSortBy}
         />
 
         {/* About Section — unique RC Sotheby's editorial layout */}

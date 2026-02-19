@@ -14,9 +14,10 @@ export async function GET(request: NextRequest) {
 
   const minPriceParam = searchParams.get('minPrice');
   const minPrice = minPriceParam ? parseInt(minPriceParam, 10) : undefined;
+  const sortBy = searchParams.get('sortBy') === 'price' ? 'price' as const : undefined;
 
-  const filterOptions: { officeName?: string; agentIds?: string[]; minPrice?: number } | undefined =
-    officeName ? { officeName, minPrice } : agentIds ? { agentIds, minPrice } : minPrice ? { minPrice } : undefined;
+  const filterOptions: { officeName?: string; agentIds?: string[]; minPrice?: number; sortBy?: 'date' | 'price' } | undefined =
+    officeName ? { officeName, minPrice, sortBy } : agentIds ? { agentIds, minPrice, sortBy } : (minPrice || sortBy) ? { minPrice, sortBy } : undefined;
 
   try {
     let properties;

@@ -757,7 +757,7 @@ export function formatLotSize(acres: number | null): string {
 export async function getNewestHighPricedByCity(
   city: string,
   limit: number = 4,
-  options?: { agentIds?: string[]; officeName?: string; minPrice?: number }
+  options?: { agentIds?: string[]; officeName?: string; minPrice?: number; sortBy?: 'date' | 'price' }
 ): Promise<MLSProperty[]> {
   if (!isSupabaseConfigured()) return [];
 
@@ -781,10 +781,15 @@ export async function getNewestHighPricedByCity(
     query = query.or(agentFilter);
   }
 
-  const { data, error } = await query
-    .order('listing_date', { ascending: false })
-    .order('list_price', { ascending: false })
-    .limit(limit);
+  if (options?.sortBy === 'price') {
+    query = query.order('list_price', { ascending: false });
+  } else {
+    query = query
+      .order('listing_date', { ascending: false })
+      .order('list_price', { ascending: false });
+  }
+
+  const { data, error } = await query.limit(limit);
 
   if (error) {
     console.error('Error fetching newest high-priced listings:', error);
@@ -845,7 +850,7 @@ export async function getCommunityPriceRange(
 export async function getNewestHighPricedByCities(
   cities: string[],
   limit: number = 8,
-  options?: { agentIds?: string[]; officeName?: string; minPrice?: number }
+  options?: { agentIds?: string[]; officeName?: string; minPrice?: number; sortBy?: 'date' | 'price' }
 ): Promise<MLSProperty[]> {
   if (!isSupabaseConfigured() || !cities || cities.length === 0) {
     return [];
@@ -874,10 +879,15 @@ export async function getNewestHighPricedByCities(
     query = query.or(agentFilter);
   }
 
-  const { data, error } = await query
-    .order('listing_date', { ascending: false })
-    .order('list_price', { ascending: false })
-    .limit(limit);
+  if (options?.sortBy === 'price') {
+    query = query.order('list_price', { ascending: false });
+  } else {
+    query = query
+      .order('listing_date', { ascending: false })
+      .order('list_price', { ascending: false });
+  }
+
+  const { data, error } = await query.limit(limit);
 
   if (error) {
     console.error('Error fetching newest high-priced listings by cities:', error);

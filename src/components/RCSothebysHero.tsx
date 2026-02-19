@@ -25,6 +25,7 @@ interface RCSothebysHeroProps {
   fallbackImageUrl?: string;
   officeName?: string;
   minPrice?: number;
+  sortBy?: 'date' | 'price';
 }
 
 function formatPrice(price: number): string {
@@ -81,6 +82,7 @@ export default function RCSothebysHero({
   fallbackImageUrl,
   officeName,
   minPrice,
+  sortBy,
 }: RCSothebysHeroProps) {
   const resolvedCities = cities || ['Aspen'];
   const router = useRouter();
@@ -108,7 +110,10 @@ export default function RCSothebysHero({
         const minPriceParam = minPrice
           ? `&minPrice=${minPrice}`
           : '';
-        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}${minPriceParam}`);
+        const sortByParam = sortBy
+          ? `&sortBy=${sortBy}`
+          : '';
+        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}${minPriceParam}${sortByParam}`);
         const data = await response.json();
         setProperties(data.properties || []);
       } catch (error) {
@@ -118,7 +123,7 @@ export default function RCSothebysHero({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit, officeName, minPrice]);
+  }, [resolvedCities, limit, officeName, minPrice, sortBy]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;
