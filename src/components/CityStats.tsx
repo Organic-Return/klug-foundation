@@ -153,7 +153,7 @@ export default function CityStats({
                 onClick={() => handlePropertyFilterChange(filter.value)}
                 className={`px-6 py-3 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 ${
                   propertyFilter === filter.value
-                    ? 'bg-[var(--color-sothebys-blue)] dark:bg-white text-white dark:text-[#1a1a1a]'
+                    ? 'bg-[var(--color-gold)] text-white'
                     : 'bg-white dark:bg-[#1a1a1a] text-[#6a6a6a] dark:text-gray-400 hover:text-[#1a1a1a] dark:hover:text-white'
                 }`}
               >
@@ -171,8 +171,8 @@ export default function CityStats({
               onClick={() => setActiveCity(city)}
               className={`px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border ${
                 activeCity === city
-                  ? 'bg-[var(--color-sothebys-blue)] dark:bg-white text-white dark:text-[#1a1a1a] border-[var(--color-sothebys-blue)] dark:border-white'
-                  : 'bg-transparent text-[#6a6a6a] dark:text-gray-400 border-[#d0d0d0] dark:border-gray-600 hover:border-[var(--color-sothebys-blue)] dark:hover:border-white hover:text-[#1a1a1a] dark:hover:text-white'
+                  ? 'bg-[var(--color-gold)] text-white border-[var(--color-gold)]'
+                  : 'bg-transparent text-[#6a6a6a] dark:text-gray-400 border-[#d0d0d0] dark:border-gray-600 hover:border-[var(--color-gold)] hover:text-[#1a1a1a] dark:hover:text-white'
               }`}
             >
               {city}
