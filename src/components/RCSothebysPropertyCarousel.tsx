@@ -15,6 +15,9 @@ interface Property {
   square_feet: number | null;
   photos: string[] | null;
   mls_number: string;
+  open_house_date: string | null;
+  open_house_start_time: string | null;
+  open_house_end_time: string | null;
 }
 
 interface RCSothebysPropertyCarouselProps {
@@ -35,6 +38,24 @@ function formatPrice(price: number): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
+}
+
+function formatOpenHouse(property: Property): string | null {
+  if (!property.open_house_date) return null;
+  const ohDate = new Date(property.open_house_date + 'T00:00:00');
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  if (ohDate < now) return null;
+  const day = ohDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  if (property.open_house_start_time) {
+    const startParts = property.open_house_start_time.split(':');
+    const startH = parseInt(startParts[0], 10);
+    const startM = startParts[1] || '00';
+    const startAmPm = startH >= 12 ? 'PM' : 'AM';
+    const startHour = startH > 12 ? startH - 12 : startH === 0 ? 12 : startH;
+    return `Open House ${day} at ${startHour}:${startM} ${startAmPm}`;
+  }
+  return `Open House ${day}`;
 }
 
 // Left arrow — triangle points left, internal arrows point left
@@ -262,14 +283,18 @@ export default function RCSothebysPropertyCarousel({
                         </div>
                       )}
 
-                      {/* Save icon */}
-                      {isActive && (
-                        <div className="absolute top-3 right-3 z-10">
-                          <svg className="w-6 h-6 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
-                        </div>
-                      )}
+                      {/* Open House Badge */}
+                      {(() => {
+                        const oh = formatOpenHouse(property);
+                        return oh ? (
+                          <div className="absolute top-0 right-0 z-10 bg-[var(--rc-gold)] text-white text-[10px] md:text-[11px] font-medium px-2.5 py-1.5 max-w-[70%] overflow-hidden text-ellipsis whitespace-nowrap">
+                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="mr-1 inline w-3 h-3 md:w-3.5 md:h-3.5" xmlns="http://www.w3.org/2000/svg">
+                              <path fill="none" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="32" d="M80 464V68.14a8 8 0 014-6.9C91.81 56.66 112.92 48 160 48c64 0 145 48 192 48a199.53 199.53 0 0077.23-15.77 2 2 0 012.77 1.85v219.36a4 4 0 01-2.39 3.65C421.37 308.7 392.33 320 352 320c-48 0-128-32-192-32s-80 16-80 16" />
+                            </svg>
+                            {oh}
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
 
                     {/* Property Info */}
