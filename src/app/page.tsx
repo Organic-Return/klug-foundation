@@ -172,7 +172,7 @@ export default async function Home() {
           items: accolades?.items,
         }}
         agentMlsId={teamSection?.featuredTeamMember?.mlsAgentId}
-        officeName={settings?.template === 'rcsothebys-custom' ? 'Sotheby' : undefined}
+        officeName={settings?.template === 'rcsothebys-custom' ? 'Retter' : undefined}
         heroMinPrice={settings?.template === 'rcsothebys-custom' ? 950000 : undefined}
         heroSortBy={settings?.template === 'rcsothebys-custom' ? 'price' : undefined}
         heroLimit={settings?.template === 'rcsothebys-custom' ? 10 : undefined}

@@ -280,9 +280,11 @@ export default function HomepageContent({
             cities={featuredPropertiesCarousel?.cities}
             title={featuredPropertiesCarousel?.title || 'Featured Listings'}
             subtitle={featuredPropertiesCarousel?.subtitle}
-            limit={featuredPropertiesCarousel?.limit || 8}
+            limit={heroLimit || featuredPropertiesCarousel?.limit || 8}
             buttonText={featuredPropertiesCarousel?.buttonText || 'View All Properties'}
             officeName={officeName}
+            minPrice={heroMinPrice}
+            sortBy={heroSortBy}
           />
         )}
 

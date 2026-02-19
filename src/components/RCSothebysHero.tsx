@@ -313,6 +313,9 @@ export default function RCSothebysHero({
               <div className="text-[var(--rc-navy)] text-xl md:text-2xl font-light tracking-wide">
                 {formatPrice(currentProperty.list_price)}
               </div>
+              <div className="text-[var(--rc-brown)] text-[11px] mt-0.5 truncate">
+                {currentProperty.address}
+              </div>
               <div className="text-[var(--rc-brown)] text-xs uppercase tracking-[0.15em] mt-0.5">
                 {currentProperty.city}{currentProperty.state ? `, ${currentProperty.state}` : ''}
               </div>
@@ -421,7 +424,10 @@ function SearchBar({
   } as const;
 
   return (
-    <div className="bg-transparent border-t border-[var(--rc-gold)]/20">
+    <div className="bg-transparent">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+        <div className="h-[3px] bg-[var(--rc-gold)] opacity-20" />
+      </div>
       <form
         onSubmit={onSearch}
         className="max-w-[1400px] mx-auto px-4 md:px-8 py-4 flex flex-wrap items-center gap-3 md:gap-4 lg:gap-6"
@@ -487,19 +493,6 @@ function SearchBar({
             className="w-full bg-transparent text-white/80 text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none placeholder:text-white/40 placeholder:uppercase placeholder:tracking-[0.15em]"
           />
         </div>
-
-        <div className="hidden md:block w-px h-6 bg-white/15" />
-
-        {/* Advanced */}
-        <Link
-          href="/listings"
-          className="text-white/60 text-[11px] uppercase tracking-[0.15em] hover:text-[var(--rc-gold)] transition-colors duration-200 flex items-center gap-1"
-        >
-          Advanced
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </Link>
 
         {/* Search Button */}
         <button

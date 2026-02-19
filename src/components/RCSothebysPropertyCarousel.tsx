@@ -24,6 +24,8 @@ interface RCSothebysPropertyCarouselProps {
   limit?: number;
   buttonText?: string;
   officeName?: string;
+  minPrice?: number;
+  sortBy?: 'date' | 'price';
 }
 
 function formatPrice(price: number): string {
@@ -64,6 +66,8 @@ export default function RCSothebysPropertyCarousel({
   limit = 8,
   buttonText = 'View All Properties',
   officeName,
+  minPrice,
+  sortBy,
 }: RCSothebysPropertyCarouselProps) {
   const resolvedCities = cities || ['Aspen'];
 
@@ -82,7 +86,13 @@ export default function RCSothebysPropertyCarousel({
         const officeParam = officeName
           ? `&officeName=${encodeURIComponent(officeName)}`
           : '';
-        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}`);
+        const minPriceParam = minPrice
+          ? `&minPrice=${minPrice}`
+          : '';
+        const sortByParam = sortBy
+          ? `&sortBy=${sortBy}`
+          : '';
+        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}${minPriceParam}${sortByParam}`);
         const data = await response.json();
         setProperties(data.properties || []);
       } catch (error) {
@@ -92,7 +102,7 @@ export default function RCSothebysPropertyCarousel({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit, officeName]);
+  }, [resolvedCities, limit, officeName, minPrice, sortBy]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;
