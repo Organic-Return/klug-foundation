@@ -236,7 +236,7 @@ export default function CityStats({
               </div>
 
               {/* Bottom Row - Secondary Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4">
+              <div className="grid grid-cols-2">
                 <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-700">
                   <p className="text-xl md:text-2xl font-light text-[var(--color-gold)] mb-2">
                     {formatPrice(activeCityStats.highestPrice)}
@@ -246,30 +246,12 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-700 md:border-r">
+                <div className="p-6 md:p-8 text-center">
                   <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">
                     {formatPrice(activeCityStats.lowestPrice)}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">
                     Lowest Listing
-                  </p>
-                </div>
-
-                <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-700">
-                  <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">
-                    {activeCityStats.avgSoldPrice ? formatPrice(activeCityStats.avgSoldPrice) : 'N/A'}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">
-                    Avg. Sold Price (1 Yr)
-                  </p>
-                </div>
-
-                <div className="p-6 md:p-8 text-center">
-                  <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">
-                    {activeCityStats.avgDaysOnMarket != null ? `${activeCityStats.avgDaysOnMarket} days` : 'N/A'}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">
-                    Avg. Days on Market
                   </p>
                 </div>
               </div>
@@ -279,7 +261,7 @@ export default function CityStats({
             <div className="text-center mt-10">
               <Link
                 href="/listings"
-                className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
+                className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.15em] font-black transition-colors duration-200 bg-[var(--color-gold)] text-white px-8 py-4 hover:opacity-90"
               >
                 View All Listings
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

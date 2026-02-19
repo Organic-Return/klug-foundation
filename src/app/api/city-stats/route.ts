@@ -83,8 +83,11 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .eq('status', 'Active')
     .in('city', allowedCities)
     .not('list_price', 'is', null)
+    .gt('list_price', 1000)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
+    .not('property_type', 'ilike', '%Lease%')
+    .not('property_type', 'ilike', '%Rental%')
     .not('property_type', 'eq', 'Fractional')
     .not('property_type', 'eq', 'Res Vacant Land');
 
@@ -95,6 +98,8 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .in('city', allowedCities)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
+    .not('property_type', 'ilike', '%Lease%')
+    .not('property_type', 'ilike', '%Rental%')
     .not('property_type', 'eq', 'Fractional')
     .not('property_type', 'eq', 'Res Vacant Land');
 
@@ -104,9 +109,12 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .in('status', ['Closed', 'Sold'])
     .in('city', allowedCities)
     .not('sold_price', 'is', null)
+    .gt('sold_price', 1000)
     .gte('close_date', twoYearsAgoStr)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
+    .not('property_type', 'ilike', '%Lease%')
+    .not('property_type', 'ilike', '%Rental%')
     .not('property_type', 'eq', 'Fractional')
     .not('property_type', 'eq', 'Res Vacant Land');
 
