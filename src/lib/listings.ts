@@ -456,11 +456,13 @@ async function getSIRMediaForListing(
   if (!data) return null;
 
   // Verify address/city match to prevent cross-MLS-system collisions
+  const normalize = (s: string) => s.toLowerCase().trim().replace(/\s+/g, ' ');
+  let verified = false;
+
+  // Check address if both sides have it
   if (address && data.street_address) {
-    const normalize = (s: string) => s.toLowerCase().trim().replace(/\s+/g, ' ');
     const sirAddr = normalize(data.street_address);
     const mlsAddr = normalize(address);
-    // Check if the street address starts the same (handles unit/suite differences)
     const sirFirst = sirAddr.split(' ').slice(0, 2).join(' ');
     const mlsFirst = mlsAddr.split(' ').slice(0, 2).join(' ');
     if (sirFirst !== mlsFirst) {
@@ -470,15 +472,28 @@ async function getSIRMediaForListing(
       );
       return null;
     }
-  } else if (city && data.city) {
-    // Fallback: at least verify city matches
-    if (city.toLowerCase().trim() !== data.city.toLowerCase().trim()) {
+    verified = true;
+  }
+
+  // Also check city if both sides have it (even if address already matched)
+  if (city && data.city) {
+    if (normalize(city) !== normalize(data.city)) {
       console.warn(
         `[SIR Enrichment] MLS# ${mlsNumber}: City mismatch — ` +
         `MLS "${city}" vs SIR "${data.city}". Skipping SIR photos.`
       );
       return null;
     }
+    verified = true;
+  }
+
+  // If we couldn't verify anything, don't use SIR photos (safety net)
+  if (!verified) {
+    console.warn(
+      `[SIR Enrichment] MLS# ${mlsNumber}: Cannot verify match — ` +
+      `no address or city available for comparison. Skipping SIR photos.`
+    );
+    return null;
   }
 
   return extractSIRMedia(data);
