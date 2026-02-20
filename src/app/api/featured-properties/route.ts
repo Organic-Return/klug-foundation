@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getNewestHighPricedByCity, getNewestHighPricedByCities } from '@/lib/listings';
+import { getNewestHighPricedByCity, getNewestHighPricedByCities, getNewestHighPriced } from '@/lib/listings';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     } else if (city) {
       properties = await getNewestHighPricedByCity(city, limit, filterOptions);
     } else {
-      properties = await getNewestHighPricedByCity('Aspen', limit, filterOptions);
+      // No city specified — fetch from all properties in the database
+      properties = await getNewestHighPriced(limit, filterOptions);
     }
 
     return NextResponse.json({ properties });

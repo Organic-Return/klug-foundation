@@ -86,7 +86,6 @@ export default function RCSothebysHero({
   sortBy,
   excludeLand,
 }: RCSothebysHeroProps) {
-  const resolvedCities = cities || ['Aspen'];
   const router = useRouter();
 
   const [properties, setProperties] = useState<Property[]>([]);
@@ -103,9 +102,13 @@ export default function RCSothebysHero({
   useEffect(() => {
     async function fetchProperties() {
       try {
-        const citiesParam = resolvedCities.length > 1
-          ? `cities=${encodeURIComponent(resolvedCities.join(','))}`
-          : `city=${encodeURIComponent(resolvedCities[0] || 'Aspen')}`;
+        // Build city filter: use configured cities, or omit to fetch all from the database
+        let citiesParam = '';
+        if (cities && cities.length > 1) {
+          citiesParam = `cities=${encodeURIComponent(cities.join(','))}`;
+        } else if (cities && cities.length === 1) {
+          citiesParam = `city=${encodeURIComponent(cities[0])}`;
+        }
         const officeParam = officeName
           ? `&officeName=${encodeURIComponent(officeName)}`
           : '';
@@ -118,7 +121,8 @@ export default function RCSothebysHero({
         const excludeLandParam = excludeLand
           ? '&excludeLand=true'
           : '';
-        const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}${minPriceParam}${sortByParam}${excludeLandParam}`);
+        const sep = citiesParam ? '?' : '?';
+        const response = await fetch(`/api/featured-properties${sep}${citiesParam}&limit=${limit}${officeParam}${minPriceParam}${sortByParam}${excludeLandParam}`);
         const data = await response.json();
         setProperties(data.properties || []);
       } catch (error) {
@@ -128,7 +132,7 @@ export default function RCSothebysHero({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit, officeName, minPrice, sortBy, excludeLand]);
+  }, [cities, limit, officeName, minPrice, sortBy, excludeLand]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;
@@ -154,8 +158,10 @@ export default function RCSothebysHero({
     ? properties.filter(p => p.city.toLowerCase() === activeCity.toLowerCase())
     : properties;
 
-  // Get unique cities from fetched properties
-  const uniqueCities = Array.from(new Set(properties.map(p => p.city)));
+  // Use configured cities if provided, otherwise derive from fetched data
+  const displayCities = cities && cities.length > 0
+    ? cities
+    : Array.from(new Set(properties.map(p => p.city))).filter(Boolean);
 
   // Reset active index when city filter changes
   useEffect(() => {
@@ -186,7 +192,7 @@ export default function RCSothebysHero({
       keyword={keyword}
       setKeyword={setKeyword}
       onSearch={handleSearch}
-      cities={resolvedCities}
+      cities={displayCities}
     />
   );
 
@@ -223,9 +229,9 @@ export default function RCSothebysHero({
                       : 'text-white/50 border-transparent hover:text-white'
                   }`}
                 >
-                  All {resolvedCities.length > 1 ? 'Cities' : resolvedCities[0]}
+                  All {displayCities.length > 1 ? 'Cities' : displayCities[0] || 'Properties'}
                 </button>
-                {resolvedCities.map(city => (
+                {displayCities.map(city => (
                   <button
                     key={city}
                     onClick={() => { setActiveCity(city); setLocation(city); }}
@@ -372,9 +378,9 @@ export default function RCSothebysHero({
                     : 'text-white/50 border-transparent hover:text-white'
                 }`}
               >
-                All {resolvedCities.length > 1 ? 'Cities' : resolvedCities[0]}
+                All {displayCities.length > 1 ? 'Cities' : displayCities[0] || 'Properties'}
               </button>
-              {resolvedCities.map(city => (
+              {displayCities.map(city => (
                 <button
                   key={city}
                   onClick={() => { setActiveCity(city); setLocation(city); }}

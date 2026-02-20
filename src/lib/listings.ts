@@ -1001,6 +1001,61 @@ export async function getNewestHighPricedByCities(
   return enrichListingsWithSIRMedia(withOpenHouses);
 }
 
+/**
+ * Fetches newest high-priced listings without city filtering — returns whatever is in the database
+ */
+export async function getNewestHighPriced(
+  limit: number = 8,
+  options?: { agentIds?: string[]; officeName?: string; minPrice?: number; sortBy?: 'date' | 'price'; excludeLand?: boolean }
+): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  let query = supabase
+    .from('graphql_listings')
+    .select('*')
+    .or('property_type.eq.Residential,property_type.is.null')
+    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
+    .or('status.not.in.(Closed,Sold),status.is.null')
+    .not('list_price', 'is', null);
+
+  if (options?.excludeLand) {
+    query = query
+      .not('property_type', 'ilike', '%Land%')
+      .not('property_sub_type', 'ilike', '%Land%')
+      .not('property_sub_type', 'ilike', '%Lot%');
+  }
+
+  if (options?.minPrice) {
+    query = query.gte('list_price', options.minPrice);
+  }
+
+  if (options?.officeName) {
+    query = query.ilike('list_office_name', `%${options.officeName}%`);
+  } else if (options?.agentIds && options.agentIds.length > 0) {
+    const agentFilter = options.agentIds.map(id => `list_agent_mls_id.ilike.${id}`).join(',');
+    query = query.or(agentFilter);
+  }
+
+  if (options?.sortBy === 'price') {
+    query = query.order('list_price', { ascending: false });
+  } else {
+    query = query
+      .order('listing_date', { ascending: false })
+      .order('list_price', { ascending: false });
+  }
+
+  const { data, error } = await query.limit(limit);
+
+  if (error) {
+    console.error('Error fetching newest high-priced listings:', error);
+    return [];
+  }
+
+  const listings = (data || []).map(transformListing);
+  const withOpenHouses = await enrichListingsWithOpenHouses(listings);
+  return enrichListingsWithSIRMedia(withOpenHouses);
+}
+
 // Enrich an array of listings with SIR media in parallel
 async function enrichListingsWithSIRMedia(listings: MLSProperty[]): Promise<MLSProperty[]> {
   if (!isRealogyConfigured() || listings.length === 0) return listings;
