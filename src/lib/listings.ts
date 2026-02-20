@@ -654,31 +654,20 @@ export async function getDistinctCities(): Promise<string[]> {
     return (rpcData as { city: string }[]).map((d) => d.city).filter(Boolean);
   }
 
-  // Fallback: paginate through all rows (Supabase has 1000 row default limit)
-  const allCities = new Set<string>();
-  let offset = 0;
-  const batchSize = 1000;
+  // Fallback: single query capped at 1000 rows to avoid timeout on large tables
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('city')
+    .not('city', 'is', null)
+    .order('city')
+    .limit(1000);
 
-  while (true) {
-    const { data, error } = await supabase
-      .from('graphql_listings')
-      .select('city')
-      .not('city', 'is', null)
-      .order('city')
-      .range(offset, offset + batchSize - 1);
-
-    if (error) {
-      console.error('Error fetching cities:', error);
-      break;
-    }
-    if (!data || data.length === 0) break;
-
-    data.forEach((d) => { if (d.city) allCities.add(d.city); });
-    if (data.length < batchSize) break;
-    offset += batchSize;
+  if (error) {
+    console.error('Error fetching cities:', error);
+    return [];
   }
 
-  return [...allCities].sort();
+  return [...new Set((data || []).map((d) => d.city).filter(Boolean))].sort();
 }
 
 // Main property types from database (property_type column)
@@ -726,93 +715,66 @@ export async function getDistinctPropertySubTypes(): Promise<string[]> {
   return PROPERTY_SUB_TYPES;
 }
 
+// Known MLS statuses — hardcoded to avoid scanning 100K+ rows
+const LISTING_STATUSES = [
+  'Active',
+  'Active Under Contract',
+  'Canceled',
+  'Closed',
+  'Coming Soon',
+  'Expired',
+  'Pending',
+  'Sold',
+  'Withdrawn',
+];
+
 export async function getDistinctStatuses(): Promise<string[]> {
-  if (!isSupabaseConfigured()) return [];
-
-  // Paginate to avoid 1000 row limit
-  const allStatuses = new Set<string>();
-  let offset = 0;
-  const batchSize = 1000;
-
-  while (true) {
-    const { data, error } = await supabase
-      .from('graphql_listings')
-      .select('status')
-      .not('status', 'is', null)
-      .order('status')
-      .range(offset, offset + batchSize - 1);
-
-    if (error) {
-      console.error('Error fetching statuses:', error);
-      break;
-    }
-    if (!data || data.length === 0) break;
-
-    data.forEach((d) => { if (d.status) allStatuses.add(d.status); });
-    if (data.length < batchSize) break;
-    offset += batchSize;
-  }
-
-  return [...allStatuses].sort();
+  return LISTING_STATUSES;
 }
 
 export async function getDistinctNeighborhoods(): Promise<string[]> {
   if (!isSupabaseConfigured()) return [];
 
-  const allNeighborhoods = new Set<string>();
-  let offset = 0;
-  const batchSize = 1000;
-
-  while (true) {
-    const { data, error } = await supabase
-      .from('graphql_listings')
-      .select('subdivision_name')
-      .not('subdivision_name', 'is', null)
-      .order('subdivision_name')
-      .range(offset, offset + batchSize - 1);
-
-    if (error) {
-      console.error('Error fetching neighborhoods:', error);
-      break;
-    }
-    if (!data || data.length === 0) break;
-
-    data.forEach((d) => { if (d.subdivision_name) allNeighborhoods.add(d.subdivision_name); });
-    if (data.length < batchSize) break;
-    offset += batchSize;
+  // Try RPC function first (efficient single query)
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_distinct_neighborhoods');
+  if (!rpcError && rpcData) {
+    return (rpcData as { subdivision_name: string }[]).map((d) => d.subdivision_name).filter(Boolean);
   }
 
-  return [...allNeighborhoods].sort();
+  // Fallback: single query capped at 1000 rows to avoid timeout on large tables
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('subdivision_name')
+    .not('subdivision_name', 'is', null)
+    .order('subdivision_name')
+    .limit(1000);
+
+  if (error) {
+    console.error('Error fetching neighborhoods:', error);
+    return [];
+  }
+
+  return [...new Set((data || []).map((d) => d.subdivision_name).filter(Boolean))].sort();
 }
 
 export async function getNeighborhoodsByCity(city: string): Promise<string[]> {
   if (!isSupabaseConfigured()) return [];
 
-  const allNeighborhoods = new Set<string>();
-  let offset = 0;
-  const batchSize = 1000;
+  // Single query capped at 1000 rows — sufficient for per-city neighborhoods
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('subdivision_name')
+    .ilike('city', city)
+    .not('subdivision_name', 'is', null)
+    .order('subdivision_name')
+    .limit(1000);
 
-  while (true) {
-    const { data, error } = await supabase
-      .from('graphql_listings')
-      .select('subdivision_name')
-      .ilike('city', city)
-      .not('subdivision_name', 'is', null)
-      .order('subdivision_name')
-      .range(offset, offset + batchSize - 1);
-
-    if (error) {
-      console.error('Error fetching neighborhoods for city:', error);
-      break;
-    }
-    if (!data || data.length === 0) break;
-
-    data.forEach((d) => { if (d.subdivision_name) allNeighborhoods.add(d.subdivision_name); });
-    if (data.length < batchSize) break;
-    offset += batchSize;
+  if (error) {
+    console.error('Error fetching neighborhoods for city:', error);
+    return [];
   }
 
-  return [...allNeighborhoods].sort();
+  return [...new Set((data || []).map((d) => d.subdivision_name).filter(Boolean))].sort();
 }
 
 export function formatPrice(price: number | null): string {
