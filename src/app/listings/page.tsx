@@ -175,7 +175,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const neighborhoods = city ? await getNeighborhoodsByCity(city) : allNeighborhoods;
 
   // Get filter lists from MLS configuration
-  const excludedPropertyTypes = getExcludedPropertyTypes(mlsConfig);
+  const excludedPropertyTypes = [...getExcludedPropertyTypes(mlsConfig), 'Commercial Sale'];
   const excludedPropertySubTypes = getExcludedPropertySubTypes(mlsConfig);
   const allowedCities = getAllowedCities(mlsConfig);
   const excludedStatuses = getExcludedStatuses(mlsConfig);

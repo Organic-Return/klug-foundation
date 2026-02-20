@@ -639,7 +639,6 @@ export async function getDistinctCities(): Promise<string[]> {
 // Main property types from database (property_type column)
 // Hardcoded to avoid Supabase 1000 row limit issues
 const PROPERTY_TYPES = [
-  'Commercial Sale',
   'Farm',
   'Land',
   'Residential',
