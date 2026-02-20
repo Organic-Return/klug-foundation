@@ -109,5 +109,42 @@ export async function GET() {
     media_preview: r.media ? JSON.stringify(r.media).substring(0, 200) : null,
   }));
 
+  // 8. Count active listings with/without photos
+  const { count: activeWithMedia } = await supabase
+    .from('graphql_listings')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'Active')
+    .not('media', 'is', null);
+  diagnostics.activeWithMedia = activeWithMedia;
+
+  const { count: activeWithPhoto } = await supabase
+    .from('graphql_listings')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'Active')
+    .not('preferred_photo', 'is', null);
+  diagnostics.activeWithPreferredPhoto = activeWithPhoto;
+
+  diagnostics.activeTotal = diagnostics.status_Active_count;
+
+  // 9. Sample an active listing that HAS media
+  const { data: withMediaSample } = await supabase
+    .from('graphql_listings')
+    .select('listing_id, address, city, preferred_photo, media')
+    .eq('status', 'Active')
+    .not('media', 'is', null)
+    .limit(1);
+
+  if (withMediaSample?.[0]) {
+    const r = withMediaSample[0];
+    const mediaArr = Array.isArray(r.media) ? r.media : [];
+    diagnostics.sampleWithMedia = {
+      listing_id: r.listing_id,
+      address: r.address,
+      preferred_photo: r.preferred_photo,
+      media_count: mediaArr.length,
+      first_media_item: mediaArr[0] ? JSON.stringify(mediaArr[0]).substring(0, 300) : null,
+    };
+  }
+
   return NextResponse.json(diagnostics);
 }
