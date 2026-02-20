@@ -853,7 +853,6 @@ export async function getNewestHighPricedByCity(
     .select('*')
     .ilike('city', city)
     .or('property_type.eq.Residential,property_type.is.null')
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
     .or('status.not.in.(Closed,Sold),status.is.null')
     .not('list_price', 'is', null);
 
@@ -959,7 +958,6 @@ export async function getNewestHighPricedByCities(
     .select('*')
     .or(cityFilters)
     .or('property_type.eq.Residential,property_type.is.null')
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
     .or('status.not.in.(Closed,Sold),status.is.null')
     .not('list_price', 'is', null);
 
@@ -1014,7 +1012,6 @@ export async function getNewestHighPriced(
     .from('graphql_listings')
     .select('*')
     .or('property_type.eq.Residential,property_type.is.null')
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
     .or('status.not.in.(Closed,Sold),status.is.null')
     .not('list_price', 'is', null);
 
