@@ -600,12 +600,13 @@ export async function getDistinctCities(): Promise<string[]> {
     return (rpcData as { city: string }[]).map((d) => d.city).filter(Boolean);
   }
 
-  // Fallback: paginate through all rows (Supabase has 1000 row default limit)
+  // Fallback: sample rows to extract distinct cities (cap at 5 batches to avoid rate limits)
   const allCities = new Set<string>();
   let offset = 0;
   const batchSize = 1000;
+  const maxBatches = 5;
 
-  while (true) {
+  for (let batch = 0; batch < maxBatches; batch++) {
     const { data, error } = await supabase
       .from('graphql_listings')
       .select('city')
@@ -675,12 +676,13 @@ export async function getDistinctPropertySubTypes(): Promise<string[]> {
 export async function getDistinctStatuses(): Promise<string[]> {
   if (!isSupabaseConfigured()) return [];
 
-  // Paginate to avoid 1000 row limit
+  // Sample rows to extract distinct statuses (cap at 3 batches to avoid rate limits)
   const allStatuses = new Set<string>();
   let offset = 0;
   const batchSize = 1000;
+  const maxBatches = 3;
 
-  while (true) {
+  for (let batch = 0; batch < maxBatches; batch++) {
     const { data, error } = await supabase
       .from('graphql_listings')
       .select('status')
@@ -705,11 +707,13 @@ export async function getDistinctStatuses(): Promise<string[]> {
 export async function getDistinctNeighborhoods(): Promise<string[]> {
   if (!isSupabaseConfigured()) return [];
 
+  // Sample rows to extract distinct neighborhoods (cap at 5 batches to avoid rate limits)
   const allNeighborhoods = new Set<string>();
   let offset = 0;
   const batchSize = 1000;
+  const maxBatches = 5;
 
-  while (true) {
+  for (let batch = 0; batch < maxBatches; batch++) {
     const { data, error } = await supabase
       .from('graphql_listings')
       .select('subdivision_name')
@@ -734,11 +738,13 @@ export async function getDistinctNeighborhoods(): Promise<string[]> {
 export async function getNeighborhoodsByCity(city: string): Promise<string[]> {
   if (!isSupabaseConfigured()) return [];
 
+  // Cap at 5 batches to avoid rate limits on large datasets
   const allNeighborhoods = new Set<string>();
   let offset = 0;
   const batchSize = 1000;
+  const maxBatches = 5;
 
-  while (true) {
+  for (let batch = 0; batch < maxBatches; batch++) {
     const { data, error } = await supabase
       .from('graphql_listings')
       .select('subdivision_name')
