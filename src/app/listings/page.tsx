@@ -181,7 +181,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const excludedStatuses = getExcludedStatuses(mlsConfig);
 
   // Only show active-type statuses in results and dropdown
-  const allowedStatusList = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending'];
+  const allowedStatusList = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending', 'Pending Inspect/Feasib', 'To Be Built'];
 
   // Filter dropdown options based on MLS configuration
   // If allowedCities is configured, use those directly for the dropdown

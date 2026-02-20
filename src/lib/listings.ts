@@ -399,10 +399,11 @@ export async function getListings(
 
   // Apply filters from MLS Configuration
   if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0) {
-    query = query.not('property_type', 'in', `(${filters.excludedPropertyTypes.join(',')})`);
+    // NOT IN excludes NULLs in SQL, so also include rows where property_type is NULL
+    query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
   }
   if (filters.excludedPropertySubTypes && filters.excludedPropertySubTypes.length > 0) {
-    query = query.not('property_sub_type', 'in', `(${filters.excludedPropertySubTypes.join(',')})`);
+    query = query.or(`property_sub_type.not.in.(${filters.excludedPropertySubTypes.join(',')}),property_sub_type.is.null`);
   }
   // If allowedCities is set, only show listings from those cities
   if (filters.allowedCities && filters.allowedCities.length > 0) {
