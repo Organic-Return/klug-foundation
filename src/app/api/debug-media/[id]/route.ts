@@ -12,7 +12,7 @@ export async function GET(
   }
 
   const { id } = await params;
-  const diagnostics: Record<string, any> = { __version: 'v2-raw-table' };
+  const diagnostics: Record<string, any> = { __version: 'v3-raw-columns' };
 
   // 1. Check the view (graphql_listings)
   const { data: viewData, error: viewError } = await supabase
@@ -38,56 +38,98 @@ export async function GET(
     diagnostics.view = 'NOT FOUND';
   }
 
-  // 2. Check the raw rc-listings table — look for photo/media columns
-  const { data: rawData, error: rawError } = await supabase
+  // 2. Query raw rc-listings table by numeric id
+  const { data: rawById, error: rawByIdError } = await supabase
     .from('rc-listings')
-    .select('id, "ListingId", "PrefferedPhoto", "Media", "StandardStatus", "MlsStatus", "Status", "UnparsedAddress", "City"')
-    .or(`id.eq.${id},"ListingId".eq.${id}`)
-    .limit(2);
+    .select('*')
+    .eq('id', parseInt(id))
+    .limit(1);
 
-  if (rawError) {
-    diagnostics.rawTableError = rawError.message;
-    // If column doesn't exist, try without PrefferedPhoto
-    const { data: rawData2, error: rawError2 } = await supabase
-      .from('rc-listings')
-      .select('id, "ListingId", "Media", "StandardStatus", "MlsStatus", "Status", "UnparsedAddress"')
-      .or(`id.eq.${id},"ListingId".eq.${id}`)
-      .limit(2);
-
-    if (rawError2) {
-      diagnostics.rawTableError2 = rawError2.message;
-    } else {
-      diagnostics.rawRows = (rawData2 || []).map((r: any) => ({
-        id: r.id,
-        ListingId: r.ListingId,
-        Status: r.Status,
-        StandardStatus: r.StandardStatus,
-        MlsStatus: r.MlsStatus,
-        address: r.UnparsedAddress,
-        media_is_null: r.Media === null,
-        media_typeof: typeof r.Media,
-        media_preview: r.Media === null ? null : (typeof r.Media === 'string' ? r.Media.slice(0, 300) : JSON.stringify(r.Media).slice(0, 300)),
+  if (rawByIdError) {
+    diagnostics.rawByIdError = rawByIdError.message;
+  } else if (rawById?.[0]) {
+    const r = rawById[0];
+    // Show all column names that have non-null values
+    const nonNullColumns = Object.entries(r)
+      .filter(([, v]) => v !== null)
+      .map(([k]) => k);
+    // Find any photo/media related columns
+    const photoColumns = Object.entries(r)
+      .filter(([k]) => /photo|media|image|picture|thumb/i.test(k))
+      .map(([k, v]) => ({
+        column: k,
+        is_null: v === null,
+        typeof: typeof v,
+        preview: v === null ? null : (typeof v === 'string' ? v.slice(0, 200) : JSON.stringify(v).slice(0, 200)),
       }));
-    }
-  } else {
-    diagnostics.rawRows = (rawData || []).map((r: any) => ({
+    diagnostics.rawById = {
       id: r.id,
       ListingId: r.ListingId,
-      PrefferedPhoto: r.PrefferedPhoto,
-      Status: r.Status,
-      StandardStatus: r.StandardStatus,
-      MlsStatus: r.MlsStatus,
+      totalColumns: Object.keys(r).length,
+      nonNullColumns: nonNullColumns.length,
+      photoMediaColumns: photoColumns,
+      status: r.StandardStatus || r.MlsStatus || r.Status,
       address: r.UnparsedAddress,
-      city: r.City,
-      media_is_null: r.Media === null,
-      media_typeof: typeof r.Media,
-      media_isArray: Array.isArray(r.Media),
-      media_preview: r.Media === null ? null : (typeof r.Media === 'string' ? r.Media.slice(0, 300) : JSON.stringify(r.Media).slice(0, 300)),
-    }));
+    };
+  } else {
+    diagnostics.rawById = 'NOT FOUND by id=' + id;
   }
 
-  // 3. Check media_lookup table
+  // 3. Also try by ListingId
   const listingId = viewData?.[0]?.listing_id || id;
+  const { data: rawByLid, error: rawByLidError } = await supabase
+    .from('rc-listings')
+    .select('*')
+    .eq('ListingId', listingId)
+    .limit(3);
+
+  if (rawByLidError) {
+    diagnostics.rawByListingIdError = rawByLidError.message;
+  } else {
+    diagnostics.rawByListingId = (rawByLid || []).map((r: any) => {
+      const photoColumns = Object.entries(r)
+        .filter(([k]) => /photo|media|image|picture|thumb/i.test(k))
+        .map(([k, v]) => ({
+          column: k,
+          is_null: v === null,
+          typeof: typeof v,
+          preview: v === null ? null : (typeof v === 'string' ? v.slice(0, 200) : JSON.stringify(v).slice(0, 200)),
+        }));
+      return {
+        id: r.id,
+        ListingId: r.ListingId,
+        status: r.StandardStatus || r.MlsStatus || r.Status,
+        address: r.UnparsedAddress,
+        photoMediaColumns: photoColumns,
+      };
+    });
+  }
+
+  // 4. Find a sample row that HAS Media data (to understand the format)
+  const { data: sampleWithMedia, error: sampleError } = await supabase
+    .from('rc-listings')
+    .select('id, "ListingId", "Media", "UnparsedAddress"')
+    .not('Media', 'is', null)
+    .limit(1);
+
+  if (sampleError) {
+    diagnostics.sampleWithMediaError = sampleError.message;
+  } else if (sampleWithMedia?.[0]) {
+    const r = sampleWithMedia[0];
+    const m: any = r.Media;
+    diagnostics.sampleWithMedia = {
+      id: r.id,
+      ListingId: r.ListingId,
+      address: r.UnparsedAddress,
+      media_typeof: typeof m,
+      media_isArray: Array.isArray(m),
+      media_preview: typeof m === 'string' ? m.slice(0, 300) : JSON.stringify(m).slice(0, 300),
+    };
+  } else {
+    diagnostics.sampleWithMedia = 'NO ROWS WITH MEDIA FOUND';
+  }
+
+  // 5. Check media_lookup table
   const { data: lookupData, error: lookupError } = await supabase
     .from('media_lookup')
     .select('listing_id, media')
@@ -97,12 +139,7 @@ export async function GET(
   if (lookupError) {
     diagnostics.mediaLookupError = lookupError.message;
   } else {
-    diagnostics.mediaLookup = (lookupData || []).map((r: any) => ({
-      listing_id: r.listing_id,
-      media_is_null: r.media === null,
-      media_typeof: typeof r.media,
-      media_preview: r.media === null ? null : (typeof r.media === 'string' ? r.media.slice(0, 300) : JSON.stringify(r.media).slice(0, 300)),
-    }));
+    diagnostics.mediaLookup = (lookupData || []).length > 0 ? 'FOUND' : 'NOT FOUND';
   }
 
   return NextResponse.json(diagnostics);
