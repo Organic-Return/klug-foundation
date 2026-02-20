@@ -543,7 +543,7 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
   return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
 }
 
-export async function getOpenHouseListings(): Promise<MLSProperty[]> {
+export async function getOpenHouseListings(cities?: string[]): Promise<MLSProperty[]> {
   if (!isSupabaseConfigured()) return [];
 
   const today = new Date().toISOString().split('T')[0];
@@ -596,6 +596,12 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
       open_house_remarks: oh.OpenHouseRemarks,
     });
     results.push(merged);
+  }
+
+  // Step 4: Filter by city if specified
+  if (cities && cities.length > 0) {
+    const citySet = new Set(cities.map(c => c.toLowerCase()));
+    return results.filter(r => r.city && citySet.has(r.city.toLowerCase()));
   }
 
   return results;

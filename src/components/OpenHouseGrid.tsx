@@ -30,20 +30,24 @@ function formatOpenHouseDate(dateStr: string | null): string {
 }
 
 function formatTime(t: string): string {
-  // Handle ISO timestamps like "2026-02-16 18:00:00+00" and simple "HH:MM" times
-  const date = new Date(t);
-  if (!isNaN(date.getTime())) {
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
+  if (!t) return '';
+
+  // Already formatted with AM/PM — return as-is
+  if (/[AP]M/i.test(t)) return t.trim();
+
+  // Extract HH:MM directly from the string rather than using Date parsing,
+  // because the time portion in ISO strings represents the local time
+  // (e.g. "2026-02-16T14:00:00-07:00" → 14:00 is 2:00 PM local)
+  const match = t.match(/(\d{1,2}):(\d{2})/);
+  if (match) {
+    const hours = parseInt(match[1], 10);
+    const minutes = parseInt(match[2], 10);
     const period = hours >= 12 ? 'PM' : 'AM';
     const displayHours = hours % 12 || 12;
     return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
   }
-  // Fallback: try splitting by ':'
-  const [hours, minutes] = t.split(':').map(Number);
-  const period = hours >= 12 ? 'PM' : 'AM';
-  const displayHours = hours % 12 || 12;
-  return `${displayHours}:${String(minutes).padStart(2, '0')} ${period}`;
+
+  return t;
 }
 
 function formatOpenHouseTime(
