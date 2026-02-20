@@ -1,97 +1,122 @@
 import { NextResponse } from 'next/server';
 import { isSupabaseConfigured, getSupabase } from '@/lib/supabase';
-import { getMLSConfiguration, getAllowedCities, getExcludedStatuses } from '@/lib/mlsConfiguration';
+import { getListingById } from '@/lib/listings';
 
-export async function GET() {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
   const diagnostics: Record<string, any> = {};
 
-  // 1. Check Supabase config
-  diagnostics.supabaseConfigured = isSupabaseConfigured();
-  if (!diagnostics.supabaseConfigured) {
-    return NextResponse.json({ ...diagnostics, error: 'Supabase not configured' });
+  if (!isSupabaseConfigured()) {
+    return NextResponse.json({ error: 'Supabase not configured' });
   }
 
   const supabase = getSupabase();
   if (!supabase) {
-    return NextResponse.json({ ...diagnostics, error: 'Supabase client is null' });
+    return NextResponse.json({ error: 'Supabase client is null' });
   }
 
-  // 2. Check if graphql_listings table exists and has data
-  const { data: countData, error: countError, count } = await supabase
+  // Check for ?id= param to debug a specific listing
+  const url = new URL(request.url);
+  const listingId = url.searchParams.get('id');
+
+  // 1. Basic stats
+  const { count } = await supabase
     .from('graphql_listings')
     .select('*', { count: 'exact', head: true });
-
-  diagnostics.tableExists = !countError;
-  diagnostics.tableError = countError?.message || null;
   diagnostics.totalRows = count;
 
-  if (countError) {
-    return NextResponse.json(diagnostics);
-  }
-
-  // 3. Sample a few rows to check column structure
-  const { data: sampleData, error: sampleError } = await supabase
-    .from('graphql_listings')
-    .select('id, listing_id, status, city, property_type, property_sub_type, list_price')
-    .limit(5);
-
-  diagnostics.sampleError = sampleError?.message || null;
-  diagnostics.sampleRows = sampleData;
-  diagnostics.columns = sampleData?.[0] ? Object.keys(sampleData[0]) : [];
-
-  // 4. Get distinct statuses
-  const { data: statusData } = await supabase
-    .from('graphql_listings')
-    .select('status')
-    .not('status', 'is', null)
-    .limit(1000);
-
-  diagnostics.distinctStatuses = [...new Set(statusData?.map(d => d.status).filter(Boolean))];
-
-  // 5. Get distinct cities
-  const { data: cityData } = await supabase
-    .from('graphql_listings')
-    .select('city')
-    .not('city', 'is', null)
-    .limit(1000);
-
-  diagnostics.distinctCities = [...new Set(cityData?.map(d => d.city).filter(Boolean))];
-
-  // 6. Get distinct property types
-  const { data: typeData } = await supabase
-    .from('graphql_listings')
-    .select('property_type')
-    .not('property_type', 'is', null)
-    .limit(1000);
-
-  diagnostics.distinctPropertyTypes = [...new Set(typeData?.map(d => d.property_type).filter(Boolean))];
-
-  // 7. Check MLS Configuration from Sanity
-  const mlsConfig = await getMLSConfiguration();
-  diagnostics.mlsConfigExists = !!mlsConfig;
-  diagnostics.allowedCities = getAllowedCities(mlsConfig);
-  diagnostics.excludedStatuses = getExcludedStatuses(mlsConfig);
-
-  // 8. Check if allowedCities match any data
-  if (diagnostics.allowedCities.length > 0) {
-    const { count: matchCount } = await supabase
+  // 2. Media diagnostic: check a specific listing or sample listings with media
+  if (listingId) {
+    // Debug specific listing by DB id or listing_id (MLS number)
+    const { data } = await supabase
       .from('graphql_listings')
-      .select('*', { count: 'exact', head: true })
-      .in('city', diagnostics.allowedCities);
+      .select('id, listing_id, address, city, status, preferred_photo, media')
+      .or(`id.eq.${listingId},listing_id.eq.${listingId}`)
+      .limit(1);
 
-    diagnostics.allowedCitiesMatchCount = matchCount;
-    diagnostics.mismatchWarning = matchCount === 0
-      ? 'PROBLEM: allowedCities in Sanity MLS config do not match any cities in Supabase!'
-      : null;
+    if (data?.[0]) {
+      const r = data[0];
+      const rawMedia: any = r.media;
+      diagnostics.listing = {
+        id: r.id,
+        listing_id: r.listing_id,
+        address: r.address,
+        city: r.city,
+        status: r.status,
+        preferred_photo: r.preferred_photo,
+      };
+      diagnostics.media = {
+        is_null: rawMedia === null,
+        typeof: typeof rawMedia,
+        isArray: Array.isArray(rawMedia),
+        length: Array.isArray(rawMedia) ? rawMedia.length : (typeof rawMedia === 'string' ? rawMedia.length : null),
+        preview: rawMedia === null ? null : (typeof rawMedia === 'string' ? rawMedia.slice(0, 500) : JSON.stringify(rawMedia).slice(0, 500)),
+      };
+
+      // If it's a string, try JSON parse
+      if (typeof rawMedia === 'string') {
+        try {
+          const parsed = JSON.parse(rawMedia);
+          diagnostics.media.json_parse = {
+            success: true,
+            result_type: typeof parsed,
+            result_isArray: Array.isArray(parsed),
+            result_length: Array.isArray(parsed) ? parsed.length : null,
+          };
+          if (Array.isArray(parsed) && parsed[0]) {
+            diagnostics.media.first_item = {
+              type: typeof parsed[0],
+              keys: typeof parsed[0] === 'object' ? Object.keys(parsed[0]) : null,
+              value: JSON.stringify(parsed[0]).slice(0, 300),
+            };
+          }
+        } catch (e: any) {
+          diagnostics.media.json_parse = { success: false, error: e.message };
+        }
+      }
+
+      // If it's already an array, inspect first item
+      if (Array.isArray(rawMedia) && rawMedia[0]) {
+        diagnostics.media.first_item = {
+          type: typeof rawMedia[0],
+          keys: typeof rawMedia[0] === 'object' ? Object.keys(rawMedia[0]) : null,
+          value: typeof rawMedia[0] === 'string' ? rawMedia[0].slice(0, 300) : JSON.stringify(rawMedia[0]).slice(0, 300),
+        };
+      }
+
+      // Also run the full pipeline to see what photos come out
+      const listing = await getListingById(String(r.id));
+      diagnostics.pipeline = {
+        photos_count: listing?.photos?.length ?? 0,
+        first_3_photos: listing?.photos?.slice(0, 3) ?? [],
+      };
+    } else {
+      diagnostics.listing = 'NOT FOUND';
+    }
+  } else {
+    // Sample 5 listings and show their media status
+    const { data: samples } = await supabase
+      .from('graphql_listings')
+      .select('id, listing_id, address, preferred_photo, media')
+      .not('status', 'in', '(Closed,Sold)')
+      .order('listing_date', { ascending: false })
+      .limit(5);
+
+    diagnostics.sample = (samples || []).map((r: any) => {
+      const rawMedia: any = r.media;
+      return {
+        id: r.id,
+        listing_id: r.listing_id,
+        address: r.address,
+        has_preferred_photo: !!r.preferred_photo,
+        media_is_null: rawMedia === null,
+        media_typeof: typeof rawMedia,
+        media_isArray: Array.isArray(rawMedia),
+        media_preview: rawMedia === null ? null : (typeof rawMedia === 'string' ? rawMedia.slice(0, 150) : JSON.stringify(rawMedia).slice(0, 150)),
+      };
+    });
   }
-
-  // 9. Count non-Closed listings (what the page shows by default)
-  const { count: activeCount } = await supabase
-    .from('graphql_listings')
-    .select('*', { count: 'exact', head: true })
-    .not('status', 'eq', 'Closed');
-
-  diagnostics.nonClosedCount = activeCount;
 
   return NextResponse.json(diagnostics);
 }

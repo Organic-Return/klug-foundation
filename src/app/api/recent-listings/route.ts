@@ -69,14 +69,33 @@ async function fetchRecentListings(city: string, limit: number): Promise<Listing
     // Build photos array from preferred_photo and media
     const photos: string[] = [];
     if (listing.preferred_photo) {
-      photos.push(listing.preferred_photo);
+      let pp = listing.preferred_photo;
+      if (pp.startsWith('//')) pp = `https:${pp}`;
+      photos.push(pp);
     }
-    if (listing.media && Array.isArray(listing.media)) {
-      listing.media.forEach((url: string) => {
-        if (url && !photos.includes(url)) {
-          photos.push(url);
-        }
-      });
+    // Parse media — may be a JSON string, array of URL strings, or array of objects
+    let mediaItems: any[] = [];
+    const rawMedia: any = listing.media;
+    if (rawMedia) {
+      let parsed = rawMedia;
+      if (typeof parsed === 'string') {
+        try { parsed = JSON.parse(parsed); } catch { /* not JSON */ }
+      }
+      if (Array.isArray(parsed)) {
+        mediaItems = parsed;
+      }
+    }
+    for (const item of mediaItems) {
+      let url: string | undefined;
+      if (typeof item === 'string') {
+        url = item;
+      } else if (item && typeof item === 'object') {
+        url = item.MediaURL || item.MediaUrl || item.mediaUrl || item.mediaURL || item.url;
+      }
+      if (url && typeof url === 'string') {
+        if (url.startsWith('//')) url = `https:${url}`;
+        if (!photos.includes(url)) photos.push(url);
+      }
     }
 
     return {

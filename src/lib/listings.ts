@@ -127,19 +127,42 @@ function transformListing(row: GraphQLListing): MLSProperty {
   // Extract photos from media — handles JSON arrays, JSON strings, and string arrays
   const photos: string[] = [];
   if (row.preferred_photo) {
-    photos.push(row.preferred_photo);
+    let pp = row.preferred_photo;
+    if (pp.startsWith('//')) pp = `https:${pp}`;
+    photos.push(pp);
   }
   let mediaItems: any[] = [];
   if (row.media) {
-    if (Array.isArray(row.media)) {
-      mediaItems = row.media;
-    } else if (typeof row.media === 'string') {
-      // Media may be a JSON string (AWSJSON / text column)
+    let mediaToParse: any = row.media;
+
+    // If it's a string, try to parse it as JSON
+    if (typeof mediaToParse === 'string') {
       try {
-        const parsed = JSON.parse(row.media);
-        mediaItems = Array.isArray(parsed) ? parsed : [];
+        mediaToParse = JSON.parse(mediaToParse);
       } catch {
-        // Not valid JSON
+        // Not valid JSON — try to extract URLs directly via regex
+        const urlMatches = (mediaToParse as string).match(/(?:https?:)?\/\/[^\s"',}]+/g);
+        if (urlMatches) {
+          for (let url of urlMatches) {
+            if (url.startsWith('//')) url = `https:${url}`;
+            if (!photos.includes(url)) photos.push(url);
+          }
+        }
+      }
+    }
+
+    // At this point mediaToParse should be a parsed JSON value
+    if (Array.isArray(mediaToParse)) {
+      mediaItems = mediaToParse;
+    } else if (mediaToParse && typeof mediaToParse === 'object') {
+      // Might be a single media object or a wrapper like {items: [...]}
+      if (Array.isArray(mediaToParse.items)) {
+        mediaItems = mediaToParse.items;
+      } else if (Array.isArray(mediaToParse.media)) {
+        mediaItems = mediaToParse.media;
+      } else {
+        // Single media object
+        mediaItems = [mediaToParse];
       }
     }
   }
@@ -150,10 +173,13 @@ function transformListing(row: GraphQLListing): MLSProperty {
       if (typeof parsed === 'string') {
         // Direct URL string
         url = parsed;
-      } else {
-        url = parsed.MediaURL || parsed.MediaUrl || parsed.mediaUrl || parsed.mediaURL;
+      } else if (parsed && typeof parsed === 'object') {
+        // Check all common key names for media URLs
+        url = parsed.MediaURL || parsed.MediaUrl || parsed.mediaUrl || parsed.mediaURL
+          || parsed.media_url || parsed.url || parsed.URL || parsed.src
+          || parsed.photo_url || parsed.photoUrl || parsed.image_url || parsed.imageUrl;
       }
-      if (url) {
+      if (url && typeof url === 'string') {
         // Fix protocol-relative URLs (e.g. "//cdn.example.com/...")
         if (url.startsWith('//')) {
           url = `https:${url}`;
@@ -165,6 +191,13 @@ function transformListing(row: GraphQLListing): MLSProperty {
     } catch {
       // Skip invalid media items
     }
+  }
+
+  // Debug: log when media data exists but no photos were extracted
+  if (row.media && photos.length === 0) {
+    const rawMedia: any = row.media;
+    const preview = typeof rawMedia === 'string' ? rawMedia.slice(0, 300) : JSON.stringify(rawMedia).slice(0, 300);
+    console.error(`[Media Debug] Listing ${row.listing_id || row.id}: media exists (type=${typeof rawMedia}, isArray=${Array.isArray(rawMedia)}) but 0 photos extracted. Preview: ${preview}`);
   }
 
   // Calculate days on market
