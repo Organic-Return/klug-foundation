@@ -399,11 +399,20 @@ export async function getListings(
 
   // Apply filters from MLS Configuration
   if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0) {
-    // NOT IN excludes NULLs in SQL, so also include rows where property_type is NULL
-    query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
+    // Exclude specific property types but keep NULLs — use or() only when
+    // no other or() filter (keyword/agent) is active to avoid PostgREST conflict
+    if (filters.keyword || filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
+      query = query.not('property_type', 'in', `(${filters.excludedPropertyTypes.join(',')})`);
+    } else {
+      query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
+    }
   }
   if (filters.excludedPropertySubTypes && filters.excludedPropertySubTypes.length > 0) {
-    query = query.or(`property_sub_type.not.in.(${filters.excludedPropertySubTypes.join(',')}),property_sub_type.is.null`);
+    if (filters.keyword || filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
+      query = query.not('property_sub_type', 'in', `(${filters.excludedPropertySubTypes.join(',')})`);
+    } else {
+      query = query.or(`property_sub_type.not.in.(${filters.excludedPropertySubTypes.join(',')}),property_sub_type.is.null`);
+    }
   }
   // If allowedCities is set, only show listings from those cities
   if (filters.allowedCities && filters.allowedCities.length > 0) {
@@ -413,8 +422,7 @@ export async function getListings(
     // Only show listings with these specific statuses (excludes NULL status rows)
     query = query.in('status', filters.allowedStatuses);
   } else if (filters.excludedStatuses && filters.excludedStatuses.length > 0) {
-    // Use OR to also include rows where status is NULL (NOT IN excludes NULLs in SQL)
-    query = query.or(`status.not.in.(${filters.excludedStatuses.join(',')}),status.is.null`);
+    query = query.not('status', 'in', `(${filters.excludedStatuses.join(',')})`);
   }
 
   // Apply sorting
