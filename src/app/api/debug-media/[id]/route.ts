@@ -12,124 +12,70 @@ export async function GET(
   }
 
   const { id } = await params;
-  const diagnostics: Record<string, any> = { __version: 'v3-raw-columns' };
+  const diagnostics: Record<string, any> = { __version: 'v4-column-check' };
 
-  // 1. Check the view (graphql_listings)
+  // 1. Check the view (graphql_listings) - works even with RLS
   const { data: viewData, error: viewError } = await supabase
     .from('graphql_listings')
-    .select('id, listing_id, preferred_photo, media')
+    .select('*')
     .or(`id.eq.${id},listing_id.eq.${id}`)
     .limit(1);
 
   if (viewError) {
     diagnostics.viewError = viewError.message;
   } else if (viewData?.[0]) {
-    const r = viewData[0];
-    const rawMedia: any = r.media;
+    const r: any = viewData[0];
     diagnostics.view = {
       id: r.id,
       listing_id: r.listing_id,
+      status: r.status,
+      address: r.address,
+      city: r.city,
+      property_type: r.property_type,
+      media_is_null: r.media === null,
+      media_typeof: typeof r.media,
+      media_isArray: Array.isArray(r.media),
+      media_length: Array.isArray(r.media) ? r.media.length : null,
+      media_preview: r.media === null ? null : (typeof r.media === 'string' ? r.media.slice(0, 500) : JSON.stringify(r.media).slice(0, 500)),
       preferred_photo: r.preferred_photo,
-      media_is_null: rawMedia === null,
-      media_typeof: typeof rawMedia,
-      media_preview: rawMedia === null ? null : (typeof rawMedia === 'string' ? rawMedia.slice(0, 300) : JSON.stringify(rawMedia).slice(0, 300)),
     };
   } else {
     diagnostics.view = 'NOT FOUND';
   }
 
-  // 2. Query raw rc-listings table by numeric id
-  const { data: rawById, error: rawByIdError } = await supabase
-    .from('rc-listings')
-    .select('*')
-    .eq('id', parseInt(id))
-    .limit(1);
-
-  if (rawByIdError) {
-    diagnostics.rawByIdError = rawByIdError.message;
-  } else if (rawById?.[0]) {
-    const r = rawById[0];
-    // Show all column names that have non-null values
-    const nonNullColumns = Object.entries(r)
-      .filter(([, v]) => v !== null)
-      .map(([k]) => k);
-    // Find any photo/media related columns
-    const photoColumns = Object.entries(r)
-      .filter(([k]) => /photo|media|image|picture|thumb/i.test(k))
-      .map(([k, v]) => ({
-        column: k,
-        is_null: v === null,
-        typeof: typeof v,
-        preview: v === null ? null : (typeof v === 'string' ? v.slice(0, 200) : JSON.stringify(v).slice(0, 200)),
-      }));
-    diagnostics.rawById = {
-      id: r.id,
-      ListingId: r.ListingId,
-      totalColumns: Object.keys(r).length,
-      nonNullColumns: nonNullColumns.length,
-      photoMediaColumns: photoColumns,
-      status: r.StandardStatus || r.MlsStatus || r.Status,
-      address: r.UnparsedAddress,
-    };
-  } else {
-    diagnostics.rawById = 'NOT FOUND by id=' + id;
-  }
-
-  // 3. Also try by ListingId
+  // 2. Try rc-listings with specific columns (not select *)
   const listingId = viewData?.[0]?.listing_id || id;
-  const { data: rawByLid, error: rawByLidError } = await supabase
+  const { data: rawSpecific, error: rawSpecificError } = await supabase
     .from('rc-listings')
-    .select('*')
-    .eq('ListingId', listingId)
+    .select('id, "ListingId", "StandardStatus", "MlsStatus", "Media", "UnparsedAddress"')
+    .or(`id.eq.${parseInt(id)},"ListingId".eq.${listingId}`)
     .limit(3);
 
-  if (rawByLidError) {
-    diagnostics.rawByListingIdError = rawByLidError.message;
-  } else {
-    diagnostics.rawByListingId = (rawByLid || []).map((r: any) => {
-      const photoColumns = Object.entries(r)
-        .filter(([k]) => /photo|media|image|picture|thumb/i.test(k))
-        .map(([k, v]) => ({
-          column: k,
-          is_null: v === null,
-          typeof: typeof v,
-          preview: v === null ? null : (typeof v === 'string' ? v.slice(0, 200) : JSON.stringify(v).slice(0, 200)),
-        }));
-      return {
-        id: r.id,
-        ListingId: r.ListingId,
-        status: r.StandardStatus || r.MlsStatus || r.Status,
-        address: r.UnparsedAddress,
-        photoMediaColumns: photoColumns,
-      };
-    });
-  }
-
-  // 4. Find a sample row that HAS Media data (to understand the format)
-  const { data: sampleWithMedia, error: sampleError } = await supabase
-    .from('rc-listings')
-    .select('id, "ListingId", "Media", "UnparsedAddress"')
-    .not('Media', 'is', null)
-    .limit(1);
-
-  if (sampleError) {
-    diagnostics.sampleWithMediaError = sampleError.message;
-  } else if (sampleWithMedia?.[0]) {
-    const r = sampleWithMedia[0];
-    const m: any = r.Media;
-    diagnostics.sampleWithMedia = {
+  diagnostics.rawSpecific = {
+    error: rawSpecificError?.message || null,
+    count: rawSpecific?.length || 0,
+    rows: (rawSpecific || []).map((r: any) => ({
       id: r.id,
       ListingId: r.ListingId,
+      status: r.StandardStatus || r.MlsStatus,
       address: r.UnparsedAddress,
-      media_typeof: typeof m,
-      media_isArray: Array.isArray(m),
-      media_preview: typeof m === 'string' ? m.slice(0, 300) : JSON.stringify(m).slice(0, 300),
-    };
-  } else {
-    diagnostics.sampleWithMedia = 'NO ROWS WITH MEDIA FOUND';
-  }
+      Media_is_null: r.Media === null,
+      Media_typeof: typeof r.Media,
+      Media_preview: r.Media === null ? null : (typeof r.Media === 'string' ? r.Media.slice(0, 300) : JSON.stringify(r.Media).slice(0, 300)),
+    })),
+  };
 
-  // 5. Check media_lookup table
+  // 3. Count rows in rc-listings (check if RLS is blocking)
+  const { count: rcCount, error: rcCountError } = await supabase
+    .from('rc-listings')
+    .select('*', { count: 'exact', head: true });
+
+  diagnostics.rcListingsAccess = {
+    totalCount: rcCount,
+    error: rcCountError?.message || null,
+  };
+
+  // 4. Check media_lookup
   const { data: lookupData, error: lookupError } = await supabase
     .from('media_lookup')
     .select('listing_id, media')
@@ -138,8 +84,15 @@ export async function GET(
 
   if (lookupError) {
     diagnostics.mediaLookupError = lookupError.message;
+  } else if (lookupData && lookupData.length > 0) {
+    const m: any = lookupData[0].media;
+    diagnostics.mediaLookup = {
+      found: true,
+      media_typeof: typeof m,
+      media_preview: m === null ? null : (typeof m === 'string' ? m.slice(0, 300) : JSON.stringify(m).slice(0, 300)),
+    };
   } else {
-    diagnostics.mediaLookup = (lookupData || []).length > 0 ? 'FOUND' : 'NOT FOUND';
+    diagnostics.mediaLookup = { found: false };
   }
 
   return NextResponse.json(diagnostics);
