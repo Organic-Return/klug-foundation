@@ -168,7 +168,15 @@ function transformListing(row: GraphQLListing): MLSProperty {
   }
   for (const mediaItem of mediaItems) {
     try {
-      const parsed = typeof mediaItem === 'string' ? JSON.parse(mediaItem) : mediaItem;
+      let parsed: any = mediaItem;
+      if (typeof mediaItem === 'string') {
+        // If it looks like a URL, use it directly; otherwise try JSON.parse
+        if (mediaItem.startsWith('http') || mediaItem.startsWith('//')) {
+          parsed = mediaItem;
+        } else {
+          parsed = JSON.parse(mediaItem);
+        }
+      }
       let url: string | undefined;
       if (typeof parsed === 'string') {
         // Direct URL string
