@@ -83,7 +83,60 @@ export async function GET(request: Request) {
     data: cityAll,
   };
 
-  // 5. Call getListings (same as the page would)
+  // 5. Call getListings with FULL page filters (same as actual page)
+  // First get MLS config
+  let mlsConfig = null;
+  try {
+    const { getMLSConfiguration, getExcludedPropertyTypes, getExcludedPropertySubTypes, getAllowedCities } = await import('@/lib/mlsConfiguration');
+    mlsConfig = await getMLSConfiguration();
+    const excludedPropertyTypes = [...getExcludedPropertyTypes(mlsConfig), 'Commercial Sale'];
+    const excludedPropertySubTypes = getExcludedPropertySubTypes(mlsConfig);
+    const allowedCities = getAllowedCities(mlsConfig);
+
+    diagnostics.mlsConfig = {
+      excludedPropertyTypes,
+      excludedPropertySubTypes,
+      allowedCities,
+    };
+
+    // Test with minimal filters (just city + statuses + excludedPropertyTypes)
+    const resultMinimal = await getListings(1, 5, {
+      city,
+      excludedPropertyTypes: ['Commercial Sale'],
+      allowedStatuses,
+    });
+    diagnostics.getListingsMinimal = {
+      total: resultMinimal.total,
+      count: resultMinimal.listings.length,
+    };
+
+    // Test with full page filters
+    const result = await getListings(1, 5, {
+      city,
+      excludedPropertyTypes,
+      excludedPropertySubTypes,
+      allowedCities,
+      allowedStatuses,
+      sort: 'newest',
+    });
+
+    diagnostics.getListingsFull = {
+      total: result.total,
+      count: result.listings.length,
+      first: result.listings.slice(0, 2).map((l: any) => ({
+        id: l.id,
+        mls_number: l.mls_number,
+        status: l.status,
+        address: l.address,
+        city: l.city,
+        property_type: l.property_type,
+      })),
+    };
+  } catch (e: any) {
+    diagnostics.mlsConfigError = e.message;
+  }
+
+  // Also test adding filters one by one
   const result = await getListings(1, 5, {
     city,
     excludedPropertyTypes: ['Commercial Sale'],
