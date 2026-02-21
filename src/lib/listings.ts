@@ -404,17 +404,13 @@ export async function getListings(
   }
 
   // Apply filters from MLS Configuration
-  if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0) {
-    // Exclude specific property types but keep NULLs — use or() only when
-    // no other or() filter (keyword/agent) is active to avoid PostgREST conflict
-    if (filters.keyword || filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
-      query = query.not('property_type', 'in', `(${filters.excludedPropertyTypes.join(',')})`);
-    } else {
-      query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
-    }
+  // Skip type exclusions for keyword searches — user is looking for a specific listing
+  if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0 && !filters.keyword) {
+    // Use or() to also include rows where property_type is NULL
+    query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
   }
-  if (filters.excludedPropertySubTypes && filters.excludedPropertySubTypes.length > 0) {
-    if (filters.keyword || filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
+  if (filters.excludedPropertySubTypes && filters.excludedPropertySubTypes.length > 0 && !filters.keyword) {
+    if (filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
       query = query.not('property_sub_type', 'in', `(${filters.excludedPropertySubTypes.join(',')})`);
     } else {
       query = query.or(`property_sub_type.not.in.(${filters.excludedPropertySubTypes.join(',')}),property_sub_type.is.null`);
