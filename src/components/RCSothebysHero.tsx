@@ -196,17 +196,17 @@ export default function RCSothebysHero({
           )}
         </div>
         <div className="absolute bottom-0 left-0 right-0 z-30">
-          <div className="bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-20 pb-4">
+          <div className="pt-20 pb-4">
             {/* City Tabs */}
             <div className="max-w-[1400px] mx-auto px-4 md:px-8">
               <div className="relative flex items-center justify-center gap-3 md:gap-6 lg:gap-10 pb-0 mb-0 flex-wrap">
-                <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-white" />
                 <button
                   onClick={() => { setActiveCity(null); setLocation(''); }}
                   className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${
                     !location
                       ? 'text-white border-white font-bold'
-                      : 'text-white/50 border-transparent hover:text-white'
+                      : 'text-white border-transparent hover:text-white'
                   }`}
                 >
                   All {resolvedCities.length > 1 ? 'Cities' : resolvedCities[0]}
@@ -218,7 +218,7 @@ export default function RCSothebysHero({
                     className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${
                       location === city
                         ? 'text-white border-white font-bold'
-                        : 'text-white/50 border-transparent hover:text-white'
+                        : 'text-white border-transparent hover:text-white'
                     }`}
                   >
                     {city}
@@ -345,17 +345,17 @@ export default function RCSothebysHero({
 
       {/* City Tabs + Search Bar — overlaid near bottom of hero with gradient backdrop */}
       <div className="absolute bottom-0 left-0 right-0 z-30">
-        <div className="bg-gradient-to-t from-black/70 via-black/40 to-transparent pt-20 pb-4">
+        <div className="pt-20 pb-4">
           {/* City Tabs */}
           <div className="max-w-[1400px] mx-auto px-4 md:px-8">
             <div className="relative flex items-center justify-center gap-3 md:gap-6 lg:gap-10 pb-0 mb-0 flex-wrap">
-              <div className="absolute bottom-0 left-0 right-0 h-px bg-white/20" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-white" />
               <button
                 onClick={() => { setActiveCity(null); setLocation(''); }}
                 className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${
                   !location
                     ? 'text-white border-white font-bold'
-                    : 'text-white/50 border-transparent hover:text-white'
+                    : 'text-white border-transparent hover:text-white'
                 }`}
               >
                 All {resolvedCities.length > 1 ? 'Cities' : resolvedCities[0]}
@@ -367,7 +367,7 @@ export default function RCSothebysHero({
                   className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${
                     location === city
                       ? 'text-white border-white font-bold'
-                      : 'text-white/50 border-transparent hover:text-white'
+                      : 'text-white border-transparent hover:text-white'
                   }`}
                 >
                   {city}
@@ -417,7 +417,7 @@ function SearchBar({
   return (
     <div className="bg-transparent">
       <div className="max-w-[1400px] mx-auto px-4 md:px-8">
-        <div className="h-[3px] bg-[var(--rc-gold)] opacity-20" />
+        <div className="h-[3px] bg-white" />
       </div>
       <form
         onSubmit={onSearch}
@@ -428,7 +428,7 @@ function SearchBar({
           <select
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            className="w-full bg-transparent text-white/80 text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
+            className="w-full bg-transparent text-white text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
             style={selectStyle}
           >
             <option value="" className="text-gray-900 normal-case">Locations</option>
@@ -438,14 +438,14 @@ function SearchBar({
           </select>
         </div>
 
-        <div className="hidden md:block w-px h-6 bg-white/15" />
+        <div className="hidden md:block w-px h-6 bg-white" />
 
         {/* Price Min */}
         <div className="flex-1 min-w-[100px]">
           <select
             value={priceMin}
             onChange={(e) => setPriceMin(e.target.value)}
-            className="w-full bg-transparent text-white/80 text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
+            className="w-full bg-transparent text-white text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
             style={selectStyle}
           >
             <option value="" className="text-gray-900 normal-case">Min Price</option>
@@ -455,14 +455,14 @@ function SearchBar({
           </select>
         </div>
 
-        <div className="hidden md:block w-px h-6 bg-white/15" />
+        <div className="hidden md:block w-px h-6 bg-white" />
 
         {/* Price Max */}
         <div className="flex-1 min-w-[100px]">
           <select
             value={priceMax}
             onChange={(e) => setPriceMax(e.target.value)}
-            className="w-full bg-transparent text-white/80 text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
+            className="w-full bg-transparent text-white text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white focus:border-[var(--rc-gold)] focus:ring-0 outline-none cursor-pointer appearance-none"
             style={selectStyle}
           >
             <option value="" className="text-gray-900 normal-case">Max Price</option>
@@ -472,7 +472,7 @@ function SearchBar({
           </select>
         </div>
 
-        <div className="hidden md:block w-px h-6 bg-white/15" />
+        <div className="hidden md:block w-px h-6 bg-white" />
 
         {/* Keyword / MLS# */}
         <div className="flex-[2] min-w-[150px]">
@@ -481,7 +481,7 @@ function SearchBar({
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             placeholder="KEYWORD OR MLS#"
-            className="w-full bg-transparent text-white/80 text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none placeholder:text-white/40 placeholder:uppercase placeholder:tracking-[0.15em]"
+            className="w-full bg-transparent text-white text-[11px] uppercase tracking-[0.15em] py-2 border-0 border-b border-white focus:border-[var(--rc-gold)] focus:ring-0 outline-none placeholder:text-white placeholder:uppercase placeholder:tracking-[0.15em]"
           />
         </div>
 
