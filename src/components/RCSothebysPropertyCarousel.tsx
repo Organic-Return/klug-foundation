@@ -281,7 +281,7 @@ export default function RCSothebysPropertyCarousel({
               return (
                 <div
                   key={property.id}
-                  className="flex-shrink-0 px-5 transition-opacity duration-500 cursor-pointer"
+                  className="flex-shrink-0 px-10 transition-opacity duration-500 cursor-pointer"
                   style={{ width: '60%' }}
                   onClick={() => !isActive && goToSlide(index)}
                 >
@@ -371,7 +371,7 @@ export default function RCSothebysPropertyCarousel({
         <button
           onClick={handlePrev}
           className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
-          style={{ left: 'calc(20% - 52px)', }}
+          style={{ left: 'calc(20% - 42px)', }}
           aria-label="Previous property"
         >
           <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
@@ -383,7 +383,7 @@ export default function RCSothebysPropertyCarousel({
         <button
           onClick={handleNext}
           className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
-          style={{ right: 'calc(20% - 52px)', }}
+          style={{ right: 'calc(20% - 42px)', }}
           aria-label="Next property"
         >
           <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
