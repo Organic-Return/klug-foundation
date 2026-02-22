@@ -219,26 +219,15 @@ export default function RCSothebysPropertyCarousel({
 
       {/* Full-width Carousel — center mode with adjacent card peeks */}
       <div
-        className="relative max-w-[1800px] mx-auto flex items-center"
+        className="relative max-w-[1800px] mx-auto"
         onMouseDown={handleDragStart}
         onMouseUp={handleDragEnd}
         onMouseLeave={() => setIsDragging(false)}
         onTouchStart={handleDragStart}
         onTouchEnd={handleDragEnd}
       >
-        {/* Prev Arrow */}
-        <button
-          onClick={handlePrev}
-          className="flex-shrink-0 z-20 mx-1 md:mx-2"
-          aria-label="Previous property"
-        >
-          <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
-            <PrevArrow />
-          </div>
-        </button>
-
         {/* Cards Track */}
-        <div className="overflow-hidden select-none flex-1">
+        <div className="overflow-hidden select-none">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{
@@ -287,11 +276,8 @@ export default function RCSothebysPropertyCarousel({
                       {(() => {
                         const oh = formatOpenHouse(property);
                         return oh ? (
-                          <div className="absolute top-0 right-0 z-10 bg-[var(--rc-gold)] text-white text-[10px] md:text-[11px] font-medium px-2.5 py-1.5 max-w-[70%] overflow-hidden text-ellipsis whitespace-nowrap">
-                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="mr-1 inline w-3 h-3 md:w-3.5 md:h-3.5" xmlns="http://www.w3.org/2000/svg">
-                              <path fill="none" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="32" d="M80 464V68.14a8 8 0 014-6.9C91.81 56.66 112.92 48 160 48c64 0 145 48 192 48a199.53 199.53 0 0077.23-15.77 2 2 0 012.77 1.85v219.36a4 4 0 01-2.39 3.65C421.37 308.7 392.33 320 352 320c-48 0-128-32-192-32s-80 16-80 16" />
-                            </svg>
-                            {oh}
+                          <div className="absolute bottom-4 right-4 z-10 bg-[var(--rc-navy)] text-white text-[10px] md:text-[11px] font-medium px-3 py-2 uppercase tracking-[0.1em]">
+                            Open House
                           </div>
                         ) : null;
                       })()}
@@ -318,19 +304,16 @@ export default function RCSothebysPropertyCarousel({
                       </div>
 
                       <div className="text-[var(--rc-brown)] text-sm uppercase tracking-wider line-clamp-1">
-                        {property.address}
-                      </div>
-                      <div className="text-[var(--rc-brown)]/60 text-xs uppercase tracking-wider mt-0.5">
-                        {property.city}
+                        {property.address}, {property.city}
                       </div>
 
-                      {/* Tour Property Button */}
+                      {/* View Property Button */}
                       {isActive && (
                         <Link
                           href={`/listings/${property.id}`}
                           className="inline-block mt-4 bg-[var(--rc-gold)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
                         >
-                          Tour Property
+                          View Property
                         </Link>
                       )}
                     </div>
@@ -341,13 +324,26 @@ export default function RCSothebysPropertyCarousel({
           </div>
         </div>
 
-        {/* Next Arrow */}
+        {/* Prev Arrow — positioned at left edge of active card */}
+        <button
+          onClick={handlePrev}
+          className="absolute z-20 top-[28%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
+          style={{ left: 'calc(20% - 12px)', }}
+          aria-label="Previous property"
+        >
+          <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
+            <PrevArrow />
+          </div>
+        </button>
+
+        {/* Next Arrow — positioned at right edge of active card */}
         <button
           onClick={handleNext}
-          className="flex-shrink-0 z-20 mx-1 md:mx-2"
+          className="absolute z-20 top-[28%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
+          style={{ right: 'calc(20% - 12px)', }}
           aria-label="Next property"
         >
-          <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
+          <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
             <NextArrow />
           </div>
         </button>
