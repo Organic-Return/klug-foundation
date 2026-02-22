@@ -13,13 +13,11 @@ interface Property {
   bedrooms: number | null;
   bathrooms: number | null;
   square_feet: number | null;
-  lot_size_acres: number | null;
   photos: string[] | null;
   mls_number: string;
   open_house_date: string | null;
   open_house_start_time: string | null;
   open_house_end_time: string | null;
-  status?: string;
 }
 
 interface RCSothebysPropertyCarouselProps {
@@ -60,7 +58,7 @@ function formatOpenHouse(property: Property): string | null {
   return `Open House ${day}`;
 }
 
-// Left arrow — triangle points left
+// Left arrow — triangle points left, internal arrows point left
 function PrevArrow() {
   return (
     <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
@@ -71,7 +69,7 @@ function PrevArrow() {
   );
 }
 
-// Right arrow — triangle points right
+// Right arrow — triangle points right, internal arrows point right
 function NextArrow() {
   return (
     <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
@@ -84,7 +82,7 @@ function NextArrow() {
 
 export default function RCSothebysPropertyCarousel({
   cities,
-  title = 'Listings',
+  title = 'Featured Listings',
   subtitle,
   limit = 8,
   buttonText = 'View All Properties',
@@ -95,7 +93,7 @@ export default function RCSothebysPropertyCarousel({
   const resolvedCities = cities || ['Aspen'];
 
   const [properties, setProperties] = useState<Property[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
@@ -165,11 +163,13 @@ export default function RCSothebysPropertyCarousel({
 
   if (isLoading) {
     return (
-      <section className="pt-20 pb-28 bg-[var(--rc-cream)]">
-        <div className="max-w-screen-xl w-full mx-auto px-6">
-          <div className="animate-pulse">
-            <div className="h-8 bg-[var(--rc-brown)]/10 rounded w-48 mb-8" />
-            <div className="h-[400px] bg-[var(--rc-brown)]/10 rounded" />
+      <section className="py-16 md:py-24 bg-[var(--rc-cream)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-[var(--rc-brown)]/10 rounded w-64 mx-auto mb-4" />
+              <div className="h-[400px] bg-[var(--rc-brown)]/10 rounded mx-auto mt-8" />
+            </div>
           </div>
         </div>
       </section>
@@ -182,22 +182,44 @@ export default function RCSothebysPropertyCarousel({
     ? `/listings?city=${encodeURIComponent(resolvedCities[0])}`
     : '/listings';
 
-  // Each slide takes 56% width; offset so active is centered
-  const slideWidth = 56;
-  const centerOffset = (100 - slideWidth) / 2;
-
   return (
-    <section className="pt-20 pb-28 bg-[var(--rc-cream)] overflow-hidden flex flex-col">
-      {/* Section Header — left aligned like reference */}
-      <h2 className="max-w-screen-xl w-full mx-auto px-6 text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-8"
-        style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' }}
-      >
-        {title}
-      </h2>
+    <section className="py-16 md:py-24 bg-[var(--rc-cream)] overflow-hidden">
+      {/* Section Header */}
+      <div className="text-center mb-6 md:mb-8 max-w-7xl mx-auto px-6">
+        <h2
+          className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-4"
+          style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em' }}
+        >
+          {title}
+        </h2>
+        {subtitle && (
+          <p className="text-[var(--rc-brown)] text-base md:text-lg font-normal max-w-2xl mx-auto">
+            {subtitle}
+          </p>
+        )}
+      </div>
 
-      {/* Center-mode Carousel */}
+      {/* Numbered Pagination — above carousel */}
+      <div className="flex justify-center items-center gap-1 mb-6 flex-wrap px-4">
+        {properties.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`px-2 py-1 text-sm transition-all duration-300 ${
+              index === activeIndex
+                ? 'text-[var(--rc-navy)] font-bold text-lg border-b-[3px] border-[var(--rc-navy)]'
+                : 'text-[var(--rc-brown)]/50 hover:text-[var(--rc-navy)]'
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            {String(index + 1).padStart(2, '0')}
+          </button>
+        ))}
+      </div>
+
+      {/* Full-width Carousel — center mode with adjacent card peeks */}
       <div
-        className="relative"
+        className="relative max-w-[1800px] mx-auto flex items-center"
         onMouseDown={handleDragStart}
         onMouseUp={handleDragEnd}
         onMouseLeave={() => setIsDragging(false)}
@@ -207,7 +229,7 @@ export default function RCSothebysPropertyCarousel({
         {/* Prev Arrow */}
         <button
           onClick={handlePrev}
-          className="absolute left-2 md:left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20"
+          className="flex-shrink-0 z-20 mx-1 md:mx-2"
           aria-label="Previous property"
         >
           <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
@@ -216,121 +238,101 @@ export default function RCSothebysPropertyCarousel({
         </button>
 
         {/* Cards Track */}
-        <div className="overflow-hidden select-none" style={{ padding: '0 22%' }}>
+        <div className="overflow-hidden select-none flex-1">
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{
-              transform: `translateX(calc(-${activeIndex * slideWidth}% + ${centerOffset}%))`,
+              transform: `translateX(calc(-${activeIndex * 60}% + 20%))`,
             }}
           >
             {properties.map((property, index) => {
               const isActive = index === activeIndex;
               const photo = property.photos?.[0] || null;
-              const oh = formatOpenHouse(property);
 
               return (
                 <div
                   key={property.id}
-                  className={`flex-shrink-0 px-1 md:px-2 transition-all duration-500 cursor-pointer ${
-                    isActive ? 'scale-100 opacity-100' : 'scale-95 opacity-60'
-                  }`}
-                  style={{ width: `${slideWidth}%` }}
+                  className="flex-shrink-0 px-2 md:px-3 transition-opacity duration-500 cursor-pointer"
+                  style={{ width: '60%' }}
                   onClick={() => !isActive && goToSlide(index)}
                 >
-                  <div className="bg-white overflow-hidden">
+                  <div
+                    className={`bg-white overflow-hidden transition-all duration-500 ${
+                      isActive
+                        ? 'border-2 border-[var(--rc-gold)] shadow-lg opacity-100'
+                        : 'border border-gray-200 opacity-50'
+                    }`}
+                  >
                     {/* Photo */}
-                    <div className="relative">
+                    <div className="relative aspect-[4/3] overflow-hidden">
                       {photo ? (
                         <Image
                           src={photo}
-                          alt={`${property.address}, ${property.city} ${property.state || ''}`}
-                          width={1200}
-                          height={800}
-                          className="w-full h-auto"
+                          alt={property.address || 'Property'}
+                          fill
+                          className="object-cover"
                           sizes="(max-width: 768px) 80vw, 50vw"
-                          quality={75}
+                          quality={90}
                           priority={index < 3}
                         />
                       ) : (
-                        <div className="aspect-[3/2] bg-gray-200 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                           <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                           </svg>
                         </div>
                       )}
 
-                      {/* Badges — open house / status */}
-                      {(oh || (property.status && property.status !== 'Active')) && (
-                        <div className="absolute top-0 left-0 z-10 bg-[var(--rc-gold)] text-white text-[10px] md:text-xs font-medium px-3 py-2 max-w-[80%] whitespace-pre-line leading-relaxed">
-                          {oh && (
-                            <div className="flex items-start gap-1">
-                              <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="none" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="32" d="M80 464V68.14a8 8 0 014-6.9C91.81 56.66 112.92 48 160 48c64 0 145 48 192 48a199.53 199.53 0 0077.23-15.77 2 2 0 012.77 1.85v219.36a4 4 0 01-2.39 3.65C421.37 308.7 392.33 320 352 320c-48 0-128-32-192-32s-80 16-80 16" />
-                              </svg>
-                              <span>{oh}</span>
-                            </div>
-                          )}
-                          {property.status && property.status !== 'Active' && (
-                            <div className="flex items-start gap-1">
-                              <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="none" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="32" d="M80 464V68.14a8 8 0 014-6.9C91.81 56.66 112.92 48 160 48c64 0 145 48 192 48a199.53 199.53 0 0077.23-15.77 2 2 0 012.77 1.85v219.36a4 4 0 01-2.39 3.65C421.37 308.7 392.33 320 352 320c-48 0-128-32-192-32s-80 16-80 16" />
-                              </svg>
-                              <span>{property.status}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Property Vitals Overlay — bottom of image */}
-                      <Link
-                        href={`/listings/${property.id}`}
-                        className="absolute bottom-0 left-0 right-0 bg-black/60 text-white backdrop-blur-sm"
-                      >
-                        <div className="grid grid-cols-[auto_1fr_1fr] items-center p-3 gap-x-3">
-                          {/* Price */}
-                          <div className="font-bold text-lg sm:text-2xl pr-3">
-                            {formatPrice(property.list_price)}
-                          </div>
-
-                          {/* Vitals */}
-                          <div className="flex gap-3 border-l border-white/30 pl-3 text-sm whitespace-nowrap">
-                            {property.bedrooms !== null && (
-                              <span>{property.bedrooms} bd</span>
-                            )}
-                            {property.bathrooms !== null && (
-                              <span>{property.bathrooms} ba</span>
-                            )}
-                            {property.square_feet && (
-                              <span>{property.square_feet.toLocaleString()} sf</span>
-                            )}
-                            {property.lot_size_acres && (
-                              <span>{property.lot_size_acres} ac</span>
-                            )}
-                          </div>
-
-                          {/* Location */}
-                          <div className="border-l border-white/30 pl-3 text-sm truncate">
-                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 24 24" className="inline w-4 h-4 mr-0.5 -ml-0.5 align-text-bottom" xmlns="http://www.w3.org/2000/svg">
-                              <path d="M12 14c2.206 0 4-1.794 4-4s-1.794-4-4-4-4 1.794-4 4 1.794 4 4 4zm0-6c1.103 0 2 .897 2 2s-.897 2-2 2-2-.897-2-2 .897-2 2-2z" />
-                              <path d="M11.42 21.814a.998.998 0 0 0 1.16 0C12.884 21.599 20.029 16.44 20 10c0-4.411-3.589-8-8-8S4 5.589 4 9.995c-.029 6.445 7.116 11.604 7.42 11.819zM12 4c3.309 0 6 2.691 6 6.005.021 4.438-4.388 8.423-6 9.73-1.611-1.308-6.021-5.294-6-9.735 0-3.309 2.691-6 6-6z" />
+                      {/* Open House Badge */}
+                      {(() => {
+                        const oh = formatOpenHouse(property);
+                        return oh ? (
+                          <div className="absolute top-0 right-0 z-10 bg-[var(--rc-gold)] text-white text-[10px] md:text-[11px] font-medium px-2.5 py-1.5 max-w-[70%] overflow-hidden text-ellipsis whitespace-nowrap">
+                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" className="mr-1 inline w-3 h-3 md:w-3.5 md:h-3.5" xmlns="http://www.w3.org/2000/svg">
+                              <path fill="none" strokeLinecap="round" strokeMiterlimit="10" strokeWidth="32" d="M80 464V68.14a8 8 0 014-6.9C91.81 56.66 112.92 48 160 48c64 0 145 48 192 48a199.53 199.53 0 0077.23-15.77 2 2 0 012.77 1.85v219.36a4 4 0 01-2.39 3.65C421.37 308.7 392.33 320 352 320c-48 0-128-32-192-32s-80 16-80 16" />
                             </svg>
-                            {property.address}, {property.city}, {property.state || 'WA'}
+                            {oh}
                           </div>
-                        </div>
-                      </Link>
+                        ) : null;
+                      })()}
                     </div>
 
-                    {/* MLS Number + View Property */}
-                    <div className="text-center py-3">
-                      <span className="text-[var(--rc-brown)]/60 text-sm block mb-2">
-                        MLS Number: {property.mls_number}
-                      </span>
-                      <Link
-                        href={`/listings/${property.id}`}
-                        className="inline-block border border-[var(--rc-navy)] text-[var(--rc-navy)] bg-transparent text-xs font-medium uppercase tracking-wider px-5 py-2 hover:bg-[var(--rc-navy)] hover:text-white transition-colors duration-200"
-                      >
-                        View Property
-                      </Link>
+                    {/* Property Info */}
+                    <div className="px-5 py-4 md:px-6 md:py-5 text-center">
+                      <div className="flex items-center justify-center gap-3 md:gap-4 mb-2 flex-wrap">
+                        <span className="text-[var(--rc-navy)] text-xl md:text-2xl font-light tracking-wide">
+                          {formatPrice(property.list_price)}
+                        </span>
+                        <span className="text-[var(--rc-brown)]/30">|</span>
+                        <div className="flex items-center gap-3 text-[var(--rc-brown)] text-sm">
+                          {property.bedrooms !== null && (
+                            <span>{property.bedrooms} BD</span>
+                          )}
+                          {property.bathrooms !== null && (
+                            <span>{property.bathrooms} BA</span>
+                          )}
+                          {property.square_feet && (
+                            <span>{property.square_feet.toLocaleString()} SF</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="text-[var(--rc-brown)] text-sm uppercase tracking-wider line-clamp-1">
+                        {property.address}
+                      </div>
+                      <div className="text-[var(--rc-brown)]/60 text-xs uppercase tracking-wider mt-0.5">
+                        {property.city}
+                      </div>
+
+                      {/* Tour Property Button */}
+                      {isActive && (
+                        <Link
+                          href={`/listings/${property.id}`}
+                          className="inline-block mt-4 bg-[var(--rc-gold)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+                        >
+                          Tour Property
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -342,7 +344,7 @@ export default function RCSothebysPropertyCarousel({
         {/* Next Arrow */}
         <button
           onClick={handleNext}
-          className="absolute right-2 md:right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20"
+          className="flex-shrink-0 z-20 mx-1 md:mx-2"
           aria-label="Next property"
         >
           <div className="w-[24px] h-[48px] md:w-[36px] md:h-[72px] lg:w-[48px] lg:h-[96px]">
@@ -352,7 +354,7 @@ export default function RCSothebysPropertyCarousel({
       </div>
 
       {/* View All Button */}
-      <div className="text-center mt-10 max-w-screen-xl mx-auto px-6">
+      <div className="text-center mt-10 max-w-7xl mx-auto px-6">
         <Link
           href={listingsHref}
           className="inline-block bg-[var(--rc-gold)] text-white text-xs font-black uppercase tracking-[0.1em] px-10 py-4 hover:bg-[var(--rc-gold-hover)] transition-colors duration-200"
