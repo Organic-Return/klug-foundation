@@ -501,9 +501,12 @@ function SearchBar({
         {/* Search Button */}
         <button
           type="submit"
-          className="bg-[var(--rc-gold)] text-white text-[11px] font-black uppercase tracking-[0.1em] px-8 py-3 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+          className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--rc-gold)] text-white px-8 py-4 border border-[var(--rc-gold)] hover:bg-transparent hover:border-white hover:text-white"
         >
           Search
+          <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
         </button>
       </form>
     </div>
