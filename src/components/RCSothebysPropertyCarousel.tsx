@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -95,8 +95,11 @@ export default function RCSothebysPropertyCarousel({
   const [properties, setProperties] = useState<Property[]>([]);
   const [activeIndex, setActiveIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState(0);
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+  const touchDeltaX = useRef(0);
+  const isSwiping = useRef(false);
+  const isHorizontalSwipe = useRef<boolean | null>(null);
 
   useEffect(() => {
     async function fetchProperties() {
@@ -135,17 +138,53 @@ export default function RCSothebysPropertyCarousel({
   const handlePrev = () => goToSlide(activeIndex - 1);
   const handleNext = () => goToSlide(activeIndex + 1);
 
-  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    setIsDragging(true);
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    setDragStart(clientX);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchDeltaX.current = 0;
+    isSwiping.current = true;
+    isHorizontalSwipe.current = null;
   };
 
-  const handleDragEnd = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
-    const diff = dragStart - clientX;
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwiping.current) return;
+    const dx = e.touches[0].clientX - touchStartX.current;
+    const dy = e.touches[0].clientY - touchStartY.current;
+
+    // Determine swipe direction on first significant movement
+    if (isHorizontalSwipe.current === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      isHorizontalSwipe.current = Math.abs(dx) > Math.abs(dy);
+    }
+
+    if (isHorizontalSwipe.current) {
+      // Prevent vertical scroll during horizontal swipe
+      e.preventDefault();
+      touchDeltaX.current = dx;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const diff = touchDeltaX.current;
+    if (Math.abs(diff) > 50) {
+      if (diff < 0) handleNext();  // swiped left → next
+      else handlePrev();            // swiped right → prev
+    }
+    isHorizontalSwipe.current = null;
+  };
+
+  // Mouse drag support for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    touchStartX.current = e.clientX;
+    touchDeltaX.current = 0;
+    isSwiping.current = true;
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!isSwiping.current) return;
+    isSwiping.current = false;
+    const diff = touchStartX.current - e.clientX;
     if (Math.abs(diff) > 50) {
       if (diff > 0) handleNext();
       else handlePrev();
@@ -220,11 +259,12 @@ export default function RCSothebysPropertyCarousel({
       {/* Full-width Carousel — center mode with adjacent card peeks */}
       <div
         className="relative max-w-[1800px] mx-auto"
-        onMouseDown={handleDragStart}
-        onMouseUp={handleDragEnd}
-        onMouseLeave={() => setIsDragging(false)}
-        onTouchStart={handleDragStart}
-        onTouchEnd={handleDragEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => { isSwiping.current = false; }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         {/* Cards Track */}
         <div className="overflow-hidden select-none">
@@ -328,7 +368,7 @@ export default function RCSothebysPropertyCarousel({
         <button
           onClick={handlePrev}
           className="absolute z-20 top-[37%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
-          style={{ left: 'calc(20% - 12px)', }}
+          style={{ left: 'calc(20% - 42px)', }}
           aria-label="Previous property"
         >
           <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
@@ -340,7 +380,7 @@ export default function RCSothebysPropertyCarousel({
         <button
           onClick={handleNext}
           className="absolute z-20 top-[37%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
-          style={{ right: 'calc(20% - 12px)', }}
+          style={{ right: 'calc(20% - 42px)', }}
           aria-label="Next property"
         >
           <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
