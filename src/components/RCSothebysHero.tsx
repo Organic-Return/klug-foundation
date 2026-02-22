@@ -164,17 +164,6 @@ export default function RCSothebysHero({
   const currentProperty = filteredProperties[activeIndex] || null;
   const currentPhoto = currentProperty?.photos?.[0] || null;
 
-  // Prev/next for side panels
-  const showSidePanels = filteredProperties.length > 1;
-  const prevIndex = showSidePanels
-    ? (activeIndex - 1 + filteredProperties.length) % filteredProperties.length
-    : -1;
-  const nextIndex = showSidePanels
-    ? (activeIndex + 1) % filteredProperties.length
-    : -1;
-  const prevProperty = prevIndex >= 0 ? filteredProperties[prevIndex] : null;
-  const nextProperty = nextIndex >= 0 ? filteredProperties[nextIndex] : null;
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
@@ -259,124 +248,53 @@ export default function RCSothebysHero({
 
   return (
     <div className="relative w-full overflow-hidden" style={{ height: 'calc(80vh + 120px)' }}>
-      {/* Three-panel image layout: prev peek | active | next peek */}
-      <div className="absolute inset-0 flex">
-        {/* Left peek — previous property */}
-        {showSidePanels && (
-          <button
-            onClick={handlePrev}
-            className="relative w-[10%] md:w-[13%] flex-shrink-0 overflow-hidden cursor-pointer group"
+      {/* Property Images — crossfade slideshow */}
+      {filteredProperties.map((property, index) => {
+        const photo = property.photos?.[0] || null;
+        return (
+          <div
+            key={property.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
           >
-            <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/30 transition-colors duration-300" />
-            {prevProperty?.photos?.[0] ? (
+            {photo ? (
               <Image
-                src={prevProperty.photos[0]}
-                alt="Previous property"
+                src={photo}
+                alt={property.address || 'Featured property'}
                 fill
                 className="object-cover"
-                sizes="15vw"
+                sizes="100vw"
+                quality={90}
+                priority={index === 0}
               />
             ) : (
               <div className="w-full h-full bg-[var(--rc-navy)]" />
             )}
-          </button>
-        )}
+          </div>
+        );
+      })}
 
-        {/* Center — active property with crossfade */}
-        <div className="relative flex-1 overflow-hidden">
-          {filteredProperties.map((property, index) => {
-            const photo = property.photos?.[0] || null;
-            return (
-              <div
-                key={property.id}
-                className={`absolute inset-0 transition-opacity duration-1000 ${
-                  index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                }`}
-              >
-                {photo ? (
-                  <Image
-                    src={photo}
-                    alt={property.address || 'Featured property'}
-                    fill
-                    className="object-cover"
-                    sizes="80vw"
-                    quality={90}
-                    priority={index === 0}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[var(--rc-navy)]" />
-                )}
-              </div>
-            );
-          })}
+      {/* Signature Triangular Arrows */}
+      <button
+        onClick={handlePrev}
+        className="absolute left-0 top-[40%] -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
+        aria-label="Previous property"
+      >
+        <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
+          <PrevArrow />
         </div>
+      </button>
 
-        {/* Right peek — next property */}
-        {showSidePanels && (
-          <button
-            onClick={handleNext}
-            className="relative w-[10%] md:w-[13%] flex-shrink-0 overflow-hidden cursor-pointer group"
-          >
-            <div className="absolute inset-0 bg-black/40 z-10 group-hover:bg-black/30 transition-colors duration-300" />
-            {nextProperty?.photos?.[0] ? (
-              <Image
-                src={nextProperty.photos[0]}
-                alt="Next property"
-                fill
-                className="object-cover"
-                sizes="15vw"
-              />
-            ) : (
-              <div className="w-full h-full bg-[var(--rc-navy)]" />
-            )}
-          </button>
-        )}
-      </div>
-
-      {/* Signature Triangular Arrows — between center and side panels */}
-      {showSidePanels ? (
-        <>
-          <button
-            onClick={handlePrev}
-            className="absolute left-[10%] md:left-[13%] top-[40%] -translate-x-1/2 -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
-            aria-label="Previous property"
-          >
-            <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
-              <PrevArrow />
-            </div>
-          </button>
-          <button
-            onClick={handleNext}
-            className="absolute right-[10%] md:right-[13%] top-[40%] translate-x-1/2 -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
-            aria-label="Next property"
-          >
-            <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
-              <NextArrow />
-            </div>
-          </button>
-        </>
-      ) : (
-        <>
-          <button
-            onClick={handlePrev}
-            className="absolute left-0 top-[40%] -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
-            aria-label="Previous property"
-          >
-            <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
-              <PrevArrow />
-            </div>
-          </button>
-          <button
-            onClick={handleNext}
-            className="absolute right-0 top-[40%] -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
-            aria-label="Next property"
-          >
-            <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
-              <NextArrow />
-            </div>
-          </button>
-        </>
-      )}
+      <button
+        onClick={handleNext}
+        className="absolute right-0 top-[40%] -translate-y-1/2 z-30 hover:scale-105 transition-transform duration-200"
+        aria-label="Next property"
+      >
+        <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
+          <NextArrow />
+        </div>
+      </button>
 
       {/* Property Info Card — bottom right */}
       {currentProperty && (
