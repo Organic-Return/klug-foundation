@@ -328,7 +328,7 @@ export default function RCSothebysPropertyCarousel({
                       {isActive && (
                         <Link
                           href={`/listings/${property.id}`}
-                          className="inline-block mt-4 bg-[var(--rc-navy)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-navy)]/80 transition-colors duration-200"
+                          className="inline-block mt-4 bg-[var(--rc-gold)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
                         >
                           Tour Property
                         </Link>
@@ -357,7 +357,7 @@ export default function RCSothebysPropertyCarousel({
       <div className="text-center mt-10 max-w-7xl mx-auto px-6">
         <Link
           href={listingsHref}
-          className="inline-block bg-[var(--rc-navy)] text-white text-xs font-black uppercase tracking-[0.1em] px-10 py-4 hover:bg-[var(--rc-navy)]/80 transition-colors duration-200"
+          className="inline-block bg-[var(--rc-gold)] text-white text-xs font-black uppercase tracking-[0.1em] px-10 py-4 hover:bg-[var(--rc-gold-hover)] transition-colors duration-200"
         >
           {buttonText}
         </Link>

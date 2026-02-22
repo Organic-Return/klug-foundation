@@ -1030,23 +1030,22 @@ address {
   align-items: center;
   justify-content: center;
   padding: 0.875rem 2rem;
-  background-color: var(--rc-navy);
+  background-color: var(--rc-gold);
   color: white;
   font-family: var(--font-figtree), "Figtree", sans-serif;
   font-size: 0.875rem;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border: 1px solid var(--rc-navy);
+  border: 1px solid var(--rc-gold);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-rc-primary:hover {
-  background-color: var(--rc-navy);
-  border-color: var(--rc-navy);
+  background-color: var(--rc-gold-hover, #a8834d);
+  border-color: var(--rc-gold-hover, #a8834d);
   color: white;
-  opacity: 0.8;
 }
 
 .btn-rc-outline {
@@ -1054,23 +1053,22 @@ address {
   align-items: center;
   justify-content: center;
   padding: 0.875rem 2rem;
-  background-color: var(--rc-navy);
+  background-color: var(--rc-gold);
   color: white;
   font-family: var(--font-figtree), "Figtree", sans-serif;
   font-size: 0.875rem;
   font-weight: 900;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border: 1px solid var(--rc-navy);
+  border: 1px solid var(--rc-gold);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .btn-rc-outline:hover {
-  background-color: var(--rc-navy);
-  border-color: var(--rc-navy);
+  background-color: var(--rc-gold-hover, #a8834d);
+  border-color: var(--rc-gold-hover, #a8834d);
   color: white;
-  opacity: 0.8;
 }
 
 /* RC Sotheby's inverted sections (navy background) */
