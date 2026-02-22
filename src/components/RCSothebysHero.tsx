@@ -219,7 +219,7 @@ export default function RCSothebysHero({
             <div className="w-full h-full bg-[var(--rc-navy)]" />
           )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-30">
+        <div className="absolute bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-black/60 via-black/30 to-transparent">
           <div className="pt-20 pb-4">
             {/* City Tabs */}
             <div className="max-w-[1400px] mx-auto px-4 md:px-8">
@@ -439,7 +439,7 @@ export default function RCSothebysHero({
       )}
 
       {/* City Tabs + Search Bar — overlaid near bottom of hero with gradient backdrop */}
-      <div className="absolute bottom-0 left-0 right-0 z-30">
+      <div className="absolute bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-black/60 via-black/30 to-transparent">
         <div className="pt-20 pb-4">
           {/* City Tabs */}
           <div className="max-w-[1400px] mx-auto px-4 md:px-8">
