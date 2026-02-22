@@ -501,7 +501,7 @@ function SearchBar({
         {/* Search Button */}
         <button
           type="submit"
-          className="bg-[var(--rc-gold)] text-white text-[11px] font-black uppercase tracking-[0.1em] px-8 py-3 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+          className="bg-[var(--rc-navy)] text-white text-[11px] font-black uppercase tracking-[0.1em] px-8 py-3 hover:bg-[var(--rc-navy)]/80 transition-colors duration-200"
         >
           Search
         </button>
