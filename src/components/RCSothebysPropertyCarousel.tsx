@@ -95,11 +95,19 @@ export default function RCSothebysPropertyCarousel({
   const [properties, setProperties] = useState<Property[]>([]);
   const [activeIndex, setActiveIndex] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
   const touchDeltaX = useRef(0);
   const isSwiping = useRef(false);
   const isHorizontalSwipe = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     async function fetchProperties() {
@@ -238,8 +246,8 @@ export default function RCSothebysPropertyCarousel({
         )}
       </div>
 
-      {/* Numbered Pagination — above carousel */}
-      <div className="flex justify-center items-center gap-1 mb-6 flex-wrap px-4">
+      {/* Numbered Pagination — above carousel (desktop only) */}
+      <div className="hidden md:flex justify-center items-center gap-1 mb-6 flex-wrap px-4">
         {properties.map((_, index) => (
           <button
             key={index}
@@ -271,7 +279,9 @@ export default function RCSothebysPropertyCarousel({
           <div
             className="flex transition-transform duration-500 ease-out"
             style={{
-              transform: `translateX(calc(-${activeIndex * 60}% + 20%))`,
+              transform: isMobile
+                ? `translateX(-${activeIndex * 100}%)`
+                : `translateX(calc(-${activeIndex * 60}% + 20%))`,
             }}
           >
             {properties.map((property, index) => {
@@ -281,15 +291,16 @@ export default function RCSothebysPropertyCarousel({
               return (
                 <div
                   key={property.id}
-                  className="flex-shrink-0 px-10 transition-opacity duration-500 cursor-pointer"
-                  style={{ width: '60%' }}
+                  className="flex-shrink-0 px-4 md:px-10 transition-opacity duration-500 cursor-pointer w-full md:w-[60%]"
                   onClick={() => !isActive && goToSlide(index)}
                 >
                   <div
                     className={`bg-white overflow-hidden transition-all duration-500 ${
                       isActive
                         ? 'border-2 border-[var(--rc-gold)] shadow-lg opacity-100'
-                        : 'border border-gray-200 opacity-50'
+                        : isMobile
+                          ? 'border-2 border-[var(--rc-gold)] shadow-lg opacity-100'
+                          : 'border border-gray-200 opacity-50'
                     }`}
                   >
                     {/* Photo */}
@@ -300,7 +311,7 @@ export default function RCSothebysPropertyCarousel({
                           alt={property.address || 'Property'}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 768px) 80vw, 50vw"
+                          sizes="(max-width: 768px) 100vw, 50vw"
                           quality={90}
                           priority={index < 3}
                         />
@@ -347,11 +358,17 @@ export default function RCSothebysPropertyCarousel({
                         {property.address}, {property.city}
                       </div>
 
+                      {property.mls_number && (
+                        <div className="text-[var(--rc-brown)]/50 text-xs mt-1 md:hidden">
+                          MLS Number: {property.mls_number}
+                        </div>
+                      )}
+
                       {/* View Property Button */}
-                      {isActive && (
+                      {(isActive || isMobile) && (
                         <Link
                           href={`/listings/${property.id}`}
-                          className="group inline-flex items-center gap-3 mt-4 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--rc-gold)] text-white px-8 py-4 border border-[var(--rc-gold)] hover:bg-transparent hover:border-[var(--rc-navy)] hover:text-[var(--rc-navy)]"
+                          className="group inline-flex items-center justify-center gap-3 mt-4 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--rc-gold)] text-white px-8 py-4 border border-[var(--rc-gold)] hover:bg-transparent hover:border-[var(--rc-navy)] hover:text-[var(--rc-navy)] w-full md:w-auto"
                         >
                           View Property
                           <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -367,29 +384,45 @@ export default function RCSothebysPropertyCarousel({
           </div>
         </div>
 
-        {/* Prev Arrow — positioned at left edge of active card */}
+        {/* Prev Arrow — desktop only */}
         <button
           onClick={handlePrev}
-          className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
+          className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200 hidden md:block"
           style={{ left: 'calc(20% - 12px)', }}
           aria-label="Previous property"
         >
-          <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
+          <div className="md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
             <PrevArrow />
           </div>
         </button>
 
-        {/* Next Arrow — positioned at right edge of active card */}
+        {/* Next Arrow — desktop only */}
         <button
           onClick={handleNext}
-          className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200"
+          className="absolute z-20 top-[42%] -translate-y-1/2 hover:scale-105 transition-transform duration-200 hidden md:block"
           style={{ right: 'calc(20% - 12px)', }}
           aria-label="Next property"
         >
-          <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
+          <div className="md:w-[48px] md:h-[96px] lg:w-[60px] lg:h-[120px]">
             <NextArrow />
           </div>
         </button>
+      </div>
+
+      {/* Dot Pagination — mobile only */}
+      <div className="flex md:hidden justify-center items-center gap-2 mt-6">
+        {properties.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`rounded-full transition-all duration-300 ${
+              index === activeIndex
+                ? 'w-2.5 h-2.5 bg-[var(--rc-navy)]'
+                : 'w-2 h-2 bg-[var(--rc-brown)]/30'
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
       </div>
 
       {/* View All Button */}
