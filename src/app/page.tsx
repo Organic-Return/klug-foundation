@@ -3,6 +3,7 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import { getHomepageData, getAllCommunities } from '@/lib/homepage';
 import { getSettings } from '@/lib/settings';
+import { getNewestHighPricedByCities, getNewestHighPricedByCity } from '@/lib/listings';
 import StructuredData from '@/components/StructuredData';
 import HomepageContent from '@/components/HomepageContent';
 
@@ -72,6 +73,21 @@ export default async function Home() {
       ? urlFor(c.featuredImage).width(800).height(1067).url()
       : undefined,
   }));
+
+  // Pre-fetch hero properties server-side for rcsothebys template (no loading flash)
+  let heroProperties: any[] | undefined;
+  if (settings?.template === 'rcsothebys-custom') {
+    const heroCities = homepage?.featuredPropertiesCarousel?.cities;
+    const heroLimit = 10;
+    const heroOpts = { officeName: 'Retter', minPrice: 950000, sortBy: 'price' as const };
+    try {
+      heroProperties = heroCities && heroCities.length > 1
+        ? await getNewestHighPricedByCities(heroCities, heroLimit, heroOpts)
+        : await getNewestHighPricedByCity(heroCities?.[0] || 'Kennewick', heroLimit, heroOpts);
+    } catch (e) {
+      console.error('Error pre-fetching hero properties:', e);
+    }
+  }
 
   const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
@@ -176,6 +192,7 @@ export default async function Home() {
         heroMinPrice={settings?.template === 'rcsothebys-custom' ? 950000 : undefined}
         heroSortBy={settings?.template === 'rcsothebys-custom' ? 'price' : undefined}
         heroLimit={settings?.template === 'rcsothebys-custom' ? 10 : undefined}
+        heroProperties={heroProperties}
         featuredProperty={{
           enabled: featuredProperty?.enabled,
           mlsId: featuredProperty?.mlsId,

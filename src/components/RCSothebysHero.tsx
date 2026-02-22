@@ -26,6 +26,7 @@ interface RCSothebysHeroProps {
   officeName?: string;
   minPrice?: number;
   sortBy?: 'date' | 'price';
+  initialProperties?: Property[];
 }
 
 function formatPrice(price: number): string {
@@ -83,13 +84,18 @@ export default function RCSothebysHero({
   officeName,
   minPrice,
   sortBy,
+  initialProperties,
 }: RCSothebysHeroProps) {
   const resolvedCities = cities || ['Aspen'];
   const router = useRouter();
 
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  // Use server-provided properties immediately if available
+  const hasInitial = initialProperties && initialProperties.length > 0;
+  const [properties, setProperties] = useState<Property[]>(hasInitial ? initialProperties : []);
+  const [activeIndex, setActiveIndex] = useState(() =>
+    hasInitial ? Math.floor(Math.random() * initialProperties!.length) : 0
+  );
+  const [isLoading, setIsLoading] = useState(!hasInitial);
   const [activeCity, setActiveCity] = useState<string | null>(null);
 
   // Search state
@@ -98,7 +104,9 @@ export default function RCSothebysHero({
   const [priceMax, setPriceMax] = useState('');
   const [keyword, setKeyword] = useState('');
 
+  // Only fetch client-side if no initial properties were provided
   useEffect(() => {
+    if (hasInitial) return;
     async function fetchProperties() {
       try {
         const citiesParam = resolvedCities.length > 1
@@ -115,7 +123,12 @@ export default function RCSothebysHero({
           : '';
         const response = await fetch(`/api/featured-properties?${citiesParam}&limit=${limit}${officeParam}${minPriceParam}${sortByParam}`);
         const data = await response.json();
-        setProperties(data.properties || []);
+        const fetched = data.properties || [];
+        setProperties(fetched);
+        // Random starting index
+        if (fetched.length > 0) {
+          setActiveIndex(Math.floor(Math.random() * fetched.length));
+        }
       } catch (error) {
         console.error('Error fetching hero properties:', error);
       } finally {
@@ -123,7 +136,7 @@ export default function RCSothebysHero({
       }
     }
     fetchProperties();
-  }, [resolvedCities, limit, officeName, minPrice, sortBy]);
+  }, [resolvedCities, limit, officeName, minPrice, sortBy, hasInitial]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;
@@ -200,7 +213,7 @@ export default function RCSothebysHero({
             {/* City Tabs */}
             <div className="max-w-[1400px] mx-auto px-4 md:px-8">
               <div className="relative flex items-center justify-center gap-3 md:gap-6 lg:gap-10 pb-0 mb-0 flex-wrap">
-                <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-white" />
                 <button
                   onClick={() => { setActiveCity(null); setLocation(''); }}
                   className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${
@@ -349,7 +362,7 @@ export default function RCSothebysHero({
           {/* City Tabs */}
           <div className="max-w-[1400px] mx-auto px-4 md:px-8">
             <div className="relative flex items-center justify-center gap-3 md:gap-6 lg:gap-10 pb-0 mb-0 flex-wrap">
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-white" />
+              <div className="absolute bottom-0 left-0 right-0 h-px bg-white" />
               <button
                 onClick={() => { setActiveCity(null); setLocation(''); }}
                 className={`text-[10px] md:text-xs uppercase tracking-[0.2em] font-medium pb-2 border-b-2 transition-all duration-300 ${

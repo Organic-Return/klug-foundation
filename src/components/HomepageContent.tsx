@@ -89,6 +89,9 @@ interface HomepageContentProps {
   // Override limit for hero gallery
   heroLimit?: number;
 
+  // Server-fetched properties for immediate hero render (no loading flash)
+  heroProperties?: any[];
+
   // Featured properties carousel data
   featuredPropertiesCarousel?: {
     enabled?: boolean;
@@ -139,6 +142,7 @@ export default function HomepageContent({
   heroMinPrice,
   heroSortBy,
   heroLimit,
+  heroProperties,
   featuredPropertiesCarousel,
   featuredCommunities,
   marketStatsSection,
@@ -251,6 +255,7 @@ export default function HomepageContent({
           officeName={officeName}
           minPrice={heroMinPrice}
           sortBy={heroSortBy}
+          initialProperties={heroProperties}
         />
 
         {/* About Section — unique RC Sotheby's editorial layout */}
