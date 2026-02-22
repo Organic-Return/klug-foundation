@@ -135,15 +135,6 @@ export default function RCSothebysHero({
   const handlePrev = () => goToSlide(activeIndex - 1);
   const handleNext = () => goToSlide(activeIndex + 1);
 
-  // Auto-advance every 6 seconds
-  useEffect(() => {
-    if (properties.length <= 1) return;
-    const timer = setInterval(() => {
-      goToSlide(activeIndex + 1);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [activeIndex, properties.length, goToSlide]);
-
   // Filter by city tab
   const filteredProperties = activeCity
     ? properties.filter(p => p.city.toLowerCase() === activeCity.toLowerCase())

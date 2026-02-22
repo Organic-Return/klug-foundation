@@ -58,8 +58,7 @@ export const homepage = defineType({
           name: 'fallbackImage',
           title: 'Background Image',
           type: 'image',
-          description: 'Fallback image or poster for video (required)',
-          validation: (Rule) => Rule.required(),
+          description: 'Optional background image or poster for video. If empty, the hero will use MLS property photos or a solid background.',
           options: {
             hotspot: true,
           },

@@ -825,9 +825,9 @@ export async function getNewestHighPricedByCity(
     .from('graphql_listings')
     .select('*')
     .ilike('city', city)
-    .or('property_type.eq.Residential,property_type.is.null')
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
-    .or('status.not.in.(Closed,Sold),status.is.null')
+    .eq('property_type', 'Residential')
+    .eq('property_sub_type', 'Site Built-Owned Lot')
+    .in('status', ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending'])
     .not('list_price', 'is', null);
 
   if (options?.minPrice) {
@@ -923,9 +923,9 @@ export async function getNewestHighPricedByCities(
     .from('graphql_listings')
     .select('*')
     .or(cityFilters)
-    .or('property_type.eq.Residential,property_type.is.null')
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
-    .or('status.not.in.(Closed,Sold),status.is.null')
+    .eq('property_type', 'Residential')
+    .eq('property_sub_type', 'Site Built-Owned Lot')
+    .in('status', ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending'])
     .not('list_price', 'is', null);
 
   if (options?.minPrice) {
