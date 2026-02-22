@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 
@@ -64,7 +64,11 @@ export default function RCSothebysHeader({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<number | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
 
   const toggleDropdown = (index: number) => {
     setActiveDropdown(activeDropdown === index ? null : index);
@@ -91,6 +95,31 @@ export default function RCSothebysHeader({
   const toggleMobileDropdown = (index: number) => {
     setActiveMobileDropdown(activeMobileDropdown === index ? null : index);
   };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    setSearchOpen(false);
+    setSearchQuery('');
+    router.push(`/listings?q=${encodeURIComponent(q)}`);
+  };
+
+  // Auto-focus search input when opened
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  // Close search on Escape
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSearchOpen(false);
+    };
+    if (searchOpen) document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [searchOpen]);
 
   return (
     <header className="relative w-full bg-[var(--rc-cream)] shadow-lg z-50">
@@ -206,6 +235,17 @@ export default function RCSothebysHeader({
                 )}
               </div>
             ))}
+
+            {/* Search Icon */}
+            <button
+              onClick={() => setSearchOpen(!searchOpen)}
+              className="text-[var(--rc-navy)] p-1 hover:text-[var(--rc-gold)] transition-colors duration-300"
+              aria-label="Search"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+            </button>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -225,6 +265,43 @@ export default function RCSothebysHeader({
             )}
           </button>
         </div>
+      </div>
+
+      {/* Expandable Search Bar */}
+      <div
+        className={`overflow-hidden transition-all duration-300 bg-[var(--rc-cream)] border-t border-[var(--rc-gold)]/20 ${
+          searchOpen ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0 border-t-0'
+        }`}
+      >
+        <form
+          onSubmit={handleSearchSubmit}
+          className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3"
+        >
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by keyword, MLS#, or address..."
+            className="flex-1 bg-transparent text-[var(--rc-navy)] text-sm tracking-wide py-2 border-0 border-b border-[var(--rc-navy)]/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none placeholder:text-[var(--rc-brown)]/50"
+          />
+          <button
+            type="submit"
+            className="bg-[var(--rc-gold)] text-white text-[11px] font-black uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+            className="text-[var(--rc-brown)] hover:text-[var(--rc-navy)] transition-colors duration-200 p-1"
+            aria-label="Close search"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </form>
       </div>
 
       {/* Mobile Menu */}
@@ -298,6 +375,35 @@ export default function RCSothebysHeader({
                 )}
               </div>
             ))}
+
+            {/* Mobile Search */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = searchQuery.trim();
+                if (!q) return;
+                setMobileMenuOpen(false);
+                setSearchQuery('');
+                router.push(`/listings?q=${encodeURIComponent(q)}`);
+              }}
+              className="pt-3 mt-3 border-t border-[var(--rc-navy)]/10"
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Keyword, MLS#, or address..."
+                  className="flex-1 bg-transparent text-[var(--rc-navy)] text-sm py-2 border-0 border-b border-[var(--rc-navy)]/20 focus:border-[var(--rc-gold)] focus:ring-0 outline-none placeholder:text-[var(--rc-brown)]/50"
+                />
+                <button
+                  type="submit"
+                  className="bg-[var(--rc-gold)] text-white text-[10px] font-black uppercase tracking-[0.1em] px-4 py-2 hover:bg-[var(--rc-gold-hover,#b08a4f)] transition-colors duration-200"
+                >
+                  Search
+                </button>
+              </div>
+            </form>
 
             {/* Contact info in mobile menu */}
             {(phoneNumber || email) && (
