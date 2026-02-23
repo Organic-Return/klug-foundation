@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -99,7 +99,7 @@ export default function LuxuryPropertyGrid({
             return (
               <Link
                 key={property.id}
-                href={`/listings/${property.id}`}
+                href={getListingHref(property)}
                 className="group block"
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}

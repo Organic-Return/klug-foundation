@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -201,7 +201,7 @@ export default function LuxuryPropertyCarousel({
                     className="flex-shrink-0 w-[300px] sm:w-[340px] group"
                   >
                     {/* Card Image */}
-                    <Link href={`/listings/${property.id}`} className="block">
+                    <Link href={getListingHref(property)} className="block">
                       <div className="relative aspect-[4/5] mb-5 overflow-hidden bg-[var(--color-taupe)]">
                         {photo ? (
                           <Image
@@ -255,7 +255,7 @@ export default function LuxuryPropertyCarousel({
 
                       {/* CTA Button */}
                       <Link
-                        href={`/listings/${property.id}`}
+                        href={getListingHref(property)}
                         className="group/cta inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
                       >
                         <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover/cta:border-[var(--color-gold)] transition-colors duration-500">

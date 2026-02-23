@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface Listing {
   id: string;
@@ -88,7 +89,7 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
 
   return (
     <Link
-      href={`/listings/${listing.id}`}
+      href={getListingHref(listing)}
       className="group block"
     >
       {/* Image Container */}

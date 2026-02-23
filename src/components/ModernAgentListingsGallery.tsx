@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface Listing {
   id: string;
@@ -134,7 +135,7 @@ export default function ModernAgentListingsGallery({
           {listings.map((listing) => (
             <Link
               key={listing.id}
-              href={`/listings/${listing.id}`}
+              href={getListingHref(listing)}
               className="group border border-[var(--modern-gray-lighter)] hover:border-[var(--modern-gold)] transition-all duration-300 overflow-hidden"
             >
               {/* Image */}

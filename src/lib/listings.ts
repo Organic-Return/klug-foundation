@@ -133,6 +133,17 @@ export interface MLSProperty {
   updated_at: string;
 }
 
+// Build listing URL — uses MLS number for RC Sotheby's, database ID for others
+export function getListingHref(listing: { id: string; mls_number?: string }): string {
+  const isRC = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
+  return `/listings/${isRC && listing.mls_number ? listing.mls_number : listing.id}`;
+}
+
+// Resolve listing by slug — tries MLS number first, then database ID
+export async function getListingBySlug(slug: string): Promise<MLSProperty | null> {
+  return await getListingByMlsNumber(slug) || await getListingById(slug);
+}
+
 // Transform graphql_listings row to MLSProperty format
 function transformListing(row: GraphQLListing): MLSProperty {
   // Extract photos from media — handles JSON arrays, JSON strings, and string arrays

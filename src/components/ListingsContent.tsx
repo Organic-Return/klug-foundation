@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ListingsMap from './ListingsMap';
 import SavePropertyButton from './SavePropertyButton';
-import type { MLSProperty, SortOption } from '@/lib/listings';
+import { getListingHref, type MLSProperty, type SortOption } from '@/lib/listings';
 
 interface ListingsContentProps {
   listings: MLSProperty[];
@@ -110,7 +110,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
   return (
     <div className={`group ${cardContainerClasses}`}>
       {/* Card Image */}
-      <Link href={`/listings/${listing.id}`} className="block">
+      <Link href={getListingHref(listing)} className="block">
         <div className={`relative ${aspectRatioClasses} overflow-hidden bg-[var(--color-taupe)] ${template === 'luxury' ? 'border border-transparent group-hover:border-[var(--color-gold)] transition-[border-color] duration-500 ease-in-out' : ''}`}>
           {currentPhoto && !imageError ? (
             <Image
@@ -286,7 +286,7 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
         {/* CTA Button - Modern template */}
         {isModernStyle && (
           <Link
-            href={`/listings/${listing.id}`}
+            href={getListingHref(listing)}
             className="inline-flex items-center gap-2 mt-4 text-[10px] uppercase tracking-[0.2em] text-[var(--modern-dark)] hover:text-[var(--modern-gold)] transition-colors duration-300 group/link"
           >
             <span>View Details</span>

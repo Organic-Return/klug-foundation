@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getListingByMlsNumber, formatPrice } from '@/lib/listings';
+import { getListingByMlsNumber, getListingHref, formatPrice } from '@/lib/listings';
 
 interface FeaturedPropertyProps {
   mlsId: string;
@@ -138,7 +138,7 @@ export default async function FeaturedProperty({
           </div>
 
           {/* View Property Button */}
-          <Link href={`/listings/${property.id}`} className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-6 py-3 border border-[var(--color-gold)] hover:bg-transparent hover:border-white">
+          <Link href={getListingHref(property)} className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-6 py-3 border border-[var(--color-gold)] hover:bg-transparent hover:border-white">
             {buttonText}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MLSProperty } from '@/lib/listings';
+import { getListingHref, type MLSProperty } from '@/lib/listings';
 
 interface AgentListingsGridProps {
   activeListings: MLSProperty[];
@@ -50,7 +50,7 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
   const displayPrice = isSold && listing.sold_price ? listing.sold_price : listing.list_price;
 
   return (
-    <Link href={`/listings/${listing.id}`} className="group block">
+    <Link href={getListingHref(listing)} className="group block">
       <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden">
         {currentPhoto && !imageError ? (
           <Image

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -308,7 +309,7 @@ export default function RCSothebysHero({
       {/* Property Info Card — bottom right */}
       {currentProperty && (
         <Link
-          href={`/listings/${currentProperty.id}`}
+          href={getListingHref(currentProperty)}
           className="absolute bottom-44 md:bottom-48 right-4 md:right-8 lg:right-12 z-20 bg-white/95 backdrop-blur-sm px-5 py-4 md:px-6 md:py-5 shadow-lg hover:bg-white transition-colors duration-200 max-w-[280px] md:max-w-sm md:w-[380px] hidden sm:block"
         >
           {/* Diamond plus icon — positioned on left edge */}

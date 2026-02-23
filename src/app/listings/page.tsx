@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import {
   getListings,
+  getListingHref,
   getDistinctCities,
   getDistinctPropertyTypes,
   getDistinctPropertySubTypes,
@@ -38,8 +39,8 @@ function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total:
       position: index + 1,
       item: {
         '@type': 'RealEstateListing',
-        '@id': `${baseUrl}/listings/${listing.id}`,
-        url: `${baseUrl}/listings/${listing.id}`,
+        '@id': `${baseUrl}${getListingHref(listing)}`,
+        url: `${baseUrl}${getListingHref(listing)}`,
         name: listing.address || `Property ${listing.mls_number}`,
         description: listing.description || `${listing.property_type || 'Property'} in ${listing.city}, ${listing.state}`,
         ...(listing.list_price && {

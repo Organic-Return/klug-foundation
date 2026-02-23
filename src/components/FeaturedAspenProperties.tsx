@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -272,7 +272,7 @@ export default function FeaturedAspenProperties({
                       {/* CTA Button - Only show on active card */}
                       {isActive && (
                         <Link
-                          href={`/listings/${property.id}`}
+                          href={getListingHref(property)}
                           className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white w-fit"
                           onClick={(e) => e.stopPropagation()}
                         >

@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/client';
-import { getListings } from '@/lib/listings';
+import { getListings, getListingHref } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
 
 // Sanity queries for dynamic content
@@ -169,7 +169,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { listings } = await getListings(1, 500, { excludedStatuses: ['Closed'] });
     listingPages = listings.map((listing) => ({
-      url: `${baseUrl}/listings/${listing.id}`,
+      url: `${baseUrl}${getListingHref(listing)}`,
       lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
       changeFrequency: 'daily' as const,
       priority: 0.8,

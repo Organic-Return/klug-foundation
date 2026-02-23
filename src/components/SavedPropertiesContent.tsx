@@ -7,7 +7,7 @@ import { useAuth } from './AuthProvider';
 import AuthModal from './AuthModal';
 import SavePropertyButton from './SavePropertyButton';
 import { getSavedProperties, SavedProperty } from '@/lib/savedProperties';
-import { MLSProperty } from '@/lib/listings';
+import { getListingHref, MLSProperty } from '@/lib/listings';
 import { OffMarketListing } from '@/lib/offMarketListings';
 
 interface SavedPropertiesContentProps {
@@ -145,7 +145,7 @@ export default function SavedPropertiesContent({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {savedMlsListings.map((listing) => (
                     <div key={listing.id} className="bg-white rounded-lg shadow-md overflow-hidden group">
-                      <Link href={`/listings/${listing.id}`}>
+                      <Link href={getListingHref(listing)}>
                         <div className="aspect-[4/3] relative bg-gray-200">
                           {listing.photos && listing.photos[0] ? (
                             <Image

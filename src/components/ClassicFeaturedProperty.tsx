@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -167,7 +167,7 @@ export default function ClassicFeaturedProperty({
 
           {/* View Property Button */}
           <Link
-            href={`/listings/${property.id}`}
+            href={getListingHref(property)}
             className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-medium transition-all duration-300 bg-[var(--color-gold)] text-white px-6 py-3 hover:bg-transparent border border-transparent hover:border-white"
           >
             {buttonText}

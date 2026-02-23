@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -382,7 +383,7 @@ export default function RCSothebysPropertyCarousel({
                       {/* View Property Button */}
                       {(isActive || isMobile) && (
                         <Link
-                          href={`/listings/${property.id}`}
+                          href={getListingHref(property)}
                           className="group inline-flex items-center justify-center gap-3 mt-4 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--rc-gold)] text-white px-8 py-4 border border-[var(--rc-gold)] hover:bg-transparent hover:border-[var(--rc-navy)] hover:text-[var(--rc-navy)] w-full md:w-auto"
                         >
                           View Property

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface ModernFeaturedPropertyProps {
   mlsId?: string;
@@ -213,7 +214,7 @@ export default function ModernFeaturedProperty({
             {/* CTA + Navigation */}
             <div className="flex items-center justify-between">
               <Link
-                href={`/listings/${property.id}`}
+                href={getListingHref(property)}
                 className="btn-modern-outline inline-flex items-center gap-3 self-start group"
               >
                 <span>{buttonText}</span>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface HeroListing {
   id: string;
@@ -132,7 +133,7 @@ export default function AgentHeroGallery({ listings }: AgentHeroGalleryProps) {
       {/* Property Info Card — bottom right */}
       {currentListing && (
         <Link
-          href={`/listings/${currentListing.id}`}
+          href={getListingHref(currentListing)}
           className="absolute bottom-8 md:bottom-12 right-4 md:right-8 lg:right-12 z-20 bg-white/95 backdrop-blur-sm px-5 py-4 md:px-6 md:py-5 shadow-lg hover:bg-white transition-colors duration-200 max-w-[280px] md:max-w-sm md:w-[380px] hidden sm:block"
         >
           {/* Diamond plus icon */}

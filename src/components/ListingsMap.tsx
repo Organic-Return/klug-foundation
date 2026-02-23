@@ -2,7 +2,7 @@
 
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, PolygonF, OverlayViewF, OverlayView } from '@react-google-maps/api';
-import type { MLSProperty } from '@/lib/listings';
+import { getListingHref, type MLSProperty } from '@/lib/listings';
 
 interface ListingsMapProps {
   listings: MLSProperty[];
@@ -458,7 +458,7 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
                 MLS# {selectedListing.mls_number}
               </p>
               <a
-                href={`/listings/${selectedListing.id}`}
+                href={getListingHref(selectedListing)}
                 className="mt-2 inline-block text-sm text-[#00254a] hover:underline font-medium"
               >
                 View Details

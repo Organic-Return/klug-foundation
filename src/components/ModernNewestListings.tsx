@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -194,7 +195,7 @@ export default function ModernNewestListings({
         {properties.map((property, index) => (
           <Link
             key={property.id}
-            href={`/listings/${property.id}`}
+            href={getListingHref(property)}
             className="group w-[320px] md:w-[380px] flex-shrink-0 bg-white border border-[var(--modern-gray-lighter)] hover:border-[var(--modern-gold)] transition-all duration-300"
             style={{ animationDelay: `${index * 100}ms` }}
           >

@@ -3,7 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
-  getListingById,
+  getListingBySlug,
+  getListingHref,
   formatPrice,
   formatSqft,
   formatLotSize,
@@ -91,7 +92,7 @@ function getBaseUrl(): string {
 // Generate Schema.org RealEstateListing structured data
 function generateRealEstateSchema(listing: MLSProperty) {
   const baseUrl = getBaseUrl();
-  const listingUrl = `${baseUrl}/listings/${listing.id}`;
+  const listingUrl = `${baseUrl}${getListingHref(listing)}`;
 
   // Main RealEstateListing schema
   const realEstateSchema = {
@@ -274,14 +275,14 @@ function generateRealEstateSchema(listing: MLSProperty) {
 
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {
   const { id } = await params;
-  const listing = await getListingById(id);
+  const listing = await getListingBySlug(id);
 
   if (!listing) {
     return { title: 'Listing Not Found' };
   }
 
   const baseUrl = getBaseUrl();
-  const listingUrl = `${baseUrl}/listings/${listing.id}`;
+  const listingUrl = `${baseUrl}${getListingHref(listing)}`;
   const title = `${listing.address || 'Property'} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
   const rawDescription = listing.description
     || `${listing.bedrooms || 0} bed, ${listing.bathrooms || 0} bath ${listing.property_type || 'property'} for ${listing.status === 'Closed' ? 'sale (sold)' : 'sale'} in ${listing.city}, ${listing.state}. ${listing.square_feet ? `${listing.square_feet.toLocaleString()} sq ft.` : ''} MLS# ${listing.mls_number}`;
@@ -392,7 +393,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const { id } = await params;
 
   const [listing, settings] = await Promise.all([
-    getListingById(id),
+    getListingBySlug(id),
     getSettings(),
   ]);
 
@@ -558,7 +559,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
         )}
 
         {/* Hidden microformat data */}
-        <meta itemProp="url" content={`${getBaseUrl()}/listings/${listing.id}`} />
+        <meta itemProp="url" content={`${getBaseUrl()}${getListingHref(listing)}`} />
         <meta itemProp="datePosted" content={listing.listing_date || ''} />
 
         {/* Back Link */}

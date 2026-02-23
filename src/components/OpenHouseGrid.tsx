@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MLSProperty } from '@/lib/listings';
+import { getListingHref, type MLSProperty } from '@/lib/listings';
 
 interface OpenHouseGridProps {
   listings: MLSProperty[];
@@ -75,7 +75,7 @@ function OpenHouseCard({ listing }: { listing: MLSProperty }) {
 
   return (
     <Link
-      href={`/listings/${listing.id}`}
+      href={getListingHref(listing)}
       className="group block bg-white overflow-hidden hover:shadow-lg transition-shadow duration-300"
     >
       {/* Photo */}

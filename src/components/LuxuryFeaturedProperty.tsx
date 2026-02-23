@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, getListingHref } from '@/lib/listings';
 
 interface Property {
   id: string;
@@ -158,7 +158,7 @@ function PropertyCard({
 
   return (
     <div className="relative">
-      <Link href={`/listings/${property.id}`} className="block group">
+      <Link href={getListingHref(property)} className="block group">
         <div className="relative overflow-hidden rounded-sm aspect-[16/9] lg:aspect-[21/9]">
           {mainPhoto ? (
             <Image
