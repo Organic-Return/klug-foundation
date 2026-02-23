@@ -84,7 +84,7 @@ export default async function TeamPage() {
             }
             style={isRC ? { fontFamily: "var(--font-figtree), Figtree, sans-serif", lineHeight: "1.1em" } : undefined}
           >
-            Our Team
+            {isRC ? "Retter & Company Sotheby's International Realty Team" : "Our Team"}
           </h1>
           <p
             className={
@@ -93,17 +93,13 @@ export default async function TeamPage() {
                 : "text-white/70 text-lg font-light max-w-2xl mx-auto"
             }
           >
-            Meet our experienced real estate professionals
+            {isRC ? "Meet our Experienced Tri-Cities Real Estate Agents" : "Meet our experienced real estate professionals"}
           </p>
-          <p
-            className={
-              isRC
-                ? "text-white/40 text-sm mt-3 font-light"
-                : "text-white/50 text-sm mt-3 font-light"
-            }
-          >
-            {members.length} Agents
-          </p>
+          {!isRC && (
+            <p className="text-white/50 text-sm mt-3 font-light">
+              {members.length} Agents
+            </p>
+          )}
         </div>
       </section>
 
@@ -116,7 +112,7 @@ export default async function TeamPage() {
         }
       >
         <div className="max-w-7xl mx-auto px-6">
-          <TeamGrid members={processedMembers} isRC={isRC} />
+          <TeamGrid members={processedMembers} isRC={isRC} totalCount={members.length} />
         </div>
       </section>
     </main>

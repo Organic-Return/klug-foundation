@@ -19,6 +19,7 @@ interface TeamMember {
 interface TeamGridProps {
   members: TeamMember[];
   isRC: boolean;
+  totalCount?: number;
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -34,7 +35,7 @@ function getLastName(fullName: string): string {
   return parts[parts.length - 1] || '';
 }
 
-export default function TeamGrid({ members, isRC }: TeamGridProps) {
+export default function TeamGrid({ members, isRC, totalCount }: TeamGridProps) {
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('last-asc');
@@ -71,6 +72,13 @@ export default function TeamGrid({ members, isRC }: TeamGridProps) {
 
   return (
     <>
+      {/* Agent count — RC only, centered above search */}
+      {isRC && totalCount != null && (
+        <p className="text-center text-[var(--rc-brown)]/50 text-sm font-light mb-6">
+          {totalCount} Agents
+        </p>
+      )}
+
       {/* Search & Sort */}
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-8">
         <div className="relative w-full sm:w-80">
