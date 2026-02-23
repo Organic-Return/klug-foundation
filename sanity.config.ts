@@ -54,10 +54,19 @@ export default defineConfig({
                   .schemaType('relocationPage')
                   .documentId('relocationPage')
               ),
+            // First Time Buyers Page singleton
+            S.listItem()
+              .title('First Time Buyers Page')
+              .icon(() => '🔑')
+              .child(
+                S.document()
+                  .schemaType('firstTimeBuyersPage')
+                  .documentId('firstTimeBuyersPage')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),
