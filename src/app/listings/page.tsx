@@ -156,15 +156,13 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const keyword = params.q;
   const ourTeam = params.ourTeam === 'true';
 
-  // Fetch MLS configuration, settings, and data in parallel
-  // Note: property types, subtypes, and statuses are hardcoded (no Supabase queries needed)
-  const [mlsConfig, settings, cities, propertyTypes, propertySubTypes, statuses, teamMembers] = await Promise.all([
+  // Only show active-type statuses in results and dropdown
+  const allowedStatusList = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending', 'Pending Inspect/Feasib', 'To Be Built'];
+
+  // Phase 1: Fast Sanity queries (CDN-cached, ~50-100ms) to get filter config
+  const [mlsConfig, settings, teamMembers] = await Promise.all([
     getMLSConfiguration(),
     getSettings(),
-    getDistinctCities(),
-    getDistinctPropertyTypes(),
-    getDistinctPropertySubTypes(),
-    getDistinctStatuses(),
     client.fetch<{ name: string; mlsAgentId?: string; mlsAgentIdSold?: string }[]>(
       `*[_type == "teamMember" && inactive != true && defined(mlsAgentId)]{ name, mlsAgentId, mlsAgentIdSold }`,
       {},
@@ -172,39 +170,12 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     ),
   ]);
 
-  // Get filter lists from MLS configuration
+  // Compute filters from MLS configuration (instant, no async)
   const excludedPropertyTypes = [...getExcludedPropertyTypes(mlsConfig), 'Commercial Sale'];
   const excludedPropertySubTypes = getExcludedPropertySubTypes(mlsConfig);
   const allowedCities = getAllowedCities(mlsConfig);
   const excludedStatuses = getExcludedStatuses(mlsConfig);
 
-  // Only show active-type statuses in results and dropdown
-  const allowedStatusList = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending', 'Pending Inspect/Feasib', 'To Be Built'];
-
-  // Filter dropdown options based on MLS configuration
-  // If allowedCities is configured, use those directly for the dropdown
-  // This avoids issues with Supabase row limits when fetching distinct cities
-  const filteredCities = allowedCities.length > 0 ? allowedCities : cities;
-  const filteredPropertyTypes = propertyTypes.filter((t) => !excludedPropertyTypes.includes(t));
-  const filteredPropertySubTypes = propertySubTypes.filter((t) => !excludedPropertySubTypes.includes(t));
-  const filteredStatuses = statuses.filter(
-    (s) => allowedStatusList.includes(s) && !excludedStatuses.includes(s)
-  );
-
-  // Normalize city names from URL to match database casing (home page may send lowercase)
-  const normalizedCities = selectedCities.map(sc => {
-    const match = filteredCities.find(fc => fc.toLowerCase() === sc.toLowerCase());
-    return match || sc;
-  });
-
-  // Fetch neighborhoods filtered by selected cities (only when cities are selected)
-  const neighborhoods = normalizedCities.length > 0
-    ? (normalizedCities.length === 1
-        ? await getNeighborhoodsByCity(normalizedCities[0])
-        : await getNeighborhoodsByCities(normalizedCities))
-    : [];
-
-  // Collect all team agent MLS IDs and names for "Our Properties Only" filter
   const teamAgentIds = teamMembers
     ? [...new Set(teamMembers.flatMap((m) => [m.mlsAgentId, m.mlsAgentIdSold]).filter(Boolean) as string[])]
     : [];
@@ -215,27 +186,47 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     ? settings.teamSync.offices.map((o) => o.officeName).filter(Boolean)
     : [];
 
-  // Fetch listings with filters applied
-  const listingsResult = await getListings(page, 24, {
-    status,
-    propertyType,
-    propertySubType,
-    cities: normalizedCities.length > 0 ? normalizedCities : undefined,
-    neighborhood,
-    minPrice,
-    maxPrice,
-    minBeds: beds,
-    minBaths: baths,
-    keyword,
-    agentMlsIds: ourTeam ? teamAgentIds : undefined,
-    agentNames: ourTeam ? teamAgentNames : undefined,
-    officeNames: ourTeam ? teamOfficeNames : undefined,
-    excludedPropertyTypes,
-    excludedPropertySubTypes,
-    allowedCities,
-    allowedStatuses: allowedStatusList,
-    sort,
-  });
+  // Phase 2: Run listings query + dropdown data in parallel
+  // City matching is case-insensitive in getListings, so no normalization needed
+  const [listingsResult, cities, propertyTypes, propertySubTypes, statuses, neighborhoods] = await Promise.all([
+    getListings(page, 24, {
+      status,
+      propertyType,
+      propertySubType,
+      cities: selectedCities.length > 0 ? selectedCities : undefined,
+      neighborhood,
+      minPrice,
+      maxPrice,
+      minBeds: beds,
+      minBaths: baths,
+      keyword,
+      agentMlsIds: ourTeam ? teamAgentIds : undefined,
+      agentNames: ourTeam ? teamAgentNames : undefined,
+      officeNames: ourTeam ? teamOfficeNames : undefined,
+      excludedPropertyTypes,
+      excludedPropertySubTypes,
+      allowedCities,
+      allowedStatuses: allowedStatusList,
+      sort,
+    }),
+    getDistinctCities(),
+    getDistinctPropertyTypes(),
+    getDistinctPropertySubTypes(),
+    getDistinctStatuses(),
+    selectedCities.length > 0
+      ? (selectedCities.length === 1
+          ? getNeighborhoodsByCity(selectedCities[0])
+          : getNeighborhoodsByCities(selectedCities))
+      : Promise.resolve([]),
+  ]);
+
+  // Filter dropdown options based on MLS configuration
+  const filteredCities = allowedCities.length > 0 ? allowedCities : cities;
+  const filteredPropertyTypes = propertyTypes.filter((t) => !excludedPropertyTypes.includes(t));
+  const filteredPropertySubTypes = propertySubTypes.filter((t) => !excludedPropertySubTypes.includes(t));
+  const filteredStatuses = statuses.filter(
+    (s) => allowedStatusList.includes(s) && !excludedStatuses.includes(s)
+  );
 
   const { listings, total, totalPages } = listingsResult;
 
@@ -248,7 +239,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   if (status) currentSearchParams.set('status', status);
   if (propertyType) currentSearchParams.set('type', propertyType);
   if (propertySubType) currentSearchParams.set('subtype', propertySubType);
-  if (normalizedCities.length > 0) currentSearchParams.set('city', normalizedCities.join(','));
+  if (selectedCities.length > 0) currentSearchParams.set('city', selectedCities.join(','));
   if (neighborhood) currentSearchParams.set('neighborhood', neighborhood);
   if (minPrice) currentSearchParams.set('minPrice', minPrice.toString());
   if (maxPrice) currentSearchParams.set('maxPrice', maxPrice.toString());
@@ -272,7 +263,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
               status={status}
               propertyType={propertyType}
               propertySubType={propertySubType}
-              selectedCities={normalizedCities}
+              selectedCities={selectedCities}
               neighborhood={neighborhood}
               minPrice={minPrice}
               maxPrice={maxPrice}
@@ -297,7 +288,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
           total={total}
           searchParams={currentSearchParams.toString()}
           currentSort={sort}
-          hasLocationFilter={!!(normalizedCities.length > 0 || neighborhood)}
+          hasLocationFilter={!!(selectedCities.length > 0 || neighborhood)}
           template={settings?.template || 'classic'}
         />
       </div>

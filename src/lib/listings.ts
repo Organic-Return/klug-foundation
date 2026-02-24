@@ -377,7 +377,12 @@ export async function getListings(
     query = query.eq('property_sub_type', filters.propertySubType);
   }
   if (filters.cities && filters.cities.length > 0) {
-    query = query.in('city', filters.cities);
+    // Case-insensitive city matching so URL params don't need normalization
+    if (filters.cities.length === 1) {
+      query = query.ilike('city', filters.cities[0]);
+    } else {
+      query = query.or(filters.cities.map(c => `city.ilike.${c}`).join(','));
+    }
   }
   if (filters.neighborhood) {
     // Search subdivision_name or mls_area_minor
@@ -641,37 +646,22 @@ export function getDistinctCities(): Promise<string[]> {
       return (rpcData as { city: string }[]).map((d) => d.city).filter(Boolean);
     }
 
-    // Fallback: page through ALL cities using .gt() to skip past already-seen cities
-    const allCities = new Set<string>();
-    let lastCity = '';
+    // Fallback: fire parallel batch requests to cover the full table quickly
     const batchSize = 1000;
-    const maxBatches = 20;
-
-    for (let batch = 0; batch < maxBatches; batch++) {
-      let q = supabase
+    const numBatches = 10;
+    const batchPromises = Array.from({ length: numBatches }, (_, i) =>
+      supabase
         .from('graphql_listings')
         .select('city')
         .not('city', 'is', null)
         .order('city')
-        .limit(batchSize);
+        .range(i * batchSize, (i + 1) * batchSize - 1)
+    );
 
-      if (lastCity) {
-        q = q.gt('city', lastCity);
-      }
-
-      const { data, error } = await q;
-
-      if (error) {
-        console.error('Error fetching cities:', error);
-        break;
-      }
-      if (!data || data.length === 0) break;
-
-      data.forEach((d) => { if (d.city) allCities.add(d.city); });
-      // Jump past all rows with the last city in this batch
-      const sorted = [...allCities].sort();
-      lastCity = sorted[sorted.length - 1];
-      if (data.length < batchSize) break;
+    const results = await Promise.all(batchPromises);
+    const allCities = new Set<string>();
+    for (const { data } of results) {
+      data?.forEach((d: { city: string }) => { if (d.city) allCities.add(d.city); });
     }
 
     return [...allCities].sort();
