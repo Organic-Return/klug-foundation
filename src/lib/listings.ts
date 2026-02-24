@@ -1271,6 +1271,16 @@ export async function getListingsByAgentId(
     // MLS data — only if configured and agent has an MLS ID or name
     (isSupabaseConfigured() && (agentMlsId || agentName))
       ? (async () => {
+          // Normalize address for dedup: strip directions, street types, extra whitespace
+          const normalizeAddr = (addr: string) =>
+            addr
+              .toLowerCase()
+              .replace(/\b(street|st|avenue|ave|drive|dr|road|rd|way|blvd|boulevard|lane|ln|court|ct|circle|cir|place|pl)\b/g, '')
+              .replace(/\b(north|south|east|west|n|s|e|w|ne|nw|se|sw)\b/g, '')
+              .replace(/[.,#]/g, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+
           const dedup = (listings: any[]) => {
             const seenByListingId = new Set<string>();
             const seenByAddress = new Set<string>();
@@ -1281,7 +1291,7 @@ export async function getListingsByAgentId(
                 seenByListingId.add(lid);
               }
               if (row.address) {
-                const addr = String(row.address).toLowerCase().trim();
+                const addr = normalizeAddr(String(row.address));
                 if (seenByAddress.has(addr)) return false;
                 seenByAddress.add(addr);
               }
