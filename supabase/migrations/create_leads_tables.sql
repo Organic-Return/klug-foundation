@@ -68,6 +68,17 @@ CREATE TABLE IF NOT EXISTS agent_profiles (
 );
 
 -- ============================================================
+-- Helper functions (SECURITY DEFINER to avoid RLS recursion)
+-- ============================================================
+CREATE OR REPLACE FUNCTION get_my_agent_role()
+RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE
+AS $$ SELECT role FROM agent_profiles WHERE id = auth.uid() $$;
+
+CREATE OR REPLACE FUNCTION get_my_agent_email()
+RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE
+AS $$ SELECT email FROM agent_profiles WHERE id = auth.uid() $$;
+
+-- ============================================================
 -- Row Level Security
 -- ============================================================
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
@@ -75,30 +86,20 @@ ALTER TABLE agent_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Agents see only their own leads
 CREATE POLICY "Agents see own leads" ON leads FOR SELECT
-  USING (
-    assigned_agent_email = (SELECT email FROM agent_profiles WHERE id = auth.uid())
-  );
+  USING (assigned_agent_email = get_my_agent_email());
 
 -- Admins see all leads
 CREATE POLICY "Admins see all leads" ON leads FOR SELECT
-  USING (
-    (SELECT role FROM agent_profiles WHERE id = auth.uid()) = 'admin'
-  );
+  USING (get_my_agent_role() = 'admin');
 
 -- Agents can update status/notes on their own leads
 CREATE POLICY "Agents update own leads" ON leads FOR UPDATE
-  USING (
-    assigned_agent_email = (SELECT email FROM agent_profiles WHERE id = auth.uid())
-  )
-  WITH CHECK (
-    assigned_agent_email = (SELECT email FROM agent_profiles WHERE id = auth.uid())
-  );
+  USING (assigned_agent_email = get_my_agent_email())
+  WITH CHECK (assigned_agent_email = get_my_agent_email());
 
 -- Admins can update any lead
 CREATE POLICY "Admins update all leads" ON leads FOR UPDATE
-  USING (
-    (SELECT role FROM agent_profiles WHERE id = auth.uid()) = 'admin'
-  );
+  USING (get_my_agent_role() = 'admin');
 
 -- Service role (API) can insert leads (no auth required for inserts from server)
 CREATE POLICY "Service role inserts leads" ON leads FOR INSERT
@@ -110,6 +111,4 @@ CREATE POLICY "Users see own profile" ON agent_profiles FOR SELECT
 
 -- Admins see all profiles
 CREATE POLICY "Admins see all profiles" ON agent_profiles FOR SELECT
-  USING (
-    (SELECT role FROM agent_profiles WHERE id = auth.uid()) = 'admin'
-  );
+  USING (get_my_agent_role() = 'admin');
