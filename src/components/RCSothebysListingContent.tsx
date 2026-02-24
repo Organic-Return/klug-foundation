@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
+import { getUTMData } from './UTMCapture';
 
 interface ListingAgentInfo {
   name: string;
@@ -63,6 +64,63 @@ export default function RCSothebysListingContent({
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
+
+  // Contact form state
+  const [formFirstName, setFormFirstName] = useState('');
+  const [formLastName, setFormLastName] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formMessage, setFormMessage] = useState('');
+  const [tourInPerson, setTourInPerson] = useState(false);
+  const [tourVirtual, setTourVirtual] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formFirstName || !formLastName || !formEmail) return;
+    setFormSubmitting(true);
+    setFormError('');
+
+    const tourTypes = [tourInPerson && 'In Person', tourVirtual && 'Virtual'].filter(Boolean);
+    const leadType = tourTypes.length > 0 ? 'schedule_tour' : 'property_inquiry';
+    const tourInfo = tourTypes.length > 0 ? `\n\nTour preference: ${tourTypes.join(', ')}` : '';
+    const fullMessage = (formMessage || '') + tourInfo;
+
+    try {
+      const utm = getUTMData();
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formFirstName,
+          lastName: formLastName,
+          email: formEmail,
+          phone: formPhone || undefined,
+          message: fullMessage || undefined,
+          leadType,
+          propertyAddress: listing.address || `Property ${listing.mls_number}`,
+          propertyMlsId: listing.mls_number || undefined,
+          propertyPrice: listing.list_price || undefined,
+          source: 'Property Detail Page',
+          sourceUrl: utm.source_url,
+          referrer: utm.referrer,
+          utmSource: utm.utm_source,
+          utmMedium: utm.utm_medium,
+          utmCampaign: utm.utm_campaign,
+          utmContent: utm.utm_content,
+          utmTerm: utm.utm_term,
+        }),
+      });
+      if (!res.ok) throw new Error('Failed to send');
+      setFormSubmitted(true);
+    } catch {
+      setFormError('Something went wrong. Please try again.');
+    } finally {
+      setFormSubmitting(false);
+    }
+  };
   const photos = listing.photos || [];
 
   const handlePrevPhoto = useCallback(() => {
@@ -501,32 +559,57 @@ export default function RCSothebysListingContent({
               >
                 Request More Information
               </h3>
-              <form className="space-y-4">
+              {formSubmitted ? (
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 rounded-full bg-[var(--rc-gold)]/20 flex items-center justify-center mx-auto mb-3">
+                    <svg className="w-6 h-6 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <p className="text-white font-medium mb-1">Request Sent!</p>
+                  <p className="text-white/60 text-sm">An agent will respond within 24 hours.</p>
+                </div>
+              ) : (
+              <form className="space-y-4" onSubmit={handleFormSubmit}>
+                {formError && <p className="text-red-400 text-sm">{formError}</p>}
                 <div className="grid grid-cols-2 gap-4">
                   <input
                     type="text"
                     placeholder="First name"
+                    value={formFirstName}
+                    onChange={(e) => setFormFirstName(e.target.value)}
+                    required
                     className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
                   />
                   <input
                     type="text"
                     placeholder="Last name"
+                    value={formLastName}
+                    onChange={(e) => setFormLastName(e.target.value)}
+                    required
                     className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
                   />
                 </div>
                 <input
                   type="email"
                   placeholder="Email"
+                  value={formEmail}
+                  onChange={(e) => setFormEmail(e.target.value)}
+                  required
                   className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
                 />
                 <input
                   type="tel"
                   placeholder="Phone"
+                  value={formPhone}
+                  onChange={(e) => setFormPhone(e.target.value)}
                   className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
                 />
                 <textarea
                   placeholder="Message..."
                   rows={3}
+                  value={formMessage}
+                  onChange={(e) => setFormMessage(e.target.value)}
                   className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors resize-none"
                 />
 
@@ -540,11 +623,21 @@ export default function RCSothebysListingContent({
                   </h4>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm" />
+                      <input
+                        type="checkbox"
+                        checked={tourInPerson}
+                        onChange={(e) => setTourInPerson(e.target.checked)}
+                        className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm"
+                      />
                       <span className="text-white/70 text-sm">In Person Onsite Tour</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm" />
+                      <input
+                        type="checkbox"
+                        checked={tourVirtual}
+                        onChange={(e) => setTourVirtual(e.target.checked)}
+                        className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm"
+                      />
                       <span className="text-white/70 text-sm">Virtual Online Tour</span>
                     </label>
                   </div>
@@ -553,12 +646,14 @@ export default function RCSothebysListingContent({
                 <div className="pt-2 flex justify-end">
                   <button
                     type="submit"
-                    className="bg-transparent border border-white/30 text-white text-[11px] font-bold uppercase tracking-[0.15em] px-8 py-3 hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-colors duration-200"
+                    disabled={formSubmitting || !formFirstName || !formLastName || !formEmail}
+                    className="bg-transparent border border-white/30 text-white text-[11px] font-bold uppercase tracking-[0.15em] px-8 py-3 hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit
+                    {formSubmitting ? 'Sending...' : 'Submit'}
                   </button>
                 </div>
               </form>
+              )}
             </div>
 
             {/* Share Property */}

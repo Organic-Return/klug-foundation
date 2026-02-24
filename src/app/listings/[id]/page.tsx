@@ -23,6 +23,7 @@ import PropertyMedia from '@/components/PropertyMedia';
 import CustomOneListingContent from '@/components/CustomOneListingContent';
 import RCSothebysListingContent from '@/components/RCSothebysListingContent';
 import StickyRequestInfo from '@/components/StickyRequestInfo';
+import ListingContactForm from '@/components/ListingContactForm';
 
 export const revalidate = 60;
 
@@ -1331,86 +1332,12 @@ export default async function ListingPage({ params }: ListingPageProps) {
               </p>
             </div>
 
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className={`block text-sm mb-2 uppercase tracking-wider ${template === 'custom-one' ? 'text-[var(--modern-gray)]' : 'text-white/80'}`}>
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    className={`w-full px-4 py-3 border focus:outline-none transition-colors ${template === 'custom-one' ? 'bg-[#f8f7f5] border-[var(--modern-black)]/10 text-[var(--modern-black)] placeholder-[var(--modern-gray)] focus:border-[var(--modern-gold)]' : 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white/50'}`}
-                    placeholder="First Name"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className={`block text-sm mb-2 uppercase tracking-wider ${template === 'custom-one' ? 'text-[var(--modern-gray)]' : 'text-white/80'}`}>
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    className={`w-full px-4 py-3 border focus:outline-none transition-colors ${template === 'custom-one' ? 'bg-[#f8f7f5] border-[var(--modern-black)]/10 text-[var(--modern-black)] placeholder-[var(--modern-gray)] focus:border-[var(--modern-gold)]' : 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white/50'}`}
-                    placeholder="Last Name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="email" className={`block text-sm mb-2 uppercase tracking-wider ${template === 'custom-one' ? 'text-[var(--modern-gray)]' : 'text-white/80'}`}>
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    className={`w-full px-4 py-3 border focus:outline-none transition-colors ${template === 'custom-one' ? 'bg-[#f8f7f5] border-[var(--modern-black)]/10 text-[var(--modern-black)] placeholder-[var(--modern-gray)] focus:border-[var(--modern-gold)]' : 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white/50'}`}
-                    placeholder="Email Address"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phone" className={`block text-sm mb-2 uppercase tracking-wider ${template === 'custom-one' ? 'text-[var(--modern-gray)]' : 'text-white/80'}`}>
-                    Phone
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    className={`w-full px-4 py-3 border focus:outline-none transition-colors ${template === 'custom-one' ? 'bg-[#f8f7f5] border-[var(--modern-black)]/10 text-[var(--modern-black)] placeholder-[var(--modern-gray)] focus:border-[var(--modern-gold)]' : 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white/50'}`}
-                    placeholder="Phone Number"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="message" className={`block text-sm mb-2 uppercase tracking-wider ${template === 'custom-one' ? 'text-[var(--modern-gray)]' : 'text-white/80'}`}>
-                  Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={4}
-                  className={`w-full px-4 py-3 border focus:outline-none transition-colors resize-none ${template === 'custom-one' ? 'bg-[#f8f7f5] border-[var(--modern-black)]/10 text-[var(--modern-black)] placeholder-[var(--modern-gray)] focus:border-[var(--modern-gold)]' : 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white/50'}`}
-                  placeholder={`I'm interested in learning more about ${listing.address?.split(',')[0] || listing.address}...`}
-                />
-              </div>
-
-              <div className="text-center pt-4">
-                <button
-                  type="submit"
-                  className={`inline-flex items-center gap-3 px-12 py-4 border transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light ${template === 'custom-one' ? 'bg-[var(--modern-gold)] border-[var(--modern-gold)] text-white hover:bg-[#c99158] hover:border-[#c99158]' : 'bg-transparent border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)]'}`}
-                >
-                  Send Message
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
-                </button>
-              </div>
-            </form>
+            <ListingContactForm
+              propertyAddress={listing.address || `Property ${listing.mls_number}`}
+              propertyMlsId={listing.mls_number || undefined}
+              propertyPrice={listing.list_price || undefined}
+              template={template}
+            />
           </div>
         </section>
       </div>
