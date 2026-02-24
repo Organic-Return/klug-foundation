@@ -1268,54 +1268,18 @@ export async function getListingsByAgentId(
 
   // Query both sources in parallel and combine results
   const [mlsResult, realogyResult] = await Promise.all([
-    // MLS data — only if configured and agent has an MLS ID
-    (isSupabaseConfigured() && agentMlsId)
+    // MLS data — only if configured and agent has an MLS ID or name
+    (isSupabaseConfigured() && (agentMlsId || agentName))
       ? (async () => {
-          // Active listings: only match listing agent roles (not buyer agent)
-          const buildListingFilter = (id: string) =>
-            `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
-          // Sold listings: match all agent roles
-          const buildAllRolesFilter = (id: string) =>
-            `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
-
-          const activeFilter = buildListingFilter(agentMlsId);
-          const soldId = soldAgentMlsId || agentMlsId;
-          const soldFilter = soldId === agentMlsId
-            ? buildAllRolesFilter(agentMlsId)
-            : `${buildAllRolesFilter(agentMlsId)},${buildAllRolesFilter(soldId)}`;
-
-          const [activeRes, soldRes] = await Promise.all([
-            supabase
-              .from('graphql_listings')
-              .select('*')
-              .or(activeFilter)
-              .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent),status.like.Pending*')
-              .or('close_date.is.null,close_date.gte.now()')
-              .order('list_price', { ascending: false })
-              .limit(200),
-            supabase
-              .from('graphql_listings')
-              .select('*')
-              .or(soldFilter)
-              .or('status.eq.Closed,status.eq.Sold,close_date.lt.now()')
-              .order('sold_price', { ascending: false, nullsFirst: false })
-              .limit(200),
-          ]);
-
-          if (activeRes.error) console.error('Error fetching active MLS listings:', activeRes.error);
-          if (soldRes.error) console.error('Error fetching sold MLS listings:', soldRes.error);
-
           const dedup = (listings: any[]) => {
             const seenByListingId = new Set<string>();
             const seenByAddress = new Set<string>();
             return listings.filter((row) => {
-              // Dedup by listing_id (MLS number) first
               if (row.listing_id) {
                 const lid = String(row.listing_id);
                 if (seenByListingId.has(lid)) return false;
                 seenByListingId.add(lid);
               }
-              // Also dedup by normalized address to catch rows without listing_id
               if (row.address) {
                 const addr = String(row.address).toLowerCase().trim();
                 if (seenByAddress.has(addr)) return false;
@@ -1325,10 +1289,74 @@ export async function getListingsByAgentId(
             });
           };
 
-          return {
-            activeListings: dedup(activeRes.data || []).map(transformListing),
-            soldListings: dedup(soldRes.data || []).map(transformListing),
-          };
+          if (agentMlsId) {
+            // Query by MLS ID — matches listing and co-listing agent roles
+            const buildListingFilter = (id: string) =>
+              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
+            const buildAllRolesFilter = (id: string) =>
+              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
+
+            const activeFilter = buildListingFilter(agentMlsId);
+            const soldId = soldAgentMlsId || agentMlsId;
+            const soldFilter = soldId === agentMlsId
+              ? buildAllRolesFilter(agentMlsId)
+              : `${buildAllRolesFilter(agentMlsId)},${buildAllRolesFilter(soldId)}`;
+
+            const [activeRes, soldRes] = await Promise.all([
+              supabase
+                .from('graphql_listings')
+                .select('*')
+                .or(activeFilter)
+                .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent),status.like.Pending*')
+                .or('close_date.is.null,close_date.gte.now()')
+                .order('list_price', { ascending: false })
+                .limit(200),
+              supabase
+                .from('graphql_listings')
+                .select('*')
+                .or(soldFilter)
+                .or('status.eq.Closed,status.eq.Sold,close_date.lt.now()')
+                .order('sold_price', { ascending: false, nullsFirst: false })
+                .limit(200),
+            ]);
+
+            if (activeRes.error) console.error('Error fetching active MLS listings:', activeRes.error);
+            if (soldRes.error) console.error('Error fetching sold MLS listings:', soldRes.error);
+
+            return {
+              activeListings: dedup(activeRes.data || []).map(transformListing),
+              soldListings: dedup(soldRes.data || []).map(transformListing),
+            };
+          } else {
+            // No MLS ID — fall back to name-based query on list_agent_full_name
+            const nameFilter = `list_agent_full_name.eq.${agentName}`;
+
+            const [activeRes, soldRes] = await Promise.all([
+              supabase
+                .from('graphql_listings')
+                .select('*')
+                .or(nameFilter)
+                .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent),status.like.Pending*')
+                .or('close_date.is.null,close_date.gte.now()')
+                .order('list_price', { ascending: false })
+                .limit(200),
+              supabase
+                .from('graphql_listings')
+                .select('*')
+                .or(nameFilter)
+                .or('status.eq.Closed,status.eq.Sold,close_date.lt.now()')
+                .order('sold_price', { ascending: false, nullsFirst: false })
+                .limit(200),
+            ]);
+
+            if (activeRes.error) console.error('Error fetching active MLS listings by name:', activeRes.error);
+            if (soldRes.error) console.error('Error fetching sold MLS listings by name:', soldRes.error);
+
+            return {
+              activeListings: dedup(activeRes.data || []).map(transformListing),
+              soldListings: dedup(soldRes.data || []).map(transformListing),
+            };
+          }
         })()
       : Promise.resolve({ activeListings: [] as MLSProperty[], soldListings: [] as MLSProperty[] }),
 
