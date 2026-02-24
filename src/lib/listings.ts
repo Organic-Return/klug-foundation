@@ -53,6 +53,7 @@ interface GraphQLListing {
   longitude: number | null;
   list_office_name: string | null;
   list_agent_mls_id: string | null;
+  list_agent_full_name: string | null;
   co_list_agent_mls_id: string | null;
   buyer_agent_mls_id: string | null;
   co_buyer_agent_mls_id: string | null;
@@ -122,6 +123,7 @@ export interface MLSProperty {
   association_amenities: string[] | null;
   virtual_tour_url: string | null;
   list_agent_mls_id: string | null;
+  list_agent_full_name: string | null;
   co_list_agent_mls_id: string | null;
   buyer_agent_mls_id: string | null;
   co_buyer_agent_mls_id: string | null;
@@ -309,6 +311,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     association_amenities: row.association_amenities,
     virtual_tour_url: row.virtual_tour_url,
     list_agent_mls_id: row.list_agent_mls_id,
+    list_agent_full_name: row.list_agent_full_name || null,
     co_list_agent_mls_id: row.co_list_agent_mls_id,
     buyer_agent_mls_id: row.buyer_agent_mls_id,
     co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
@@ -1172,6 +1175,7 @@ function transformRealogyListing(row: any): MLSProperty {
     association_amenities: null,
     virtual_tour_url: sir.virtualTourUrl,
     list_agent_mls_id: null,
+    list_agent_full_name: row.primary_agent_name || null,
     co_list_agent_mls_id: null,
     buyer_agent_mls_id: null,
     co_buyer_agent_mls_id: null,

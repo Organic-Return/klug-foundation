@@ -52,7 +52,7 @@ async function getListingAgents(listing: MLSProperty): Promise<ListingAgent[]> {
 
   if (ids.length === 0) return [];
 
-  const agents = await client.fetch<(ListingAgent & { _id: string; mlsAgentId?: string })[]>(
+  let agents = await client.fetch<(ListingAgent & { _id: string; mlsAgentId?: string })[]>(
     `*[_type == "teamMember" && inactive != true && (mlsAgentId in $ids || mlsAgentIdSold in $ids)]{
       _id,
       name,
@@ -67,6 +67,26 @@ async function getListingAgents(listing: MLSProperty): Promise<ListingAgent[]> {
     { ids },
     { next: { revalidate: 60 } }
   );
+
+  // Fallback: if no match by MLS ID, try matching by agent name
+  // This bridges PAC MLS IDs (e.g. 3007) with Realogy MLS numbers (e.g. 122008)
+  if (agents.length === 0 && listing.list_agent_full_name) {
+    agents = await client.fetch<(ListingAgent & { _id: string; mlsAgentId?: string })[]>(
+      `*[_type == "teamMember" && inactive != true && name == $agentName]{
+        _id,
+        name,
+        slug,
+        title,
+        image,
+        email,
+        phone,
+        mobile,
+        mlsAgentId
+      }`,
+      { agentName: listing.list_agent_full_name },
+      { next: { revalidate: 60 } }
+    );
+  }
 
   if (agents.length === 0) return [];
 
