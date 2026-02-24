@@ -17,6 +17,7 @@ interface ListingsContentProps {
   currentSort: SortOption;
   hasLocationFilter?: boolean;
   template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
+  listingsPerRow?: 2 | 3;
 }
 
 function formatPrice(price: number | null): string {
@@ -407,6 +408,7 @@ export default function ListingsContent({
   currentSort,
   hasLocationFilter,
   template = 'classic',
+  listingsPerRow,
 }: ListingsContentProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
@@ -598,7 +600,7 @@ export default function ListingsContent({
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${listingsPerRow !== 2 ? 'xl:grid-cols-3' : ''}`}>
                     {displayListings.map((listing) => (
                       <PropertyCard key={listing.id} listing={listing} template={template} />
                     ))}

@@ -279,6 +279,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
         showOurTeamFilter={teamAgentIds.length > 0 || teamOfficeNames.length > 0}
         hasLocationFilter={!!(selectedCities.length > 0 || neighborhood)}
         template={settings?.template || 'classic'}
+        listingsPerRow={settings?.listingsPerRow}
       />
     </>
   );

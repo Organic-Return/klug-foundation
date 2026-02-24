@@ -34,6 +34,7 @@ interface ListingsSearchClientProps {
   showOurTeamFilter: boolean;
   hasLocationFilter: boolean;
   template: string;
+  listingsPerRow?: 2 | 3;
 }
 
 export default function ListingsSearchClient({
@@ -62,6 +63,7 @@ export default function ListingsSearchClient({
   showOurTeamFilter,
   hasLocationFilter,
   template,
+  listingsPerRow,
 }: ListingsSearchClientProps) {
   const [listings, setListings] = useState(initialListings);
   const [total, setTotal] = useState(initialTotal);
@@ -151,6 +153,7 @@ export default function ListingsSearchClient({
           currentSort={currentSort}
           hasLocationFilter={locationFilter}
           template={template as any}
+          listingsPerRow={listingsPerRow}
         />
       </div>
     </div>
