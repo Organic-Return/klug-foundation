@@ -357,12 +357,28 @@ export async function getListings(
     return { listings: [], total: 0, page, pageSize, totalPages: 0 };
   }
 
+  const cacheKey = `listings:${page}:${pageSize}:${JSON.stringify(filters)}`;
+  return getCached(cacheKey, 60_000, async () => {
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
+  // Select only columns needed for listing cards — skip heavy fields like
+  // description, association_amenities, open_house_*, fireplace_*, etc.
+  const cardColumns = [
+    'id', 'listing_id', 'status', 'list_price', 'sold_price',
+    'address', 'street_number', 'street_name', 'city', 'state', 'zip_code',
+    'bedrooms', 'bathrooms_total', 'bathrooms_full', 'bathrooms_half', 'bathrooms_three_quarter',
+    'square_feet', 'living_area', 'lot_size_acres', 'year_built',
+    'property_type', 'property_sub_type', 'listing_date', 'close_date',
+    'preferred_photo', 'media', 'subdivision_name', 'mls_area_minor',
+    'latitude', 'longitude',
+    'list_agent_mls_id', 'co_list_agent_mls_id', 'buyer_agent_mls_id', 'co_buyer_agent_mls_id',
+    'list_office_name', 'created_at', 'updated_at',
+  ].join(',');
+
   let query = supabase
     .from('graphql_listings')
-    .select('*', { count: 'estimated' });
+    .select(cardColumns, { count: 'estimated' });
 
   // Apply filters
   if (filters.status) {
@@ -521,6 +537,7 @@ export async function getListings(
     pageSize,
     totalPages: Math.ceil(total / pageSize),
   };
+  });
 }
 
 // Look up SIR media for a listing by its MLS number

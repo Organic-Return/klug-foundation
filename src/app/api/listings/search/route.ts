@@ -85,5 +85,10 @@ export async function GET(request: NextRequest) {
     sort,
   });
 
-  return NextResponse.json(result);
+  return NextResponse.json(result, {
+    headers: {
+      // Cache on Vercel CDN for 30s, serve stale while revalidating for 60s
+      'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=60',
+    },
+  });
 }
