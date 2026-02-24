@@ -250,10 +250,19 @@ function transformListing(row: GraphQLListing): MLSProperty {
     if (match) mlsNumber = match[1];
   }
 
+  // Auto-close: if close_date is in the past and status isn't already Closed, mark as Closed
+  let status = row.status;
+  if (row.close_date && status && !status.toLowerCase().startsWith('closed')) {
+    const closeDate = new Date(row.close_date);
+    if (closeDate.getTime() < Date.now()) {
+      status = 'Closed';
+    }
+  }
+
   return {
     id: row.id,
     mls_number: mlsNumber,
-    status: row.status,
+    status,
     list_price: row.list_price || row.sold_price,
     sold_price: row.sold_price,
     address: row.address || [row.street_number, row.street_name].filter(Boolean).join(' ') || null,
