@@ -52,7 +52,13 @@ export async function GET(request: NextRequest) {
 
   const excludedPropertyTypes = [...getExcludedPropertyTypes(mlsConfig), 'Commercial Sale'];
   const excludedPropertySubTypes = getExcludedPropertySubTypes(mlsConfig);
-  const allowedCities = getAllowedCities(mlsConfig);
+  const configAllowedCities = getAllowedCities(mlsConfig);
+
+  // Default cities prevent full-table scans that timeout on large MLS databases
+  const defaultCities = process.env.DEFAULT_SEARCH_CITIES
+    ? process.env.DEFAULT_SEARCH_CITIES.split(',').map(c => c.trim()).filter(Boolean)
+    : [];
+  const allowedCities = configAllowedCities.length > 0 ? configAllowedCities : defaultCities;
 
   const teamAgentIds = ourTeam && teamMembers
     ? [...new Set(teamMembers.flatMap(m => [m.mlsAgentId, m.mlsAgentIdSold]).filter(Boolean) as string[])]

@@ -172,8 +172,15 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   // Compute filters from MLS configuration (instant, no async)
   const excludedPropertyTypes = [...getExcludedPropertyTypes(mlsConfig), 'Commercial Sale'];
   const excludedPropertySubTypes = getExcludedPropertySubTypes(mlsConfig);
-  const allowedCities = getAllowedCities(mlsConfig);
+  const configAllowedCities = getAllowedCities(mlsConfig);
   const excludedStatuses = getExcludedStatuses(mlsConfig);
+
+  // Default cities prevent full-table scans that timeout on large MLS databases.
+  // Set DEFAULT_SEARCH_CITIES env var (comma-separated) to limit the default query scope.
+  const defaultCities = process.env.DEFAULT_SEARCH_CITIES
+    ? process.env.DEFAULT_SEARCH_CITIES.split(',').map(c => c.trim()).filter(Boolean)
+    : [];
+  const allowedCities = configAllowedCities.length > 0 ? configAllowedCities : defaultCities;
 
   const teamAgentIds = teamMembers
     ? [...new Set(teamMembers.flatMap((m) => [m.mlsAgentId, m.mlsAgentIdSold]).filter(Boolean) as string[])]
