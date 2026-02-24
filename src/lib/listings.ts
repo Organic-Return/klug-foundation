@@ -140,9 +140,9 @@ export function getListingHref(listing: { id: string; mls_number?: string }): st
   return `/listings/${listing.mls_number || listing.id}`;
 }
 
-// Resolve listing by slug — tries MLS number first, then database ID
+// Resolve listing by slug — tries MLS number first, then database ID, then Realogy listing
 export async function getListingBySlug(slug: string): Promise<MLSProperty | null> {
-  return await getListingByMlsNumber(slug) || await getListingById(slug);
+  return await getListingByMlsNumber(slug) || await getListingById(slug) || await getRealogyListingBySlug(slug);
 }
 
 // Transform graphql_listings row to MLSProperty format
@@ -589,12 +589,16 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
   if (!isSupabaseConfigured()) return null;
 
   // Fetch MLS listing and SIR media in parallel (we already have the MLS number)
+  // Use limit(1) instead of single() to handle duplicate listing_id rows gracefully
   const [mlsResult, sirMedia] = await Promise.all([
     supabase
       .from('graphql_listings')
       .select('*')
       .eq('listing_id', mlsNumber)
-      .single(),
+      .not('status', 'is', null)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
     getSIRMediaForListing(mlsNumber),
   ]);
 
@@ -607,6 +611,35 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
   const listing = transformListing(mlsResult.data);
 
   return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
+}
+
+// Look up a listing in the Realogy/SIR database by rfg_listing_id or entity_id
+async function getRealogyListingBySlug(slug: string): Promise<MLSProperty | null> {
+  if (!isRealogyConfigured()) return null;
+
+  const realogySupabase = getRealogySupabase();
+  if (!realogySupabase) return null;
+
+  const { data, error } = await realogySupabase
+    .from('realogy_listings')
+    .select(`
+      id, entity_id, rfg_listing_id, is_active, price_amount, street_address,
+      city, state_province_code, postal_code, district, no_of_bedrooms, total_bath,
+      full_bath, half_bath, three_quarter_bath, square_footage, building_area,
+      lot_size, year_built, property_type, listed_on, default_photo_url, media,
+      primary_agent_name, latitude, longitude, created_at, synced_at, description
+    `)
+    .or(`rfg_listing_id.eq.${slug},entity_id.eq.${slug}`)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching Realogy listing:', error);
+    return null;
+  }
+
+  if (!data) return null;
+  return transformRealogyListing(data);
 }
 
 export async function getOpenHouseListings(): Promise<MLSProperty[]> {
@@ -1152,7 +1185,7 @@ function transformRealogyListing(row: any): MLSProperty {
     listing_date: row.listed_on,
     sold_date: null,
     days_on_market: daysOnMarket,
-    description: null,
+    description: row.description || null,
     features: {},
     agent_name: row.primary_agent_name,
     agent_email: null,
