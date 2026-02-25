@@ -105,15 +105,28 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
           </>
         )}
 
-        <div className="absolute top-3 left-3 flex gap-2">
+        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {isSold && (
             <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-[#1a1a1a] text-white">
               Sold
             </span>
           )}
-          {!isSold && listing.status && listing.status !== 'Active' && (
-            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-white/95 text-[#1a1a1a]">
-              {listing.status}
+          {!isSold && listing.status?.toLowerCase().startsWith('pending') && (
+            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-amber-500 text-white">
+              Pending
+            </span>
+          )}
+          {!isSold && listing.listing_date && (() => {
+            const daysDiff = Math.floor((Date.now() - new Date(listing.listing_date).getTime()) / (1000 * 60 * 60 * 24));
+            return daysDiff <= 14;
+          })() && (
+            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-gold,#c19b5f)] text-white">
+              New Listing
+            </span>
+          )}
+          {!isSold && listing.open_house_date && new Date(listing.open_house_date + 'T23:59:59') >= new Date() && (
+            <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-navy,#002349)] text-white">
+              Open House {new Date(listing.open_house_date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </span>
           )}
         </div>
