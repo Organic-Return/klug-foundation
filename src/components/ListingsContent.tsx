@@ -485,19 +485,20 @@ export default function ListingsContent({
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* View Toggle */}
-      <div className="px-4 py-3 bg-white border-b flex items-center justify-between lg:px-6 flex-shrink-0">
+      {/* View Toggle & Sort Bar */}
+      <div className="px-4 py-2.5 bg-white border-b flex items-center justify-between lg:px-6 flex-shrink-0">
         {/* Property count, sort, and area filter indicator */}
-        <div className="flex items-center gap-4">
-          <p className="text-gray-600">
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-gray-600">
             {areaFilteredListings !== null
-              ? `${areaFilteredListings.length.toLocaleString()} of ${total.toLocaleString()} properties`
-              : `${total.toLocaleString()} properties found`}
+              ? <><span className="font-medium text-gray-900">{areaFilteredListings.length.toLocaleString()}</span> of {total.toLocaleString()} properties</>
+              : <><span className="font-medium text-gray-900">{total.toLocaleString()}</span> properties found</>}
           </p>
+          <span className="w-px h-5 bg-gray-200" />
           <select
             value={currentSort}
             onChange={(e) => handleSortChange(e.target.value as SortOption)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="h-[34px] px-3 text-sm border border-gray-200 bg-white text-gray-700 focus:border-[var(--rc-navy,#002349)] focus:ring-1 focus:ring-[var(--rc-navy,#002349)] focus:outline-none cursor-pointer"
           >
             <option value="newest">Newest</option>
             <option value="price_low">Price: Low to High</option>
@@ -508,9 +509,9 @@ export default function ListingsContent({
           {areaFilteredListings !== null && (
             <button
               onClick={handleDrawClear}
-              className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+              className="flex items-center gap-1 text-sm text-[var(--rc-navy,#002349)] hover:underline font-medium"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
               Clear area
@@ -518,38 +519,34 @@ export default function ListingsContent({
           )}
         </div>
 
-        <div className="inline-flex rounded-md shadow-sm" role="group">
+        <div className="flex" role="group">
           <button
             type="button"
             onClick={() => setViewMode('list')}
-            className={`px-4 py-2 text-sm font-medium rounded-l-md border ${
+            className={`h-[34px] px-4 text-sm font-medium border flex items-center gap-2 transition-colors ${
               viewMode === 'list'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-[var(--color-cream)]'
+                ? 'bg-[var(--rc-navy,#002349)] text-white border-[var(--rc-navy,#002349)]'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
             }`}
           >
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-              </svg>
-              List View
-            </span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+            List
           </button>
           <button
             type="button"
             onClick={() => setViewMode('map')}
-            className={`px-4 py-2 text-sm font-medium rounded-r-md border-t border-r border-b ${
+            className={`h-[34px] px-4 text-sm font-medium border-t border-r border-b flex items-center gap-2 transition-colors ${
               viewMode === 'map'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-[var(--color-cream)]'
+                ? 'bg-[var(--rc-navy,#002349)] text-white border-[var(--rc-navy,#002349)]'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
             }`}
           >
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-              </svg>
-              Map View
-            </span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            Map
           </button>
         </div>
       </div>
