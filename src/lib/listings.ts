@@ -127,6 +127,7 @@ export interface MLSProperty {
   co_list_agent_mls_id: string | null;
   buyer_agent_mls_id: string | null;
   co_buyer_agent_mls_id: string | null;
+  list_office_name: string | null;
   open_house_date: string | null;
   open_house_start_time: string | null;
   open_house_end_time: string | null;
@@ -314,6 +315,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     co_list_agent_mls_id: row.co_list_agent_mls_id,
     buyer_agent_mls_id: row.buyer_agent_mls_id,
     co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
+    list_office_name: row.list_office_name || null,
     open_house_date: row.open_house_date,
     open_house_start_time: row.open_house_start_time,
     open_house_end_time: row.open_house_end_time,
@@ -570,10 +572,13 @@ async function getSIRMediaForListing(mlsNumber: string): Promise<SIRMediaAssets 
   const realogySupabase = getRealogySupabase();
   if (!realogySupabase) return null;
 
+  // Order by id descending so that when duplicate MLS numbers exist across
+  // multiple SIR rows, we consistently pick the most recently inserted one.
   const { data, error } = await realogySupabase
     .from('realogy_listings')
     .select('default_photo_url, media')
     .contains('mls_numbers', JSON.stringify([mlsNumber]))
+    .order('id', { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -670,64 +675,36 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Open houses are in a dedicated "open_houses" table with ListingId linking
-  // to the listing. Fetch open house records, then join with graphql_listings
-  // for full listing data (photos, beds, baths, etc.).
-
-  // Step 1: Get upcoming open house records
-  const { data: ohData, error: ohError } = await supabase
-    .from('open_houses')
-    .select('ListingId, OpenHouseDate, OpenHouseStartTime, OpenHouseEndTime, OpenHouseRemarks')
-    .gte('OpenHouseDate', today)
-    .lte('OpenHouseDate', '2099-12-31')
-    .order('OpenHouseDate', { ascending: true })
-    .limit(200);
-
-  if (ohError || !ohData || ohData.length === 0) {
-    if (ohError) console.error('Error fetching open house records:', ohError);
-    return [];
-  }
-
-  // Step 2: Get unique listing IDs and fetch full listing data
-  const listingIds = [...new Set(ohData.map((oh) => oh.ListingId).filter(Boolean))];
-  if (listingIds.length === 0) return [];
-
-  const { data: listings, error: listError } = await supabase
+  // The graphql_listings view includes open house columns from the base rc-listings table
+  // (open_house_date, open_house_start_time, open_house_end_time, open_house_remarks).
+  // Query directly for listings with upcoming open house dates.
+  const { data, error } = await supabase
     .from('graphql_listings')
     .select('*')
-    .in('listing_id', listingIds)
-    .not('status', 'is', null);
+    .not('open_house_date', 'is', null)
+    .gte('open_house_date', today)
+    .not('status', 'is', null)
+    .order('open_house_date', { ascending: true })
+    .limit(200);
 
-  if (listError || !listings) {
-    if (listError) console.error('Error fetching open house listing data:', listError);
+  if (error) {
+    console.error('Error fetching open house listings:', error);
     return [];
   }
 
-  // Step 3: Merge open house data onto listings (prefer rows with address data)
-  const listingMap = new Map<string, any>();
-  for (const l of listings) {
-    const existing = listingMap.get(l.listing_id);
-    if (!existing || (l.address && !existing.address)) {
-      listingMap.set(l.listing_id, l);
+  if (!data || data.length === 0) return [];
+
+  // Deduplicate by listing_id (prefer rows with address + most data)
+  const seen = new Map<string, any>();
+  for (const row of data) {
+    const key = row.listing_id;
+    const existing = seen.get(key);
+    if (!existing || (row.address && !existing.address)) {
+      seen.set(key, row);
     }
   }
-  const results: MLSProperty[] = [];
 
-  for (const oh of ohData) {
-    const listing = listingMap.get(oh.ListingId);
-    if (!listing) continue;
-
-    const merged = transformListing({
-      ...listing,
-      open_house_date: oh.OpenHouseDate,
-      open_house_start_time: oh.OpenHouseStartTime,
-      open_house_end_time: oh.OpenHouseEndTime,
-      open_house_remarks: oh.OpenHouseRemarks,
-    });
-    results.push(merged);
-  }
-
-  return results;
+  return Array.from(seen.values()).map(transformListing);
 }
 
 export function getDistinctCities(): Promise<string[]> {
@@ -1298,6 +1275,7 @@ function transformRealogyListing(row: any): MLSProperty {
     co_list_agent_mls_id: null,
     buyer_agent_mls_id: null,
     co_buyer_agent_mls_id: null,
+    list_office_name: null,
     open_house_date: null,
     open_house_start_time: null,
     open_house_end_time: null,

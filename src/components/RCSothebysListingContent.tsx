@@ -304,6 +304,27 @@ export default function RCSothebysListingContent({
       {/* Spacer — exclusive only */}
       {agent && <div className="h-[50px] bg-[var(--rc-cream)]" />}
 
+      {/* Breadcrumbs — non-exclusive only */}
+      {!agent && (
+        <div className="bg-[var(--rc-navy)]">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-8 py-3">
+            <nav aria-label="Breadcrumb">
+              <ol className="flex items-center gap-2 text-xs tracking-[0.1em] uppercase">
+                <li>
+                  <Link href="/" className="text-white/50 hover:text-white/80 transition-colors">Home</Link>
+                </li>
+                <li className="text-white/30">/</li>
+                <li>
+                  <Link href="/listings" className="text-white/50 hover:text-white/80 transition-colors">Listings</Link>
+                </li>
+                <li className="text-white/30">/</li>
+                <li className="text-white/80">{listing.address?.split(',')[0] || listing.mls_number}</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      )}
+
       {/* Two-Column Content */}
       <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-10' : ''}`}>
         {/* Property Info Card — full width, non-exclusive only */}
@@ -1103,9 +1124,30 @@ export default function RCSothebysListingContent({
         </section>
       )}
 
-      {/* MLS Disclaimer */}
+      {/* MLS Disclaimer + PACMLS Attribution */}
       <div className="bg-[var(--rc-cream)] py-8">
         <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+          {/* PACMLS Source */}
+          <div className="flex items-center gap-3 mb-3">
+            <Image
+              src="/pacmls-logo.svg"
+              alt="PACMLS - Pacific Regional Multiple Listing Service"
+              width={100}
+              height={43}
+              className="flex-shrink-0"
+            />
+            <span className="text-[var(--rc-brown)] text-xs font-medium uppercase tracking-[0.1em]">
+              Source: PACMLS
+            </span>
+          </div>
+
+          {/* Listing Courtesy — non-exclusive only */}
+          {!agent && listing.list_office_name && (
+            <p className="text-[var(--rc-brown)] text-xs mb-3">
+              Listing Courtesy of {listing.list_office_name}
+            </p>
+          )}
+
           <p className="text-[var(--rc-brown)]/40 text-xs leading-relaxed">
             MLS# {listing.mls_number} — Listing information is deemed reliable but not guaranteed. All measurements and square footage are approximate.
           </p>
@@ -1310,28 +1352,28 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
                 src={photos[galleryIndex]}
                 alt={`${listing.address || 'Property'} - Photo ${galleryIndex + 1}`}
                 fill
-                className="object-contain"
+                className="object-cover"
                 sizes="1400px"
               />
               {photos.length > 1 && (
                 <>
                   <button
                     onClick={() => setGalleryIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1))}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-[#1a1a1a] flex items-center justify-center transition-colors z-10"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hover:scale-105 transition-transform duration-200"
                     aria-label="Previous photo"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-                    </svg>
+                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
+                      <PrevArrow />
+                    </div>
                   </button>
                   <button
                     onClick={() => setGalleryIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1))}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 hover:bg-white text-[#1a1a1a] flex items-center justify-center transition-colors z-10"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hover:scale-105 transition-transform duration-200"
                     aria-label="Next photo"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
+                      <NextArrow />
+                    </div>
                   </button>
                   <div className="absolute top-4 right-4 z-10 bg-black/50 text-white text-xs px-3 py-1.5 tracking-wider">
                     {galleryIndex + 1} / {photos.length}
