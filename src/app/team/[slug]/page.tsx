@@ -15,6 +15,17 @@ function urlFor(source: any) {
   return builder.image(source);
 }
 
+/** Strip inline styles from CMS bio HTML so site styles apply cleanly */
+function sanitizeBioHtml(html: string): string {
+  return html
+    .replace(/\s*style="[^"]*"/gi, '')
+    .replace(/\s*style='[^']*'/gi, '')
+    .replace(/<font[^>]*>/gi, '')
+    .replace(/<\/font>/gi, '')
+    .replace(/\s*bgcolor="[^"]*"/gi, '')
+    .replace(/\s*color="[^"]*"/gi, '');
+}
+
 interface TeamMember {
   _id: string;
   name: string;
@@ -255,7 +266,7 @@ export default async function TeamMemberPage({ params }: Props) {
                   </h2>
                   <div
                     className="prose prose-lg max-w-none font-light leading-relaxed [&_*]:text-white/80 [&_h1]:text-white [&_h2]:text-white [&_h3]:text-white [&_h4]:text-white [&_strong]:text-white [&_a]:!text-[var(--rc-gold)] [&_a]:underline hover:[&_a]:opacity-80"
-                    dangerouslySetInnerHTML={{ __html: member.bio }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeBioHtml(member.bio) }}
                   />
                 </div>
               )}
@@ -365,7 +376,7 @@ export default async function TeamMemberPage({ params }: Props) {
             </h2>
             <div
               className="prose prose-lg max-w-none font-light leading-relaxed dark:prose-invert text-[#4a4a4a] dark:text-gray-300 [&_a]:text-[var(--color-gold)] [&_a]:underline hover:[&_a]:opacity-80"
-              dangerouslySetInnerHTML={{ __html: member.bio }}
+              dangerouslySetInnerHTML={{ __html: sanitizeBioHtml(member.bio) }}
             />
           </div>
         </section>
