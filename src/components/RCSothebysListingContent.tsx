@@ -1062,68 +1062,8 @@ export default function RCSothebysListingContent({
         </div>
       </section>
 
-      {/* Virtual Tour */}
-      {listing.virtual_tour_url && (
-        <section className="bg-[var(--rc-cream)] py-16 md:py-24">
-          <div className="text-center mb-10 md:mb-14">
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
-            >
-              Virtual Tour
-            </h2>
-          </div>
-          <div className="max-w-[1400px] mx-auto px-6 md:px-8">
-            <div className="aspect-video w-full">
-              <iframe
-                src={listing.virtual_tour_url}
-                className="w-full h-full border-0"
-                allowFullScreen
-                allow="xr-spatial-tracking"
-                title="Virtual Tour"
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Property Video */}
-      {listing.video_urls && listing.video_urls.length > 0 && (
-        <section className="bg-[var(--rc-navy)] py-16 md:py-24">
-          <div className="text-center mb-10 md:mb-14">
-            <h2
-              className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
-            >
-              Property Video{listing.video_urls.length > 1 ? 's' : ''}
-            </h2>
-          </div>
-          <div className="max-w-[1400px] mx-auto px-6 md:px-8 space-y-8">
-            {listing.video_urls.map((url, index) => (
-              <div key={index} className="aspect-video w-full">
-                {url.includes('brightcove') ? (
-                  <iframe
-                    src={url}
-                    className="w-full h-full border-0"
-                    allowFullScreen
-                    allow="encrypted-media"
-                    title={`Property Video ${index + 1}`}
-                  />
-                ) : (
-                  <video
-                    src={url}
-                    controls
-                    className="w-full h-full bg-black"
-                    preload="metadata"
-                  >
-                    Your browser does not support the video tag.
-                  </video>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Video & Virtual Tour — tabbed when both exist */}
+      <MediaSection listing={listing} />
 
       {/* Map Section */}
       {listing.latitude && listing.longitude && (
@@ -1266,5 +1206,167 @@ export default function RCSothebysListingContent({
         </div>
       )}
     </div>
+  );
+}
+
+// Tabbed media section for Video and Virtual Tour
+function MediaSection({ listing }: { listing: MLSProperty }) {
+  const hasVirtualTour = !!listing.virtual_tour_url;
+  const hasVideo = listing.video_urls && listing.video_urls.length > 0;
+  const hasBoth = hasVirtualTour && hasVideo;
+
+  const [activeTab, setActiveTab] = useState<'video' | 'tour'>(hasVideo ? 'video' : 'tour');
+
+  if (!hasVirtualTour && !hasVideo) return null;
+
+  return (
+    <>
+      {/* When both exist, show as one tabbed section */}
+      {hasBoth ? (
+        <section className="bg-[var(--rc-navy)] py-16 md:py-24">
+          <div className="text-center mb-10 md:mb-14">
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em] mb-8"
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
+            >
+              Media
+            </h2>
+            {/* Tabs */}
+            <div className="flex items-center justify-center gap-1">
+              <button
+                onClick={() => setActiveTab('video')}
+                className={`px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
+                  activeTab === 'video'
+                    ? 'bg-[var(--rc-gold)] text-white'
+                    : 'bg-transparent border border-white/30 text-white/70 hover:text-white hover:border-white/60'
+                }`}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Video
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('tour')}
+                className={`px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] transition-colors duration-200 ${
+                  activeTab === 'tour'
+                    ? 'bg-[var(--rc-gold)] text-white'
+                    : 'bg-transparent border border-white/30 text-white/70 hover:text-white hover:border-white/60'
+                }`}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Virtual Tour
+                </span>
+              </button>
+            </div>
+          </div>
+          <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+            {activeTab === 'video' && listing.video_urls && (
+              <div className="space-y-8">
+                {listing.video_urls.map((url, index) => (
+                  <div key={index} className="aspect-video w-full">
+                    {url.includes('brightcove') ? (
+                      <iframe
+                        src={url}
+                        className="w-full h-full border-0"
+                        allowFullScreen
+                        allow="encrypted-media"
+                        title={`Property Video ${index + 1}`}
+                      />
+                    ) : (
+                      <video
+                        src={url}
+                        controls
+                        className="w-full h-full bg-black"
+                        preload="metadata"
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            {activeTab === 'tour' && listing.virtual_tour_url && (
+              <div className="aspect-video w-full">
+                <iframe
+                  src={listing.virtual_tour_url}
+                  className="w-full h-full border-0"
+                  allowFullScreen
+                  allow="xr-spatial-tracking"
+                  title="Virtual Tour"
+                />
+              </div>
+            )}
+          </div>
+        </section>
+      ) : hasVideo ? (
+        /* Video only */
+        <section className="bg-[var(--rc-navy)] py-16 md:py-24">
+          <div className="text-center mb-10 md:mb-14">
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]"
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
+            >
+              Property Video{listing.video_urls!.length > 1 ? 's' : ''}
+            </h2>
+          </div>
+          <div className="max-w-[1400px] mx-auto px-6 md:px-8 space-y-8">
+            {listing.video_urls!.map((url, index) => (
+              <div key={index} className="aspect-video w-full">
+                {url.includes('brightcove') ? (
+                  <iframe
+                    src={url}
+                    className="w-full h-full border-0"
+                    allowFullScreen
+                    allow="encrypted-media"
+                    title={`Property Video ${index + 1}`}
+                  />
+                ) : (
+                  <video
+                    src={url}
+                    controls
+                    className="w-full h-full bg-black"
+                    preload="metadata"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : (
+        /* Virtual Tour only */
+        <section className="bg-[var(--rc-cream)] py-16 md:py-24">
+          <div className="text-center mb-10 md:mb-14">
+            <h2
+              className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]"
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
+            >
+              Virtual Tour
+            </h2>
+          </div>
+          <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+            <div className="aspect-video w-full">
+              <iframe
+                src={listing.virtual_tour_url!}
+                className="w-full h-full border-0"
+                allowFullScreen
+                allow="xr-spatial-tracking"
+                title="Virtual Tour"
+              />
+            </div>
+          </div>
+        </section>
+      )}
+    </>
   );
 }

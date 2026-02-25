@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getListings, getMlsNumbersWithSIRVideos, type SortOption } from '@/lib/listings';
+import { getListings, getMlsNumbersWithSIRMedia, type SortOption } from '@/lib/listings';
 import {
   getMLSConfiguration,
   getExcludedPropertyTypes,
@@ -82,17 +82,18 @@ export async function GET(request: NextRequest) {
     sort,
   });
 
-  // Check which team listings have SIR videos
+  // Check which team listings have SIR videos and Matterport tours
   const teamListingMlsNumbers = result.listings
     .filter(l => l.mls_number && l.list_agent_mls_id && allTeamAgentIds.includes(l.list_agent_mls_id))
     .map(l => l.mls_number);
-  const mlsWithVideos = teamListingMlsNumbers.length > 0
-    ? await getMlsNumbersWithSIRVideos(teamListingMlsNumbers)
-    : new Set<string>();
+  const sirMedia = teamListingMlsNumbers.length > 0
+    ? await getMlsNumbersWithSIRMedia(teamListingMlsNumbers)
+    : { videos: new Set<string>(), matterports: new Set<string>() };
 
   return NextResponse.json({
     ...result,
-    mlsWithVideos: Array.from(mlsWithVideos),
+    mlsWithVideos: Array.from(sirMedia.videos),
+    mlsWithMatterport: Array.from(sirMedia.matterports),
     teamAgentMlsIds: allTeamAgentIds,
   }, {
     headers: {

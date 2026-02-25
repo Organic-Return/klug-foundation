@@ -3,7 +3,7 @@ import {
   getListings,
   getListingHref,
   getDistinctCities,
-  getMlsNumbersWithSIRVideos,
+  getMlsNumbersWithSIRMedia,
   getDistinctPropertyTypes,
   getDistinctPropertySubTypes,
   getDistinctStatuses,
@@ -231,13 +231,13 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
 
   const { listings, total, totalPages } = listingsResult;
 
-  // Check which team listings have SIR videos
+  // Check which team listings have SIR videos and Matterport tours
   const teamListingMlsNumbers = listings
     .filter(l => l.mls_number && l.list_agent_mls_id && teamAgentIds.includes(l.list_agent_mls_id))
     .map(l => l.mls_number);
-  const mlsWithVideos = teamListingMlsNumbers.length > 0
-    ? await getMlsNumbersWithSIRVideos(teamListingMlsNumbers)
-    : new Set<string>();
+  const sirMedia = teamListingMlsNumbers.length > 0
+    ? await getMlsNumbersWithSIRMedia(teamListingMlsNumbers)
+    : { videos: new Set<string>(), matterports: new Set<string>() };
 
   // Generate structured data
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
@@ -291,7 +291,8 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
         template={settings?.template || 'classic'}
         listingsPerRow={settings?.listingsPerRow}
         googleMapsApiKey={googleMapsApiKey}
-        mlsWithVideos={Array.from(mlsWithVideos)}
+        mlsWithVideos={Array.from(sirMedia.videos)}
+        mlsWithMatterport={Array.from(sirMedia.matterports)}
         teamAgentMlsIds={teamAgentIds}
       />
     </>

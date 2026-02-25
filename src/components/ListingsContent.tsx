@@ -22,6 +22,7 @@ interface ListingsContentProps {
   onPageChange?: (page: number) => void;
   googleMapsApiKey?: string;
   mlsWithVideos?: string[];
+  mlsWithMatterport?: string[];
   teamAgentMlsIds?: string[];
 }
 
@@ -74,7 +75,7 @@ function getStreetAddress(fullAddress: string | null, city: string | null, state
 }
 
 // Property card - style varies by template
-function PropertyCard({ listing, template = 'classic', hasVideo = false }: { listing: MLSProperty; template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom'; hasVideo?: boolean }) {
+function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatterport = false }: { listing: MLSProperty; template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom'; hasVideo?: boolean; hasMatterport?: boolean }) {
   const isModernStyle = template === 'modern' || template === 'custom-one';
   const isRCSothebys = template === 'rcsothebys-custom';
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
@@ -196,20 +197,30 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false }: { lis
             )}
           </div>
 
-          {/* Video flag - upper right */}
-          {hasVideo && (
+          {/* Video / Virtual Tour flags - upper right */}
+          {(hasVideo || hasMatterport) && (
             <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
-              <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-navy,#002349)] text-white flex items-center gap-1.5">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-                Video
-              </span>
+              {hasVideo && (
+                <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-navy,#002349)] text-white flex items-center gap-1.5">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  Video
+                </span>
+              )}
+              {hasMatterport && (
+                <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-gold,#c19b5f)] text-white flex items-center gap-1.5">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Virtual Tour
+                </span>
+              )}
             </div>
           )}
 
           {/* Save button */}
-          <div className={`absolute ${hasVideo ? 'top-12' : 'top-3'} right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
+          <div className={`absolute ${hasVideo || hasMatterport ? (hasVideo && hasMatterport ? 'top-[4.5rem]' : 'top-12') : 'top-3'} right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
             <SavePropertyButton listingId={listing.id} listingType="mls" />
           </div>
         </div>
@@ -427,6 +438,7 @@ export default function ListingsContent({
   onPageChange,
   googleMapsApiKey,
   mlsWithVideos = [],
+  mlsWithMatterport = [],
   teamAgentMlsIds = [],
 }: ListingsContentProps) {
   const router = useRouter();
@@ -579,7 +591,7 @@ export default function ListingsContent({
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
                     ))}
                   </div>
 
@@ -622,7 +634,7 @@ export default function ListingsContent({
                 <>
                   <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${listingsPerRow !== 2 ? 'xl:grid-cols-3' : ''}`}>
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
                     ))}
                   </div>
 

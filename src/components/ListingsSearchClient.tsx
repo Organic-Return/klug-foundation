@@ -37,6 +37,7 @@ interface ListingsSearchClientProps {
   listingsPerRow?: 2 | 3;
   googleMapsApiKey?: string;
   mlsWithVideos?: string[];
+  mlsWithMatterport?: string[];
   teamAgentMlsIds?: string[];
 }
 
@@ -69,6 +70,7 @@ export default function ListingsSearchClient({
   listingsPerRow,
   googleMapsApiKey,
   mlsWithVideos: initialMlsWithVideos,
+  mlsWithMatterport: initialMlsWithMatterport,
   teamAgentMlsIds: initialTeamAgentMlsIds,
 }: ListingsSearchClientProps) {
   const [listings, setListings] = useState(initialListings);
@@ -80,6 +82,7 @@ export default function ListingsSearchClient({
   const [loading, setLoading] = useState(false);
   const [locationFilter, setLocationFilter] = useState(hasLocationFilter);
   const [mlsWithVideos, setMlsWithVideos] = useState<string[]>(initialMlsWithVideos || []);
+  const [mlsWithMatterport, setMlsWithMatterport] = useState<string[]>(initialMlsWithMatterport || []);
   const [teamAgentMlsIds, setTeamAgentMlsIds] = useState<string[]>(initialTeamAgentMlsIds || []);
 
   const fetchListings = useCallback(async (params: URLSearchParams, { keepPage }: { keepPage?: boolean } = {}) => {
@@ -106,6 +109,7 @@ export default function ListingsSearchClient({
       setSearchParams(params.toString());
       setLocationFilter(!!(params.get('city') || params.get('neighborhood')));
       if (data.mlsWithVideos) setMlsWithVideos(data.mlsWithVideos);
+      if (data.mlsWithMatterport) setMlsWithMatterport(data.mlsWithMatterport);
       if (data.teamAgentMlsIds) setTeamAgentMlsIds(data.teamAgentMlsIds);
     } catch (err) {
       console.error('Error fetching listings:', err);
@@ -194,6 +198,7 @@ export default function ListingsSearchClient({
           onPageChange={handlePageChange}
           googleMapsApiKey={googleMapsApiKey}
           mlsWithVideos={mlsWithVideos}
+          mlsWithMatterport={mlsWithMatterport}
           teamAgentMlsIds={teamAgentMlsIds}
         />
       </div>
