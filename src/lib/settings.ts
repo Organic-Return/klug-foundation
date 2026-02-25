@@ -96,7 +96,7 @@ export async function getSettings(): Promise<SiteSettings | null> {
     const settings = await client.fetch<SiteSettings>(
       SETTINGS_QUERY,
       {},
-      { next: { revalidate: 3600 } } // Cache for 1 hour (settings rarely change)
+      { next: { revalidate: 300 } } // Cache for 5 minutes
     );
     return settings || null;
   } catch (error) {
