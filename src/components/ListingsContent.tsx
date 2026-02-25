@@ -19,6 +19,7 @@ interface ListingsContentProps {
   template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
   listingsPerRow?: 2 | 3;
   onSortChange?: (sort: SortOption) => void;
+  onPageChange?: (page: number) => void;
   googleMapsApiKey?: string;
 }
 
@@ -314,28 +315,25 @@ function PropertyCard({ listing, template = 'classic' }: { listing: MLSProperty;
 function Pagination({
   currentPage,
   totalPages,
-  searchParams,
+  onPageChange,
   scrollContainerId,
 }: {
   currentPage: number;
   totalPages: number;
-  searchParams: string;
+  onPageChange?: (page: number) => void;
   scrollContainerId?: string;
 }) {
   if (totalPages <= 1) return null;
 
-  const createPageUrl = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', page.toString());
-    return `/listings?${params.toString()}`;
-  };
-
-  const handlePageClick = () => {
+  const handlePageClick = (page: number) => {
     if (scrollContainerId) {
       const container = document.getElementById(scrollContainerId);
       if (container) {
         container.scrollTo({ top: 0, behavior: 'instant' });
       }
+    }
+    if (onPageChange) {
+      onPageChange(page);
     }
   };
 
@@ -359,13 +357,12 @@ function Pagination({
   return (
     <nav className="flex justify-center items-center gap-2 mt-12">
       {currentPage > 1 && (
-        <Link
-          href={createPageUrl(currentPage - 1)}
-          onClick={handlePageClick}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)]"
+        <button
+          onClick={() => handlePageClick(currentPage - 1)}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)] cursor-pointer"
         >
           Previous
-        </Link>
+        </button>
       )}
 
       <div className="flex gap-1">
@@ -375,30 +372,28 @@ function Pagination({
               ...
             </span>
           ) : (
-            <Link
+            <button
               key={page}
-              href={createPageUrl(page)}
-              onClick={handlePageClick}
-              className={`px-4 py-2 text-sm font-medium rounded-md ${
+              onClick={() => handlePageClick(page as number)}
+              className={`px-4 py-2 text-sm font-medium rounded-md cursor-pointer ${
                 page === currentPage
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-700 bg-white border border-gray-300 hover:bg-[var(--color-cream)]'
               }`}
             >
               {page}
-            </Link>
+            </button>
           )
         )}
       </div>
 
       {currentPage < totalPages && (
-        <Link
-          href={createPageUrl(currentPage + 1)}
-          onClick={handlePageClick}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)]"
+        <button
+          onClick={() => handlePageClick(currentPage + 1)}
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-[var(--color-cream)] cursor-pointer"
         >
           Next
-        </Link>
+        </button>
       )}
     </nav>
   );
@@ -415,6 +410,7 @@ export default function ListingsContent({
   template = 'classic',
   listingsPerRow,
   onSortChange,
+  onPageChange,
   googleMapsApiKey,
 }: ListingsContentProps) {
   const router = useRouter();
@@ -578,7 +574,7 @@ export default function ListingsContent({
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}
-                      searchParams={searchParams}
+                      onPageChange={onPageChange}
                       scrollContainerId="listings-scroll-container"
                     />
                   )}
@@ -621,7 +617,7 @@ export default function ListingsContent({
                     <Pagination
                       currentPage={currentPage}
                       totalPages={totalPages}
-                      searchParams={searchParams}
+                      onPageChange={onPageChange}
                       scrollContainerId="listings-scroll-container"
                     />
                   )}

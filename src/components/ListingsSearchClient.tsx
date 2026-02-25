@@ -76,14 +76,15 @@ export default function ListingsSearchClient({
   const [loading, setLoading] = useState(false);
   const [locationFilter, setLocationFilter] = useState(hasLocationFilter);
 
-  const fetchListings = useCallback(async (params: URLSearchParams) => {
+  const fetchListings = useCallback(async (params: URLSearchParams, { keepPage }: { keepPage?: boolean } = {}) => {
+    if (!keepPage) {
+      params.delete('page');
+    }
+
     // Update URL without navigation
     const qs = params.toString();
     const url = qs ? `/listings?${qs}` : '/listings';
     window.history.replaceState(null, '', url);
-
-    // Reset to page 1 on filter change
-    params.delete('page');
 
     setLoading(true);
     try {
@@ -94,7 +95,7 @@ export default function ListingsSearchClient({
       setListings(data.listings || []);
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 0);
-      setCurrentPage(1);
+      setCurrentPage(parseInt(params.get('page') || '1', 10));
       setCurrentSort((params.get('sort') as SortOption) || 'newest');
       setSearchParams(params.toString());
       setLocationFilter(!!(params.get('city') || params.get('neighborhood')));
@@ -108,6 +109,16 @@ export default function ListingsSearchClient({
   const handleFilterChange = useCallback((params: URLSearchParams) => {
     fetchListings(params);
   }, [fetchListings]);
+
+  const handlePageChange = useCallback((page: number) => {
+    const params = new URLSearchParams(searchParams);
+    if (page <= 1) {
+      params.delete('page');
+    } else {
+      params.set('page', page.toString());
+    }
+    fetchListings(params, { keepPage: true });
+  }, [searchParams, fetchListings]);
 
   const handleSortChange = useCallback((newSort: SortOption) => {
     const params = new URLSearchParams(searchParams);
@@ -172,6 +183,7 @@ export default function ListingsSearchClient({
           template={template as any}
           listingsPerRow={listingsPerRow}
           onSortChange={handleSortChange}
+          onPageChange={handlePageChange}
           googleMapsApiKey={googleMapsApiKey}
         />
       </div>
