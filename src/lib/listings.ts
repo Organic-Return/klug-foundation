@@ -1316,6 +1316,7 @@ export async function getListingsByAgentId(
               supabase
                 .from('graphql_listings')
                 .select('*')
+                .not('listing_id', 'is', null)
                 .or(activeFilter)
                 .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent),status.like.Pending*')
                 .or('close_date.is.null,close_date.gte.now()')
@@ -1324,6 +1325,7 @@ export async function getListingsByAgentId(
               supabase
                 .from('graphql_listings')
                 .select('*')
+                .not('listing_id', 'is', null)
                 .or(soldFilter)
                 .or('status.eq.Closed,status.eq.Sold,close_date.lt.now()')
                 .order('sold_price', { ascending: false, nullsFirst: false })
@@ -1345,6 +1347,7 @@ export async function getListingsByAgentId(
               supabase
                 .from('graphql_listings')
                 .select('*')
+                .not('listing_id', 'is', null)
                 .or(nameFilter)
                 .or('status.in.(Active,Coming Soon,Active Under Contract,Contingent),status.like.Pending*')
                 .or('close_date.is.null,close_date.gte.now()')
@@ -1353,6 +1356,7 @@ export async function getListingsByAgentId(
               supabase
                 .from('graphql_listings')
                 .select('*')
+                .not('listing_id', 'is', null)
                 .or(nameFilter)
                 .or('status.eq.Closed,status.eq.Sold,close_date.lt.now()')
                 .order('sold_price', { ascending: false, nullsFirst: false })
