@@ -135,7 +135,7 @@ export default async function BuildersPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {builders.map((builder) => {
-                const logoUrl = builder.logo ? urlFor(builder.logo)?.width(400).height(250).url() : null;
+                const logoUrl = builder.logo ? urlFor(builder.logo)?.width(640).height(360).url() : null;
                 const previewText = builder.descriptionHtml
                   ? stripHtml(builder.descriptionHtml).slice(0, 160) + '...'
                   : builder.description
@@ -151,21 +151,21 @@ export default async function BuildersPage() {
                     }`}
                   >
                     {/* Logo / Header */}
-                    <div className={`h-48 flex items-center justify-center p-8 ${
-                      isRC ? 'bg-[var(--rc-navy)]' : 'bg-[var(--color-navy)]'
+                    <div className={`h-48 flex items-center justify-center p-6 ${
+                      isRC ? 'bg-gray-100' : 'bg-[var(--color-navy)]'
                     }`}>
                       {logoUrl ? (
                         <Image
                           src={logoUrl}
                           alt={builder.name}
-                          width={200}
-                          height={120}
-                          className="object-contain max-h-28"
+                          width={320}
+                          height={180}
+                          className="object-contain max-h-36"
                         />
                       ) : (
                         <h3
-                          className={`text-xl md:text-2xl font-light text-white text-center ${
-                            isRC ? 'uppercase tracking-[0.08em]' : 'font-serif tracking-wide'
+                          className={`text-xl md:text-2xl font-light text-center ${
+                            isRC ? 'text-[var(--rc-navy)] uppercase tracking-[0.08em]' : 'text-white font-serif tracking-wide'
                           }`}
                           style={isRC ? { fontFamily: 'var(--font-figtree), Figtree, sans-serif' } : undefined}
                         >
