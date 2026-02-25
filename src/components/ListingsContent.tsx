@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -227,7 +227,7 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
       </Link>
 
       {/* Card Content */}
-      <div className={template === 'classic' ? 'p-4' : isModernStyle ? 'p-5' : 'px-0 pt-1 pb-2'}>
+      <div className={template === 'classic' ? 'p-4' : isModernStyle ? 'p-5' : 'pl-[10px] pt-1 pb-2'}>
         <h3
           className={`line-clamp-1 ${
             template === 'luxury'
@@ -442,8 +442,15 @@ export default function ListingsContent({
   teamAgentMlsIds = [],
 }: ListingsContentProps) {
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
   const [areaFilteredListings, setAreaFilteredListings] = useState<MLSProperty[] | null>(null);
+
+  // Default to map view on desktop (lg breakpoint = 1024px)
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) {
+      setViewMode('map');
+    }
+  }, []);
 
   // Use area-filtered listings if available, otherwise use all listings
   const displayListings = areaFilteredListings !== null ? areaFilteredListings : listings;
@@ -591,7 +598,7 @@ export default function ListingsContent({
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={(!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)) || (!!listing.virtual_tour_url && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id))} />
                     ))}
                   </div>
 
@@ -634,7 +641,7 @@ export default function ListingsContent({
                 <>
                   <div className={`grid grid-cols-1 sm:grid-cols-2 gap-4 ${listingsPerRow !== 2 ? 'xl:grid-cols-3' : ''}`}>
                     {displayListings.map((listing) => (
-                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} />
+                      <PropertyCard key={listing.id} listing={listing} template={template} hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)} hasMatterport={(!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id)) || (!!listing.virtual_tour_url && !!listing.list_agent_mls_id && teamAgentMlsIds.includes(listing.list_agent_mls_id))} />
                     ))}
                   </div>
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getListingsByAgentId } from "@/lib/listings";
+import { getListingsByAgentId, getMlsNumbersWithSIRMedia } from "@/lib/listings";
 import { getSiteTemplate } from "@/lib/settings";
 import AgentListingsGrid from "@/components/AgentListingsGrid";
 import AgentHeroGallery from "@/components/AgentHeroGallery";
@@ -110,6 +110,14 @@ export default async function TeamMemberPage({ params }: Props) {
   const agentListings = await getListingsByAgentId(member.mlsAgentId || null, member.mlsAgentIdSold, member.name);
 
   const hasListings = agentListings && (agentListings.activeListings.length > 0 || agentListings.soldListings.length > 0);
+
+  // Check which active listings have SIR videos/Matterport tours
+  const activeListingMlsNumbers = agentListings.activeListings
+    .filter(l => l.mls_number)
+    .map(l => l.mls_number);
+  const sirMedia = activeListingMlsNumbers.length > 0
+    ? await getMlsNumbersWithSIRMedia(activeListingMlsNumbers)
+    : { videos: new Set<string>(), matterports: new Set<string>() };
 
   // For RC template: filter active listings that have photos for the hero gallery
   const heroListings = isRC && agentListings
@@ -432,6 +440,8 @@ export default async function TeamMemberPage({ params }: Props) {
             <AgentListingsGrid
               activeListings={agentListings.activeListings}
               soldListings={agentListings.soldListings}
+              mlsWithVideos={Array.from(sirMedia.videos)}
+              mlsWithMatterport={Array.from(sirMedia.matterports)}
             />
           </div>
         </section>

@@ -8,6 +8,8 @@ import { getListingHref, type MLSProperty } from '@/lib/listings';
 interface AgentListingsGridProps {
   activeListings: MLSProperty[];
   soldListings: MLSProperty[];
+  mlsWithVideos?: string[];
+  mlsWithMatterport?: string[];
 }
 
 function formatPrice(price: number | null): string {
@@ -25,7 +27,7 @@ function formatSqft(sqft: number | null): string {
   return new Intl.NumberFormat('en-US').format(sqft) + ' sq ft';
 }
 
-function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: boolean }) {
+function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false }: { listing: MLSProperty; isSold?: boolean; hasVideo?: boolean; hasMatterport?: boolean }) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [imageError, setImageError] = useState(false);
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
@@ -105,6 +107,28 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
           </>
         )}
 
+        {/* Video / Virtual Tour flags - upper right */}
+        {!isSold && (hasVideo || hasMatterport) && (
+          <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+            {hasVideo && (
+              <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-navy,#002349)] text-white flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Video
+              </span>
+            )}
+            {hasMatterport && (
+              <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--rc-gold,#c19b5f)] text-white flex items-center gap-1.5">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Virtual Tour
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
           {isSold && (
             <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-light bg-[#1a1a1a] text-white">
@@ -176,7 +200,7 @@ function PropertyCard({ listing, isSold }: { listing: MLSProperty; isSold?: bool
   );
 }
 
-export default function AgentListingsGrid({ activeListings, soldListings }: AgentListingsGridProps) {
+export default function AgentListingsGrid({ activeListings, soldListings, mlsWithVideos = [], mlsWithMatterport = [] }: AgentListingsGridProps) {
   const [activeTab, setActiveTab] = useState<'active' | 'sold'>(
     activeListings.length > 0 ? 'active' : 'sold'
   );
@@ -226,6 +250,8 @@ export default function AgentListingsGrid({ activeListings, soldListings }: Agen
             key={listing.id}
             listing={listing}
             isSold={activeTab === 'sold'}
+            hasVideo={!!listing.mls_number && mlsWithVideos.includes(listing.mls_number)}
+            hasMatterport={!!listing.mls_number && mlsWithMatterport.includes(listing.mls_number) || !!listing.virtual_tour_url}
           />
         ))}
       </div>
