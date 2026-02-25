@@ -529,14 +529,33 @@ export async function getListings(
   }
 
   const total = count || 0;
-  const listings = (data || []).map(transformListing);
+  const allListings = (data || []).map(transformListing);
+
+  // Deduplicate by mls_number (prefer rows with more data: address, photos)
+  const seen = new Map<string, MLSProperty>();
+  for (const listing of allListings) {
+    const key = listing.mls_number || listing.id;
+    const existing = seen.get(key);
+    if (!existing) {
+      seen.set(key, listing);
+    } else {
+      // Keep the row with more complete data
+      const existingScore = (existing.address ? 1 : 0) + (existing.photos?.length || 0);
+      const newScore = (listing.address ? 1 : 0) + (listing.photos?.length || 0);
+      if (newScore > existingScore) {
+        seen.set(key, listing);
+      }
+    }
+  }
+  const listings = Array.from(seen.values());
+  const dedupedTotal = total - (allListings.length - listings.length);
 
   return {
     listings,
-    total,
+    total: dedupedTotal > 0 ? dedupedTotal : listings.length,
     page,
     pageSize,
-    totalPages: Math.ceil(total / pageSize),
+    totalPages: Math.ceil((dedupedTotal > 0 ? dedupedTotal : listings.length) / pageSize),
   };
 }
 
