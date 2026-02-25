@@ -135,7 +135,7 @@ export default function ListingsSearchClient({
     <div className="h-full flex flex-col overflow-hidden">
       {/* Filters */}
       <div className="bg-white shadow-sm flex-shrink-0">
-        <div className="px-4 pt-0 pb-1 sm:px-6 lg:px-8">
+        <div className="px-4 pt-5 pb-1 sm:px-6 lg:px-8">
           <ListingFilters
             keyword={keyword}
             status={status}
