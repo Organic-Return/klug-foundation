@@ -424,6 +424,7 @@ export default async function FirstTimeBuyersPage() {
                 <AgentContactForm
                   agentName="Retter & Company Sotheby's International Realty"
                   agentEmail="info@rcsothebysrealty.com"
+                  inverted
                 />
               </div>
             </div>

@@ -407,6 +407,7 @@ export default async function RelocationPage() {
                 <AgentContactForm
                   agentName="Retter & Company Sotheby's International Realty"
                   agentEmail="info@rcsothebysrealty.com"
+                  inverted
                 />
               </div>
             </div>

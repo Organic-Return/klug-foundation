@@ -104,6 +104,7 @@ export default function RCSitePage({
                 <AgentContactForm
                   agentName="Retter & Company Sotheby's International Realty"
                   agentEmail="info@rcsothebysrealty.com"
+                  inverted
                 />
               </div>
             </div>
