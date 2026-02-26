@@ -127,8 +127,13 @@ export async function sendLeadNotificationEmail(
     ? `New ${typeLabel[data.leadType] || 'Lead'}: ${data.propertyAddress}`
     : `New ${typeLabel[data.leadType] || 'Lead'} from ${data.firstName} ${data.lastName}`;
 
+  // Support comma-separated emails (e.g. "a@x.com,b@x.com")
+  const recipients = to.includes(',')
+    ? to.split(',').map((e) => e.trim()).filter(Boolean)
+    : to;
+
   await sgMail.send({
-    to,
+    to: recipients,
     from: { email: fromEmail, name: 'Lead Notification' },
     subject,
     html: buildLeadEmailHtml(data),

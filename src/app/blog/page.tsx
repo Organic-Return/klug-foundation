@@ -4,6 +4,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import { getSiteName, getBaseUrl } from "@/lib/settings";
 
 const POSTS_COUNT_QUERY = `count(*[_type == "post"])`;
 
@@ -27,17 +28,17 @@ const urlFor = (source: any) =>
 const options = { next: { revalidate: 30 } };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
 
   return {
-    title: 'Blog | Klug Properties',
-    description: 'Insights, market updates, and lifestyle content from Aspen Snowmass and the Roaring Fork Valley.',
+    title: `Blog | ${siteName}`,
+    description: 'Insights, market updates, and real estate news.',
     alternates: {
       canonical: `${baseUrl}/blog`,
     },
     openGraph: {
-      title: 'Blog | Klug Properties',
-      description: 'Insights, market updates, and lifestyle content from Aspen Snowmass and the Roaring Fork Valley.',
+      title: `Blog | ${siteName}`,
+      description: 'Insights, market updates, and real estate news.',
       type: 'website',
       url: `${baseUrl}/blog`,
     },

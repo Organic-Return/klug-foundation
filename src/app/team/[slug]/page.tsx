@@ -5,7 +5,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getListingsByAgentId, getMlsNumbersWithSIRMedia } from "@/lib/listings";
-import { getSiteTemplate } from "@/lib/settings";
+import { getSiteTemplate, getSiteName, getBaseUrl } from "@/lib/settings";
 import AgentListingsGrid from "@/components/AgentListingsGrid";
 import AgentHeroGallery from "@/components/AgentHeroGallery";
 import AgentContactForm from "@/components/AgentContactForm";
@@ -80,17 +80,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: 'Team Member Not Found' };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
   const isRCTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
   const canonicalUrl = `${baseUrl}/${isRCTemplate ? 'agents' : 'team'}/${slug}`;
+  const description = member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at ${siteName}.`;
 
   return {
-    title: `${member.name}${member.title ? ` | ${member.title}` : ''} | Klug Properties`,
-    description: member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at Klug Properties.`,
+    title: `${member.name}${member.title ? ` | ${member.title}` : ''} | ${siteName}`,
+    description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: `${member.name} | Klug Properties`,
-      description: member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at Klug Properties.`,
+      title: `${member.name} | ${siteName}`,
+      description,
       url: canonicalUrl,
     },
   };

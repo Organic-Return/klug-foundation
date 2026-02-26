@@ -10,7 +10,7 @@ import {
   formatLotSize,
   type MLSProperty,
 } from '@/lib/listings';
-import { getSettings, getGoogleMapsApiKey } from '@/lib/settings';
+import { getSettings, getGoogleMapsApiKey, getSiteName, getBaseUrl as getBaseUrlFromSettings } from '@/lib/settings';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import PropertyGallery from '@/components/PropertyGallery';
@@ -85,7 +85,7 @@ interface ListingPageProps {
   params: Promise<{ id: string }>;
 }
 
-// Helper to get the base URL
+// Helper to get the base URL (sync version for non-async contexts)
 function getBaseUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 }
@@ -283,6 +283,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   }
 
   const baseUrl = getBaseUrl();
+  const siteName = await getSiteName();
   const listingUrl = `${baseUrl}${getListingHref(listing)}`;
   const title = `${listing.address || 'Property'} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
   const rawDescription = listing.description
@@ -319,7 +320,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
       url: listingUrl,
       title,
       description,
-      siteName: 'Real Estate Listings',
+      siteName,
       locale: 'en_US',
       images: images.length > 0
         ? images.slice(0, 4).map((img, index) => ({
@@ -344,8 +345,8 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
       title: `${listing.address || 'Property'} - ${formatPrice(listing.list_price)}`,
       description: `${listing.bedrooms || 0} bd | ${listing.bathrooms || 0} ba | ${listing.square_feet?.toLocaleString() || 'N/A'} sqft in ${listing.city}, ${listing.state}`,
       images: [primaryImage],
-      creator: '@yourtwitterhandle',
-      site: '@yourtwitterhandle',
+      creator: undefined,
+      site: undefined,
     },
 
     // Robots

@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { client } from '@/sanity/client';
 import { getListings, getListingHref } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
+import { getSettings } from '@/lib/settings';
 
 // Sanity queries for dynamic content
 const COMMUNITIES_QUERY = `*[_type == "community"]{ "slug": slug.current, _updatedAt }`;
@@ -17,7 +18,8 @@ const PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true]{
 }`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const settings = await getSettings();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

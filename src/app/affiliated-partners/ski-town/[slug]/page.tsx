@@ -4,6 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
+import { getSiteName, getBaseUrl } from "@/lib/settings";
 
 // Query by slug or by generated slug from firstName-lastName
 const PARTNER_BY_SLUG_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town" && (slug.current == $slug || lower(firstName + "-" + lastName) == $slug)][0] {
@@ -35,23 +36,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const partner = await client.fetch<Partner | null>(PARTNER_BY_SLUG_QUERY, { slug }, options);
 
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+
   if (!partner) {
     return {
-      title: 'Partner Not Found | Klug Properties',
+      title: `Partner Not Found | ${siteName}`,
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
   const canonicalUrl = `${baseUrl}/affiliated-partners/ski-town/${slug}`;
 
   return {
-    title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | Klug Properties`,
+    title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | ${siteName}`,
     description: `Meet ${partner.firstName} ${partner.lastName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | Klug Properties`,
+      title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | ${siteName}`,
       description: `Meet ${partner.firstName} ${partner.lastName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
       url: canonicalUrl,
     },

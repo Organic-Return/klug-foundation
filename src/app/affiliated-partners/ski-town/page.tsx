@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "../components";
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
+import { getSiteName, getBaseUrl } from "@/lib/settings";
 
 const SKI_TOWN_PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town"] | order(sortOrder asc, lastName asc) {
   _id,
@@ -44,16 +45,16 @@ const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && pageType == "
 const options = { next: { revalidate: 60 } };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
 
   return {
-    title: 'Ski Town Partners | Klug Properties',
+    title: `Ski Town Partners | ${siteName}`,
     description: 'Meet our network of trusted real estate professionals specializing in premier ski resort communities across North America.',
     alternates: {
       canonical: `${baseUrl}/affiliated-partners/ski-town`,
     },
     openGraph: {
-      title: 'Ski Town Partners | Klug Properties',
+      title: `Ski Town Partners | ${siteName}`,
       description: 'Meet our network of trusted real estate professionals specializing in premier ski resort communities across North America.',
       url: `${baseUrl}/affiliated-partners/ski-town`,
     },

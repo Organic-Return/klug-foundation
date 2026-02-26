@@ -2,6 +2,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "./components";
 import CTASection from "./CTASection";
 import PartnersMapSection from "./PartnersMapSection";
@@ -47,16 +48,16 @@ const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && pageType == "
 const options = { next: { revalidate: 60 } };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
 
   return {
-    title: 'Affiliated Partners | Klug Properties',
+    title: `Affiliated Partners | ${siteName}`,
     description: 'Meet our network of trusted real estate professionals across premier ski towns and market-leading brokerages.',
     alternates: {
       canonical: `${baseUrl}/affiliated-partners`,
     },
     openGraph: {
-      title: 'Affiliated Partners | Klug Properties',
+      title: `Affiliated Partners | ${siteName}`,
       description: 'Meet our network of trusted real estate professionals across premier ski towns and market-leading brokerages.',
       url: `${baseUrl}/affiliated-partners`,
     },

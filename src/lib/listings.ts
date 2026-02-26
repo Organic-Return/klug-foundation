@@ -698,7 +698,7 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   if (listingIds.length === 0) return [];
 
   const { data: listings, error: listError } = await supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('*')
     .in('listing_id', listingIds)
     .not('status', 'is', null);

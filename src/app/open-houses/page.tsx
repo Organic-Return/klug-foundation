@@ -1,14 +1,25 @@
 import type { Metadata } from 'next';
 import { getOpenHouseListings } from '@/lib/listings';
+import { getSiteName, getBaseUrl } from '@/lib/settings';
 import OpenHouseGrid from '@/components/OpenHouseGrid';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Open Houses',
-  description:
-    'Browse upcoming open houses from Retter & Company Sotheby\'s International Realty.',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const description = `Browse upcoming open houses from ${siteName}.`;
+
+  return {
+    title: 'Open Houses',
+    description,
+    alternates: { canonical: `${baseUrl}/open-houses` },
+    openGraph: {
+      title: `Open Houses | ${siteName}`,
+      description,
+      url: `${baseUrl}/open-houses`,
+    },
+  };
+}
 
 export default async function OpenHousesPage() {
   const listings = await getOpenHouseListings();

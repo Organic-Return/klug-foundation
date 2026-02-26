@@ -96,7 +96,7 @@ export async function generateMetadata({
   }
 
   // Get the base URL from environment or use a default
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
   const canonicalUrl = `${baseUrl}/communities/${slug}`;
 
   // Handle noIndex robots meta tag

@@ -1,7 +1,7 @@
 import { client } from "@/sanity/client";
 import { createImageUrlBuilder } from "@sanity/image-url";
 import type { Metadata } from "next";
-import { getSiteTemplate } from "@/lib/settings";
+import { getSiteTemplate, getSiteName, getBaseUrl } from "@/lib/settings";
 import TeamGrid from "@/components/TeamGrid";
 
 const builder = createImageUrlBuilder(client);
@@ -35,10 +35,24 @@ const ALL_TEAM_QUERY = `*[_type == "teamMember" && defined(slug.current) && inac
 
 const options = { next: { revalidate: 60 } };
 
-export const metadata: Metadata = {
-  title: "Our Team",
-  description: "Meet our team of experienced real estate professionals.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const isRCTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
+  const path = isRCTemplate ? 'agents' : 'team';
+  const title = isRCTemplate ? 'Our Agents' : 'Our Team';
+  const description = `Meet the experienced real estate professionals at ${siteName}.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: `${baseUrl}/${path}` },
+    openGraph: {
+      title: `${title} | ${siteName}`,
+      description,
+      url: `${baseUrl}/${path}`,
+    },
+  };
+}
 
 export default async function TeamPage() {
   const [members, template] = await Promise.all([

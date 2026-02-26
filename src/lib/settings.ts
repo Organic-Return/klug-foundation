@@ -218,3 +218,21 @@ export async function getTeamSyncConfig(): Promise<TeamSyncConfig> {
     defaultOrder: settings?.teamSync?.defaultOrder ?? 100,
   };
 }
+
+/**
+ * Gets the site name from Sanity settings or environment variable.
+ * Use this instead of hardcoding a site name in metadata.
+ */
+export async function getSiteName(): Promise<string> {
+  const settings = await getSettings();
+  return settings?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate';
+}
+
+/**
+ * Gets the base URL for the site from Sanity settings or environment variable.
+ * Use this instead of hardcoding a URL in metadata.
+ */
+export async function getBaseUrl(): Promise<string> {
+  const settings = await getSettings();
+  return process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+}

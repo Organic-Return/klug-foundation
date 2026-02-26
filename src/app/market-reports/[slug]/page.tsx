@@ -54,7 +54,7 @@ export async function generateMetadata({
   const metaTitle = report.seo?.metaTitle || report.title;
   const metaDescription = report.seo?.metaDescription || report.excerpt || report.title;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
   const canonicalUrl = `${baseUrl}/market-reports/${slug}`;
 
   const robotsConfig = report.seo?.noIndex
