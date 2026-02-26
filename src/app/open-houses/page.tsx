@@ -3,7 +3,7 @@ import { getOpenHouseListings } from '@/lib/listings';
 import { getSiteName, getBaseUrl } from '@/lib/settings';
 import OpenHouseGrid from '@/components/OpenHouseGrid';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata(): Promise<Metadata> {
   const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
