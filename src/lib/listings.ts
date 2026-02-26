@@ -671,14 +671,18 @@ async function getRealogyListingBySlug(slug: string): Promise<MLSProperty | null
 }
 
 export async function getOpenHouseListings(): Promise<MLSProperty[]> {
-  if (!isSupabaseConfigured()) return [];
+  if (!isSupabaseConfigured()) {
+    console.error('[OpenHouse] Supabase not configured');
+    return [];
+  }
 
   const today = new Date().toISOString().split('T')[0];
+  console.log('[OpenHouse] Fetching open houses for date >=', today);
 
   // Open house data lives in the dedicated "open_houses" table (synced from
   // SparkAPI RESO OpenHouse endpoint). The graphql_listings view's open_house_date
   // column has unreliable data, so we query open_houses and join with
-  // graphql_listings for full listing details (photos, beds, baths, etc.).
+  // active_listings for full listing details (photos, beds, baths, etc.).
 
   // Step 1: Get upcoming open house records
   const { data: ohData, error: ohError } = await supabase
@@ -688,14 +692,23 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     .order('OpenHouseDate', { ascending: true })
     .limit(200);
 
-  if (ohError || !ohData || ohData.length === 0) {
-    if (ohError) console.error('Error fetching open house records:', ohError);
+  if (ohError) {
+    console.error('[OpenHouse] Step 1 error:', ohError.message, ohError);
     return [];
   }
+  if (!ohData || ohData.length === 0) {
+    console.error('[OpenHouse] Step 1: no records for date >=', today);
+    return [];
+  }
+  console.log('[OpenHouse] Step 1:', ohData.length, 'open house records');
 
   // Step 2: Get unique listing IDs and fetch full listing data
   const listingIds = [...new Set(ohData.map((oh: any) => oh.ListingId).filter(Boolean))];
-  if (listingIds.length === 0) return [];
+  if (listingIds.length === 0) {
+    console.error('[OpenHouse] No valid ListingId values found');
+    return [];
+  }
+  console.log('[OpenHouse] Step 2: looking up', listingIds.length, 'listings');
 
   const { data: listings, error: listError } = await supabase
     .from('active_listings')
@@ -703,10 +716,15 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     .in('listing_id', listingIds)
     .not('status', 'is', null);
 
-  if (listError || !listings) {
-    if (listError) console.error('Error fetching open house listing data:', listError);
+  if (listError) {
+    console.error('[OpenHouse] Step 2 error:', listError.message, listError);
     return [];
   }
+  if (!listings || listings.length === 0) {
+    console.error('[OpenHouse] Step 2: no matching listings found');
+    return [];
+  }
+  console.log('[OpenHouse] Step 2:', listings.length, 'listings matched');
 
   // Step 3: Merge open house data onto listings (prefer rows with address data)
   const listingMap = new Map<string, any>();
