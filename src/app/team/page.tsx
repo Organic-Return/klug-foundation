@@ -67,7 +67,7 @@ export default async function TeamPage() {
     _id: m._id,
     name: m.name,
     slug: m.slug,
-    title: m.title,
+    title: m.title?.replace(/\bResidential\b/g, 'Real Estate Broker'),
     email: m.email,
     phone: m.phone,
     mobile: m.mobile,

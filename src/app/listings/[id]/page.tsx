@@ -456,6 +456,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const listingAgent = listingAgents[0] || null;
   const coListingAgent = listingAgents[1] || null;
 
+  // Normalize synced title: "Residential" -> "Real Estate Broker"
+  if (listingAgent?.title) listingAgent.title = listingAgent.title.replace(/\bResidential\b/g, 'Real Estate Broker');
+  if (coListingAgent?.title) coListingAgent.title = coListingAgent.title.replace(/\bResidential\b/g, 'Real Estate Broker');
+
   const hasPhotos = listing.photos && listing.photos.length > 0;
   const schemas = generateRealEstateSchema(listing);
 

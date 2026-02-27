@@ -85,9 +85,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const isRCTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
   const canonicalUrl = `${baseUrl}/${isRCTemplate ? 'agents' : 'team'}/${slug}`;
   const description = member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at ${siteName}.`;
+  const displayTitle = member.title?.replace(/\bResidential\b/g, 'Real Estate Broker');
 
   return {
-    title: `${member.name}${member.title ? ` | ${member.title}` : ''} | ${siteName}`,
+    title: `${member.name}${displayTitle ? ` | ${displayTitle}` : ''} | ${siteName}`,
     description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
@@ -107,6 +108,11 @@ export default async function TeamMemberPage({ params }: Props) {
 
   if (!member) {
     notFound();
+  }
+
+  // Normalize synced title: "Residential" -> "Real Estate Broker"
+  if (member.title) {
+    member.title = member.title.replace(/\bResidential\b/g, 'Real Estate Broker');
   }
 
   const isRC = template === "rcsothebys-custom";

@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { formatPhone } from '@/lib/phoneUtils';
 
 interface TeamMember {
   _id: string;
@@ -255,10 +256,10 @@ export default function TeamGrid({ members, isRC, totalCount }: TeamGridProps) {
             {isRC && (
               <div className="mt-1 space-y-0 text-xs text-[var(--rc-brown)]/70">
                 {member.mobile && (
-                  <p>C: {member.mobile}</p>
+                  <p>C: {formatPhone(member.mobile)}</p>
                 )}
                 {(member.office || member.phone) && (
-                  <p>O: {member.office || member.phone}</p>
+                  <p>O: {formatPhone(member.office || member.phone)}</p>
                 )}
                 {member.email && (
                   <p className="truncate">{member.email}</p>
