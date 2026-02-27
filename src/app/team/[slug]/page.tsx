@@ -10,6 +10,7 @@ import AgentListingsGrid from "@/components/AgentListingsGrid";
 import AgentHeroGallery from "@/components/AgentHeroGallery";
 import AgentContactForm from "@/components/AgentContactForm";
 import AgentContactButton from "@/components/AgentContactButton";
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) {
@@ -199,16 +200,16 @@ export default async function TeamMemberPage({ params }: Props) {
                     {member.mobile && (
                       <div className="flex items-center gap-2">
                         <span className="text-white/50 text-sm w-6">C:</span>
-                        <a href={`tel:${member.mobile}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
-                          {member.mobile}
+                        <a href={`tel:${phoneHref(member.mobile)}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                          {formatPhone(member.mobile)}
                         </a>
                       </div>
                     )}
                     {(member.office || member.phone) && (
                       <div className="flex items-center gap-2">
                         <span className="text-white/50 text-sm w-6">O:</span>
-                        <a href={`tel:${member.office || member.phone}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
-                          {member.office || member.phone}
+                        <a href={`tel:${phoneHref(member.office || member.phone)}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                          {formatPhone(member.office || member.phone)}
                         </a>
                       </div>
                     )}
@@ -327,13 +328,13 @@ export default async function TeamMemberPage({ params }: Props) {
                 </a>
               )}
               {member.phone && (
-                <a href={`tel:${member.phone}`} className="text-white/70 hover:text-white text-sm font-light transition-colors">
-                  {member.phone}
+                <a href={`tel:${phoneHref(member.phone)}`} className="text-white/70 hover:text-white text-sm font-light transition-colors">
+                  {formatPhone(member.phone)}
                 </a>
               )}
               {member.mobile && member.mobile !== member.phone && (
-                <a href={`tel:${member.mobile}`} className="text-white/70 hover:text-white text-sm font-light transition-colors">
-                  {member.mobile}
+                <a href={`tel:${phoneHref(member.mobile)}`} className="text-white/70 hover:text-white text-sm font-light transition-colors">
+                  {formatPhone(member.mobile)}
                 </a>
               )}
             </div>
@@ -462,8 +463,8 @@ export default async function TeamMemberPage({ params }: Props) {
                       <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3" />
                       </svg>
-                      <a href={`tel:${member.mobile}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
-                        {member.mobile}
+                      <a href={`tel:${phoneHref(member.mobile)}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                        {formatPhone(member.mobile)}
                       </a>
                     </div>
                   )}
@@ -472,8 +473,8 @@ export default async function TeamMemberPage({ params }: Props) {
                       <svg className="w-4 h-4 text-white/50 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
                       </svg>
-                      <a href={`tel:${member.office || member.phone}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
-                        {member.office || member.phone}
+                      <a href={`tel:${phoneHref(member.office || member.phone)}`} className="text-white/80 text-sm font-light hover:text-[var(--rc-gold)] transition-colors">
+                        {formatPhone(member.office || member.phone)}
                       </a>
                     </div>
                   )}

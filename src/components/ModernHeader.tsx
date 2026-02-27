@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import ContactModal from './ContactModal';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 
@@ -127,10 +128,10 @@ export default function ModernHeader({
               <div className="flex items-center gap-8">
                 {phoneNumber && (
                   <a
-                    href={`tel:${phoneNumber}`}
+                    href={`tel:${phoneHref(phoneNumber)}`}
                     className="modern-nav transition-colors duration-300 text-white/70 hover:text-[var(--modern-gold)]"
                   >
-                    {phoneNumber}
+                    {formatPhone(phoneNumber)}
                   </a>
                 )}
                 {email && (

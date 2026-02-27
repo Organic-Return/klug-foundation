@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 // Query by slug or by generated slug from firstName-lastName
 const PARTNER_BY_SLUG_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town" && (slug.current == $slug || lower(firstName + "-" + lastName) == $slug)][0] {
@@ -189,7 +190,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                 )}
                 {enrichedPartner.phone && (
                   <a
-                    href={`tel:${enrichedPartner.phone}`}
+                    href={`tel:${phoneHref(enrichedPartner.phone)}`}
                     className="flex items-center gap-4 text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors group"
                   >
                     <div className="w-12 h-12 rounded-full bg-[#f8f7f5] dark:bg-[#252525] flex items-center justify-center group-hover:bg-[var(--color-gold)]/10 transition-colors">
@@ -197,7 +198,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                     </div>
-                    <span className="font-light">{enrichedPartner.phone}</span>
+                    <span className="font-light">{formatPhone(enrichedPartner.phone)}</span>
                   </a>
                 )}
                 {enrichedPartner.website && (

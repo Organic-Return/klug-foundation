@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 
@@ -154,11 +155,11 @@ export default function LuxuryHeader({
               <div className="hidden lg:flex items-center gap-6">
                 {phoneNumber && (
                   <a
-                    href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
+                    href={`tel:${phoneHref(phoneNumber)}`}
                     className={`flex items-center gap-2 transition-colors group ${
                       showScrolledState ? 'text-gray-500 hover:text-[#384249]' : 'text-white/70 hover:text-white'
                     }`}
-                    aria-label={phoneNumber}
+                    aria-label={formatPhone(phoneNumber)}
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M12 10.36a.9.9 0 0 0-.91 0l-1.42.85a.89.89 0 0 1-1-.06 21.83 21.83 0 0 1-2-1.77 23.17 23.17 0 0 1-1.76-2 .89.89 0 0 1-.06-1l.85-1.42a.92.92 0 0 0 0-.92L3.55.45a.88.88 0 0 0-1-.42 2.86 2.86 0 0 0-1.37.83C-.43 2.47-1.29 5.18 4.76 11.24s8.77 5.19 10.38 3.58a2.86 2.86 0 0 0 .86-1.38.89.89 0 0 0-.41-1z" />
@@ -458,13 +459,13 @@ export default function LuxuryHeader({
               <div className="space-y-4">
                 {phoneNumber && (
                   <a
-                    href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
+                    href={`tel:${phoneHref(phoneNumber)}`}
                     className="flex items-center gap-3 text-white/70 hover:text-white transition-colors"
                   >
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 16 16">
                       <path d="M12 10.36a.9.9 0 0 0-.91 0l-1.42.85a.89.89 0 0 1-1-.06 21.83 21.83 0 0 1-2-1.77 23.17 23.17 0 0 1-1.76-2 .89.89 0 0 1-.06-1l.85-1.42a.92.92 0 0 0 0-.92L3.55.45a.88.88 0 0 0-1-.42 2.86 2.86 0 0 0-1.37.83C-.43 2.47-1.29 5.18 4.76 11.24s8.77 5.19 10.38 3.58a2.86 2.86 0 0 0 .86-1.38.89.89 0 0 0-.41-1z" />
                     </svg>
-                    <span className="text-sm">{phoneNumber}</span>
+                    <span className="text-sm">{formatPhone(phoneNumber)}</span>
                   </a>
                 )}
                 {email && (

@@ -1,4 +1,5 @@
 import sgMail from '@sendgrid/mail';
+import { formatPhone } from './phoneUtils';
 
 const apiKey = process.env.SENDGRID_API_KEY;
 const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@example.com';
@@ -79,7 +80,7 @@ function buildLeadEmailHtml(data: LeadEmailData): string {
           <tr>
             <td style="padding:8px 12px;color:#666;font-size:14px;border-bottom:1px solid #eee;">Phone</td>
             <td style="padding:8px 12px;font-size:14px;border-bottom:1px solid #eee;">
-              <a href="tel:${data.phone}" style="color:#002349;">${data.phone}</a>
+              <a href="tel:${data.phone}" style="color:#002349;">${formatPhone(data.phone)}</a>
             </td>
           </tr>` : ''}
           ${data.inquiryType ? `

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { EnrichedPartner } from './components';
 import { getPartnerUrl } from './components';
+import { phoneHref } from '@/lib/phoneUtils';
 
 interface PartnersMapSectionProps {
   partners: EnrichedPartner[];
@@ -229,7 +230,7 @@ function PartnerListCard({
             )}
             {partner.phone && (
               <a
-                href={`tel:${partner.phone}`}
+                href={`tel:${phoneHref(partner.phone)}`}
                 onClick={(e) => e.stopPropagation()}
                 className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
                 title="Phone"

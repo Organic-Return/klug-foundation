@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 interface ListingAgentInfo {
   name: string;
@@ -255,10 +256,10 @@ function ContactSection({ listing, agent }: { listing: MLSProperty; agent: Listi
                         Direct Line
                       </p>
                       <a
-                        href={`tel:${agent.phone}`}
+                        href={`tel:${phoneHref(agent.phone)}`}
                         className="text-[var(--modern-black)] font-serif text-lg hover:text-[var(--modern-gold)] transition-colors"
                       >
-                        {agent.phone}
+                        {formatPhone(agent.phone)}
                       </a>
                     </div>
                   )}
@@ -851,10 +852,10 @@ export default function CustomOneListingContent({
                       <div>
                         <p className="font-medium text-white mb-1">Contact</p>
                         <a
-                          href={`tel:${agent.phone}`}
+                          href={`tel:${phoneHref(agent.phone)}`}
                           className="text-white/70 text-sm hover:text-[var(--modern-gold)] transition-colors"
                         >
-                          {agent.phone}
+                          {formatPhone(agent.phone)}
                         </a>
                       </div>
                     </div>

@@ -2,6 +2,7 @@ import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Image from "next/image";
 import Link from "next/link";
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const { projectId, dataset } = client.config();
 export const urlFor = (source: any) =>
@@ -206,7 +207,7 @@ export function PartnerCard({ partner, featured = false }: { partner: EnrichedPa
           )}
           {partner.phone && (
             <a
-              href={`tel:${partner.phone}`}
+              href={`tel:${phoneHref(partner.phone)}`}
               className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
               title="Phone"
             >

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 
@@ -131,10 +132,10 @@ export default function LuxuryStayConnected({
                 {contactInfo.phone && (
                   <li>
                     <a
-                      href={`tel:${contactInfo.phone.replace(/[^0-9+]/g, '')}`}
+                      href={`tel:${phoneHref(contactInfo.phone)}`}
                       className="text-[var(--color-warm-gray)] text-sm font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury-body"
                     >
-                      {contactInfo.phone}
+                      {formatPhone(contactInfo.phone)}
                     </a>
                   </li>
                 )}
@@ -214,10 +215,10 @@ export default function LuxuryStayConnected({
                   {contactInfo.phone && (
                     <li>
                       <a
-                        href={`tel:${contactInfo.phone.replace(/[^0-9+]/g, '')}`}
+                        href={`tel:${phoneHref(contactInfo.phone)}`}
                         className="text-[var(--color-warm-gray)] text-sm font-light hover:text-[var(--color-charcoal)] transition-colors font-luxury-body"
                       >
-                        {contactInfo.phone}
+                        {formatPhone(contactInfo.phone)}
                       </a>
                     </li>
                   )}

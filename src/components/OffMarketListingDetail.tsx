@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { OffMarketListing, formatPrice, getTotalBathrooms } from '@/lib/offMarketListings';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 interface OffMarketListingDetailProps {
   listing: OffMarketListing;
@@ -302,8 +303,8 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
                       </a>
                     )}
                     {listing.agentPhone && (
-                      <a href={`tel:${listing.agentPhone}`} className="text-sm text-blue-600 hover:underline block">
-                        {listing.agentPhone}
+                      <a href={`tel:${phoneHref(listing.agentPhone)}`} className="text-sm text-blue-600 hover:underline block">
+                        {formatPhone(listing.agentPhone)}
                       </a>
                     )}
                   </div>

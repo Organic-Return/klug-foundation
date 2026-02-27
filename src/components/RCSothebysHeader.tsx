@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 
@@ -409,8 +410,8 @@ export default function RCSothebysHeader({
             {(phoneNumber || email) && (
               <div className="pt-4 mt-4 border-t border-[var(--rc-navy)]/10">
                 {phoneNumber && (
-                  <a href={`tel:${phoneNumber}`} className="block py-2 text-sm text-[var(--rc-brown)]">
-                    {phoneNumber}
+                  <a href={`tel:${phoneHref(phoneNumber)}`} className="block py-2 text-sm text-[var(--rc-brown)]">
+                    {formatPhone(phoneNumber)}
                   </a>
                 )}
                 {email && (

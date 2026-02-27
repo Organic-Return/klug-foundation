@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
+import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 const builder = createImageUrlBuilder(client);
 
@@ -119,10 +120,10 @@ export default function ModernFooter({
             )}
             {contactInfo?.phone && (
               <a
-                href={`tel:${contactInfo.phone}`}
+                href={`tel:${phoneHref(contactInfo.phone)}`}
                 className="block text-white/60 text-sm font-light hover:text-[var(--modern-gold)] transition-colors mb-1"
               >
-                {contactInfo.phone}
+                {formatPhone(contactInfo.phone)}
               </a>
             )}
             {contactInfo?.email && (
