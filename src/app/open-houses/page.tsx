@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getOpenHouseListings } from '@/lib/listings';
-import { getSiteName, getBaseUrl } from '@/lib/settings';
+import { getSiteName, getBaseUrl, getSettings } from '@/lib/settings';
+import { client } from '@/sanity/client';
 import OpenHouseGrid from '@/components/OpenHouseGrid';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,33 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function OpenHousesPage() {
-  const listings = await getOpenHouseListings();
+  const [listings, settings] = await Promise.all([
+    getOpenHouseListings(),
+    getSettings(),
+  ]);
+
+  // Build the set of "our" agent MLS IDs and office names for filtering
+  const teamOfficeNames = settings?.teamSync?.offices
+    ? settings.teamSync.offices.map((o: any) => o.officeName).filter(Boolean)
+    : [];
+
+  const teamMembers = settings?.teamSync?.enabled
+    ? await client.fetch<{ mlsAgentId?: string; mlsAgentIdSold?: string }[]>(
+        `*[_type == "teamMember" && inactive != true && defined(mlsAgentId)]{ mlsAgentId, mlsAgentIdSold }`,
+        {},
+        { next: { revalidate: 300 } }
+      )
+    : [];
+
+  const teamAgentIds = [
+    ...new Set(
+      teamMembers
+        .flatMap((m) => [m.mlsAgentId, m.mlsAgentIdSold])
+        .filter(Boolean) as string[]
+    ),
+  ];
+
+  const hasOurTeamFilter = teamAgentIds.length > 0 || teamOfficeNames.length > 0;
 
   return (
     <main className="min-h-screen">
@@ -53,7 +80,12 @@ export default async function OpenHousesPage() {
       <section className="py-16 md:py-24 bg-[var(--rc-cream)]">
         <div className="max-w-7xl mx-auto px-6">
           {listings.length > 0 ? (
-            <OpenHouseGrid listings={listings} />
+            <OpenHouseGrid
+              listings={listings}
+              showOurTeamFilter={hasOurTeamFilter}
+              teamAgentIds={teamAgentIds}
+              teamOfficeNames={teamOfficeNames}
+            />
           ) : (
             <div className="text-center py-16">
               <svg

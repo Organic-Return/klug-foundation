@@ -7,6 +7,9 @@ import { getListingHref, type MLSProperty } from '@/lib/listings';
 
 interface OpenHouseGridProps {
   listings: MLSProperty[];
+  showOurTeamFilter?: boolean;
+  teamAgentIds?: string[];
+  teamOfficeNames?: string[];
 }
 
 function formatPrice(price: number | null): string {
@@ -68,6 +71,21 @@ function groupByDate(
     groups.get(key)!.push(listing);
   }
   return groups;
+}
+
+function isOurListing(
+  listing: MLSProperty,
+  teamAgentIds: string[],
+  teamOfficeNames: string[]
+): boolean {
+  if (listing.list_agent_mls_id && teamAgentIds.includes(listing.list_agent_mls_id)) {
+    return true;
+  }
+  if (listing.list_office_name) {
+    const officeLower = listing.list_office_name.toLowerCase();
+    return teamOfficeNames.some((name) => officeLower.includes(name.toLowerCase()));
+  }
+  return false;
 }
 
 function OpenHouseCard({ listing }: { listing: MLSProperty }) {
@@ -154,32 +172,80 @@ function OpenHouseCard({ listing }: { listing: MLSProperty }) {
   );
 }
 
-export default function OpenHouseGrid({ listings }: OpenHouseGridProps) {
-  const grouped = groupByDate(listings);
+export default function OpenHouseGrid({
+  listings,
+  showOurTeamFilter = false,
+  teamAgentIds = [],
+  teamOfficeNames = [],
+}: OpenHouseGridProps) {
+  const [ourOpenHousesOnly, setOurOpenHousesOnly] = useState(false);
+
+  const filtered = ourOpenHousesOnly
+    ? listings.filter((l) => isOurListing(l, teamAgentIds, teamOfficeNames))
+    : listings;
+
+  const grouped = groupByDate(filtered);
 
   return (
-    <div className="space-y-12">
-      {Array.from(grouped.entries()).map(([dateKey, dateListings]) => (
-        <div key={dateKey}>
-          {/* Date Group Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <h2
-              className="text-lg text-[var(--rc-navy)] whitespace-nowrap uppercase tracking-[0.08em] font-light"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
-            >
-              {formatOpenHouseDate(dateKey)}
-            </h2>
-            <div className="flex-1 h-px bg-[var(--rc-brown)]/20" />
-          </div>
-
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {dateListings.map((listing) => (
-              <OpenHouseCard key={listing.id} listing={listing} />
-            ))}
-          </div>
+    <div>
+      {/* Filter Toggle */}
+      {showOurTeamFilter && (
+        <div className="flex justify-center mb-10">
+          <button
+            onClick={() => setOurOpenHousesOnly(!ourOpenHousesOnly)}
+            className={`
+              px-6 py-2.5 text-xs uppercase tracking-[0.15em] font-medium
+              border transition-all duration-200
+              ${ourOpenHousesOnly
+                ? 'bg-[var(--rc-navy)] text-white border-[var(--rc-navy)]'
+                : 'bg-transparent text-[var(--rc-navy)] border-[var(--rc-navy)] hover:bg-[var(--rc-navy)]/5'
+              }
+            `}
+          >
+            Our Open Houses
+          </button>
         </div>
-      ))}
+      )}
+
+      {/* Results */}
+      {filtered.length > 0 ? (
+        <div className="space-y-12">
+          {Array.from(grouped.entries()).map(([dateKey, dateListings]) => (
+            <div key={dateKey}>
+              {/* Date Group Header */}
+              <div className="flex items-center gap-4 mb-6">
+                <h2
+                  className="text-lg text-[var(--rc-navy)] whitespace-nowrap uppercase tracking-[0.08em] font-light"
+                  style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+                >
+                  {formatOpenHouseDate(dateKey)}
+                </h2>
+                <div className="flex-1 h-px bg-[var(--rc-brown)]/20" />
+              </div>
+
+              {/* Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                {dateListings.map((listing) => (
+                  <OpenHouseCard key={`${listing.id}-${listing.open_house_date}`} listing={listing} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : ourOpenHousesOnly ? (
+        <div className="text-center py-16">
+          <h2
+            className="text-xl md:text-2xl font-light uppercase tracking-[0.08em] text-[var(--rc-navy)] mb-3"
+            style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif' }}
+          >
+            No Upcoming Open Houses
+          </h2>
+          <p className="text-[var(--rc-brown)] text-sm max-w-md mx-auto">
+            We don&apos;t have any open houses scheduled at this time. Please check back soon
+            or contact us for a private showing.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }
