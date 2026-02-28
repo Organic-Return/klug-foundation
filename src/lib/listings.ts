@@ -689,9 +689,11 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   const today = new Date().toISOString().split('T')[0];
   console.log('[OpenHouse] Fetching open houses for date >=', today);
 
-  // Open house data comes from the "rc-listings" base table which has
-  // OpenHouseDate columns for all brokerages including Retter & Co / Sotheby's.
-  // Requires service role key for performance on the large table.
+  // Open house data comes from two sources:
+  //   1. SparkAPI "open_houses" table (synced from RESO OpenHouse endpoint)
+  //   2. "rc-listings" base table (has OpenHouseDate columns for all brokerages,
+  //      including Retter & Co / Sotheby's that aren't in SparkAPI)
+  // We query both and merge, deduplicating by listing ID + date.
 
   type OpenHouseRecord = {
     ListingId: string;
@@ -701,28 +703,53 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     OpenHouseRemarks: string | null;
   };
 
-  const serverClient = getSupabaseServer();
-  if (!serverClient) {
-    console.error('[OpenHouse] Service role key not configured');
-    return [];
-  }
-
-  const { data: ohData, error: ohError } = await serverClient
-    .from('rc-listings')
+  // Step 1a: Get open houses from SparkAPI table
+  const { data: sparkData, error: sparkError } = await supabase
+    .from('open_houses')
     .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
     .gte('OpenHouseDate', today)
     .order('OpenHouseDate', { ascending: true })
     .limit(500);
 
-  if (ohError) {
-    console.error('[OpenHouse] rc-listings query error:', ohError.message);
-    return [];
+  if (sparkError) {
+    console.error('[OpenHouse] SparkAPI query error:', sparkError.message);
+  }
+  console.log('[OpenHouse] SparkAPI:', sparkData?.length || 0, 'records');
+
+  // Step 1b: Get open houses from rc-listings (requires service role for performance)
+  let rcData: OpenHouseRecord[] = [];
+  const serverClient = getSupabaseServer();
+  if (serverClient) {
+    const { data, error: rcError } = await serverClient
+      .from('rc-listings')
+      .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
+      .gte('OpenHouseDate', today)
+      .order('OpenHouseDate', { ascending: true })
+      .limit(500);
+
+    if (rcError) {
+      console.error('[OpenHouse] rc-listings query error:', rcError.message);
+    } else {
+      rcData = (data || []) as OpenHouseRecord[];
+    }
+    console.log('[OpenHouse] rc-listings:', rcData.length, 'records');
   }
 
-  // Deduplicate by ListingId + OpenHouseDate
+  // Step 1c: Merge and deduplicate by ListingId + OpenHouseDate
   const seen = new Set<string>();
   const allOpenHouses: OpenHouseRecord[] = [];
-  for (const oh of (ohData || []) as OpenHouseRecord[]) {
+
+  // rc-listings is the more comprehensive source — add it first
+  for (const oh of rcData) {
+    if (!oh.ListingId || !oh.OpenHouseDate) continue;
+    const key = `${oh.ListingId}|${oh.OpenHouseDate}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      allOpenHouses.push(oh);
+    }
+  }
+  // Then add any SparkAPI records not already seen
+  for (const oh of (sparkData || []) as OpenHouseRecord[]) {
     if (!oh.ListingId || !oh.OpenHouseDate) continue;
     const key = `${oh.ListingId}|${oh.OpenHouseDate}`;
     if (!seen.has(key)) {
@@ -732,10 +759,10 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   }
 
   if (allOpenHouses.length === 0) {
-    console.error('[OpenHouse] No open house records found');
+    console.error('[OpenHouse] No open house records found from any source');
     return [];
   }
-  console.log('[OpenHouse]', allOpenHouses.length, 'open house records');
+  console.log('[OpenHouse] Merged:', allOpenHouses.length, 'unique open house records');
 
   // Step 2: Get unique listing IDs and fetch full listing data
   const listingIds = [...new Set(allOpenHouses.map((oh) => oh.ListingId))];
