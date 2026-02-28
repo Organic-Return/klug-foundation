@@ -146,6 +146,26 @@ export async function getListingBySlug(slug: string): Promise<MLSProperty | null
   return await getListingByMlsNumber(slug) || await getListingById(slug) || await getRealogyListingBySlug(slug);
 }
 
+// Deduplicate listings by mls_number, preferring rows with more complete data
+function deduplicateListings(listings: MLSProperty[]): MLSProperty[] {
+  const seen = new Map<string, MLSProperty>();
+  for (const listing of listings) {
+    const key = listing.mls_number || listing.id;
+    const existing = seen.get(key);
+    if (!existing) {
+      seen.set(key, listing);
+    } else {
+      // Keep the row with more complete data (address, photos)
+      const existingScore = (existing.address ? 1 : 0) + (existing.photos?.length || 0);
+      const newScore = (listing.address ? 1 : 0) + (listing.photos?.length || 0);
+      if (newScore > existingScore) {
+        seen.set(key, listing);
+      }
+    }
+  }
+  return Array.from(seen.values());
+}
+
 // Transform graphql_listings row to MLSProperty format
 function transformListing(row: GraphQLListing): MLSProperty {
   // Extract photos from media — handles JSON arrays, JSON strings, and string arrays
@@ -536,24 +556,7 @@ export async function getListings(
 
   const total = count || 0;
   const allListings = (data || []).map(transformListing);
-
-  // Deduplicate by mls_number (prefer rows with more data: address, photos)
-  const seen = new Map<string, MLSProperty>();
-  for (const listing of allListings) {
-    const key = listing.mls_number || listing.id;
-    const existing = seen.get(key);
-    if (!existing) {
-      seen.set(key, listing);
-    } else {
-      // Keep the row with more complete data
-      const existingScore = (existing.address ? 1 : 0) + (existing.photos?.length || 0);
-      const newScore = (listing.address ? 1 : 0) + (listing.photos?.length || 0);
-      if (newScore > existingScore) {
-        seen.set(key, listing);
-      }
-    }
-  }
-  const listings = Array.from(seen.values());
+  const listings = deduplicateListings(allListings);
   const dedupedTotal = total - (allListings.length - listings.length);
 
   return {
@@ -1029,7 +1032,7 @@ export async function getNewestHighPricedByCity(
     rows = rows.slice(0, limit);
   }
 
-  const listings = rows.map(transformListing);
+  const listings = deduplicateListings(rows.map(transformListing));
   return enrichListingsWithSIRMedia(listings);
 }
 
@@ -1138,7 +1141,7 @@ export async function getNewestHighPricedByCities(
     rows = rows.slice(0, limit);
   }
 
-  const listings = rows.map(transformListing);
+  const listings = deduplicateListings(rows.map(transformListing));
   return enrichListingsWithSIRMedia(listings);
 }
 
@@ -1401,21 +1404,50 @@ export async function getListingsByAgentId(
               .trim();
 
           const dedup = (listings: any[]) => {
-            const seenByListingId = new Set<string>();
+            const byListingId = new Map<string, any>();
             const seenByAddress = new Set<string>();
-            return listings.filter((row) => {
+            const result: any[] = [];
+            // First pass: for each listing_id, keep the row with more data
+            for (const row of listings) {
               if (row.listing_id) {
                 const lid = String(row.listing_id);
-                if (seenByListingId.has(lid)) return false;
-                seenByListingId.add(lid);
+                const existing = byListingId.get(lid);
+                if (!existing) {
+                  byListingId.set(lid, row);
+                } else {
+                  // Prefer the row with address and media (more complete data)
+                  const existingScore = (existing.address ? 1 : 0) + (existing.media ? 1 : 0);
+                  const newScore = (row.address ? 1 : 0) + (row.media ? 1 : 0);
+                  if (newScore > existingScore) {
+                    byListingId.set(lid, row);
+                  }
+                }
               }
-              if (row.address) {
-                const addr = normalizeAddr(String(row.address));
-                if (seenByAddress.has(addr)) return false;
-                seenByAddress.add(addr);
+            }
+            // Second pass: collect deduped rows, also dedup by normalized address
+            const emitted = new Set<string>();
+            for (const row of listings) {
+              if (row.listing_id) {
+                const lid = String(row.listing_id);
+                if (emitted.has(lid)) continue;
+                const best = byListingId.get(lid) || row;
+                emitted.add(lid);
+                if (best.address) {
+                  const addr = normalizeAddr(String(best.address));
+                  if (seenByAddress.has(addr)) continue;
+                  seenByAddress.add(addr);
+                }
+                result.push(best);
+              } else {
+                if (row.address) {
+                  const addr = normalizeAddr(String(row.address));
+                  if (seenByAddress.has(addr)) continue;
+                  seenByAddress.add(addr);
+                }
+                result.push(row);
               }
-              return true;
-            });
+            }
+            return result;
           };
 
           if (agentMlsId) {
