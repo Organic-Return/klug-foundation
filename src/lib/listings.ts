@@ -628,7 +628,7 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
       .select('*')
       .eq('listing_id', mlsNumber)
       .not('status', 'is', null)
-      .order('updated_at', { ascending: false })
+      .order('updated_at', { ascending: false, nullsFirst: false })
       .limit(1)
       .maybeSingle(),
     getSIRMediaForListing(mlsNumber),
