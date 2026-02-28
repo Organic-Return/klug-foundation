@@ -2,6 +2,9 @@ import { supabase, isSupabaseConfigured } from './supabase';
 import { getRealogySupabase, isRealogyConfigured } from './realogySupabase';
 import { getSupabaseServer } from './supabase-server';
 
+// Property types to always exclude (rentals / leases)
+const EXCLUDED_LEASE_TYPES = ['Residential Lease', 'Commercial Lease'];
+
 // Simple in-memory cache with TTL for expensive dropdown queries
 const memCache = new Map<string, { data: any; expiry: number }>();
 function getCached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promise<T> {
@@ -482,6 +485,11 @@ export async function getListings(
     query = query.or(allConditions);
   }
 
+  // Always exclude lease/rental property types
+  if (!filters.keyword) {
+    query = query.not('property_type', 'in', `(${EXCLUDED_LEASE_TYPES.join(',')})`);
+  }
+
   // Apply filters from MLS Configuration
   // Skip type exclusions for keyword searches — user is looking for a specific listing
   if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0 && !filters.keyword) {
@@ -772,7 +780,8 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     .from('active_listings')
     .select('*')
     .in('listing_id', listingIds)
-    .not('status', 'is', null);
+    .not('status', 'is', null)
+    .not('property_type', 'in', `(${EXCLUDED_LEASE_TYPES.join(',')})`);
 
   if (listError) {
     console.error('[OpenHouse] Listings lookup error:', listError.message, listError);
@@ -1452,6 +1461,9 @@ export async function getListingsByAgentId(
               .replace(/\s+/g, ' ')
               .trim();
 
+          const excludeLeases = (listings: any[]) =>
+            listings.filter((r) => !EXCLUDED_LEASE_TYPES.includes(r.property_type));
+
           const dedup = (listings: any[]) => {
             const byListingId = new Map<string, any>();
             const seenByAddress = new Set<string>();
@@ -1564,14 +1576,14 @@ export async function getListingsByAgentId(
                   .limit(200),
               ]);
               return {
-                activeListings: dedup(activeByName.data || []).map(transformListing),
-                soldListings: dedup(soldByName.data || []).map(transformListing),
+                activeListings: dedup(excludeLeases(activeByName.data || [])).map(transformListing),
+                soldListings: dedup(excludeLeases(soldByName.data || [])).map(transformListing),
               };
             }
 
             return {
-              activeListings: dedup(activeData).map(transformListing),
-              soldListings: dedup(soldData).map(transformListing),
+              activeListings: dedup(excludeLeases(activeData)).map(transformListing),
+              soldListings: dedup(excludeLeases(soldData)).map(transformListing),
             };
           } else {
             // No MLS ID — fall back to name-based query on list_agent_full_name
@@ -1602,8 +1614,8 @@ export async function getListingsByAgentId(
             if (soldRes.error) console.error('Error fetching sold MLS listings by name:', soldRes.error);
 
             return {
-              activeListings: dedup(activeRes.data || []).map(transformListing),
-              soldListings: dedup(soldRes.data || []).map(transformListing),
+              activeListings: dedup(excludeLeases(activeRes.data || [])).map(transformListing),
+              soldListings: dedup(excludeLeases(soldRes.data || [])).map(transformListing),
             };
           }
         })()
