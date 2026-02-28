@@ -161,8 +161,7 @@ export const teamMember = defineType({
       name: 'overrides',
       title: 'Field Overrides',
       type: 'object',
-      description: 'Tracks which fields have been manually edited (sync will not overwrite these)',
-      hidden: true,
+      description: 'Check fields that have been manually edited — sync will not overwrite these',
       fields: [
         { name: 'name', type: 'boolean', title: 'Name' },
         { name: 'title', type: 'boolean', title: 'Title' },

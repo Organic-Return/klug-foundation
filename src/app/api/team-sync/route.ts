@@ -183,8 +183,12 @@ function buildPatchData(
   setIfChanged('title', agent.specialty || '');
 
   const mlsId = getAgentMlsId(agent);
-  if (!overrides.mlsAgentId && mlsId && mlsId !== existing?.mlsAgentId) {
-    patch.mlsAgentId = mlsId;
+  if (!overrides.mlsAgentId && mlsId) {
+    // Only set mlsAgentId if the existing document doesn't have one yet.
+    // If it already has a different ID, it was likely manually corrected — don't overwrite.
+    if (!existing?.mlsAgentId) {
+      patch.mlsAgentId = mlsId;
+    }
   }
 
   return patch;
