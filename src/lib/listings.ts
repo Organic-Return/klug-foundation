@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { getRealogySupabase, isRealogyConfigured } from './realogySupabase';
+import { getSupabaseServer } from './supabase-server';
 
 // Simple in-memory cache with TTL for expensive dropdown queries
 const memCache = new Map<string, { data: any; expiry: number }>();
@@ -688,36 +689,84 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   const today = new Date().toISOString().split('T')[0];
   console.log('[OpenHouse] Fetching open houses for date >=', today);
 
-  // Open house data lives in the dedicated "open_houses" table (synced from
-  // SparkAPI RESO OpenHouse endpoint). The graphql_listings view's open_house_date
-  // column has unreliable data, so we query open_houses and join with
-  // active_listings for full listing details (photos, beds, baths, etc.).
+  // Open house data comes from two sources:
+  //   1. SparkAPI "open_houses" table (synced from RESO OpenHouse endpoint)
+  //   2. "rc-listings" base table (has OpenHouseDate columns for all brokerages,
+  //      including Retter & Co / Sotheby's that aren't in SparkAPI)
+  // We query both and merge, deduplicating by listing ID + date.
 
-  // Step 1: Get upcoming open house records
-  const { data: ohData, error: ohError } = await supabase
+  type OpenHouseRecord = {
+    ListingId: string;
+    OpenHouseDate: string;
+    OpenHouseStartTime: string | null;
+    OpenHouseEndTime: string | null;
+    OpenHouseRemarks: string | null;
+  };
+
+  // Step 1a: Get open houses from SparkAPI table
+  const { data: sparkData, error: sparkError } = await supabase
     .from('open_houses')
     .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
     .gte('OpenHouseDate', today)
     .order('OpenHouseDate', { ascending: true })
-    .limit(200);
+    .limit(500);
 
-  if (ohError) {
-    console.error('[OpenHouse] Step 1 error:', ohError.message, ohError);
+  if (sparkError) {
+    console.error('[OpenHouse] SparkAPI query error:', sparkError.message);
+  }
+  console.log('[OpenHouse] SparkAPI:', sparkData?.length || 0, 'records');
+
+  // Step 1b: Get open houses from rc-listings (requires service role for performance)
+  let rcData: OpenHouseRecord[] = [];
+  const serverClient = getSupabaseServer();
+  if (serverClient) {
+    const { data, error: rcError } = await serverClient
+      .from('rc-listings')
+      .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
+      .gte('OpenHouseDate', today)
+      .order('OpenHouseDate', { ascending: true })
+      .limit(500);
+
+    if (rcError) {
+      console.error('[OpenHouse] rc-listings query error:', rcError.message);
+    } else {
+      rcData = (data || []) as OpenHouseRecord[];
+    }
+    console.log('[OpenHouse] rc-listings:', rcData.length, 'records');
+  }
+
+  // Step 1c: Merge and deduplicate by ListingId + OpenHouseDate
+  const seen = new Set<string>();
+  const allOpenHouses: OpenHouseRecord[] = [];
+
+  // rc-listings is the more comprehensive source — add it first
+  for (const oh of rcData) {
+    if (!oh.ListingId || !oh.OpenHouseDate) continue;
+    const key = `${oh.ListingId}|${oh.OpenHouseDate}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      allOpenHouses.push(oh);
+    }
+  }
+  // Then add any SparkAPI records not already seen
+  for (const oh of (sparkData || []) as OpenHouseRecord[]) {
+    if (!oh.ListingId || !oh.OpenHouseDate) continue;
+    const key = `${oh.ListingId}|${oh.OpenHouseDate}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      allOpenHouses.push(oh);
+    }
+  }
+
+  if (allOpenHouses.length === 0) {
+    console.error('[OpenHouse] No open house records found from any source');
     return [];
   }
-  if (!ohData || ohData.length === 0) {
-    console.error('[OpenHouse] Step 1: no records for date >=', today);
-    return [];
-  }
-  console.log('[OpenHouse] Step 1:', ohData.length, 'open house records');
+  console.log('[OpenHouse] Merged:', allOpenHouses.length, 'unique open house records');
 
   // Step 2: Get unique listing IDs and fetch full listing data
-  const listingIds = [...new Set(ohData.map((oh: any) => oh.ListingId).filter(Boolean))];
-  if (listingIds.length === 0) {
-    console.error('[OpenHouse] No valid ListingId values found');
-    return [];
-  }
-  console.log('[OpenHouse] Step 2: looking up', listingIds.length, 'listings');
+  const listingIds = [...new Set(allOpenHouses.map((oh) => oh.ListingId))];
+  console.log('[OpenHouse] Looking up', listingIds.length, 'listings');
 
   const { data: listings, error: listError } = await supabase
     .from('active_listings')
@@ -726,14 +775,14 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     .not('status', 'is', null);
 
   if (listError) {
-    console.error('[OpenHouse] Step 2 error:', listError.message, listError);
+    console.error('[OpenHouse] Listings lookup error:', listError.message, listError);
     return [];
   }
   if (!listings || listings.length === 0) {
-    console.error('[OpenHouse] Step 2: no matching listings found');
+    console.error('[OpenHouse] No matching listings found');
     return [];
   }
-  console.log('[OpenHouse] Step 2:', listings.length, 'listings matched');
+  console.log('[OpenHouse] Matched', listings.length, 'listings');
 
   // Step 3: Merge open house data onto listings (prefer rows with address data)
   const listingMap = new Map<string, any>();
@@ -745,7 +794,7 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   }
 
   const results: MLSProperty[] = [];
-  for (const oh of ohData as any[]) {
+  for (const oh of allOpenHouses) {
     const listing = listingMap.get(oh.ListingId);
     if (!listing) continue;
 
