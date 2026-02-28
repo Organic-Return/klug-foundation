@@ -485,9 +485,9 @@ export async function getListings(
     query = query.or(allConditions);
   }
 
-  // Always exclude lease/rental property types
+  // Always exclude lease/rental property types (also include NULL property_type rows)
   if (!filters.keyword) {
-    query = query.not('property_type', 'in', `(${EXCLUDED_LEASE_TYPES.join(',')})`);
+    query = query.or(`property_type.not.in.(${EXCLUDED_LEASE_TYPES.join(',')}),property_type.is.null`);
   }
 
   // Apply filters from MLS Configuration
@@ -780,8 +780,7 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     .from('active_listings')
     .select('*')
     .in('listing_id', listingIds)
-    .not('status', 'is', null)
-    .not('property_type', 'in', `(${EXCLUDED_LEASE_TYPES.join(',')})`);
+    .not('status', 'is', null);
 
   if (listError) {
     console.error('[OpenHouse] Listings lookup error:', listError.message, listError);
@@ -806,6 +805,8 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   for (const oh of allOpenHouses) {
     const listing = listingMap.get(oh.ListingId);
     if (!listing) continue;
+    // Skip lease/rental properties
+    if (EXCLUDED_LEASE_TYPES.includes(listing.property_type)) continue;
 
     const merged = transformListing({
       ...listing,
