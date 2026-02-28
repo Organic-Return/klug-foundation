@@ -576,7 +576,7 @@ async function getSIRMediaForListing(mlsNumber: string): Promise<SIRMediaAssets 
   // multiple SIR rows, we consistently pick the most recently inserted one.
   const { data, error } = await realogySupabase
     .from('realogy_listings')
-    .select('default_photo_url, media')
+    .select('default_photo_url, media, state_province_code')
     .contains('mls_numbers', JSON.stringify([mlsNumber]))
     .order('id', { ascending: false })
     .limit(1)
@@ -588,7 +588,9 @@ async function getSIRMediaForListing(mlsNumber: string): Promise<SIRMediaAssets 
   }
   if (!data) return null;
 
-  return extractSIRMedia(data);
+  const media = extractSIRMedia(data);
+  media.state = data.state_province_code || null;
+  return media;
 }
 
 export async function getListingById(id: string): Promise<MLSProperty | null> {
@@ -609,8 +611,10 @@ export async function getListingById(id: string): Promise<MLSProperty | null> {
   const listing = transformListing(data);
 
   // Enrich with SIR media (better photos, virtual tours, videos)
+  // Skip SIR enrichment if the SIR record is for a different state (duplicate MLS number)
   const sirMedia = await getSIRMediaForListing(listing.mls_number);
-  return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
+  const sirMatchesListing = sirMedia && (!sirMedia.state || !listing.state || sirMedia.state === listing.state);
+  return sirMatchesListing ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
 }
 
 export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSProperty | null> {
@@ -638,7 +642,9 @@ export async function getListingByMlsNumber(mlsNumber: string): Promise<MLSPrope
   if (!mlsResult.data) return null;
   const listing = transformListing(mlsResult.data);
 
-  return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
+  // Skip SIR enrichment if the SIR record is for a different state (duplicate MLS number)
+  const sirMatchesListing = sirMedia && (!sirMedia.state || !listing.state || sirMedia.state === listing.state);
+  return sirMatchesListing ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
 }
 
 // Look up a listing in the Realogy/SIR database by rfg_listing_id or entity_id
@@ -1144,7 +1150,8 @@ async function enrichListingsWithSIRMedia(listings: MLSProperty[]): Promise<MLSP
     listings.map(async (listing) => {
       if (!listing.mls_number) return listing;
       const sirMedia = await getSIRMediaForListing(listing.mls_number);
-      return sirMedia ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
+      const sirMatchesListing = sirMedia && (!sirMedia.state || !listing.state || sirMedia.state === listing.state);
+      return sirMatchesListing ? enrichListingWithSIRMedia(listing, sirMedia) : listing;
     })
   );
 }
@@ -1154,6 +1161,7 @@ interface SIRMediaAssets {
   photos: string[];
   videoUrls: string[];
   virtualTourUrl: string | null;
+  state?: string | null;
 }
 
 function extractSIRMedia(row: any): SIRMediaAssets {
