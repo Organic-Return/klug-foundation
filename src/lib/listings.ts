@@ -689,9 +689,10 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   const today = new Date().toISOString().split('T')[0];
   console.log('[OpenHouse] Fetching open houses for date >=', today);
 
-  // Open house data comes from the "rc-listings" base table which has
+  // Open house data lives in the "rc-listings" base table which has
   // OpenHouseDate columns for all brokerages including Retter & Co / Sotheby's.
-  // Requires service role key for performance on the large table.
+  // Requires an index on "OpenHouseDate" for fast queries (see migration).
+  // Falls back to SparkAPI "open_houses" table if rc-listings query fails.
 
   type OpenHouseRecord = {
     ListingId: string;
@@ -701,28 +702,46 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
     OpenHouseRemarks: string | null;
   };
 
+  // Try rc-listings first (comprehensive — all brokerages)
+  let ohRecords: OpenHouseRecord[] = [];
   const serverClient = getSupabaseServer();
-  if (!serverClient) {
-    console.error('[OpenHouse] Service role key not configured');
-    return [];
+  if (serverClient) {
+    const { data, error } = await serverClient
+      .from('rc-listings')
+      .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
+      .gte('OpenHouseDate', today)
+      .order('OpenHouseDate', { ascending: true })
+      .limit(500);
+
+    if (!error && data) {
+      ohRecords = data as OpenHouseRecord[];
+      console.log('[OpenHouse] rc-listings:', ohRecords.length, 'records');
+    } else {
+      console.warn('[OpenHouse] rc-listings query failed:', error?.message, '— falling back to open_houses');
+    }
   }
 
-  const { data: ohData, error: ohError } = await serverClient
-    .from('rc-listings')
-    .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
-    .gte('OpenHouseDate', today)
-    .order('OpenHouseDate', { ascending: true })
-    .limit(500);
+  // Fallback to SparkAPI open_houses table if rc-listings failed or unavailable
+  if (ohRecords.length === 0) {
+    const { data, error } = await supabase
+      .from('open_houses')
+      .select('"ListingId", "OpenHouseDate", "OpenHouseStartTime", "OpenHouseEndTime", "OpenHouseRemarks"')
+      .gte('OpenHouseDate', today)
+      .order('OpenHouseDate', { ascending: true })
+      .limit(500);
 
-  if (ohError) {
-    console.error('[OpenHouse] rc-listings query error:', ohError.message);
-    return [];
+    if (error) {
+      console.error('[OpenHouse] open_houses fallback error:', error.message);
+      return [];
+    }
+    ohRecords = (data || []) as OpenHouseRecord[];
+    console.log('[OpenHouse] open_houses fallback:', ohRecords.length, 'records');
   }
 
   // Deduplicate by ListingId + OpenHouseDate
   const seen = new Set<string>();
   const allOpenHouses: OpenHouseRecord[] = [];
-  for (const oh of (ohData || []) as OpenHouseRecord[]) {
+  for (const oh of ohRecords) {
     if (!oh.ListingId || !oh.OpenHouseDate) continue;
     const key = `${oh.ListingId}|${oh.OpenHouseDate}`;
     if (!seen.has(key)) {
