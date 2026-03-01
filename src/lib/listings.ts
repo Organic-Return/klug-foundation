@@ -159,10 +159,12 @@ function deduplicateListings(listings: MLSProperty[]): MLSProperty[] {
     if (!existing) {
       seen.set(key, listing);
     } else {
-      // Keep the row with more complete data (address, photos)
-      const existingScore = (existing.address ? 1 : 0) + (existing.photos?.length || 0);
-      const newScore = (listing.address ? 1 : 0) + (listing.photos?.length || 0);
-      if (newScore > existingScore) {
+      // Strongly prefer rows with a valid updated_at (rows with null updated_at
+      // have stale data including outdated prices from before price changes).
+      // Then break ties by data completeness (address, photos).
+      const score = (l: MLSProperty) =>
+        (l.updated_at ? 100 : 0) + (l.address ? 1 : 0) + (l.photos?.length || 0);
+      if (score(listing) > score(existing)) {
         seen.set(key, listing);
       }
     }
@@ -1477,9 +1479,9 @@ export async function getListingsByAgentId(
                 if (!existing) {
                   byListingId.set(lid, row);
                 } else {
-                  // Prefer the row with address and media (more complete data)
-                  const existingScore = (existing.address ? 1 : 0) + (existing.media ? 1 : 0);
-                  const newScore = (row.address ? 1 : 0) + (row.media ? 1 : 0);
+                  // Prefer rows with updated_at (stale rows have null), then by data completeness
+                  const existingScore = (existing.updated_at ? 100 : 0) + (existing.address ? 1 : 0) + (existing.media ? 1 : 0);
+                  const newScore = (row.updated_at ? 100 : 0) + (row.address ? 1 : 0) + (row.media ? 1 : 0);
                   if (newScore > existingScore) {
                     byListingId.set(lid, row);
                   }
