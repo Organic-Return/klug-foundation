@@ -392,8 +392,8 @@ export default function Header({
             {/* Contact CTA */}
             <button
               onClick={() => setContactModalOpen(true)}
-              className="text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
-              style={{ fontFamily: 'var(--font-body)' }}
+              className="uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+              style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
             >
               Contact Us
             </button>
@@ -512,7 +512,8 @@ export default function Header({
                 setMobileMenuOpen(false);
                 setContactModalOpen(true);
               }}
-              className="block w-full text-center text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-3 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] mt-4"
+              className="block w-full text-center uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] mt-4"
+              style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
             >
               Contact Us
             </button>
@@ -640,7 +641,8 @@ export default function Header({
               {/* Search Button */}
               <button
                 type="submit"
-                className="ml-6 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+                className="ml-6 uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+                style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
               >
                 SEARCH
               </button>
