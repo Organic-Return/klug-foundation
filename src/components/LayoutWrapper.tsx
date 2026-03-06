@@ -34,7 +34,8 @@ export default function LayoutWrapper({ header, footer, children, template }: La
 
   // Force blue header on ALL pages except homepage and community pages (which have transparent hero overlays)
   // Skip for rcsothebys-custom since its header is always cream/static
-  const needsForceBackground = !isRCSothebys && !isHomepage && !isCommunityPage;
+  // When pathname is null (initial render before hydration), default to transparent to avoid flash
+  const needsForceBackground = pathname != null && !isRCSothebys && !isHomepage && !isCommunityPage;
 
   // Clone header element to add forceBackground prop if needed
   const headerWithProps = needsForceBackground && isValidElement(header)
