@@ -241,7 +241,7 @@ export default function Header({
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -250,7 +250,7 @@ export default function Header({
                   <button
                     onClick={() => toggleDropdown(index)}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -393,6 +393,7 @@ export default function Header({
             <button
               onClick={() => setContactModalOpen(true)}
               className="text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+              style={{ fontFamily: 'var(--font-body)' }}
             >
               Contact Us
             </button>
