@@ -1248,6 +1248,9 @@ address {
 .klug-template {
   --font-body: var(--font-open-sans), "Open Sans", sans-serif;
   --font-heading: "HCo Mercury SSm", serif;
+  --font-serif: "HCo Mercury SSm", serif;
+  --font-sans: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-lora: "HCo Mercury SSm", serif;
 
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
