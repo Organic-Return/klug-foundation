@@ -133,13 +133,13 @@ export default function LuxuryHeader({
         <div className={`mx-auto max-w-[1800px] px-6 lg:px-8 border-b transition-colors duration-500 ${
           showScrolledState ? 'border-gray-200' : 'border-white/20'
         }`}>
-          <div className="flex items-center justify-between h-20 lg:h-24">
+          <div className="flex items-center justify-between h-20 md:h-24">
             {/* Left - Mobile Menu Button / Desktop Contact Icons */}
             <div className="flex items-center gap-6">
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`lg:hidden flex items-center gap-2 p-2 -ml-2 transition-colors ${
+                className={`md:hidden flex items-center gap-2 p-2 -ml-2 transition-colors ${
                   showScrolledState ? 'text-[#384249] hover:text-[#384249]/70' : 'text-white hover:text-white/70'
                 }`}
                 aria-label="Toggle menu"
@@ -152,7 +152,7 @@ export default function LuxuryHeader({
               </button>
 
               {/* Desktop Contact Icons */}
-              <div className="hidden lg:flex items-center gap-6">
+              <div className="hidden md:flex items-center gap-6">
                 {phoneNumber && (
                   <a
                     href={`tel:${phoneHref(phoneNumber)}`}
@@ -214,12 +214,12 @@ export default function LuxuryHeader({
             {/* Right - Contact Button */}
             <div className="flex items-center gap-6">
               {/* Mobile placeholder for balance */}
-              <div className="lg:hidden w-8" />
+              <div className="md:hidden w-8" />
 
               {/* Desktop Contact Link */}
               <Link
                 href="/contact-us"
-                className={`hidden lg:block text-[11px] uppercase tracking-[0.18em] font-light transition-colors font-luxury-body ${
+                className={`hidden md:block text-[11px] uppercase tracking-[0.18em] font-light transition-colors font-luxury-body ${
                   showScrolledState ? 'text-gray-500 hover:text-[#384249]' : 'text-white/70 hover:text-white'
                 }`}
               >
@@ -230,7 +230,7 @@ export default function LuxuryHeader({
         </div>
 
         {/* Desktop Navigation Bar */}
-        <div className="hidden lg:block" ref={dropdownRef}>
+        <div className="hidden md:block" ref={dropdownRef}>
           <nav className="mx-auto max-w-[1800px] px-8">
             <ul className="flex items-center justify-center gap-1">
               {navItems.map((item, index) => (
@@ -360,7 +360,7 @@ export default function LuxuryHeader({
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`fixed inset-0 z-40 lg:hidden transition-all duration-500 ${
+        className={`fixed inset-0 z-40 md:hidden transition-all duration-500 ${
           mobileMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'
         }`}
       >
