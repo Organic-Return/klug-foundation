@@ -77,8 +77,10 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
   const filterSubTypes = PROPERTY_SUB_TYPE_FILTERS[propertyFilter];
 
   // Build all three queries
+  // Use active_listings materialized view for active/pending (indexed, fast)
+  // Keep graphql_listings for closed/sold (not in materialized view)
   let activeQuery = supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('city, list_price, square_feet')
     .eq('status', 'Active')
     .in('city', allowedCities)
@@ -89,7 +91,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .not('property_type', 'eq', 'Res Vacant Land');
 
   let pendingQuery = supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('city')
     .or('status.eq.Pending,status.eq.Under Contract,status.eq.Active Under Contract,status.ilike.Pending%,status.ilike.Active U/C%')
     .in('city', allowedCities)

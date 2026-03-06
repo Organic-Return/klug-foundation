@@ -1051,13 +1051,13 @@ export async function getNewestHighPricedByCity(
   // Instead, overfetch and filter in JS
   const overfetchMultiplier = options?.officeName ? 5 : 1;
 
+  // Use active_listings materialized view (indexed, ~3K rows) instead of
+  // graphql_listings view (100K+ rows, COALESCE prevents index usage, causes timeouts)
   let query = supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('*')
     .ilike('city', city)
     .eq('property_type', 'Residential')
-    .eq('property_sub_type', 'Site Built-Owned Lot')
-    .in('status', ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending'])
     .not('list_price', 'is', null);
 
   if (options?.minPrice) {
@@ -1105,9 +1105,9 @@ export async function getCommunityPriceRange(
 ): Promise<{ lowestCondo: number | null; highestSingleFamily: number | null }> {
   if (!isSupabaseConfigured()) return { lowestCondo: null, highestSingleFamily: null };
 
-  // Get lowest priced active listing (prefer condos, fall back to any type)
+  // Use active_listings materialized view (indexed, fast)
   const { data: condoData, error: condoError } = await supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('list_price')
     .ilike('city', city)
     .or('property_sub_type.eq.Condominium,property_sub_type.is.null')
@@ -1122,10 +1122,10 @@ export async function getCommunityPriceRange(
 
   // Get highest priced active listing (prefer SFR, fall back to any type)
   const { data: sfhData, error: sfhError } = await supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('list_price')
     .ilike('city', city)
-    .or('property_sub_type.eq.Single Family Residence,property_sub_type.is.null')
+    .or('property_sub_type.eq.Single Family Residence,property_sub_type.eq.Site Built-Owned Lot,property_sub_type.is.null')
     .eq('status', 'Active')
     .not('list_price', 'is', null)
     .order('list_price', { ascending: false })
@@ -1160,13 +1160,13 @@ export async function getNewestHighPricedByCities(
   // Instead, overfetch and filter in JS
   const overfetchMultiplier = options?.officeName ? 5 : 1;
 
+  // Use active_listings materialized view (indexed, ~3K rows) instead of
+  // graphql_listings view (100K+ rows, COALESCE prevents index usage, causes timeouts)
   let query = supabase
-    .from('graphql_listings')
+    .from('active_listings')
     .select('*')
     .or(cityFilters)
     .eq('property_type', 'Residential')
-    .eq('property_sub_type', 'Site Built-Owned Lot')
-    .in('status', ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending'])
     .not('list_price', 'is', null);
 
   if (options?.minPrice) {
