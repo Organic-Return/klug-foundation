@@ -1272,24 +1272,24 @@ address {
 
 .klug-template h1 {
   font-family: "Freight Big Pro", "Freight Text Pro", Georgia, serif !important;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .klug-template h2 {
-  font-family: "Freight Big Pro", "Freight Text Pro", Georgia, serif !important;
-  font-weight: 500;
+  font-family: "Freight Text Pro", Georgia, serif !important;
+  font-weight: 600;
 }
 
 .klug-template h3 {
   font-family: "Freight Text Pro", Georgia, serif !important;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .klug-template h4,
 .klug-template h5,
 .klug-template h6 {
   font-family: "Freight Text Pro", Georgia, serif !important;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .klug-template p,
