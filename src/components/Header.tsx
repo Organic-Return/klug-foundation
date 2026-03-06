@@ -118,6 +118,7 @@ export default function Header({
   forceBackground = false,
   agent,
 }: HeaderProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
@@ -137,6 +138,7 @@ export default function Header({
   const isMarketReportsPage = pathname?.startsWith('/market-reports');
 
   useEffect(() => {
+    setIsMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
@@ -194,7 +196,7 @@ export default function Header({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || forceBackground || isPartnersPage || isMarketReportsPage
+        isMounted && (isScrolled || forceBackground || isPartnersPage || isMarketReportsPage)
           ? 'bg-[var(--color-sothebys-blue)] shadow-md'
           : 'bg-transparent'
       }`}
