@@ -1165,3 +1165,138 @@ address {
   letter-spacing: 0.11em;
   color: var(--rc-navy);
 }
+
+/* ========================================
+   KLUG CUSTOM TEMPLATE
+   HCo Mercury SSm headings + Open Sans body
+   ======================================== */
+
+/* Mercury SSm @font-face declarations */
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-Light_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-Light_Web.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-LightItalic_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-LightItalic_Web.woff') format('woff');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-Book_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-Book_Web.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-BookItalic_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-BookItalic_Web.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-Medium_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-Medium_Web.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-MediumItalic_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-MediumItalic_Web.woff') format('woff');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-Bold_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-Bold_Web.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'HCo Mercury SSm';
+  src: url('/fonts/klug/MercurySSm-BoldItalic_Web.woff2') format('woff2'),
+       url('/fonts/klug/MercurySSm-BoldItalic_Web.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Klug template base styles */
+.klug-template {
+  --font-body: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-heading: "HCo Mercury SSm", serif;
+
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.klug-template h1 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.klug-template h2 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.klug-template h3 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.klug-template h4,
+.klug-template h5,
+.klug-template h6 {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+.klug-template p,
+.klug-template a,
+.klug-template button,
+.klug-template input,
+.klug-template textarea,
+.klug-template select,
+.klug-template label,
+.klug-template small,
+.klug-template address {
+  font-family: var(--font-body);
+}
+
+/* Market stat values use Medium weight */
+.klug-template .market-stat-value {
+  font-family: var(--font-heading);
+  font-weight: 500;
+}
+
+/* Market stat labels use bold italic serif */
+.klug-template .market-stat-label {
+  font-family: Times, serif;
+  font-weight: 700;
+  font-style: italic;
+}
