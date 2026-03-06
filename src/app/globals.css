@@ -1292,37 +1292,39 @@ address {
 
 /* Klug template base styles */
 .klug-template {
+  /* Override the next/font CSS variables so ALL elements using var(--font-inter) or var(--font-lora) get Klug fonts */
+  --font-inter: "Benton Sans", sans-serif;
+  --font-lora: "HCo Mercury SSm", serif;
   --font-body: "Benton Sans", sans-serif;
   --font-heading: "HCo Mercury SSm", serif;
   --font-serif: "HCo Mercury SSm", serif;
   --font-sans: "Benton Sans", sans-serif;
-  --font-lora: "HCo Mercury SSm", serif;
 
-  font-family: var(--font-body);
+  font-family: "Benton Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .klug-template h1 {
-  font-family: var(--font-heading);
-  font-weight: 400;
+  font-family: "HCo Mercury SSm", serif !important;
+  font-weight: 600;
 }
 
 .klug-template h2 {
-  font-family: var(--font-heading);
-  font-weight: 400;
+  font-family: "HCo Mercury SSm", serif !important;
+  font-weight: 500;
 }
 
 .klug-template h3 {
-  font-family: var(--font-heading);
-  font-weight: 400;
+  font-family: "HCo Mercury SSm", serif !important;
+  font-weight: 500;
 }
 
 .klug-template h4,
 .klug-template h5,
 .klug-template h6 {
-  font-family: var(--font-heading);
-  font-weight: 400;
+  font-family: "HCo Mercury SSm", serif !important;
+  font-weight: 500;
 }
 
 .klug-template p,
@@ -1334,7 +1336,7 @@ address {
 .klug-template label,
 .klug-template small,
 .klug-template address {
-  font-family: var(--font-body);
+  font-family: "Benton Sans", sans-serif;
 }
 
 /* Market stat values use Medium weight */
