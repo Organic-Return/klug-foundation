@@ -206,7 +206,7 @@ export default function Header({
           {/* Logo */}
           <Link href="/" className="flex items-center">
             {logo?.asset?.url ? (
-              <div className="relative h-12 sm:h-16 md:h-20 min-[1150px]:h-27 w-[10rem] sm:w-[14rem] md:w-[18rem] min-[1150px]:w-[14rem] min-[1350px]:w-[17rem] 2xl:w-[22.5rem]">
+              <div className="relative h-12 sm:h-16 md:h-20 lg:h-24 xl:h-27 w-[10rem] sm:w-[14rem] md:w-[18rem] lg:w-[20rem] xl:w-[22rem] 2xl:w-[24rem]">
                 <Image
                   src={urlFor(logo).width(675).url()}
                   alt={logoAlt}
@@ -243,7 +243,7 @@ export default function Header({
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)', fontFamily: 'var(--font-body)' }}
+                    style={{ fontSize: 'clamp(14px, calc(0.4vw + 8px), 16px)', padding: '8px clamp(6px, calc(0.8vw - 4px), 16px)', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -252,7 +252,7 @@ export default function Header({
                   <button
                     onClick={() => toggleDropdown(index)}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)', fontFamily: 'var(--font-body)' }}
+                    style={{ fontSize: 'clamp(14px, calc(0.4vw + 8px), 16px)', padding: '8px clamp(6px, calc(0.8vw - 4px), 16px)', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
