@@ -225,7 +225,7 @@ export default function Header({
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden min-[1150px]:flex items-center flex-nowrap space-x-0">
+          <nav className="hidden md:flex items-center flex-nowrap space-x-0">
             {navItems.map((item, index) => {
               const hasDropdown = item.hasMegaMenu || (item.simpleDropdown && item.simpleDropdown.length > 0);
 
@@ -240,7 +240,7 @@ export default function Header({
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(9px, calc(0.45vw + 4px), 14px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(11px, calc(0.5vw + 6px), 16px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -249,7 +249,7 @@ export default function Header({
                   <button
                     onClick={() => toggleDropdown(index)}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(9px, calc(0.45vw + 4px), 14px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(11px, calc(0.5vw + 6px), 16px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -372,7 +372,7 @@ export default function Header({
           </nav>
 
           {/* Search & CTA Buttons - Desktop */}
-          <div className="hidden min-[1150px]:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             {/* Search Icon Button */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -400,7 +400,7 @@ export default function Header({
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`min-[1150px]:hidden p-2 transition-colors ${
+            className={`md:hidden p-2 transition-colors ${
               isScrolled
                 ? 'text-white hover:text-[var(--color-gold)]'
                 : 'text-white hover:text-white/80'
@@ -422,7 +422,7 @@ export default function Header({
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="min-[1150px]:hidden border-t border-gray-200 bg-white">
+        <div className="md:hidden border-t border-gray-200 bg-white">
           <nav className="px-4 py-4 space-y-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
             {navItems.map((item, index) => (
               <div key={index}>
