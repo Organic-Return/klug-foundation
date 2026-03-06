@@ -224,8 +224,9 @@ export default function Header({
             )}
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center flex-nowrap space-x-0">
+          {/* Desktop Navigation + Actions */}
+          <div className="hidden md:flex items-center">
+          <nav className="flex items-center flex-nowrap space-x-0">
             {navItems.map((item, index) => {
               const hasDropdown = item.hasMegaMenu || (item.simpleDropdown && item.simpleDropdown.length > 0);
 
@@ -372,7 +373,7 @@ export default function Header({
           </nav>
 
           {/* Search & CTA Buttons - Desktop */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
             {/* Search Icon Button */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -395,6 +396,7 @@ export default function Header({
             >
               Contact Us
             </button>
+          </div>
           </div>
 
           {/* Mobile Menu Button */}
