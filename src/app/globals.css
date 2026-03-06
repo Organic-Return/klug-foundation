@@ -1168,79 +1168,44 @@ address {
 
 /* ========================================
    KLUG CUSTOM TEMPLATE
-   HCo Mercury SSm headings + Benton Sans body
+   Freight Pro headings + Benton Sans body
    ======================================== */
 
-/* Mercury SSm @font-face declarations */
+/* Freight Big Pro @font-face (display/heading size) */
 @font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-Light_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-Light_Web.woff') format('woff');
+  font-family: 'Freight Big Pro';
+  src: url('/fonts/klug/FreightBigPro-Medium.woff2') format('woff2'),
+       url('/fonts/klug/FreightBigPro-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Freight Text Pro @font-face declarations */
+@font-face {
+  font-family: 'Freight Text Pro';
+  src: url('/fonts/klug/FreightTextPro-Light.woff2') format('woff2'),
+       url('/fonts/klug/FreightTextPro-Light.woff') format('woff');
   font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-LightItalic_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-LightItalic_Web.woff') format('woff');
-  font-weight: 300;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-Book_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-Book_Web.woff') format('woff');
-  font-weight: 400;
+  font-family: 'Freight Text Pro';
+  src: url('/fonts/klug/FreightTextPro-Semibold.woff2') format('woff2'),
+       url('/fonts/klug/FreightTextPro-Semibold.woff') format('woff');
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-BookItalic_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-BookItalic_Web.woff') format('woff');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-Medium_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-Medium_Web.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-MediumItalic_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-MediumItalic_Web.woff') format('woff');
-  font-weight: 500;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-Bold_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-Bold_Web.woff') format('woff');
+  font-family: 'Freight Text Pro';
+  src: url('/fonts/klug/FreightTextPro-Bold.woff2') format('woff2'),
+       url('/fonts/klug/FreightTextPro-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'HCo Mercury SSm';
-  src: url('/fonts/klug/MercurySSm-BoldItalic_Web.woff2') format('woff2'),
-       url('/fonts/klug/MercurySSm-BoldItalic_Web.woff') format('woff');
-  font-weight: 700;
-  font-style: italic;
   font-display: swap;
 }
 
@@ -1294,10 +1259,10 @@ address {
 .klug-template {
   /* Override the next/font CSS variables so ALL elements using var(--font-inter) or var(--font-lora) get Klug fonts */
   --font-inter: "Benton Sans", sans-serif;
-  --font-lora: "HCo Mercury SSm", serif;
+  --font-lora: "Freight Big Pro", "Freight Text Pro", Georgia, serif;
   --font-body: "Benton Sans", sans-serif;
-  --font-heading: "HCo Mercury SSm", serif;
-  --font-serif: "HCo Mercury SSm", serif;
+  --font-heading: "Freight Big Pro", "Freight Text Pro", Georgia, serif;
+  --font-serif: "Freight Big Pro", "Freight Text Pro", Georgia, serif;
   --font-sans: "Benton Sans", sans-serif;
 
   font-family: "Benton Sans", sans-serif;
@@ -1306,25 +1271,25 @@ address {
 }
 
 .klug-template h1 {
-  font-family: "HCo Mercury SSm", serif !important;
+  font-family: "Freight Big Pro", "Freight Text Pro", Georgia, serif !important;
   font-weight: 600;
 }
 
 .klug-template h2 {
-  font-family: "HCo Mercury SSm", serif !important;
+  font-family: "Freight Big Pro", "Freight Text Pro", Georgia, serif !important;
   font-weight: 500;
 }
 
 .klug-template h3 {
-  font-family: "HCo Mercury SSm", serif !important;
-  font-weight: 500;
+  font-family: "Freight Text Pro", Georgia, serif !important;
+  font-weight: 600;
 }
 
 .klug-template h4,
 .klug-template h5,
 .klug-template h6 {
-  font-family: "HCo Mercury SSm", serif !important;
-  font-weight: 500;
+  font-family: "Freight Text Pro", Georgia, serif !important;
+  font-weight: 600;
 }
 
 .klug-template p,
@@ -1339,15 +1304,15 @@ address {
   font-family: "Benton Sans", sans-serif;
 }
 
-/* Market stat values use Medium weight */
+/* Market stat values use Freight heading font */
 .klug-template .market-stat-value {
-  font-family: var(--font-heading);
+  font-family: "Freight Big Pro", "Freight Text Pro", Georgia, serif !important;
   font-weight: 500;
 }
 
 /* Market stat labels use bold italic serif */
 .klug-template .market-stat-label {
-  font-family: Times, serif;
+  font-family: "Freight Text Pro", Georgia, serif !important;
   font-weight: 700;
   font-style: italic;
 }
