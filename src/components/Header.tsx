@@ -375,7 +375,7 @@ export default function Header({
           </nav>
 
           {/* Search & CTA Buttons - Desktop */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ml-auto">
             {/* Search Icon Button */}
             <button
               onClick={() => setSearchOpen(!searchOpen)}
@@ -391,10 +391,10 @@ export default function Header({
               </svg>
             </button>
 
-            {/* Contact CTA */}
+            {/* Contact CTA - hidden at ≤1400px */}
             <button
               onClick={() => setContactModalOpen(true)}
-              className="uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+              className="hidden min-[1401px]:inline-flex uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
               style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
             >
               Contact Us
