@@ -243,7 +243,7 @@ export default function Header({
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(14px, calc(0.4vw + 8px), 16px)', padding: '8px clamp(6px, calc(0.8vw - 4px), 16px)', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
+                    style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -252,7 +252,7 @@ export default function Header({
                   <button
                     onClick={() => toggleDropdown(index)}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(14px, calc(0.4vw + 8px), 16px)', padding: '8px clamp(6px, calc(0.8vw - 4px), 16px)', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
+                    style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
