@@ -1168,7 +1168,7 @@ address {
 
 /* ========================================
    KLUG CUSTOM TEMPLATE
-   HCo Mercury SSm headings + Open Sans body
+   HCo Mercury SSm headings + Benton Sans body
    ======================================== */
 
 /* Mercury SSm @font-face declarations */
@@ -1244,12 +1244,58 @@ address {
   font-display: swap;
 }
 
+/* Benton Sans @font-face declarations */
+@font-face {
+  font-family: 'Benton Sans';
+  src: url('/fonts/klug/BentonSans-Thin.woff2') format('woff2'),
+       url('/fonts/klug/BentonSans-Thin.woff') format('woff');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Benton Sans';
+  src: url('/fonts/klug/BentonSans-Book.woff2') format('woff2'),
+       url('/fonts/klug/BentonSans-Book.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Benton Sans';
+  src: url('/fonts/klug/BentonSans-Regular.woff2') format('woff2'),
+       url('/fonts/klug/BentonSans-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Benton Sans';
+  src: url('/fonts/klug/BentonSans-Medium.woff2') format('woff2'),
+       url('/fonts/klug/BentonSans-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Benton Sans';
+  src: url('/fonts/klug/BentonSans-Bold.woff2') format('woff2'),
+       url('/fonts/klug/BentonSans-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Klug template base styles */
 .klug-template {
-  --font-body: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-body: "Benton Sans", sans-serif;
   --font-heading: "HCo Mercury SSm", serif;
   --font-serif: "HCo Mercury SSm", serif;
-  --font-sans: var(--font-open-sans), "Open Sans", sans-serif;
+  --font-sans: "Benton Sans", sans-serif;
   --font-lora: "HCo Mercury SSm", serif;
 
   font-family: var(--font-body);

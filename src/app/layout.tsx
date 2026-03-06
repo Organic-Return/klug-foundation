@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display, Figtree, Open_Sans } from "next/font/google";
+import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display, Figtree } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -60,13 +60,6 @@ const figtree = Figtree({
   display: "swap",
 });
 
-// Open Sans - Body font for Klug custom template
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 // Playfair Display - High-contrast Didot-style serif for luxury template
 const playfairDisplay = Playfair_Display({
@@ -181,7 +174,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} ${openSans.variable} antialiased ${templateClass}`}>
+      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} antialiased ${templateClass}`}>
         <Analytics gaId={gaId} gtmId={gtmId} fbPixelId={fbPixelId} gadsConversionId={gadsConversionId} />
         <AuthProvider>
         <UTMCapture />
