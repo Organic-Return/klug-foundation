@@ -225,7 +225,7 @@ export default function Header({
           </Link>
 
           {/* Desktop Navigation + Actions */}
-          <div className="hidden md:flex items-center flex-nowrap whitespace-nowrap">
+          <div className="hidden lg:flex items-center flex-nowrap whitespace-nowrap">
           <nav className="flex items-center flex-nowrap space-x-0">
             {navItems.map((item, index) => {
               const hasDropdown = item.hasMegaMenu || (item.simpleDropdown && item.simpleDropdown.length > 0);
@@ -403,7 +403,7 @@ export default function Header({
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={`md:hidden p-2 transition-colors ${
+            className={`lg:hidden p-2 transition-colors ${
               isScrolled
                 ? 'text-white hover:text-[var(--color-gold)]'
                 : 'text-white hover:text-white/80'
@@ -425,7 +425,7 @@ export default function Header({
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white">
+        <div className="lg:hidden border-t border-gray-200 bg-white">
           <nav className="px-4 py-4 space-y-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
             {navItems.map((item, index) => (
               <div key={index}>
