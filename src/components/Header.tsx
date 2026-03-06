@@ -225,7 +225,7 @@ export default function Header({
           </Link>
 
           {/* Desktop Navigation + Actions */}
-          <div className="hidden md:flex items-center">
+          <div className="hidden md:flex items-center flex-nowrap whitespace-nowrap">
           <nav className="flex items-center flex-nowrap space-x-0">
             {navItems.map((item, index) => {
               const hasDropdown = item.hasMegaMenu || (item.simpleDropdown && item.simpleDropdown.length > 0);
@@ -241,7 +241,7 @@ export default function Header({
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(11px, calc(0.5vw + 6px), 16px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
@@ -250,7 +250,7 @@ export default function Header({
                   <button
                     onClick={() => toggleDropdown(index)}
                     className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
-                    style={{ fontSize: 'clamp(11px, calc(0.5vw + 6px), 16px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
+                    style={{ fontSize: 'clamp(13px, calc(0.5vw + 8px), 18px)', padding: '8px clamp(3px, calc(1vw - 8px), 14px)', letterSpacing: 'clamp(0.02em, calc(0.1vw - 0.02em), 0.12em)' }}
                   >
                     {item.label}
                     <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
