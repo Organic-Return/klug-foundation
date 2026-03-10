@@ -88,6 +88,22 @@ interface HomepageData {
       enabled: boolean;
     }>;
   };
+  inTheNews?: {
+    enabled?: boolean;
+    title?: string;
+    subtitle?: string;
+    articles?: Array<{
+      _id: string;
+      title: string;
+      sourceName: string;
+      sourceLogo?: any;
+      url: string;
+      image?: any;
+      excerpt?: string;
+      publishedAt?: string;
+    }>;
+    limit?: number;
+  };
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -212,6 +228,32 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
       city,
       enabled
     }
+  },
+  inTheNews {
+    enabled,
+    title,
+    subtitle,
+    articles[]-> {
+      _id,
+      title,
+      sourceName,
+      sourceLogo {
+        asset-> {
+          _id,
+          url
+        }
+      },
+      url,
+      image {
+        asset-> {
+          _id,
+          url
+        }
+      },
+      excerpt,
+      publishedAt
+    },
+    limit
   },
   seo {
     metaTitle,

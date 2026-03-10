@@ -9,6 +9,7 @@ import Accolades from '@/components/Accolades';
 import ClassicFeaturedProperty from '@/components/ClassicFeaturedProperty';
 import FeaturedAspenProperties from '@/components/FeaturedAspenProperties';
 import CityStats from '@/components/CityStats';
+import InTheNews from '@/components/InTheNews';
 
 // RC Sotheby's template components — hero eagerly loaded, rest lazy
 import RCSothebysHero from '@/components/RCSothebysHero';
@@ -131,6 +132,23 @@ interface HomepageContentProps {
   // Branding logo for sections that need it
   logoUrl?: string;
   logoAlt?: string;
+
+  // In the News section data
+  inTheNews?: {
+    enabled?: boolean;
+    title?: string;
+    subtitle?: string;
+    articles?: Array<{
+      _id: string;
+      title: string;
+      sourceName: string;
+      sourceLogo?: any;
+      url: string;
+      image?: any;
+      excerpt?: string;
+      publishedAt?: string;
+    }>;
+  };
 }
 
 export default function HomepageContent({
@@ -155,6 +173,7 @@ export default function HomepageContent({
   marketStatsSection,
   logoUrl,
   logoAlt,
+  inTheNews,
 }: HomepageContentProps) {
   // Extract enabled cities from market stats configuration
   const marketStatsCities = marketStatsSection?.cities
@@ -381,6 +400,15 @@ export default function HomepageContent({
             title={accolades.title}
             backgroundImage={accolades.backgroundImage}
             items={accolades.items}
+          />
+        )}
+
+        {/* In the News Section */}
+        {inTheNews?.enabled !== false && inTheNews?.articles && inTheNews.articles.length > 0 && (
+          <InTheNews
+            title={inTheNews.title}
+            subtitle={inTheNews.subtitle}
+            articles={inTheNews.articles}
           />
         )}
 

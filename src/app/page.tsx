@@ -221,6 +221,12 @@ export default async function Home() {
         }}
         logoUrl={branding?.logo?.asset?.url ? urlFor(branding.logo).width(420).url() : undefined}
         logoAlt={branding?.logoAlt || settings?.title}
+        inTheNews={{
+          enabled: homepage?.inTheNews?.enabled,
+          title: homepage?.inTheNews?.title,
+          subtitle: homepage?.inTheNews?.subtitle,
+          articles: homepage?.inTheNews?.articles,
+        }}
       />
     </>
   );

@@ -505,6 +505,60 @@ export const homepage = defineType({
       ],
     }),
     defineField({
+      name: 'inTheNews',
+      title: 'In the News',
+      type: 'object',
+      description: 'Display press articles and media coverage on the homepage',
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
+      fields: [
+        {
+          name: 'enabled',
+          title: 'Show In the News Section',
+          type: 'boolean',
+          description: 'Toggle the In the News section on/off',
+          initialValue: true,
+        },
+        {
+          name: 'title',
+          title: 'Section Title',
+          type: 'string',
+          initialValue: 'In the News',
+        },
+        {
+          name: 'subtitle',
+          title: 'Section Subtitle',
+          type: 'text',
+          rows: 2,
+          description: 'Subtitle displayed below the title',
+          initialValue: 'As featured in leading publications',
+        },
+        {
+          name: 'articles',
+          title: 'Featured Articles',
+          type: 'array',
+          description: 'Select articles to display. If empty, the latest articles will be shown automatically.',
+          of: [
+            {
+              type: 'reference',
+              to: [{ type: 'pressArticle' }],
+            },
+          ],
+          validation: (Rule) => Rule.max(6),
+        },
+        {
+          name: 'limit',
+          title: 'Number of Articles',
+          type: 'number',
+          description: 'Maximum articles to display if no specific articles are selected (default: 4)',
+          initialValue: 4,
+          validation: (Rule) => Rule.min(1).max(6),
+        },
+      ],
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO Settings',
       type: 'object',
