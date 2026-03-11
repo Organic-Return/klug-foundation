@@ -403,10 +403,10 @@ export async function getListings(
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  // Use active_listings materialized view (~3K indexed rows) instead of
+  // Use graphql_listings materialized view (~3K indexed rows) instead of
   // graphql_listings view (~100K+ rows with COALESCE preventing index usage)
   let query = supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('*', { count: 'estimated' });
 
   // Apply filters
@@ -779,7 +779,7 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   console.log('[OpenHouse] Looking up', listingIds.length, 'listings');
 
   const { data: listings, error: listError } = await supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('*')
     .in('listing_id', listingIds)
     .not('status', 'is', null);
@@ -833,12 +833,12 @@ export function getDistinctCities(): Promise<string[]> {
       return (rpcData as { city: string }[]).map((d) => d.city).filter(Boolean);
     }
 
-    // Fallback: query active_listings materialized view (much smaller, ~3K rows)
+    // Fallback: query graphql_listings materialized view (much smaller, ~3K rows)
     const batchSize = 1000;
     const numBatches = 5;
     const batchPromises = Array.from({ length: numBatches }, (_, i) =>
       supabase
-        .from('active_listings')
+        .from('graphql_listings')
         .select('city')
         .not('city', 'is', null)
         .order('city')
@@ -925,7 +925,7 @@ export function getDistinctNeighborhoods(): Promise<string[]> {
 
     for (let batch = 0; batch < maxBatches; batch++) {
       const { data, error } = await supabase
-        .from('active_listings')
+        .from('graphql_listings')
         .select('subdivision_name')
         .not('subdivision_name', 'is', null)
         .order('subdivision_name')
@@ -958,7 +958,7 @@ export function getNeighborhoodsByCity(city: string): Promise<string[]> {
 
     for (let batch = 0; batch < maxBatches; batch++) {
       const { data, error } = await supabase
-        .from('active_listings')
+        .from('graphql_listings')
         .select('subdivision_name')
         .ilike('city', city)
         .not('subdivision_name', 'is', null)
@@ -992,7 +992,7 @@ export function getNeighborhoodsByCities(cities: string[]): Promise<string[]> {
 
     for (let batch = 0; batch < maxBatches; batch++) {
       const { data, error } = await supabase
-        .from('active_listings')
+        .from('graphql_listings')
         .select('subdivision_name')
         .in('city', cities)
         .not('subdivision_name', 'is', null)
@@ -1051,10 +1051,10 @@ export async function getNewestHighPricedByCity(
   // Instead, overfetch and filter in JS
   const overfetchMultiplier = options?.officeName ? 5 : 1;
 
-  // Use active_listings materialized view (indexed, ~3K rows) instead of
+  // Use graphql_listings materialized view (indexed, ~3K rows) instead of
   // graphql_listings view (100K+ rows, COALESCE prevents index usage, causes timeouts)
   let query = supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('*')
     .ilike('city', city)
     .eq('property_type', 'Residential')
@@ -1105,9 +1105,9 @@ export async function getCommunityPriceRange(
 ): Promise<{ lowestCondo: number | null; highestSingleFamily: number | null }> {
   if (!isSupabaseConfigured()) return { lowestCondo: null, highestSingleFamily: null };
 
-  // Use active_listings materialized view (indexed, fast)
+  // Use graphql_listings materialized view (indexed, fast)
   const { data: condoData, error: condoError } = await supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('list_price')
     .ilike('city', city)
     .or('property_sub_type.eq.Condominium,property_sub_type.is.null')
@@ -1122,7 +1122,7 @@ export async function getCommunityPriceRange(
 
   // Get highest priced active listing (prefer SFR, fall back to any type)
   const { data: sfhData, error: sfhError } = await supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('list_price')
     .ilike('city', city)
     .or('property_sub_type.eq.Single Family Residence,property_sub_type.eq.Site Built-Owned Lot,property_sub_type.is.null')
@@ -1160,10 +1160,10 @@ export async function getNewestHighPricedByCities(
   // Instead, overfetch and filter in JS
   const overfetchMultiplier = options?.officeName ? 5 : 1;
 
-  // Use active_listings materialized view (indexed, ~3K rows) instead of
+  // Use graphql_listings materialized view (indexed, ~3K rows) instead of
   // graphql_listings view (100K+ rows, COALESCE prevents index usage, causes timeouts)
   let query = supabase
-    .from('active_listings')
+    .from('graphql_listings')
     .select('*')
     .or(cityFilters)
     .eq('property_type', 'Residential')
