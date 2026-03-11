@@ -46,10 +46,10 @@ export default function InTheNews({
 
   return (
     <section className="bg-[#f8f7f5] dark:bg-[#0a0a0a]">
-      <div className="py-16 md:py-24">
+      <div className="py-10 md:py-14">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Section Header */}
-          <div className="text-center mb-12 md:mb-16">
+          <div className="text-center mb-8 md:mb-10">
             <h2 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white mb-4">
               {title}
             </h2>
@@ -163,7 +163,7 @@ export default function InTheNews({
           </div>
 
           {/* View All Link */}
-          <div className="text-center mt-12">
+          <div className="text-center mt-8">
             <Link
               href="/in-the-news"
               className="inline-flex items-center gap-2 text-[var(--color-gold)] text-xs font-medium tracking-wider uppercase hover:gap-4 transition-all duration-300"
