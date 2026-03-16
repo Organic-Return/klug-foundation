@@ -1457,12 +1457,20 @@ address {
   display: none !important;
 }
 
-/* Classic preset: buttons match klugproperties.com
-   Override gold to navy so all gold buttons become navy + rounded corners */
+/* Classic preset: buttons — transparent bg, white text, white border, rounded */
 .klug-fonts-classic {
-  --color-gold: #0a275d;
+  --color-gold: transparent;
 }
 .klug-fonts-classic button,
 .klug-fonts-classic a[class*="tracking-"] {
   border-radius: 0.25rem !important;
+  border-color: #fff !important;
+  color: #fff !important;
+  background-color: transparent !important;
+}
+.klug-fonts-classic button:hover,
+.klug-fonts-classic a[class*="tracking-"]:hover {
+  background-color: #fff !important;
+  color: #0a275d !important;
+  border-color: #fff !important;
 }
