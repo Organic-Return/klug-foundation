@@ -1461,8 +1461,8 @@ address {
 .klug-fonts-classic {
   --color-gold: transparent;
 }
-.klug-fonts-classic button,
-.klug-fonts-classic a[class*="tracking-"] {
+.klug-fonts-classic button:not(.klug-nav-link),
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link) {
   border-radius: 0.25rem !important;
   border-color: #fff !important;
   color: #fff !important;
@@ -1470,8 +1470,8 @@ address {
   font-size: 20px !important;
   padding: 10px 22px !important;
 }
-.klug-fonts-classic button:hover,
-.klug-fonts-classic a[class*="tracking-"]:hover {
+.klug-fonts-classic button:not(.klug-nav-link):hover,
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):hover {
   background-color: #fff !important;
   color: #0a275d !important;
   border-color: #fff !important;
