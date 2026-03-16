@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
@@ -125,6 +125,8 @@ export default function Header({
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [location, setLocation] = useState('');
   const [propertyType, setPropertyType] = useState('');
   const [priceMin, setPriceMin] = useState('');
@@ -169,8 +171,33 @@ export default function Header({
     };
   }, [activeDropdown]);
 
+  // Auto-focus search input when opened
+  useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+
+  // Close search on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSearchOpen(false);
+    };
+    if (searchOpen) document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [searchOpen]);
+
   const toggleMobileDropdown = (index: number) => {
     setActiveMobileDropdown(activeMobileDropdown === index ? null : index);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/listings?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+      setSearchQuery('');
+    }
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -524,149 +551,42 @@ export default function Header({
       )}
 
       {/* Search Panel - Slides down from header */}
-      {searchOpen && (
-        <div className="absolute top-full left-0 right-0 bg-[var(--color-sothebys-blue)] shadow-xl border-t border-gray-800 z-40">
-          <div className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 py-6">
-            <form onSubmit={handleSearch} className="flex flex-wrap items-end justify-center gap-4 lg:gap-0">
-              {/* Location Dropdown */}
-              <div className="w-full sm:w-auto sm:flex-1 lg:flex-none lg:w-40">
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Location</label>
-                <select
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-gray-600 text-white py-2 px-0 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0 center',
-                    backgroundSize: '1.25rem',
-                    paddingRight: '1.5rem'
-                  }}
-                >
-                  <option value="" className="bg-[var(--color-sothebys-blue)]">All Locations</option>
-                  {LOCATIONS.map((loc) => (
-                    <option key={loc} value={loc} className="bg-[var(--color-sothebys-blue)]">{loc}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Divider - Desktop */}
-              <div className="hidden lg:block w-px h-8 bg-gray-700 mx-6" />
-
-              {/* Type Dropdown */}
-              <div className="w-full sm:w-auto sm:flex-1 lg:flex-none lg:w-36">
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Type</label>
-                <select
-                  value={propertyType}
-                  onChange={(e) => setPropertyType(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-gray-600 text-white py-2 px-0 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0 center',
-                    backgroundSize: '1.25rem',
-                    paddingRight: '1.5rem'
-                  }}
-                >
-                  <option value="" className="bg-[var(--color-sothebys-blue)]">All Types</option>
-                  {PROPERTY_TYPES.map((type) => (
-                    <option key={type.value} value={type.value} className="bg-[var(--color-sothebys-blue)]">{type.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Divider - Desktop */}
-              <div className="hidden lg:block w-px h-8 bg-gray-700 mx-6" />
-
-              {/* Min Price Dropdown */}
-              <div className="w-[calc(50%-0.5rem)] sm:w-auto sm:flex-1 lg:flex-none lg:w-28">
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Min Price</label>
-                <select
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-gray-600 text-white py-2 px-0 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0 center',
-                    backgroundSize: '1.25rem',
-                    paddingRight: '1.5rem'
-                  }}
-                >
-                  <option value="" className="bg-[var(--color-sothebys-blue)]">Any</option>
-                  {PRICE_OPTIONS.slice(1).map((price) => (
-                    <option key={`min-${price.value}`} value={price.value} className="bg-[var(--color-sothebys-blue)]">{price.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Divider - Desktop */}
-              <div className="hidden lg:block w-px h-8 bg-gray-700 mx-6" />
-
-              {/* Max Price Dropdown */}
-              <div className="w-[calc(50%-0.5rem)] sm:w-auto sm:flex-1 lg:flex-none lg:w-28">
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">Max Price</label>
-                <select
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-gray-600 text-white py-2 px-0 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                    backgroundRepeat: 'no-repeat',
-                    backgroundPosition: 'right 0 center',
-                    backgroundSize: '1.25rem',
-                    paddingRight: '1.5rem'
-                  }}
-                >
-                  <option value="" className="bg-[var(--color-sothebys-blue)]">Any</option>
-                  {PRICE_OPTIONS.slice(1).map((price) => (
-                    <option key={`max-${price.value}`} value={price.value} className="bg-[var(--color-sothebys-blue)]">{price.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Divider - Desktop */}
-              <div className="hidden lg:block w-px h-8 bg-gray-700 mx-6" />
-
-              {/* MLS# / Keyword Input */}
-              <div className="w-full sm:w-auto sm:flex-1 lg:flex-none lg:w-44">
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-gray-400 mb-2">MLS# / Keyword</label>
-                <input
-                  type="text"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="Enter keyword..."
-                  className="w-full bg-transparent border-0 border-b border-gray-600 text-white py-2 px-0 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors placeholder:text-gray-500"
-                />
-              </div>
-
-              {/* Search Button */}
-              <button
-                type="submit"
-                className="ml-6 uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
-                style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
-              >
-                SEARCH
-              </button>
-
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setSearchOpen(false);
-                  resetSearch();
-                }}
-                className="ml-2 p-2.5 text-gray-400 hover:text-white transition-colors"
-                aria-label="Close search"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Expandable Search Bar */}
+      <div
+        className={`overflow-hidden transition-all duration-300 bg-white border-t border-gray-200 ${
+          searchOpen ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0 border-t-0'
+        }`}
+      >
+        <form
+          onSubmit={handleSearchSubmit}
+          className="mx-auto max-w-[1800px] px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3"
+        >
+          <input
+            ref={searchInputRef}
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by keyword, MLS#, or address..."
+            className="flex-1 bg-transparent text-[var(--color-navy)] text-sm tracking-wide py-2 border-0 border-b border-gray-300 focus:border-[var(--color-navy)] focus:ring-0 outline-none placeholder:text-gray-400"
+          />
+          <button
+            type="submit"
+            className="klug-search-btn bg-[var(--color-navy)] text-white text-[11px] font-medium uppercase tracking-[0.1em] px-6 py-2.5 hover:bg-[var(--color-navy)]/80 transition-colors duration-200"
+          >
+            Search
+          </button>
+          <button
+            type="button"
+            onClick={() => { setSearchOpen(false); setSearchQuery(''); }}
+            className="klug-search-btn text-gray-400 hover:text-[var(--color-navy)] transition-colors duration-200 p-1"
+            aria-label="Close search"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </form>
+      </div>
 
       {/* Contact Modal */}
       <ContactModal

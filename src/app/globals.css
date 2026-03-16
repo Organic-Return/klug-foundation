@@ -1464,7 +1464,7 @@ address {
 .klug-fonts-classic {
   --color-gold: transparent;
 }
-.klug-fonts-classic button:not(.klug-nav-link),
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn),
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link) {
   border-radius: 0.25rem !important;
   border-color: #fff !important;
@@ -1477,7 +1477,7 @@ address {
   letter-spacing: normal !important;
   font-weight: 400 !important;
 }
-.klug-fonts-classic button:not(.klug-nav-link):hover,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):hover {
   background-color: #0a275d !important;
   color: #fff !important;
@@ -1485,17 +1485,17 @@ address {
 }
 
 /* Buttons on light/white backgrounds: navy text, gold border, transparent bg */
-.klug-fonts-classic section button:not(.klug-nav-link),
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn),
 .klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link),
-.klug-fonts-classic main button:not(.klug-nav-link),
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn),
 .klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link) {
   color: #0a275d !important;
   border-color: #c19b5f !important;
   background-color: transparent !important;
 }
-.klug-fonts-classic section button:not(.klug-nav-link):hover,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):hover,
 .klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):hover,
-.klug-fonts-classic main button:not(.klug-nav-link):hover,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):hover,
 .klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):hover {
   background-color: #0a275d !important;
   color: #fff !important;
