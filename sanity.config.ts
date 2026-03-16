@@ -3,6 +3,7 @@ import { structureTool, type StructureBuilder } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
 import { muxInput } from 'sanity-plugin-mux-input'
 import { codeInput } from '@sanity/code-input'
+import { assist } from '@sanity/assist'
 import { schemaTypes } from './src/sanity/schemaTypes'
 
 export default defineConfig({
@@ -82,6 +83,7 @@ export default defineConfig({
     visionTool(),
     muxInput(),
     codeInput(),
+    assist(),
   ],
 
   schema: {

@@ -12,6 +12,7 @@
     "@google-analytics/data": "^5.2.1",
     "@mux/mux-player-react": "^3.10.2",
     "@react-google-maps/api": "^2.20.8",
+    "@sanity/assist": "^6.0.3",
     "@sanity/code-input": "^7.0.5",
     "@sanity/image-url": "^2.0.2",
     "@sanity/vision": "^5.3.1",
