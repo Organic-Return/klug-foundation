@@ -2,6 +2,7 @@ import { client } from '@/sanity/client';
 
 interface SiteSettings {
   template?: 'classic' | 'luxury' | 'modern' | 'custom-one' | 'rcsothebys-custom';
+  fontPreset?: 'classic' | 'sothebys';
   listingsPerRow?: 2 | 3;
   title?: string;
   description?: string;
@@ -53,6 +54,7 @@ interface SiteSettings {
 
 const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   template,
+  fontPreset,
   listingsPerRow,
   title,
   description,

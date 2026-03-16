@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display, Figtree } from "next/font/google";
+import { Inter, Lora, Cormorant_Garamond, Montserrat, Playfair_Display, Figtree, Open_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -57,6 +57,15 @@ const figtree = Figtree({
   variable: "--font-figtree",
   subsets: ["latin"],
   weight: ["300", "400", "500", "800", "900"],
+  display: "swap",
+});
+
+// Open Sans - Classic preset body font for Klug template
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -172,9 +181,12 @@ export default async function RootLayout({
   // Determine template-specific body class
   const templateClass = template === 'modern' ? 'modern-template' : template === 'custom-one' ? 'custom-one-template' : template === 'luxury' ? 'luxury-template' : template === 'rcsothebys-custom' ? 'rcsothebys-template' : template === 'classic' ? 'klug-template' : '';
 
+  // Font preset class for klug template (defaults to 'sothebys' if not set)
+  const fontPresetClass = template === 'classic' ? `klug-fonts-${settings?.fontPreset || 'sothebys'}` : '';
+
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} antialiased ${templateClass}`}>
+      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} ${openSans.variable} antialiased ${templateClass} ${fontPresetClass}`.trim()}>
         <Analytics gaId={gaId} gtmId={gtmId} fbPixelId={fbPixelId} gadsConversionId={gadsConversionId} />
         <AuthProvider>
         <UTMCapture />

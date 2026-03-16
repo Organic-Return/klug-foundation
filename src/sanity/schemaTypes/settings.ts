@@ -23,6 +23,21 @@ export const settings = defineType({
       initialValue: 'classic',
     }),
     defineField({
+      name: 'fontPreset',
+      title: 'Font Preset',
+      type: 'string',
+      description: 'Choose the font combination for the Klug Custom template.',
+      options: {
+        list: [
+          { title: 'Classic (Open Sans + Mercury)', value: 'classic' },
+          { title: 'Sothebys (Benton Sans + Freight Pro)', value: 'sothebys' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'sothebys',
+      hidden: ({ parent }) => parent?.template !== 'classic',
+    }),
+    defineField({
       name: 'title',
       title: 'Site Title',
       type: 'string',
