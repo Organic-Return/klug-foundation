@@ -79,10 +79,15 @@ export default function HeroWithSearch({
   const [keyword, setKeyword] = useState('');
   const router = useRouter();
 
-  // Build slides array: use heroVideos if provided, otherwise single video/image
+  // Build slides array: use heroVideos if provided, otherwise fall back to test videos
+  const TEST_SLIDES: HeroVideo[] = [
+    { videoUrl, posterUrl: fallbackImageUrl },
+    { posterUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80' },
+    { posterUrl: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=2000&q=80' },
+  ];
   const slides: HeroVideo[] = heroVideos && heroVideos.length > 0
     ? heroVideos
-    : [{ videoUrl, posterUrl: fallbackImageUrl }];
+    : TEST_SLIDES;
 
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
