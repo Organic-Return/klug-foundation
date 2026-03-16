@@ -1468,6 +1468,7 @@ address {
   color: #fff !important;
   background-color: transparent !important;
   font-size: 20px !important;
+  padding: 10px 22px !important;
 }
 .klug-fonts-classic button:hover,
 .klug-fonts-classic a[class*="tracking-"]:hover {
