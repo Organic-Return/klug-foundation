@@ -242,20 +242,20 @@ export default function Header({
                     href={item.url}
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                    className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
+                    className="klug-nav-link relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
-                    <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </Link>
                 ) : (
                   <button
                     onClick={() => toggleDropdown(index)}
-                    className="relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
+                    className="klug-nav-link relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
-                    <span className="absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </button>
                 )}
 
@@ -391,10 +391,10 @@ export default function Header({
               </svg>
             </button>
 
-            {/* Contact CTA - hidden at ≤1400px */}
+            {/* Contact CTA - hidden at ≤1400px and hidden in classic font preset */}
             <button
               onClick={() => setContactModalOpen(true)}
-              className="hidden min-[1401px]:inline-flex uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+              className="klug-contact-btn hidden min-[1401px]:inline-flex uppercase tracking-[0.12em] font-normal transition-all duration-300 bg-[var(--color-gold)] text-white border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
               style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500, padding: '12px 24px' }}
             >
               Contact Us

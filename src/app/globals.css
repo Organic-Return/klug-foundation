@@ -1441,3 +1441,24 @@ address {
   font-weight: 700;
   font-style: italic;
 }
+
+/* Classic preset: navigation matches klugproperties.com */
+.klug-fonts-classic .klug-nav-link {
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-weight: 400 !important;
+  font-size: 15px !important;
+}
+.klug-fonts-classic .klug-nav-link:hover {
+  font-weight: 800 !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+/* Hide the animated underline span in classic preset (replaced by text-decoration) */
+.klug-fonts-classic .klug-nav-link .klug-nav-underline {
+  display: none;
+}
+/* Hide Contact Us button in classic preset */
+.klug-fonts-classic .klug-contact-btn {
+  display: none !important;
+}
