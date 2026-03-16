@@ -1450,13 +1450,7 @@ address {
   font-size: 15px !important;
 }
 .klug-fonts-classic .klug-nav-link:hover {
-  font-weight: 800 !important;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-/* Hide the animated underline span in classic preset (replaced by text-decoration) */
-.klug-fonts-classic .klug-nav-link .klug-nav-underline {
-  display: none;
+  font-weight: 400 !important;
 }
 /* Hide Contact Us button in classic preset */
 .klug-fonts-classic .klug-contact-btn {
