@@ -186,10 +186,13 @@ export default function HeroWithSearch({
       {hasMultipleSlides && (
         <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
           {slides.map((_, index) => (
-            <button
+            <span
               key={index}
+              role="button"
+              tabIndex={0}
               onClick={() => handleDotClick(index)}
-              className={`transition-all duration-300 rounded-full ${
+              onKeyDown={(e) => e.key === 'Enter' && handleDotClick(index)}
+              className={`transition-all duration-300 rounded-full cursor-pointer ${
                 index === activeSlide
                   ? 'w-3 h-3 bg-white'
                   : 'w-2 h-2 bg-white/40 hover:bg-white/70'
