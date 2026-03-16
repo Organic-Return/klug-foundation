@@ -1408,7 +1408,10 @@ address {
 
 .klug-fonts-classic h2 {
   font-family: "HCo Mercury SSm", serif !important;
-  font-weight: 400;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 3rem !important;
+  line-height: 1.2;
 }
 
 .klug-fonts-classic h3,
