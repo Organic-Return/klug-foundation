@@ -298,7 +298,7 @@ export default function CityStats({
             <div className="text-center mt-10">
               <Link
                 href="/listings"
-                className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
+                className="klug-hero-btn group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
               >
                 View All Listings
                 <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

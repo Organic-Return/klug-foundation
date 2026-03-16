@@ -256,7 +256,7 @@ export default function ClassicFeaturedProperty({
           {/* View Property Button */}
           <Link
             href={getListingHref(property)}
-            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-medium transition-all duration-300 bg-transparent text-white px-6 py-3 border border-white hover:bg-white hover:text-[#0a275d]"
+            className="klug-hero-btn inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-medium transition-all duration-300 bg-transparent text-white px-6 py-3 border border-white hover:bg-white hover:text-[#0a275d]"
           >
             {buttonText}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1469,7 +1469,7 @@ address {
   --color-gold: transparent;
 }
 .klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link) {
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
   border-radius: 0.25rem !important;
   border-color: #fff !important;
   color: #fff !important;
@@ -1482,7 +1482,7 @@ address {
   font-weight: 400 !important;
 }
 .klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):hover {
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
   background-color: #0a275d !important;
   color: #fff !important;
   border-color: #0a275d !important;
@@ -1490,17 +1490,17 @@ address {
 
 /* Buttons on light/white backgrounds: navy text, gold border, transparent bg */
 .klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
-.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link),
+.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn),
 .klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
-.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link) {
+.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
   color: #0a275d !important;
   border-color: #c19b5f !important;
   background-color: transparent !important;
 }
 .klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):hover,
+.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover,
 .klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):hover {
+.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
   background-color: #0a275d !important;
   color: #fff !important;
   border-color: #0a275d !important;
