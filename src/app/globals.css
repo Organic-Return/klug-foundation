@@ -1476,7 +1476,25 @@ address {
 }
 .klug-fonts-classic button:not(.klug-nav-link):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):hover {
-  background-color: #fff !important;
+  background-color: #0a275d !important;
+  color: #fff !important;
+  border-color: #0a275d !important;
+}
+
+/* Buttons on light/white backgrounds: navy text, gold border, transparent bg */
+.klug-fonts-classic section button:not(.klug-nav-link),
+.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link),
+.klug-fonts-classic main button:not(.klug-nav-link),
+.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link) {
   color: #0a275d !important;
-  border-color: #fff !important;
+  border-color: #c19b5f !important;
+  background-color: transparent !important;
+}
+.klug-fonts-classic section button:not(.klug-nav-link):hover,
+.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):hover,
+.klug-fonts-classic main button:not(.klug-nav-link):hover,
+.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):hover {
+  background-color: #0a275d !important;
+  color: #fff !important;
+  border-color: #0a275d !important;
 }
