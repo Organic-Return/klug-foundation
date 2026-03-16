@@ -1456,3 +1456,13 @@ address {
 .klug-fonts-classic .klug-contact-btn {
   display: none !important;
 }
+
+/* Classic preset: buttons match klugproperties.com
+   Override gold to navy so all gold buttons become navy + rounded corners */
+.klug-fonts-classic {
+  --color-gold: #0a275d;
+}
+.klug-fonts-classic button,
+.klug-fonts-classic a[class*="tracking-"] {
+  border-radius: 0.25rem !important;
+}
