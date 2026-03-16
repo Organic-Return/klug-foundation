@@ -1505,3 +1505,22 @@ address {
   color: #fff !important;
   border-color: #0a275d !important;
 }
+
+/* Reset all klug/classic overrides inside Sanity Studio */
+.klug-template [data-ui],
+.klug-template [data-ui] *,
+.klug-fonts-classic [data-ui],
+.klug-fonts-classic [data-ui] * {
+  font-family: revert !important;
+  font-weight: revert !important;
+  font-style: revert !important;
+  font-size: revert !important;
+  line-height: revert !important;
+  color: revert !important;
+  background-color: revert !important;
+  border-color: revert !important;
+  border-radius: revert !important;
+  padding: revert !important;
+  text-transform: revert !important;
+  letter-spacing: revert !important;
+}
