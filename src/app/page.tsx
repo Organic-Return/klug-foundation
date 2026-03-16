@@ -60,6 +60,23 @@ export default async function Home() {
     ? urlFor(hero.fallbackImage).width(1920).url()
     : undefined;
 
+  // Build hero videos array (primary + additional)
+  const heroVideos: Array<{ videoUrl?: string; posterUrl?: string }> = [];
+  if (videoUrl || fallbackImageUrl) {
+    heroVideos.push({ videoUrl, posterUrl: fallbackImageUrl });
+  }
+  if (hero?.additionalVideos) {
+    for (const v of hero.additionalVideos) {
+      const url = v.videoFile?.asset?.url || v.videoUrl;
+      const poster = v.poster?.asset?.url
+        ? urlFor(v.poster).width(1920).url()
+        : undefined;
+      if (url || poster) {
+        heroVideos.push({ videoUrl: url, posterUrl: poster });
+      }
+    }
+  }
+
   // Resolve communities: use showAll query or referenced communities
   const rawCommunities = featuredCommunitiesConfig?.showAll
     ? await getAllCommunities(featuredCommunitiesConfig?.limit || 12)
@@ -168,6 +185,7 @@ export default async function Home() {
         template={settings?.template}
         videoUrl={videoUrl}
         fallbackImageUrl={fallbackImageUrl}
+        heroVideos={heroVideos.length > 1 ? heroVideos : undefined}
         heroTitle={hero?.title}
         heroSubtitle={hero?.subtitle}
         showSearch={hero?.showSearch !== false}

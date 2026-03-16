@@ -8,6 +8,11 @@ interface HomepageData {
     videoUrl?: string;
     videoFile?: any;
     fallbackImage?: any;
+    additionalVideos?: Array<{
+      videoUrl?: string;
+      videoFile?: any;
+      poster?: any;
+    }>;
     showSearch?: boolean;
     showTitleSubtitle?: boolean;
   };
@@ -127,6 +132,15 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
       asset-> {
         _id,
         url
+      }
+    },
+    additionalVideos[] {
+      videoUrl,
+      videoFile {
+        asset-> { url }
+      },
+      poster {
+        asset-> { _id, url }
       }
     },
     showSearch,

@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+
+interface HeroVideo {
+  videoUrl?: string;
+  posterUrl?: string;
+}
 
 interface HeroWithSearchProps {
   videoUrl?: string;
   fallbackImageUrl?: string;
+  heroVideos?: HeroVideo[];
   title?: string;
   subtitle?: string;
   showSearch?: boolean;
@@ -60,6 +66,7 @@ const PRICE_OPTIONS = [
 export default function HeroWithSearch({
   videoUrl = '/hero-video.mp4',
   fallbackImageUrl = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80',
+  heroVideos,
   title = 'Find Your Dream Home',
   subtitle = 'Discover the perfect property for you and your family',
   showSearch = true,
@@ -71,6 +78,57 @@ export default function HeroWithSearch({
   const [priceMax, setPriceMax] = useState('');
   const [keyword, setKeyword] = useState('');
   const router = useRouter();
+
+  // Build slides array: use heroVideos if provided, otherwise single video/image
+  const slides: HeroVideo[] = heroVideos && heroVideos.length > 0
+    ? heroVideos
+    : [{ videoUrl, posterUrl: fallbackImageUrl }];
+
+  const hasMultipleSlides = slides.length > 1;
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const goToSlide = useCallback((index: number) => {
+    if (index === activeSlide || isTransitioning) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveSlide(index);
+      setIsTransitioning(false);
+    }, 500);
+  }, [activeSlide, isTransitioning]);
+
+  // Auto-advance slides
+  useEffect(() => {
+    if (!hasMultipleSlides) return;
+
+    timerRef.current = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveSlide((prev) => (prev + 1) % slides.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 12000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [hasMultipleSlides, slides.length]);
+
+  // Reset timer when manually changing slides
+  const handleDotClick = useCallback((index: number) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    goToSlide(index);
+    // Restart auto-advance
+    timerRef.current = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveSlide((prev) => (prev + 1) % slides.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 12000);
+  }, [goToSlide, slides.length]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,32 +145,58 @@ export default function HeroWithSearch({
 
   return (
     <div className="relative w-full -mt-20 overflow-hidden" style={{ minHeight: 'calc(100vh + 5rem)' }}>
-      {/* Video Background */}
-      <div className="absolute inset-0 w-full h-full">
-        {videoUrl ? (
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-            poster={fallbackImageUrl}
-          >
-            <source src={videoUrl} type="video/mp4" />
-          </video>
-        ) : (
-          <div
-            className="w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${fallbackImageUrl})` }}
-          />
-        )}
+      {/* Video/Image Backgrounds */}
+      {slides.map((slide, index) => (
+        <div
+          key={index}
+          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+            index === activeSlide && !isTransitioning ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {slide.videoUrl ? (
+            <video
+              ref={(el) => { videoRefs.current[index] = el; }}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              poster={slide.posterUrl}
+            >
+              <source src={slide.videoUrl} type="video/mp4" />
+            </video>
+          ) : slide.posterUrl ? (
+            <div
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${slide.posterUrl})` }}
+            />
+          ) : null}
+        </div>
+      ))}
 
-        {/* Elegant Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-navy)]/60 via-black/40 to-[var(--color-navy)]/70" />
-      </div>
+      {/* Elegant Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--color-navy)]/60 via-black/40 to-[var(--color-navy)]/70 z-[1]" />
+
+      {/* Slide Indicator Dots - Left side, vertically centered */}
+      {hasMultipleSlides && (
+        <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => handleDotClick(index)}
+              className={`transition-all duration-300 rounded-full ${
+                index === activeSlide
+                  ? 'w-3 h-3 bg-white'
+                  : 'w-2 h-2 bg-white/40 hover:bg-white/70'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-between px-4 sm:px-6 lg:px-8 pt-36 pb-[200px]">
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-between px-4 sm:px-6 lg:px-8 pt-36 pb-[300px]">
         {/* Hero Text - Centered */}
         <div className="flex-1 flex items-center justify-center">
           {showTitleSubtitle && (

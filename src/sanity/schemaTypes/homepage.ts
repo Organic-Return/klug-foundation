@@ -64,6 +64,46 @@ export const homepage = defineType({
           },
         },
         {
+          name: 'additionalVideos',
+          title: 'Additional Hero Videos',
+          type: 'array',
+          description: 'Add more videos to create a rotating hero background. The main video/image above will be the first slide.',
+          of: [
+            {
+              type: 'object',
+              title: 'Video',
+              fields: [
+                {
+                  name: 'videoUrl',
+                  title: 'Video URL',
+                  type: 'url',
+                  description: 'URL to video file (MP4 recommended)',
+                },
+                {
+                  name: 'videoFile',
+                  title: 'Video File',
+                  type: 'file',
+                  description: 'Or upload a video file directly',
+                  options: { accept: 'video/*' },
+                },
+                {
+                  name: 'poster',
+                  title: 'Poster Image',
+                  type: 'image',
+                  description: 'Fallback/poster image for this video',
+                  options: { hotspot: true },
+                },
+              ],
+              preview: {
+                select: { title: 'videoUrl', subtitle: 'videoFile.asset.originalFilename' },
+                prepare({ title, subtitle }: { title?: string; subtitle?: string }) {
+                  return { title: title || subtitle || 'Uploaded video' };
+                },
+              },
+            },
+          ],
+        },
+        {
           name: 'showSearch',
           title: 'Show Property Search',
           type: 'boolean',

@@ -44,6 +44,7 @@ interface HomepageContentProps {
   // Hero data
   videoUrl?: string;
   fallbackImageUrl?: string;
+  heroVideos?: Array<{ videoUrl?: string; posterUrl?: string }>;
   heroTitle?: string;
   heroSubtitle?: string;
   showSearch?: boolean;
@@ -155,6 +156,7 @@ export default function HomepageContent({
   template = 'classic',
   videoUrl,
   fallbackImageUrl,
+  heroVideos,
   heroTitle,
   heroSubtitle,
   showSearch,
@@ -357,6 +359,7 @@ export default function HomepageContent({
         <HeroWithSearch
           videoUrl={videoUrl}
           fallbackImageUrl={fallbackImageUrl}
+          heroVideos={heroVideos}
           title={heroTitle}
           subtitle={heroSubtitle}
           showSearch={showSearch !== false}
