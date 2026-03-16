@@ -45,8 +45,15 @@ export default function ClassicFeaturedProperty({
   const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const hasVideos = videos && videos.length > 0;
-  const hasMultipleVideos = videos && videos.length > 1;
+  // Test videos — remove once real videos are added via Sanity CMS
+  const TEST_VIDEOS = [
+    '/hero-video.mp4',
+    '/hero-video.mp4',
+    '/hero-video.mp4',
+  ];
+  const effectiveVideos = videos && videos.length > 0 ? videos : TEST_VIDEOS;
+  const hasVideos = effectiveVideos.length > 0;
+  const hasMultipleVideos = effectiveVideos.length > 1;
 
   useEffect(() => {
     async function fetchProperty() {
@@ -74,7 +81,7 @@ export default function ClassicFeaturedProperty({
     timerRef.current = setInterval(() => {
       setIsTransitioning(true);
       setTimeout(() => {
-        setActiveVideo((prev) => (prev + 1) % videos!.length);
+        setActiveVideo((prev) => (prev + 1) % effectiveVideos.length);
         setIsTransitioning(false);
       }, 500);
     }, 15000);
@@ -97,7 +104,7 @@ export default function ClassicFeaturedProperty({
       timerRef.current = setInterval(() => {
         setIsTransitioning(true);
         setTimeout(() => {
-          setActiveVideo((prev) => (prev + 1) % videos!.length);
+          setActiveVideo((prev) => (prev + 1) % effectiveVideos.length);
           setIsTransitioning(false);
         }, 500);
       }, 15000);
@@ -116,7 +123,7 @@ export default function ClassicFeaturedProperty({
       <div className="absolute inset-0">
         {hasVideos ? (
           <>
-            {videos.map((videoUrl, index) => (
+            {effectiveVideos.map((videoUrl, index) => (
               <div
                 key={index}
                 className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
@@ -170,7 +177,7 @@ export default function ClassicFeaturedProperty({
       {/* Video Indicator Dots - Left side */}
       {hasMultipleVideos && (
         <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
-          {videos.map((_, index) => (
+          {effectiveVideos.map((_, index) => (
             <span
               key={index}
               role="button"
