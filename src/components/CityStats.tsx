@@ -170,7 +170,7 @@ export default function CityStats({
               <button
                 key={filter.value}
                 onClick={() => handlePropertyFilterChange(filter.value)}
-                className={`px-6 py-3 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 ${
+                className={`klug-stats-tab px-6 py-3 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 ${
                   propertyFilter === filter.value
                     ? 'bg-white text-[var(--rc-navy)]'
                     : 'bg-transparent text-white/60 hover:text-white'
@@ -188,7 +188,7 @@ export default function CityStats({
             <button
               key={city}
               onClick={() => setActiveCity(city)}
-              className={`px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border ${
+              className={`klug-stats-tab px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border ${
                 activeCity === city
                   ? 'bg-white text-[var(--rc-navy)] border-white'
                   : 'bg-transparent text-white/60 border-white/30 hover:border-white hover:text-white'
@@ -298,7 +298,7 @@ export default function CityStats({
             <div className="text-center mt-10">
               <Link
                 href="/listings"
-                className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--rc-gold)] text-white px-8 py-4 border border-[var(--rc-gold)] hover:bg-transparent hover:border-white hover:text-white"
+                className="group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
               >
                 View All Listings
                 <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
