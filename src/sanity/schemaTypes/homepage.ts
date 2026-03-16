@@ -286,6 +286,40 @@ export const homepage = defineType({
           description: 'Text for the view property button',
           initialValue: 'View Property',
         },
+        {
+          name: 'videos',
+          title: 'Background Videos',
+          type: 'array',
+          description: 'Add up to 3 background videos (15 seconds each, auto-rotating). If empty, the property photo is used.',
+          of: [
+            {
+              type: 'object',
+              title: 'Video',
+              fields: [
+                {
+                  name: 'videoUrl',
+                  title: 'Video URL',
+                  type: 'url',
+                  description: 'URL to video file (MP4 recommended)',
+                },
+                {
+                  name: 'videoFile',
+                  title: 'Video File',
+                  type: 'file',
+                  description: 'Or upload a video file directly',
+                  options: { accept: 'video/*' },
+                },
+              ],
+              preview: {
+                select: { title: 'videoUrl', subtitle: 'videoFile.asset.originalFilename' },
+                prepare({ title, subtitle }: { title?: string; subtitle?: string }) {
+                  return { title: title || subtitle || 'Uploaded video' };
+                },
+              },
+            },
+          ],
+          validation: (Rule) => Rule.max(3),
+        },
       ],
     }),
     defineField({

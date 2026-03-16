@@ -77,6 +77,7 @@ interface HomepageContentProps {
     title?: string;
     headline?: string;
     buttonText?: string;
+    videos?: string[];
   };
 
   // Agent MLS ID from team member (for featured property gallery)
@@ -306,6 +307,7 @@ export default function HomepageContent({
             mlsId={featuredProperty.mlsId}
             headline={featuredProperty.headline}
             buttonText={featuredProperty.buttonText}
+            videos={featuredProperty.videos}
           />
         )}
 
@@ -385,6 +387,7 @@ export default function HomepageContent({
             mlsId={featuredProperty.mlsId}
             headline={featuredProperty.headline}
             buttonText={featuredProperty.buttonText}
+            videos={featuredProperty.videos}
           />
         )}
 

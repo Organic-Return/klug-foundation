@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice, getListingHref } from '@/lib/listings';
@@ -25,6 +25,7 @@ interface ClassicFeaturedPropertyProps {
   mlsId: string;
   headline?: string;
   buttonText?: string;
+  videos?: string[];
 }
 
 function formatSqft(sqft: number | null): string {
@@ -36,9 +37,16 @@ export default function ClassicFeaturedProperty({
   mlsId,
   headline = 'Featured Property',
   buttonText = 'View Property',
+  videos,
 }: ClassicFeaturedPropertyProps) {
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeVideo, setActiveVideo] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const hasVideos = videos && videos.length > 0;
+  const hasMultipleVideos = videos && videos.length > 1;
 
   useEffect(() => {
     async function fetchProperty() {
@@ -59,6 +67,43 @@ export default function ClassicFeaturedProperty({
     }
   }, [mlsId]);
 
+  // Auto-rotate videos every 15 seconds
+  useEffect(() => {
+    if (!hasMultipleVideos) return;
+
+    timerRef.current = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveVideo((prev) => (prev + 1) % videos!.length);
+        setIsTransitioning(false);
+      }, 500);
+    }, 15000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [hasMultipleVideos, videos]);
+
+  const handleDotClick = useCallback((index: number) => {
+    if (index === activeVideo || isTransitioning) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveVideo(index);
+      setIsTransitioning(false);
+    }, 500);
+    // Restart timer
+    if (hasMultipleVideos) {
+      timerRef.current = setInterval(() => {
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setActiveVideo((prev) => (prev + 1) % videos!.length);
+          setIsTransitioning(false);
+        }, 500);
+      }, 15000);
+    }
+  }, [activeVideo, isTransitioning, hasMultipleVideos, videos]);
+
   if (isLoading || !property) {
     return null;
   }
@@ -67,9 +112,31 @@ export default function ClassicFeaturedProperty({
 
   return (
     <section className="relative w-full aspect-video">
-      {/* Full-width background image */}
+      {/* Background: Videos or Image */}
       <div className="absolute inset-0">
-        {mainPhoto ? (
+        {hasVideos ? (
+          <>
+            {videos.map((videoUrl, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${
+                  index === activeVideo && !isTransitioning ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover"
+                  poster={mainPhoto}
+                >
+                  <source src={videoUrl} type="video/mp4" />
+                </video>
+              </div>
+            ))}
+          </>
+        ) : mainPhoto ? (
           <Image
             src={mainPhoto}
             alt={property.address || 'Featured Property'}
@@ -96,11 +163,32 @@ export default function ClassicFeaturedProperty({
           </div>
         )}
 
-        {/* Subtle gradient overlay on right side */}
+        {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-l from-black/60 via-black/20 to-transparent" />
       </div>
 
-      {/* Property details overlay - Right side, top aligned */}
+      {/* Video Indicator Dots - Left side */}
+      {hasMultipleVideos && (
+        <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+          {videos.map((_, index) => (
+            <span
+              key={index}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleDotClick(index)}
+              onKeyDown={(e) => e.key === 'Enter' && handleDotClick(index)}
+              className={`transition-all duration-300 rounded-full cursor-pointer ${
+                index === activeVideo
+                  ? 'w-3 h-3 bg-white'
+                  : 'w-2 h-2 bg-white/40 hover:bg-white/70'
+              }`}
+              aria-label={`Go to video ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Property details overlay - Right side */}
       <div className="relative h-full">
         <div className="absolute top-[232px] md:top-[248px] lg:top-[264px] right-[216px] sm:right-[224px] lg:right-[248px] xl:right-[280px] text-right text-white">
           {/* Location - City, State */}
@@ -113,7 +201,7 @@ export default function ClassicFeaturedProperty({
             </p>
           </div>
 
-          {/* Price with tag icon */}
+          {/* Price */}
           <div className="flex items-center justify-end gap-2 mb-4 md:mb-6 lg:mb-8">
             <svg
               className="w-5 h-5 md:w-6 md:h-6"
@@ -127,7 +215,7 @@ export default function ClassicFeaturedProperty({
             </span>
           </div>
 
-          {/* Property Vitals - Vertical layout with icons */}
+          {/* Property Vitals */}
           <div className="flex flex-col gap-3 md:gap-4 lg:gap-5 mb-6 md:mb-8 lg:mb-10">
             {property.bedrooms !== null && (
               <div className="flex items-center justify-end gap-2">

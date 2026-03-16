@@ -218,6 +218,7 @@ export default async function Home() {
           title: featuredProperty?.title,
           headline: featuredProperty?.headline,
           buttonText: featuredProperty?.buttonText,
+          videos: featuredProperty?.videos?.map(v => v.videoFile?.asset?.url || v.videoUrl).filter(Boolean) as string[] | undefined,
         }}
         featuredPropertiesCarousel={{
           enabled: homepage?.featuredPropertiesCarousel?.enabled,

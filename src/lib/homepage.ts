@@ -57,6 +57,10 @@ interface HomepageData {
     title?: string;
     headline?: string;
     buttonText?: string;
+    videos?: Array<{
+      videoUrl?: string;
+      videoFile?: any;
+    }>;
   };
   featuredPropertiesCarousel?: {
     enabled?: boolean;
@@ -201,7 +205,13 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
     mlsId,
     title,
     headline,
-    buttonText
+    buttonText,
+    videos[] {
+      videoUrl,
+      videoFile {
+        asset-> { url }
+      }
+    }
   },
   featuredPropertiesCarousel {
     enabled,
