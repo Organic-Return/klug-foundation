@@ -201,8 +201,8 @@ export default function HeroWithSearch({
       )}
 
       {/* Content */}
-      <div className="relative z-10 min-h-screen flex flex-col items-center justify-between px-4 sm:px-6 lg:px-8 pt-36 pb-[300px]">
-        {/* Hero Text - Centered */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-36 pb-8">
+        {/* Hero Text - Centered vertically in available space */}
         <div className="flex-1 flex items-center justify-center">
           {showTitleSubtitle && (
             <div className="text-center max-w-4xl">
