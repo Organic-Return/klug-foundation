@@ -1465,46 +1465,91 @@ address {
   display: none !important;
 }
 
-/* Classic preset: buttons — transparent bg, white text, white border, rounded */
+/* Classic preset: SIR-style buttons (btn--secondary with arrow)
+   Matches sothebysrealty.com button design:
+   - Transparent bg, navy border, navy text, no border-radius
+   - Uppercase, 12px, moderate letter-spacing
+   - Arrow icon slides right on hover
+   - On hover: navy fill, white text */
 .klug-fonts-classic {
   --color-gold: transparent;
 }
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
+
+/* SIR button base — applies to all CTA buttons in classic template */
+.klug-fonts-classic .sir-btn,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
-  border-radius: 0.25rem !important;
-  border-color: #fff !important;
-  color: #fff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  border-radius: 0 !important;
+  border: 1px solid #00254a !important;
+  color: #00254a !important;
   background-color: transparent !important;
   font-family: var(--font-open-sans), "Open Sans", sans-serif !important;
-  font-size: 14px !important;
-  padding: 8px 20px !important;
-  text-transform: none !important;
-  letter-spacing: normal !important;
+  font-size: 12px !important;
   font-weight: 400 !important;
-}
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
-  background-color: #0a275d !important;
-  color: #fff !important;
-  border-color: #0a275d !important;
+  padding: 12px 24px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.15em !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  cursor: pointer !important;
 }
 
-/* Buttons on light/white backgrounds: navy text, gold border, transparent bg */
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
-.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn),
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab),
-.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
-  color: #0a275d !important;
-  border-color: #c19b5f !important;
-  background-color: transparent !important;
-}
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic section a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):hover,
-.klug-fonts-classic main a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
-  background-color: #0a275d !important;
+/* Hover: navy fill, white text */
+.klug-fonts-classic .sir-btn:hover,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
+  background-color: #00254a !important;
   color: #fff !important;
-  border-color: #0a275d !important;
+  border-color: #00254a !important;
+}
+
+/* Arrow icon inside SIR buttons — slides right on hover */
+.klug-fonts-classic .sir-btn .sir-arrow,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow {
+  display: inline-block !important;
+  width: 20px !important;
+  height: 1px !important;
+  background-color: currentColor !important;
+  position: relative !important;
+  transition: width 0.3s ease !important;
+  flex-shrink: 0 !important;
+}
+.klug-fonts-classic .sir-btn .sir-arrow::after,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow::after {
+  content: '' !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: -3px !important;
+  width: 7px !important;
+  height: 7px !important;
+  border-top: 1px solid currentColor !important;
+  border-right: 1px solid currentColor !important;
+  transform: rotate(45deg) !important;
+}
+
+/* Arrow grows on hover */
+.klug-fonts-classic .sir-btn:hover .sir-arrow,
+.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
+.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover .sir-arrow {
+  width: 28px !important;
+}
+
+/* Buttons on dark backgrounds (hero, overlays): white border & text */
+.klug-fonts-classic .sir-btn--light,
+.klug-fonts-classic .klug-hero-btn {
+  border-color: #fff !important;
+  color: #fff !important;
+}
+.klug-fonts-classic .sir-btn--light:hover,
+.klug-fonts-classic .klug-hero-btn:hover {
+  background-color: #fff !important;
+  color: #00254a !important;
+  border-color: #fff !important;
 }
 
 /* ========================================

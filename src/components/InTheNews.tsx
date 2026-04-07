@@ -166,12 +166,10 @@ export default function InTheNews({
           <div className="text-center mt-8">
             <Link
               href="/in-the-news"
-              className="inline-flex items-center gap-2 text-[var(--color-gold)] text-xs font-medium tracking-wider uppercase hover:gap-4 transition-all duration-300"
+              className="sir-btn inline-flex items-center gap-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-300"
             >
-              View All Articles
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
+              <span>View All Articles</span>
+              <span className="sir-arrow" />
             </Link>
           </div>
         </div>

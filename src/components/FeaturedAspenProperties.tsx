@@ -267,13 +267,11 @@ export default function FeaturedAspenProperties({
                       {isActive && (
                         <Link
                           href={getListingHref(property)}
-                          className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white w-fit"
+                          className="sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white w-fit"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          View Property
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                          </svg>
+                          <span>View Property</span>
+                          <span className="sir-arrow" />
                         </Link>
                       )}
                     </div>
@@ -304,12 +302,10 @@ export default function FeaturedAspenProperties({
         <div className="text-center mt-10 max-w-7xl mx-auto">
           <Link
             href={listingsHref}
-            className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
+            className="sir-btn inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
           >
-            {buttonText}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
+            <span>{buttonText}</span>
+            <span className="sir-arrow" />
           </Link>
         </div>
       </div>
