@@ -1318,6 +1318,7 @@ address {
 }
 
 /* ========================================
+<<<<<<< HEAD
    KLUG FONTS: CLASSIC PRESET
    Open Sans body + HCo Mercury SSm headings
    (matching klugproperties.com)
@@ -1506,7 +1507,29 @@ address {
   border-color: #0a275d !important;
 }
 
-/* Reset all klug/classic overrides inside Sanity Studio */
+/* ========================================
+   SANITY STUDIO RESET
+   Undo all site typography/color overrides
+   so Sanity Studio uses its default styles.
+   ======================================== */
+#sanity-studio,
+#sanity-studio *:not(svg):not(svg *) {
+  font-family: revert;
+  font-weight: revert;
+  font-style: revert;
+  font-size: revert;
+  line-height: revert;
+  letter-spacing: revert;
+  text-transform: revert;
+  max-width: revert;
+  margin: revert;
+}
+
+#sanity-studio a {
+  text-decoration: revert;
+}
+
+/* Also reset via [data-ui] for Sanity elements rendered outside #sanity-studio */
 .klug-template [data-ui],
 .klug-template [data-ui] *,
 .klug-fonts-classic [data-ui],

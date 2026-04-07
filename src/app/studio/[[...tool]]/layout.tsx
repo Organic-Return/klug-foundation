@@ -9,10 +9,19 @@ export default function StudioLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0, padding: 0, height: '100vh', overflow: 'hidden' }}>
-        {children}
-      </body>
-    </html>
+    <div
+      id="sanity-studio"
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        zIndex: 9999,
+        overflow: 'auto',
+      }}
+    >
+      {children}
+    </div>
   );
 }
