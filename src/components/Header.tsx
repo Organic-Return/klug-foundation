@@ -273,7 +273,7 @@ export default function Header({
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
-                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-[#c9ac77] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </Link>
                 ) : (
                   <button
@@ -282,7 +282,7 @@ export default function Header({
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
-                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-white scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                    <span className="klug-nav-underline absolute bottom-0 left-1 right-1 h-[2px] bg-[#c9ac77] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </button>
                 )}
 
