@@ -1482,10 +1482,9 @@ address {
   align-items: center !important;
   gap: 10px !important;
   border-radius: 0 !important;
-  border: 1px solid #00254a !important;
+  border: 1px solid #c9ac77 !important;
   color: #00254a !important;
   background-color: transparent !important;
-  font-family: var(--font-open-sans), "Open Sans", sans-serif !important;
   font-size: 12px !important;
   font-weight: 400 !important;
   padding: 12px 24px !important;
@@ -1496,13 +1495,13 @@ address {
   cursor: pointer !important;
 }
 
-/* Hover: navy fill, white text */
+/* Hover: gold fill, white text */
 .klug-fonts-classic .sir-btn:hover,
 .klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
-  background-color: #00254a !important;
+  background-color: #c9ac77 !important;
   color: #fff !important;
-  border-color: #00254a !important;
+  border-color: #c9ac77 !important;
 }
 
 /* Arrow icon inside SIR buttons — slides right on hover */
@@ -1538,17 +1537,17 @@ address {
   width: 28px !important;
 }
 
-/* Buttons on dark backgrounds (hero, overlays): white border & text */
+/* Buttons on dark backgrounds (hero, overlays): gold border & white text */
 .klug-fonts-classic .sir-btn--light,
 .klug-fonts-classic .klug-hero-btn {
-  border-color: #fff !important;
+  border-color: #c9ac77 !important;
   color: #fff !important;
 }
 .klug-fonts-classic .sir-btn--light:hover,
 .klug-fonts-classic .klug-hero-btn:hover {
-  background-color: #fff !important;
-  color: #00254a !important;
-  border-color: #fff !important;
+  background-color: #c9ac77 !important;
+  color: #fff !important;
+  border-color: #c9ac77 !important;
 }
 
 /* ========================================
