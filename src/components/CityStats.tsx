@@ -34,12 +34,13 @@ interface CityStatsProps {
   configuredCities?: string[];
 }
 
-type PropertyFilter = 'all' | 'single-family' | 'condo-townhome';
+type PropertyFilter = 'all' | 'single-family' | 'condo-townhome' | 'land';
 
 const PROPERTY_FILTERS: { value: PropertyFilter; label: string }[] = [
   { value: 'all', label: 'All Properties' },
   { value: 'single-family', label: 'Single Family Homes' },
   { value: 'condo-townhome', label: 'Condos' },
+  { value: 'land', label: 'Land' },
 ];
 
 function formatPrice(price: number): string {
@@ -246,16 +247,16 @@ export default function CityStats({
 
                 <div className="p-6 md:p-8 text-center">
                   <p className="text-2xl md:text-3xl font-light text-white mb-2">
-                    ${activeCityStats.avgPricePerSqFt.toLocaleString()}
+                    {activeCityStats.avgDaysOnMarket != null ? `${activeCityStats.avgDaysOnMarket}` : 'N/A'}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
-                    Avg. Price/Sq Ft
+                    Avg. Days on Market
                   </p>
                 </div>
               </div>
 
               {/* Bottom Row - Secondary Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4">
+              <div className="grid grid-cols-3">
                 <div className="p-6 md:p-8 text-center border-r border-white/20">
                   <p className="text-xl md:text-2xl font-light text-[var(--rc-gold)] mb-2">
                     {formatPrice(activeCityStats.highestPrice)}
@@ -265,7 +266,7 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-white/20 md:border-r">
+                <div className="p-6 md:p-8 text-center border-r border-white/20">
                   <p className="text-xl md:text-2xl font-light text-white mb-2">
                     {formatPrice(activeCityStats.lowestPrice)}
                   </p>
@@ -274,21 +275,12 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-white/20">
+                <div className="p-6 md:p-8 text-center">
                   <p className="text-xl md:text-2xl font-light text-white mb-2">
                     {activeCityStats.avgSoldPrice ? formatPrice(activeCityStats.avgSoldPrice) : 'N/A'}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
                     Avg. Sold Price (1 Yr)
-                  </p>
-                </div>
-
-                <div className="p-6 md:p-8 text-center">
-                  <p className="text-xl md:text-2xl font-light text-white mb-2">
-                    {activeCityStats.avgDaysOnMarket != null ? `${activeCityStats.avgDaysOnMarket} days` : 'N/A'}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
-                    Avg. Days on Market
                   </p>
                 </div>
               </div>
@@ -298,12 +290,10 @@ export default function CityStats({
             <div className="text-center mt-10">
               <Link
                 href="/listings"
-                className="klug-hero-btn group inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
+                className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
               >
-                View All Listings
-                <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
+                <span>View All Listings</span>
+                <span className="sir-arrow" />
               </Link>
             </div>
           </div>

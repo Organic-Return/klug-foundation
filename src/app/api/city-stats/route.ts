@@ -38,6 +38,7 @@ const PROPERTY_SUB_TYPE_FILTERS: Record<string, string[]> = {
   all: [], // No additional filter - shows all allowed types
   'single-family': ['Single Family Residence', 'Site Built-Owned Lot', 'Residential'],
   'condo-townhome': ['Condominium', 'Townhouse'],
+  'land': [], // Land uses property_type filter instead of sub-type
 };
 
 // Default cities to show if none configured in Sanity
@@ -76,17 +77,19 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
   // Get property sub-type filter
   const filterSubTypes = PROPERTY_SUB_TYPE_FILTERS[propertyFilter];
 
+  // Land filter uses property_type = 'Res Vacant Land' instead of excluding it
+  const isLand = propertyFilter === 'land';
+
   // Build all three queries using graphql_listings table
   let activeQuery = supabase
     .from('graphql_listings')
-    .select('city, list_price, square_feet')
+    .select('city, list_price, square_feet, lot_size_acres')
     .eq('status', 'Active')
     .in('city', allowedCities)
     .not('list_price', 'is', null)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
-    .not('property_type', 'eq', 'Fractional')
-    .not('property_type', 'eq', 'Res Vacant Land');
+    .not('property_type', 'eq', 'Fractional');
 
   let pendingQuery = supabase
     .from('graphql_listings')
@@ -95,25 +98,35 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .in('city', allowedCities)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
-    .not('property_type', 'eq', 'Fractional')
-    .not('property_type', 'eq', 'Res Vacant Land');
+    .not('property_type', 'eq', 'Fractional');
 
   let closedQuery = supabase
     .from('graphql_listings')
-    .select('city, sold_price, list_price, square_feet, listing_date, close_date')
+    .select('city, sold_price, list_price, square_feet, lot_size_acres, listing_date, close_date')
     .in('status', ['Closed', 'Sold'])
     .in('city', allowedCities)
     .not('sold_price', 'is', null)
     .gte('close_date', twoYearsAgoStr)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
-    .not('property_type', 'eq', 'Fractional')
-    .not('property_type', 'eq', 'Res Vacant Land');
+    .not('property_type', 'eq', 'Fractional');
 
-  // Apply property sub-type filter if not "all"
+  if (isLand) {
+    // Land: only include vacant land
+    activeQuery = activeQuery.or('property_type.eq.Res Vacant Land,property_type.eq.RES Vacant Land,property_sub_type.eq.Unimproved Land,property_sub_type.eq.Vacant Land');
+    pendingQuery = pendingQuery.or('property_type.eq.Res Vacant Land,property_type.eq.RES Vacant Land,property_sub_type.eq.Unimproved Land,property_sub_type.eq.Vacant Land');
+    closedQuery = closedQuery.or('property_type.eq.Res Vacant Land,property_type.eq.RES Vacant Land,property_sub_type.eq.Unimproved Land,property_sub_type.eq.Vacant Land');
+  } else {
+    // Non-land: exclude vacant land
+    activeQuery = activeQuery.not('property_type', 'eq', 'Res Vacant Land');
+    pendingQuery = pendingQuery.not('property_type', 'eq', 'Res Vacant Land');
+    closedQuery = closedQuery.not('property_type', 'eq', 'Res Vacant Land');
+  }
+
+  // Apply property sub-type filter if not "all" or "land"
   // For single-family, also include NULL sub-types since many MLS systems (e.g. PacMLS)
   // leave this field empty for standard residential listings
-  if (filterSubTypes && filterSubTypes.length > 0) {
+  if (!isLand && filterSubTypes && filterSubTypes.length > 0) {
     const orConditions = filterSubTypes.map(t => `property_sub_type.eq.${t}`).join(',');
     const includeNull = propertyFilter === 'single-family';
     const orFilter = includeNull
