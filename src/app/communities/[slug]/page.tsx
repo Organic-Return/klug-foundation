@@ -1043,7 +1043,7 @@ export default async function CommunityPage({
 
                 <Link
                   href="/contact-us"
-                  className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+                  className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
                 >
                   Schedule a Consultation
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
