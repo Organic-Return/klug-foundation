@@ -267,7 +267,7 @@ export default function FeaturedAspenProperties({
                       {isActive && (
                         <Link
                           href={getListingHref(property)}
-                          className="sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-5 py-2.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-white w-fit"
+                          className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-5 py-2.5 border border-white w-fit"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <span>View Property</span>
