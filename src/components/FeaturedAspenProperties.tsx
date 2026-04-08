@@ -145,7 +145,7 @@ export default function FeaturedAspenProperties({
           {/* Navigation Arrows */}
           <button
             onClick={handlePrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white shadow-lg rounded-full transition-all duration-300 hover:scale-110 -ml-6"
+            className="klug-gallery-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white shadow-lg rounded-full transition-all duration-300 hover:scale-110 -ml-6"
             aria-label="Previous property"
           >
             <svg className="w-6 h-6 text-[var(--color-charcoal)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,7 +155,7 @@ export default function FeaturedAspenProperties({
 
           <button
             onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white shadow-lg rounded-full transition-all duration-300 hover:scale-110 -mr-6"
+            className="klug-gallery-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white shadow-lg rounded-full transition-all duration-300 hover:scale-110 -mr-6"
             aria-label="Next property"
           >
             <svg className="w-6 h-6 text-[var(--color-charcoal)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +287,7 @@ export default function FeaturedAspenProperties({
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                className={`klug-gallery-btn w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   index === activeIndex
                     ? 'bg-[var(--color-gold)] w-8'
                     : 'bg-[var(--color-charcoal)]/30 hover:bg-[var(--color-charcoal)]/50'
