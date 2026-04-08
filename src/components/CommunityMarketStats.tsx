@@ -33,12 +33,13 @@ interface CommunityMarketStatsProps {
   variant?: 'classic' | 'luxury';
 }
 
-type PropertyFilter = 'all' | 'single-family' | 'condo-townhome';
+type PropertyFilter = 'all' | 'single-family' | 'condo-townhome' | 'land';
 
 const PROPERTY_FILTERS: { value: PropertyFilter; label: string }[] = [
   { value: 'all', label: 'All Properties' },
   { value: 'single-family', label: 'Single Family' },
   { value: 'condo-townhome', label: 'Condos' },
+  { value: 'land', label: 'Land' },
 ];
 
 function formatPrice(price: number): string {
