@@ -1544,12 +1544,17 @@ address {
 
 /* Buttons on dark backgrounds (hero, overlays): gold border & white text */
 .klug-fonts-classic .sir-btn--light,
-.klug-fonts-classic .klug-hero-btn {
+.klug-fonts-classic .klug-hero-btn,
+.klug-fonts-classic a.sir-btn--light[class*="tracking-"],
+.klug-fonts-classic a.klug-hero-btn[class*="tracking-"] {
   border-color: #c9ac77 !important;
   color: #fff !important;
+  background-color: transparent !important;
 }
 .klug-fonts-classic .sir-btn--light:hover,
-.klug-fonts-classic .klug-hero-btn:hover {
+.klug-fonts-classic .klug-hero-btn:hover,
+.klug-fonts-classic a.sir-btn--light[class*="tracking-"]:hover,
+.klug-fonts-classic a.klug-hero-btn[class*="tracking-"]:hover {
   background-color: #c9ac77 !important;
   color: #fff !important;
   border-color: #c9ac77 !important;
