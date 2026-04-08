@@ -159,28 +159,27 @@ export default function CityStats({
             {title}
           </h1>
 
-          <p className="text-white/70 font-light text-[17px] max-w-2xl mx-auto">
+          <p className="text-white/70 font-light text-[17px] max-w-2xl mx-auto mb-6">
             {subtitle}
           </p>
+          <div className="w-12 h-px bg-[#c9ac77] mx-auto" />
         </div>
 
         {/* Property Type Tabs */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex border border-white/20">
-            {PROPERTY_FILTERS.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => handlePropertyFilterChange(filter.value)}
-                className={`klug-stats-tab px-6 py-3 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 ${
-                  propertyFilter === filter.value
-                    ? 'bg-white text-[var(--rc-navy)]'
-                    : 'bg-transparent text-white/60 hover:text-white'
-                }`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex justify-center gap-6 mb-10">
+          {PROPERTY_FILTERS.map((filter) => (
+            <button
+              key={filter.value}
+              onClick={() => handlePropertyFilterChange(filter.value)}
+              className={`klug-stats-tab px-1 pb-2 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border-b-2 ${
+                propertyFilter === filter.value
+                  ? 'text-[#c9ac77] border-[#c9ac77]'
+                  : 'text-white/50 border-transparent hover:text-white hover:border-white/30'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
         </div>
 
         {/* City Tabs */}
@@ -191,8 +190,8 @@ export default function CityStats({
               onClick={() => setActiveCity(city)}
               className={`klug-stats-tab px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border ${
                 activeCity === city
-                  ? 'bg-white text-[var(--rc-navy)] border-white'
-                  : 'bg-transparent text-white/60 border-white/30 hover:border-white hover:text-white'
+                  ? 'bg-[#c9ac77] text-white border-[#c9ac77]'
+                  : 'bg-transparent text-white/60 border-white/30 hover:border-[#c9ac77] hover:text-white'
               }`}
             >
               {city}
@@ -215,11 +214,11 @@ export default function CityStats({
         ) : activeCityStats ? (
           <div>
             {/* Main Stats Card */}
-            <div className="bg-white/10 border border-white/20">
+            <div className="bg-white/5 border border-[#c9ac77]/30">
               {/* Top Row - Key Metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-4 border-b border-white/20">
-                <div className="p-6 md:p-8 text-center border-r border-white/20">
-                  <p className="text-3xl md:text-4xl font-light text-white mb-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 border-b border-[#c9ac77]/20">
+                <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                  <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">
                     {activeCityStats.totalActiveListings}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
@@ -227,8 +226,8 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-white/20 md:border-r">
-                  <p className="text-3xl md:text-4xl font-light text-white mb-2">
+                <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20 md:border-r">
+                  <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">
                     {activeCityStats.totalUnderContract}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
@@ -236,7 +235,7 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-white/20">
+                <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
                   <p className="text-2xl md:text-3xl font-light text-white mb-2">
                     {formatPrice(activeCityStats.avgListPrice)}
                   </p>
@@ -257,8 +256,8 @@ export default function CityStats({
 
               {/* Bottom Row - Secondary Metrics */}
               <div className="grid grid-cols-3">
-                <div className="p-6 md:p-8 text-center border-r border-white/20">
-                  <p className="text-xl md:text-2xl font-light text-[var(--rc-gold)] mb-2">
+                <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                  <p className="text-xl md:text-2xl font-light text-[#c9ac77] mb-2">
                     {formatPrice(activeCityStats.highestPrice)}
                   </p>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
@@ -266,7 +265,7 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center border-r border-white/20">
+                <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
                   <p className="text-xl md:text-2xl font-light text-white mb-2">
                     {formatPrice(activeCityStats.lowestPrice)}
                   </p>
