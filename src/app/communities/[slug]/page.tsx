@@ -1027,13 +1027,8 @@ export default async function CommunityPage({
               </div>
             </section>
           ) : (
-            <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] relative overflow-hidden">
-              {/* Subtle Background Pattern */}
-              <div className="absolute inset-0 opacity-5">
-                <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-              </div>
-
-              <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
+            <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
+              <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
                   Begin Your Journey
                 </h2>
