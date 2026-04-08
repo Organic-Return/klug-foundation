@@ -197,7 +197,7 @@ export default function ClassicFeaturedProperty({
 
       {/* Property details overlay - Right side, matching klugproperties.com layout */}
       <div className="relative h-full">
-        <div className="absolute top-12 md:top-16 lg:top-20 xl:top-24 right-8 sm:right-12 lg:right-16 xl:right-24 text-right text-white">
+        <div className="absolute top-12 md:top-16 lg:top-20 xl:top-24 right-[58px] sm:right-[62px] lg:right-[66px] xl:right-[74px] text-right text-white">
           {/* Location */}
           <div className="flex flex-col gap-y-2 md:gap-y-3 lg:gap-y-4 xl:gap-y-7 mb-2 md:mb-3 lg:mb-4 xl:mb-7">
             <span className="text-2xl md:text-3xl lg:text-4xl uppercase">
