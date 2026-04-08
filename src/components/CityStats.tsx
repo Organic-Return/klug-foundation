@@ -255,7 +255,7 @@ export default function CityStats({
               </div>
 
               {/* Bottom Row - Secondary Metrics */}
-              <div className="grid grid-cols-3">
+              <div className={`grid ${(propertyFilter === 'single-family' || propertyFilter === 'condo-townhome') ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3'}`}>
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
                   <p className="text-xl md:text-2xl font-light text-[#c9ac77] mb-2">
                     {formatPrice(activeCityStats.highestPrice)}
@@ -274,7 +274,7 @@ export default function CityStats({
                   </p>
                 </div>
 
-                <div className="p-6 md:p-8 text-center">
+                <div className={`p-6 md:p-8 text-center ${(propertyFilter === 'single-family' || propertyFilter === 'condo-townhome') ? 'border-r border-[#c9ac77]/20' : ''}`}>
                   <p className="text-xl md:text-2xl font-light text-white mb-2">
                     {activeCityStats.avgSoldPrice ? formatPrice(activeCityStats.avgSoldPrice) : 'N/A'}
                   </p>
@@ -282,6 +282,18 @@ export default function CityStats({
                     Avg. Sold Price (1 Yr)
                   </p>
                 </div>
+
+                {/* Avg Price/Sq Ft - only for single-family and condos */}
+                {(propertyFilter === 'single-family' || propertyFilter === 'condo-townhome') && (
+                  <div className="p-6 md:p-8 text-center">
+                    <p className="text-xl md:text-2xl font-light text-white mb-2">
+                      {activeCityStats.avgPricePerSqFt ? `$${activeCityStats.avgPricePerSqFt.toLocaleString()}` : 'N/A'}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                      Avg. Price/Sq Ft
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
