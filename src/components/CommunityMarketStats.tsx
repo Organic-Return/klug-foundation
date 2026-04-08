@@ -83,7 +83,7 @@ export default function CommunityMarketStats({
 
   if (!city) return null;
 
-  const sectionBg = isLuxury ? 'bg-[#f6f1eb]' : 'bg-[#f8f7f5] dark:bg-[#141414]';
+  const sectionBg = isLuxury ? 'bg-[#f6f1eb]' : 'bg-[var(--rc-navy,#00254a)]';
   const skeletonBg = isLuxury ? 'bg-[var(--color-taupe)]' : 'bg-[#e8e6e3] dark:bg-white/10';
 
   if (isLoading && !stats) {
@@ -105,10 +105,10 @@ export default function CommunityMarketStats({
       <section className={`py-24 md:py-32 ${sectionBg}`}>
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center">
-            <h2 className={`text-3xl md:text-4xl mb-4 ${isLuxury ? 'font-luxury font-light text-[var(--color-charcoal)] tracking-wide' : 'font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide'}`}>
+            <h2 className={`text-3xl md:text-4xl mb-4 ${isLuxury ? 'font-luxury font-light text-[var(--color-charcoal)] tracking-wide' : 'font-serif font-light text-white tracking-wide'}`}>
               {title}
             </h2>
-            <p className={isLuxury ? 'font-luxury-body text-[var(--color-warm-gray)] font-light' : 'text-[#6a6a6a] dark:text-gray-400 font-light'}>
+            <p className={isLuxury ? 'font-luxury-body text-[var(--color-warm-gray)] font-light' : 'text-white/70 font-light'}>
               No market data available for {city}
             </p>
           </div>
@@ -127,13 +127,14 @@ export default function CommunityMarketStats({
               Market Data
             </p>
           )}
-          <h2 className={`text-3xl md:text-4xl mb-4 ${isLuxury ? 'font-luxury font-light text-[var(--color-charcoal)] tracking-wide' : 'font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide'}`}>
+          <h2 className={`text-3xl md:text-4xl mb-4 ${isLuxury ? 'font-luxury font-light text-[var(--color-charcoal)] tracking-wide' : 'font-serif font-light text-white tracking-wide'}`}>
             {title}
           </h2>
           {isLuxury && <div className="w-12 h-px bg-[var(--color-gold)] mx-auto mb-5" />}
-          <p className={`max-w-2xl mx-auto ${isLuxury ? 'font-luxury-body text-[var(--color-warm-gray)] font-light text-sm tracking-wide' : 'text-[#6a6a6a] dark:text-gray-400 font-light'}`}>
+          <p className={`max-w-2xl mx-auto mb-6 ${isLuxury ? 'font-luxury-body text-[var(--color-warm-gray)] font-light text-sm tracking-wide' : 'text-white/70 font-light'}`}>
             {subtitle || `Real-time market data for ${city}`}
           </p>
+          {!isLuxury && <div className="w-12 h-px bg-[#c9ac77] mx-auto" />}
         </div>
 
         {/* Property Type Tabs */}
@@ -159,15 +160,15 @@ export default function CommunityMarketStats({
               ))}
             </div>
           ) : (
-            <div className="inline-flex border border-[#e8e6e3] dark:border-gray-700">
+            <div className="flex justify-center gap-6">
               {PROPERTY_FILTERS.map((filter) => (
                 <button
                   key={filter.value}
                   onClick={() => setPropertyFilter(filter.value)}
-                  className={`px-6 py-3 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 ${
+                  className={`klug-stats-tab px-1 pb-2 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border-b-2 ${
                     propertyFilter === filter.value
-                      ? 'bg-[var(--color-navy)] dark:bg-[var(--color-gold)] text-white'
-                      : 'bg-white dark:bg-[#1a1a1a] text-[#6a6a6a] dark:text-gray-400 hover:text-[#1a1a1a] dark:hover:text-white'
+                      ? 'text-[#c9ac77] border-[#c9ac77]'
+                      : 'text-white/50 border-transparent hover:text-white hover:border-white/30'
                   }`}
                 >
                   {filter.label}
@@ -215,43 +216,45 @@ export default function CommunityMarketStats({
                 ))}
               </div>
             ) : (
-              /* Classic Stats Card */
-              <div className="bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800">
-                <div className="grid grid-cols-2 md:grid-cols-4 border-b border-[#e8e6e3] dark:border-gray-800">
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800">
-                    <p className="text-3xl md:text-4xl font-light text-[#1a1a1a] dark:text-white mb-2">{stats.totalActiveListings}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Total Active Listings</p>
+              /* Classic Stats Card - matching homepage gold style */
+              <div className="bg-white/5 border border-[#c9ac77]/30">
+                <div className="grid grid-cols-2 md:grid-cols-4 border-b border-[#c9ac77]/20">
+                  <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                    <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">{stats.totalActiveListings}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Total Active Listings</p>
                   </div>
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800 md:border-r">
-                    <p className="text-3xl md:text-4xl font-light text-[#1a1a1a] dark:text-white mb-2">{stats.totalUnderContract}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Under Contract</p>
+                  <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                    <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">{stats.totalUnderContract}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Under Contract</p>
                   </div>
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800">
-                    <p className="text-2xl md:text-3xl font-light text-[#1a1a1a] dark:text-white mb-2">{formatPrice(stats.avgListPrice)}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Avg. Price</p>
+                  <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                    <p className="text-2xl md:text-3xl font-light text-white mb-2">{formatPrice(stats.avgListPrice)}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Avg. Price</p>
                   </div>
                   <div className="p-6 md:p-8 text-center">
-                    <p className="text-2xl md:text-3xl font-light text-[#1a1a1a] dark:text-white mb-2">${stats.avgPricePerSqFt.toLocaleString()}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Avg. Price/Sq Ft</p>
+                    <p className="text-2xl md:text-3xl font-light text-white mb-2">{stats.avgDaysOnMarket != null ? `${stats.avgDaysOnMarket}` : 'N/A'}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Avg. Days on Market</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4">
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800">
-                    <p className="text-xl md:text-2xl font-light text-[var(--color-gold)] mb-2">{formatPrice(stats.highestPrice)}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Highest Listing</p>
+                <div className={`grid ${propertyFilter !== 'land' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3'}`}>
+                  <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                    <p className="text-xl md:text-2xl font-light text-[#c9ac77] mb-2">{formatPrice(stats.highestPrice)}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Highest Listing</p>
                   </div>
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800 md:border-r">
-                    <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">{formatPrice(stats.lowestPrice)}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Lowest Listing</p>
+                  <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
+                    <p className="text-xl md:text-2xl font-light text-white mb-2">{formatPrice(stats.lowestPrice)}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Lowest Listing</p>
                   </div>
-                  <div className="p-6 md:p-8 text-center border-r border-[#e8e6e3] dark:border-gray-800">
-                    <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">{stats.avgSoldPrice ? formatPrice(stats.avgSoldPrice) : 'N/A'}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Avg. Sold Price (1 Yr)</p>
+                  <div className={`p-6 md:p-8 text-center ${propertyFilter !== 'land' ? 'border-r border-[#c9ac77]/20' : ''}`}>
+                    <p className="text-xl md:text-2xl font-light text-white mb-2">{stats.avgSoldPrice ? formatPrice(stats.avgSoldPrice) : 'N/A'}</p>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Avg. Sold Price (1 Yr)</p>
                   </div>
-                  <div className="p-6 md:p-8 text-center">
-                    <p className="text-xl md:text-2xl font-light text-[#1a1a1a] dark:text-white mb-2">{stats.avgDaysOnMarket != null ? `${stats.avgDaysOnMarket} days` : 'N/A'}</p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Avg. Days on Market</p>
-                  </div>
+                  {propertyFilter !== 'land' && (
+                    <div className="p-6 md:p-8 text-center">
+                      <p className="text-xl md:text-2xl font-light text-white mb-2">{stats.avgPricePerSqFt ? `$${stats.avgPricePerSqFt.toLocaleString()}` : 'N/A'}</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">Avg. Price/Sq Ft</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -285,12 +288,10 @@ export default function CommunityMarketStats({
               ) : (
                 <Link
                   href={`/listings?city=${encodeURIComponent(city)}`}
-                  className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.2em] font-light text-[#1a1a1a] dark:text-white hover:text-[var(--color-gold)] transition-colors duration-300"
+                  className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
                 >
-                  View All {city} Listings
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+                  <span>View All {city} Listings</span>
+                  <span className="sir-arrow" />
                 </Link>
               )}
             </div>
@@ -301,7 +302,7 @@ export default function CommunityMarketStats({
         <div className="text-center mt-12">
           <p className={isLuxury
             ? 'font-luxury-body text-[9px] uppercase tracking-[0.2em] text-[var(--color-warm-gray)]/40 font-light'
-            : 'text-[9px] uppercase tracking-[0.2em] text-[#9a9a9a] font-light'
+            : 'text-[9px] uppercase tracking-[0.2em] text-white/40 font-light'
           }>
             Data updated in real-time from MLS
           </p>
