@@ -1567,19 +1567,24 @@ address {
    ======================================== */
 #sanity-studio,
 #sanity-studio *:not(svg):not(svg *) {
-  font-family: revert;
-  font-weight: revert;
-  font-style: revert;
-  font-size: revert;
-  line-height: revert;
-  letter-spacing: revert;
-  text-transform: revert;
-  max-width: revert;
-  margin: revert;
+  font-family: revert !important;
+  font-weight: revert !important;
+  font-style: revert !important;
+  font-size: revert !important;
+  line-height: revert !important;
+  letter-spacing: revert !important;
+  text-transform: revert !important;
+  max-width: revert !important;
+  margin: revert !important;
+  color: revert !important;
+  background-color: revert !important;
+  border: revert !important;
+  border-radius: revert !important;
+  padding: revert !important;
 }
 
 #sanity-studio a {
-  text-decoration: revert;
+  text-decoration: revert !important;
 }
 
 /* Also reset via [data-ui] for Sanity elements rendered outside #sanity-studio */
