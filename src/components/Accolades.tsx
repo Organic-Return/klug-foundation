@@ -58,7 +58,7 @@ export default function Accolades({
               <div
                 key={index}
                 className={`flex flex-col items-center text-center ${
-                  index % 3 === 1 ? 'lg:border-l lg:border-r lg:border-[#e5e5e5] dark:lg:border-gray-700' : ''
+                  index % 3 === 1 ? 'lg:border-l lg:border-r lg:border-[#c9a962] dark:lg:border-gray-700' : ''
                 }`}
               >
                 {/* Display Value or Image */}
