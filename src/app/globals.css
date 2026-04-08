@@ -1565,22 +1565,44 @@ address {
    Undo all site typography/color overrides
    so Sanity Studio uses its default styles.
    ======================================== */
-#sanity-studio,
-#sanity-studio *:not(svg):not(svg *) {
-  font-family: revert !important;
+#sanity-studio h1,
+#sanity-studio h2,
+#sanity-studio h3,
+#sanity-studio h4,
+#sanity-studio h5,
+#sanity-studio h6,
+#sanity-studio p,
+#sanity-studio a,
+#sanity-studio button,
+#sanity-studio input,
+#sanity-studio textarea,
+#sanity-studio select,
+#sanity-studio label,
+#sanity-studio small,
+#sanity-studio span,
+#sanity-studio div {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+#sanity-studio h1,
+#sanity-studio h2,
+#sanity-studio h3,
+#sanity-studio h4,
+#sanity-studio h5,
+#sanity-studio h6 {
+  font-size: revert !important;
   font-weight: revert !important;
-  font-style: revert !important;
+  line-height: revert !important;
+  margin: revert !important;
+}
+
+#sanity-studio p {
   font-size: revert !important;
   line-height: revert !important;
-  letter-spacing: revert !important;
-  text-transform: revert !important;
-  max-width: revert !important;
-  margin: revert !important;
-  color: revert !important;
-  background-color: revert !important;
-  border: revert !important;
-  border-radius: revert !important;
-  padding: revert !important;
+  max-width: none !important;
+  margin-bottom: revert !important;
 }
 
 #sanity-studio a {
