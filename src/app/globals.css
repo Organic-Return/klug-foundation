@@ -1474,9 +1474,10 @@ address {
 /* Gold accent is preserved for separators, nav hovers, etc.
    Button backgrounds are handled by .sir-btn rules above. */
 
-/* SIR button base — applies to all CTA buttons in classic template */
+/* SIR button base — applies to CTA buttons in classic template sections */
 .klug-fonts-classic .sir-btn,
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
   display: inline-flex !important;
   align-items: center !important;
@@ -1497,7 +1498,8 @@ address {
 
 /* Hover: gold fill, white text */
 .klug-fonts-classic .sir-btn:hover,
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
   background-color: #c9ac77 !important;
   color: #fff !important;
@@ -1506,7 +1508,8 @@ address {
 
 /* Arrow icon inside SIR buttons — slides right on hover */
 .klug-fonts-classic .sir-btn .sir-arrow,
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow {
   display: inline-block !important;
   width: 20px !important;
@@ -1517,7 +1520,8 @@ address {
   flex-shrink: 0 !important;
 }
 .klug-fonts-classic .sir-btn .sir-arrow::after,
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow::after {
   content: '' !important;
   position: absolute !important;
@@ -1532,7 +1536,8 @@ address {
 
 /* Arrow grows on hover */
 .klug-fonts-classic .sir-btn:hover .sir-arrow,
-.klug-fonts-classic button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover .sir-arrow {
   width: 28px !important;
 }
