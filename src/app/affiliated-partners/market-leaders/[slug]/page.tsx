@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
+import { getRealogyListingsByAgentName, formatPrice, getListingHref, type MLSProperty } from '@/lib/listings';
 
 // Query by slug or by generated slug from firstName-lastName
 const PARTNER_BY_SLUG_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "market_leader" && (slug.current == $slug || lower(firstName + "-" + lastName) == $slug)][0] {
@@ -70,6 +71,10 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
   }
 
   const enrichedPartner = await enrichPartnerWithAgentData(partner);
+
+  // Fetch agent listings from Realogy
+  const agentName = `${partner.firstName} ${partner.lastName}`;
+  const { activeListings, soldListings } = await getRealogyListingsByAgentName(agentName);
 
   return (
     <main className="min-h-screen">
@@ -222,6 +227,119 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
         </div>
       </section>
 
+      {/* Active Listings */}
+      {activeListings.length > 0 && (
+        <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              Active Listings
+            </h2>
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-10">
+              {activeListings.length} {activeListings.length === 1 ? 'property' : 'properties'} currently for sale
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeListings.slice(0, 12).map((listing) => (
+                <Link
+                  key={listing.id}
+                  href={getListingHref(listing)}
+                  className="group bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 overflow-hidden hover:border-[var(--color-gold)]/30 transition-colors"
+                >
+                  <div className="relative aspect-[16/10] bg-[#f0f0f0] dark:bg-gray-800 overflow-hidden">
+                    {listing.photos?.[0] ? (
+                      <Image
+                        src={listing.photos[0]}
+                        alt={listing.address || 'Property'}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#ccc]">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3 bg-green-600 text-white text-[10px] uppercase tracking-wider px-2 py-1">
+                      Active
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <p className="text-lg font-semibold text-[#1a1a1a] dark:text-white mb-1">
+                      {formatPrice(listing.list_price)}
+                    </p>
+                    <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light line-clamp-1 mb-2">
+                      {listing.address}
+                    </p>
+                    <div className="flex gap-3 text-xs text-[#8a8a8a] font-light">
+                      {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
+                      {listing.bathrooms != null && <span>{listing.bathrooms} Baths</span>}
+                      {listing.square_feet != null && <span>{listing.square_feet.toLocaleString()} Sq Ft</span>}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Sold Listings */}
+      {soldListings.length > 0 && (
+        <section className="py-16 md:py-24 bg-white dark:bg-[#0a0a0a]">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              Recently Sold
+            </h2>
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-10">
+              {soldListings.length} {soldListings.length === 1 ? 'property' : 'properties'} recently sold
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {soldListings.slice(0, 12).map((listing) => (
+                <div
+                  key={listing.id}
+                  className="bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 overflow-hidden"
+                >
+                  <div className="relative aspect-[16/10] bg-[#f0f0f0] dark:bg-gray-800 overflow-hidden">
+                    {listing.photos?.[0] ? (
+                      <Image
+                        src={listing.photos[0]}
+                        alt={listing.address || 'Property'}
+                        fill
+                        className="object-cover grayscale-[30%]"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-[#ccc]">
+                        <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3 bg-[#8a8a8a] text-white text-[10px] uppercase tracking-wider px-2 py-1">
+                      Sold
+                    </div>
+                  </div>
+                  <div className="p-5">
+                    <p className="text-lg font-semibold text-[#1a1a1a] dark:text-white mb-1">
+                      {formatPrice(listing.sold_price || listing.list_price)}
+                    </p>
+                    <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light line-clamp-1 mb-2">
+                      {listing.address}
+                    </p>
+                    <div className="flex gap-3 text-xs text-[#8a8a8a] font-light">
+                      {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
+                      {listing.bathrooms != null && <span>{listing.bathrooms} Baths</span>}
+                      {listing.square_feet != null && <span>{listing.square_feet.toLocaleString()} Sq Ft</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Back Navigation */}
       <section className="py-12 bg-[#f8f7f5] dark:bg-[#141414] border-t border-[#e8e6e3] dark:border-gray-800">
         <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16 text-center">
@@ -249,7 +367,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
           {enrichedPartner.email ? (
             <a
               href={`mailto:${enrichedPartner.email}`}
-              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+              className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
             >
               Get in Touch
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -259,7 +377,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
           ) : (
             <Link
               href="/contact-us"
-              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+              className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
             >
               Contact Us
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

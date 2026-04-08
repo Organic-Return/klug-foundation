@@ -1407,7 +1407,7 @@ function transformRealogyListing(row: any): MLSProperty {
   };
 }
 
-async function getRealogyListingsByAgentName(agentName: string): Promise<AgentListingsResult> {
+export async function getRealogyListingsByAgentName(agentName: string): Promise<AgentListingsResult> {
   if (!isRealogyConfigured()) return { activeListings: [], soldListings: [] };
 
   const realogySupabase = getRealogySupabase();
