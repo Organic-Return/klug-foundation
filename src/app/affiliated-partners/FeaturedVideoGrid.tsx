@@ -22,10 +22,9 @@ export default function FeaturedVideoGrid({ listings }: { listings: VideoListing
     <>
       <div className="grid grid-cols-1 md:grid-cols-2">
         {listings.map((listing) => (
-          <div key={listing.id} className="group relative">
+          <div key={listing.id} className="group relative cursor-pointer" onClick={() => setActiveVideo(listing)}>
             <div
-              className="relative aspect-[16/9] bg-black cursor-pointer overflow-hidden"
-              onClick={() => setActiveVideo(listing)}
+              className="relative aspect-[16/9] bg-black overflow-hidden"
             >
               {listing.photoUrl ? (
                 <Image
