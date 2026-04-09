@@ -111,7 +111,7 @@ function PartnerMarker({
     >
       <button
         onClick={onClick}
-        className={`relative -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
+        className={`klug-gallery-btn relative -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
           isSelected ? 'scale-125 z-20' : 'scale-100 z-10 hover:scale-110'
         }`}
       >
