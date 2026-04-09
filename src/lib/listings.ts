@@ -1413,6 +1413,13 @@ export async function getRealogyListingsByAgentName(agentName: string): Promise<
   const realogySupabase = getRealogySupabase();
   if (!realogySupabase) return { activeListings: [], soldListings: [] };
 
+  // Split name into first/last and use wildcards to handle middle names/initials
+  // e.g. "Dusty Baker" matches "Dusty J. Baker"
+  const nameParts = agentName.trim().split(/\s+/);
+  const firstName = nameParts[0];
+  const lastName = nameParts[nameParts.length - 1];
+  const namePattern = `${firstName}%${lastName}`;
+
   const { data, error } = await realogySupabase
     .from('realogy_listings')
     .select(`
@@ -1422,7 +1429,7 @@ export async function getRealogyListingsByAgentName(agentName: string): Promise<
       lot_size, year_built, property_type, listed_on, default_photo_url, media,
       primary_agent_name, latitude, longitude, created_at, synced_at
     `)
-    .ilike('primary_agent_name', agentName)
+    .ilike('primary_agent_name', namePattern)
     .eq('listing_type', 'ForSale')
     .order('listed_on', { ascending: false })
     .limit(200);
