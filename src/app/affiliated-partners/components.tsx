@@ -3,6 +3,8 @@ import { client } from "@/sanity/client";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
+import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
+import { normalizePhotoUrl, parseRemarks } from '@/lib/realogyHelpers';
 
 const { projectId, dataset } = client.config();
 export const urlFor = (source: any) =>
@@ -73,22 +75,45 @@ export interface EnrichedPartner extends Partner {
 }
 
 export async function fetchAgentData(agentStaffId: string): Promise<AgentData | null> {
+  // Query Realogy DB directly (avoids 401 during static build)
+  if (!isRealogyConfigured()) return null;
+
   try {
-    // Build base URL: explicit site URL > Vercel deployment URL > localhost
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
-      || 'http://localhost:3000';
+    const supabase = getRealogySupabase();
+    if (!supabase) return null;
 
-    const response = await fetch(`${baseUrl}/api/agents?agentStaffId=${encodeURIComponent(agentStaffId)}`, {
-      next: { revalidate: 3600 }, // Cache for 1 hour
-    });
+    // Try rfg_staff_id first, then entity_id, then id (UUID)
+    const isUuid = /^[0-9a-f]{8}-/.test(agentStaffId);
+    const column = isUuid ? 'id' : 'rfg_staff_id';
 
-    if (!response.ok) {
-      console.warn(`Failed to fetch agent data for ${agentStaffId}: ${response.status}`);
-      return null;
+    let { data, error } = await supabase
+      .from('realogy_agents')
+      .select('first_name, last_name, photo_url, rfg_staff_id, entity_id, id, remarks, office_name')
+      .eq(column, agentStaffId)
+      .limit(1)
+      .maybeSingle();
+
+    // Fallback to entity_id if not found by rfg_staff_id
+    if (!data && !isUuid) {
+      const fallback = await supabase
+        .from('realogy_agents')
+        .select('first_name, last_name, photo_url, rfg_staff_id, entity_id, id, remarks, office_name')
+        .eq('entity_id', agentStaffId)
+        .limit(1)
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
     }
 
-    return response.json();
+    if (error || !data) return null;
+
+    return {
+      agentStaffId: data.rfg_staff_id || data.entity_id || data.id,
+      firstName: data.first_name || '',
+      lastName: data.last_name || '',
+      photoUrl: normalizePhotoUrl(data.photo_url),
+      bio: parseRemarks(data.remarks),
+    };
   } catch (error) {
     console.error(`Error fetching agent ${agentStaffId}:`, error);
     return null;
