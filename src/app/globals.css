@@ -1560,25 +1560,13 @@ address {
   border-color: #c9ac77 !important;
 }
 
-/* Google Maps - reset ALL SIR overrides inside the map container */
-.gm-style a,
-.gm-style button,
-.gm-style span,
-.gm-style div,
-.gm-style label,
-.gm-style img {
-  border: revert !important;
-  border-radius: revert !important;
-  color: revert !important;
-  background-color: revert !important;
-  padding: revert !important;
-  text-transform: revert !important;
-  letter-spacing: revert !important;
-  font-size: revert !important;
-  font-weight: revert !important;
-  display: revert !important;
-  align-items: revert !important;
-  gap: revert !important;
+/* Google Maps - prevent SIR styles from leaking into map.
+   Use !important with initial/unset to fully reset without breaking GM internals. */
+.gm-style,
+.gm-style * {
+  border-color: initial !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
 }
 
 /* ========================================

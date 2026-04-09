@@ -72,9 +72,12 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
 
   const enrichedPartner = await enrichPartnerWithAgentData(partner);
 
-  // Fetch agent listings from Realogy
+  // Fetch agent listings from Realogy, filter out those with broken photos
   const agentName = `${partner.firstName} ${partner.lastName}`;
-  const { activeListings, soldListings } = await getRealogyListingsByAgentName(agentName);
+  const rawListings = await getRealogyListingsByAgentName(agentName);
+  const hasWorkingPhoto = (l: any) => l.photos?.some((p: string) => p && !p.includes('anywhere.re'));
+  const activeListings = rawListings.activeListings.filter(hasWorkingPhoto);
+  const soldListings = rawListings.soldListings.filter(hasWorkingPhoto);
 
   return (
     <main className="min-h-screen">
