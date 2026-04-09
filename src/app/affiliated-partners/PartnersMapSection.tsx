@@ -286,6 +286,11 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
         }
       });
       map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+      // Zoom in ~20% after fitting bounds
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        const currentZoom = map.getZoom();
+        if (currentZoom != null) map.setZoom(currentZoom + 1);
+      });
     }
   }, [partnersWithCoords]);
 
