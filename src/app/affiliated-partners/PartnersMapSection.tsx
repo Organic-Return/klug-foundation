@@ -243,7 +243,7 @@ function PartnerListCard({
             <Link
               href={partnerUrl}
               onClick={(e) => e.stopPropagation()}
-              className="ml-auto text-xs uppercase tracking-wider text-[var(--color-gold)] hover:underline"
+              className="klug-nav-link ml-auto text-xs uppercase tracking-wider text-[var(--color-gold)] hover:underline"
             >
               View Details
             </Link>

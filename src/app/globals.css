@@ -1560,10 +1560,11 @@ address {
   border-color: #c9ac77 !important;
 }
 
-/* Google Maps controls - reset all SIR overrides */
-.gm-style button,
+/* Google Maps controls - reset SIR overrides on native GM controls only */
 .gm-style .gm-control-active,
-.gm-style .gm-ui-hover-effect {
+.gm-style .gm-ui-hover-effect,
+.gm-style .gm-svpc,
+.gm-style [class^="gm-"] button {
   display: revert !important;
   align-items: revert !important;
   gap: revert !important;
