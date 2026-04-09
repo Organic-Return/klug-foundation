@@ -1476,8 +1476,8 @@ address {
 
 /* SIR button base — applies to CTA buttons in classic template sections */
 .klug-fonts-classic .sir-btn,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn),
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):not(.gm-control-active):not(.gm-ui-hover-effect),
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):not(.gm-control-active):not(.gm-ui-hover-effect),
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
   display: inline-flex !important;
   align-items: center !important;
@@ -1498,8 +1498,8 @@ address {
 
 /* Hover: gold fill, white text */
 .klug-fonts-classic .sir-btn:hover,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
   background-color: #c9ac77 !important;
   color: #fff !important;
@@ -1508,8 +1508,8 @@ address {
 
 /* Arrow icon inside SIR buttons — slides right on hover */
 .klug-fonts-classic .sir-btn .sir-arrow,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow {
   display: inline-block !important;
   width: 20px !important;
@@ -1520,8 +1520,8 @@ address {
   flex-shrink: 0 !important;
 }
 .klug-fonts-classic .sir-btn .sir-arrow::after,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn) .sir-arrow::after,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow::after,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow::after,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow::after {
   content: '' !important;
   position: absolute !important;
@@ -1536,8 +1536,8 @@ address {
 
 /* Arrow grows on hover */
 .klug-fonts-classic .sir-btn:hover .sir-arrow,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):hover .sir-arrow,
+.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover .sir-arrow,
+.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover .sir-arrow,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover .sir-arrow {
   width: 28px !important;
 }
@@ -1558,6 +1558,24 @@ address {
   background-color: #c9ac77 !important;
   color: #fff !important;
   border-color: #c9ac77 !important;
+}
+
+/* Google Maps controls - reset all SIR overrides */
+.gm-style button,
+.gm-style .gm-control-active,
+.gm-style .gm-ui-hover-effect {
+  display: revert !important;
+  align-items: revert !important;
+  gap: revert !important;
+  border-radius: revert !important;
+  border: revert !important;
+  color: revert !important;
+  background-color: revert !important;
+  font-size: revert !important;
+  font-weight: revert !important;
+  padding: revert !important;
+  text-transform: revert !important;
+  letter-spacing: revert !important;
 }
 
 /* ========================================
