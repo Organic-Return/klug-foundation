@@ -263,7 +263,7 @@ export default async function MarketLeadersPage() {
               <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
                 Featured Market Leader Properties
               </h2>
-              <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
+              <p className="text-[#6a6a6a] dark:text-gray-400 font-light mx-auto">
                 Exclusive video tours from our Market Leaders
               </p>
               <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
