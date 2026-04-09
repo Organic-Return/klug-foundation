@@ -302,7 +302,7 @@ export default function FeaturedAspenProperties({
         <div className="text-center mt-10 max-w-7xl mx-auto">
           <Link
             href={listingsHref}
-            className="sir-btn inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
+            className="sir-btn"
           >
             <span>{buttonText}</span>
             <span className="sir-arrow" />

@@ -166,7 +166,7 @@ export default function InTheNews({
           <div className="text-center mt-8">
             <Link
               href="/in-the-news"
-              className="sir-btn inline-flex items-center gap-2.5 text-xs font-medium tracking-wider uppercase transition-all duration-300"
+              className="sir-btn"
             >
               <span>View All Articles</span>
               <span className="sir-arrow" />

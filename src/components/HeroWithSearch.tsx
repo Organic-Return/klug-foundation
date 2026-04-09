@@ -340,9 +340,10 @@ export default function HeroWithSearch({
               {/* Search Button */}
               <button
                 type="submit"
-                className="klug-search-btn ml-4 text-[12px] uppercase tracking-[0.15em] font-medium transition-all duration-300 bg-transparent text-white px-8 py-3 border border-[#c9ac77] hover:bg-[#c9ac77] hover:text-white"
+                className="klug-search-btn sir-btn sir-btn--light ml-4"
               >
-                SEARCH
+                <span>Search</span>
+                <span className="sir-arrow" />
               </button>
             </form>
           </div>
