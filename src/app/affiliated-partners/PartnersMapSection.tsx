@@ -18,6 +18,7 @@ const mapContainerStyle = {
   height: '100%',
 };
 
+// Dark luxury map style inspired by Patek Philippe
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: true,
   zoomControl: true,
@@ -25,71 +26,21 @@ const mapOptions: google.maps.MapOptions = {
   mapTypeControl: false,
   fullscreenControl: false,
   styles: [
-    {
-      elementType: 'geometry',
-      stylers: [{ color: '#e0e0e0' }],
-    },
-    {
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#6a6a6a' }],
-    },
-    {
-      elementType: 'labels.text.stroke',
-      stylers: [{ color: '#f5f5f5' }],
-    },
-    {
-      featureType: 'administrative',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#c9c9c9' }],
-    },
-    {
-      featureType: 'administrative.land_parcel',
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#9e9e9e' }],
-    },
-    {
-      featureType: 'landscape',
-      elementType: 'geometry',
-      stylers: [{ color: '#e8e8e8' }],
-    },
-    {
-      featureType: 'poi',
-      stylers: [{ visibility: 'off' }],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry',
-      stylers: [{ color: '#ffffff' }],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#d6d6d6' }],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'geometry',
-      stylers: [{ color: '#dadada' }],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#c0c0c0' }],
-    },
-    {
-      featureType: 'transit',
-      stylers: [{ visibility: 'off' }],
-    },
-    {
-      featureType: 'water',
-      elementType: 'geometry',
-      stylers: [{ color: '#c9c9c9' }],
-    },
-    {
-      featureType: 'water',
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#9e9e9e' }],
-    },
+    { elementType: 'geometry', stylers: [{ color: '#1a1f2e' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8a9ab5' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1f2e' }, { weight: 2 }] },
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#2a3040' }] },
+    { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#3a4050' }] },
+    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#6a7a95' }] },
+    { featureType: 'administrative.province', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#1e2333' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#1e2333' }] },
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road', stylers: [{ visibility: 'off' }] },
+    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#141824' }] },
+    { featureType: 'water', elementType: 'labels', stylers: [{ visibility: 'off' }] },
   ],
 };
 
@@ -112,34 +63,17 @@ function PartnerMarker({
       <button
         onClick={onClick}
         className={`klug-gallery-btn relative -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-          isSelected ? 'scale-125 z-20' : 'scale-100 z-10 hover:scale-110'
+          isSelected ? 'scale-150 z-20' : 'scale-100 z-10 hover:scale-125'
         }`}
       >
+        {/* Gold dot marker */}
         <div
-          className={`w-14 h-14 rounded-full overflow-hidden border-3 shadow-lg transition-all duration-300 ${
+          className={`w-3 h-3 rounded-full transition-all duration-300 ${
             isSelected
-              ? 'border-[var(--color-gold)] ring-4 ring-[var(--color-gold)]/30'
-              : 'border-white hover:border-[var(--color-gold)]'
+              ? 'bg-white shadow-[0_0_12px_rgba(201,172,119,0.8)]'
+              : 'bg-[#c9ac77] shadow-[0_0_6px_rgba(201,172,119,0.4)]'
           }`}
-        >
-          {partner.photoUrl ? (
-            <img
-              src={partner.photoUrl}
-              alt={`${partner.firstName} ${partner.lastName}`}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="w-full h-full bg-[#f0f0f0] flex items-center justify-center text-[#aaa]">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-              </svg>
-            </div>
-          )}
-        </div>
-        {/* Location pin below the photo */}
-        <div className={`absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent transition-colors duration-300 ${
-          isSelected ? 'border-t-[var(--color-gold)]' : 'border-t-white'
-        }`} />
+        />
       </button>
     </OverlayViewF>
   );
@@ -167,26 +101,26 @@ function PartnerListCard({
     <div
       ref={cardRef}
       onClick={onClick}
-      className={`p-4 border-b border-[#e8e6e3] dark:border-gray-800 cursor-pointer transition-all duration-300 ${
+      className={`p-4 border-b border-[#2a3040] cursor-pointer transition-all duration-300 ${
         isSelected
-          ? 'bg-[var(--color-gold)]/10 border-l-4 border-l-[var(--color-gold)]'
-          : 'hover:bg-[#f8f7f5] dark:hover:bg-[#252525]'
+          ? 'bg-[#c9ac77]/10 border-l-4 border-l-[#c9ac77]'
+          : 'hover:bg-[#222840]'
       }`}
     >
       <div className="flex gap-4">
         {/* Photo */}
-        <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-[#f0f0f0] dark:bg-gray-800">
+        <div className="flex-shrink-0 w-14 h-14 rounded-full overflow-hidden bg-[#2a3040]">
           {partner.photoUrl ? (
             <Image
               src={partner.photoUrl}
               alt={`${partner.firstName} ${partner.lastName}`}
-              width={64}
-              height={64}
+              width={56}
+              height={56}
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">
-              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+            <div className="w-full h-full flex items-center justify-center text-[#5a6a85]">
+              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             </div>
@@ -195,17 +129,14 @@ function PartnerListCard({
 
         {/* Details */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-serif text-lg text-[#1a1a1a] dark:text-white">
+          <h3 className="font-serif text-base text-white">
             {partner.firstName} {partner.lastName}
           </h3>
-          {partner.title && (
-            <p className="text-sm text-[var(--color-gold)]">{partner.title}</p>
-          )}
           {partner.company && (
-            <p className="text-sm text-[#6a6a6a] dark:text-gray-400">{partner.company}</p>
+            <p className="text-xs text-[#8a9ab5] mt-0.5">{partner.company}</p>
           )}
           {partner.location && (
-            <p className="text-sm text-[#888] dark:text-gray-500 flex items-center gap-1 mt-1">
+            <p className="text-xs text-[#6a7a95] flex items-center gap-1 mt-1">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -214,36 +145,12 @@ function PartnerListCard({
             </p>
           )}
 
-          {/* Contact & View Details */}
-          <div className="flex items-center gap-3 mt-3">
-            {partner.email && (
-              <a
-                href={`mailto:${partner.email}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
-                title="Email"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-            )}
-            {partner.phone && (
-              <a
-                href={`tel:${phoneHref(partner.phone)}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
-                title="Phone"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </a>
-            )}
+          {/* View Details */}
+          <div className="mt-2">
             <Link
               href={partnerUrl}
               onClick={(e) => e.stopPropagation()}
-              className="klug-nav-link ml-auto text-xs uppercase tracking-wider text-[var(--color-gold)] hover:underline"
+              className="klug-nav-link text-[10px] uppercase tracking-wider text-[#c9ac77] hover:text-white transition-colors"
             >
               View Details
             </Link>
@@ -307,9 +214,9 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
 
   if (loadError) {
     return (
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+      <section className="py-16 md:py-24 bg-[#141824]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-          <div className="text-center text-gray-500">
+          <div className="text-center text-[#8a9ab5]">
             <p>Unable to load map</p>
           </div>
         </div>
@@ -318,19 +225,20 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
   }
 
   return (
-    <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 mb-12 md:mb-16">
-        <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white text-center tracking-wide">
+    <section className="bg-[#141824]">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12 md:py-16">
+        <h2 className="text-3xl md:text-4xl font-serif font-light text-white text-center tracking-wide">
           {title}
         </h2>
+        <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-0 border-y border-[#e8e6e3] dark:border-gray-800 overflow-hidden">
+      <div className="flex flex-col lg:flex-row gap-0 border-y border-[#2a3040] overflow-hidden">
           {/* Partner List - Left Side */}
-          <div className="w-full lg:w-2/5 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
-            <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-[#e8e6e3] dark:border-gray-800 p-4 z-10">
-              <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
-                {partnersWithCoords.length} {partnersWithCoords.length === 1 ? 'Partner' : 'Partners'} with locations
+          <div className="w-full lg:w-2/5 max-h-[800px] overflow-y-auto bg-[#1a1f2e]">
+            <div className="sticky top-0 bg-[#1a1f2e] border-b border-[#2a3040] p-4 z-10">
+              <p className="text-sm text-[#8a9ab5] font-light">
+                {partnersWithCoords.length} {partnersWithCoords.length === 1 ? 'Partner' : 'Partners'}
               </p>
             </div>
             {partners.map((partner) => (
@@ -344,10 +252,10 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
           </div>
 
           {/* Map - Right Side */}
-          <div className="w-full lg:w-3/5 h-[600px] lg:h-[800px] bg-[#f0f0f0] dark:bg-gray-800">
+          <div className="w-full lg:w-3/5 h-[600px] lg:h-[800px] bg-[#141824]">
             {!isLoaded ? (
               <div className="w-full h-full flex items-center justify-center">
-                <div className="text-[#6a6a6a] dark:text-gray-400">Loading map...</div>
+                <div className="text-[#8a9ab5]">Loading map...</div>
               </div>
             ) : (
               <GoogleMap
