@@ -44,11 +44,6 @@ function getPhotoUrl(listing: MLListing): string | null {
   return null;
 }
 
-function hasVideo(listing: MLListing): boolean {
-  const media = Array.isArray(listing.media) ? listing.media : [];
-  return media.some((m: any) => (m?.format === 'Video' || m?.format === '3D Video') && m?.url?.length > 20);
-}
-
 async function getAllMarketLeaderListings(): Promise<MLListing[]> {
   if (!isRealogyConfigured()) return [];
   const supabase = getRealogySupabase();
@@ -128,48 +123,47 @@ export default async function MarketLeaderListingsPage() {
             <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-8">
               Active Listings
             </h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-3">
               {activeListings.map((listing) => {
                 const photo = getPhotoUrl(listing);
-                const video = hasVideo(listing);
                 return (
-                  <div key={listing.id} className="flex gap-5 p-4 border border-[#e8e6e3] dark:border-gray-800 hover:border-[#c9ac77]/30 transition-colors">
-                    {/* Photo */}
-                    <div className="relative flex-shrink-0 w-48 h-32 bg-[#f0f0f0] dark:bg-gray-800 overflow-hidden">
-                      {photo ? (
-                        <Image src={photo} alt={listing.street_address || ''} fill className="object-cover" sizes="192px" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#ccc]">
-                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                        </div>
-                      )}
-                      {video && (
-                        <div className="absolute top-2 left-2 bg-[#c9ac77] text-white text-[9px] uppercase tracking-wider px-1.5 py-0.5 flex items-center gap-1">
-                          <svg className="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                          Video
-                        </div>
-                      )}
-                      <div className="absolute top-2 right-2 bg-green-600 text-white text-[9px] uppercase tracking-wider px-1.5 py-0.5">
-                        Active
+                  <div key={listing.id} className="group border border-gray-200 overflow-hidden">
+                    <Link href={`/listings/${listing.id}`} className="block">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
+                        {photo ? (
+                          <Image
+                            src={photo}
+                            alt={`${listing.street_address}, ${listing.city}, ${listing.state_province_code}`}
+                            fill
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xl font-semibold text-[#1a1a1a] dark:text-white mb-1">
+                    </Link>
+                    <div className="p-4">
+                      <h3 className="line-clamp-1 text-gray-900 font-semibold" style={{ fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
                         {formatPrice(listing.price_amount)}
+                      </h3>
+                      <p className="leading-snug line-clamp-1 text-sm text-gray-700" style={{ marginBottom: '0.125rem' }}>
+                        {listing.street_address?.trim()}
                       </p>
-                      <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light mb-2">
-                        {listing.street_address?.trim()}, {listing.city}, {listing.state_province_code}
+                      <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
+                        {listing.city}, {listing.state_province_code}
                       </p>
-                      <div className="flex gap-4 text-xs text-[#8a8a8a] font-light mb-3">
+                      <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
                         {listing.no_of_bedrooms != null && <span>{listing.no_of_bedrooms} Beds</span>}
+                        {listing.no_of_bedrooms != null && listing.total_bath != null && <span className="w-px h-3 bg-gray-300" />}
                         {listing.total_bath != null && <span>{listing.total_bath} Baths</span>}
-                        {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} Sq Ft</span>}
-                        {listing.property_type && <span>{listing.property_type}</span>}
+                        {listing.total_bath != null && listing.square_footage != null && <span className="w-px h-3 bg-gray-300" />}
+                        {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} SF</span>}
                       </div>
-                      <p className="text-xs text-[#c9ac77] font-light">
-                        {listing.primary_agent_name}
-                      </p>
                     </div>
                   </div>
                 );
@@ -186,38 +180,52 @@ export default async function MarketLeaderListingsPage() {
             <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-8">
               Recently Sold ({soldListings.length})
             </h2>
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-3">
               {soldListings.map((listing) => {
                 const photo = getPhotoUrl(listing);
                 return (
-                  <div key={listing.id} className="flex gap-5 p-4 border border-[#e8e6e3] dark:border-gray-800 bg-white dark:bg-[#1a1a1a]">
-                    <div className="relative flex-shrink-0 w-48 h-32 bg-[#f0f0f0] dark:bg-gray-800 overflow-hidden">
-                      {photo ? (
-                        <Image src={photo} alt={listing.street_address || ''} fill className="object-cover grayscale-[30%]" sizes="192px" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#ccc]">
-                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                  <div key={listing.id} className="group border border-gray-200 overflow-hidden">
+                    <Link href={`/listings/${listing.id}`} className="block">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
+                        {photo ? (
+                          <Image
+                            src={photo}
+                            alt={`${listing.street_address}, ${listing.city}, ${listing.state_province_code}`}
+                            fill
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 grayscale-[30%]"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                          <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[#8a8a8a] text-white">
+                            Sold
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute top-2 right-2 bg-[#8a8a8a] text-white text-[9px] uppercase tracking-wider px-1.5 py-0.5">
-                        Sold
                       </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xl font-semibold text-[#1a1a1a] dark:text-white mb-1">
+                    </Link>
+                    <div className="p-4">
+                      <h3 className="line-clamp-1 text-gray-900 font-semibold" style={{ fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
                         {formatPrice(listing.price_amount)}
+                      </h3>
+                      <p className="leading-snug line-clamp-1 text-sm text-gray-700" style={{ marginBottom: '0.125rem' }}>
+                        {listing.street_address?.trim()}
                       </p>
-                      <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light mb-2">
-                        {listing.street_address?.trim()}, {listing.city}, {listing.state_province_code}
+                      <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
+                        {listing.city}, {listing.state_province_code}
                       </p>
-                      <div className="flex gap-4 text-xs text-[#8a8a8a] font-light mb-3">
+                      <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
                         {listing.no_of_bedrooms != null && <span>{listing.no_of_bedrooms} Beds</span>}
+                        {listing.no_of_bedrooms != null && listing.total_bath != null && <span className="w-px h-3 bg-gray-300" />}
                         {listing.total_bath != null && <span>{listing.total_bath} Baths</span>}
-                        {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} Sq Ft</span>}
+                        {listing.total_bath != null && listing.square_footage != null && <span className="w-px h-3 bg-gray-300" />}
+                        {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} SF</span>}
                       </div>
-                      <p className="text-xs text-[#c9ac77] font-light">
-                        {listing.primary_agent_name}
-                      </p>
                     </div>
                   </div>
                 );
