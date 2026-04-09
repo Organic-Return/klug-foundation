@@ -257,12 +257,12 @@ export default async function MarketLeadersPage() {
 
       {/* Newest Market Leader Listings - Full-screen video showcases */}
       {activeVideoListings.length > 0 && (
-        <section className="bg-[var(--color-sothebys-blue)]">
+        <section className="bg-white dark:bg-[#1a1a1a]">
           <div className="text-center py-16 md:py-20 px-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-white tracking-wide mb-4">
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
               Featured Market Leader Properties
             </h2>
-            <p className="text-white/50 font-light">
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
               Exclusive video tours from our Market Leaders
             </p>
             <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
