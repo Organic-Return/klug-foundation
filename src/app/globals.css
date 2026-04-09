@@ -1560,23 +1560,25 @@ address {
   border-color: #c9ac77 !important;
 }
 
-/* Google Maps controls - reset SIR overrides on native GM controls only */
-.gm-style .gm-control-active,
-.gm-style .gm-ui-hover-effect,
-.gm-style .gm-svpc,
-.gm-style [class^="gm-"] button {
-  display: revert !important;
-  align-items: revert !important;
-  gap: revert !important;
-  border-radius: revert !important;
+/* Google Maps - reset ALL SIR overrides inside the map container */
+.gm-style a,
+.gm-style button,
+.gm-style span,
+.gm-style div,
+.gm-style label,
+.gm-style img {
   border: revert !important;
+  border-radius: revert !important;
   color: revert !important;
   background-color: revert !important;
-  font-size: revert !important;
-  font-weight: revert !important;
   padding: revert !important;
   text-transform: revert !important;
   letter-spacing: revert !important;
+  font-size: revert !important;
+  font-weight: revert !important;
+  display: revert !important;
+  align-items: revert !important;
+  gap: revert !important;
 }
 
 /* ========================================

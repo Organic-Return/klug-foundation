@@ -268,13 +268,8 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
            p.longitude !== null && p.longitude !== undefined
   );
 
-  // Calculate center of all partners
-  const center = partnersWithCoords.length > 0
-    ? {
-        lat: partnersWithCoords.reduce((sum, p) => sum + (p.latitude || 0), 0) / partnersWithCoords.length,
-        lng: partnersWithCoords.reduce((sum, p) => sum + (p.longitude || 0), 0) / partnersWithCoords.length,
-      }
-    : { lat: 39.1911, lng: -106.8175 }; // Default to Aspen
+  // Center on the US
+  const center = { lat: 39.5, lng: -98.5 };
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
