@@ -74,10 +74,11 @@ export default function FeaturedVideoGrid({ listings }: { listings: VideoListing
               </p>
               <Link
                 href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.street)}`}
-                className="klug-nav-link inline-block mt-3 text-[10px] uppercase tracking-[0.15em] text-white hover:text-[#c9ac77] transition-colors font-medium"
+                className="sir-btn sir-btn--gold-light mt-3"
                 onClick={(e) => e.stopPropagation()}
               >
-                View Property &rarr;
+                <span>View Property</span>
+                <span className="sir-arrow" />
               </Link>
             </div>
           </div>
