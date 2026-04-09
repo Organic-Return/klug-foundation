@@ -80,7 +80,21 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
   // Sort by price desc for display
   withVideo.sort((a, b) => (b.price_amount || 0) - (a.price_amount || 0));
 
-  const active = diversify(withVideo.filter(l => l.is_active), 6);
+  // Rotate featured listings daily using a day-based seed shuffle
+  const daysSinceEpoch = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  const seededShuffle = (arr: MLListing[], seed: number): MLListing[] => {
+    const shuffled = [...arr];
+    let s = seed;
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      s = (s * 1664525 + 1013904223) & 0x7fffffff;
+      const j = s % (i + 1);
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const activeFiltered = withVideo.filter(l => l.is_active);
+  const active = diversify(seededShuffle(activeFiltered, daysSinceEpoch), 6);
   const sold = diversify(withVideo.filter(l => !l.is_active), 6);
 
   return { active, sold };
