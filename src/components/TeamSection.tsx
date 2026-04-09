@@ -105,7 +105,7 @@ export default function TeamSection({
           {secondaryButtonText && secondaryButtonLink && (
             <Link
               href={secondaryButtonLink}
-              className="sir-btn border-[#c9ac77] text-[#00254a] hover:bg-[#c9ac77] hover:text-white hover:border-[#c9ac77]"
+              className="sir-btn sir-btn--gold"
             >
               <span>{secondaryButtonText}</span>
               <span className="sir-arrow" />

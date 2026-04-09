@@ -1528,6 +1528,28 @@ address {
   width: 28px;
 }
 
+/* Gold variant: gold border, navy text, gold fill on hover */
+.sir-btn--gold {
+  border-color: #c9ac77;
+  color: #00254a;
+}
+.sir-btn--gold:hover {
+  background-color: #c9ac77;
+  color: #fff;
+  border-color: #c9ac77;
+}
+
+/* Gold variant for dark backgrounds: gold border, white text */
+.sir-btn--gold-light {
+  border-color: #c9ac77;
+  color: #fff;
+}
+.sir-btn--gold-light:hover {
+  background-color: #c9ac77;
+  color: #fff;
+  border-color: #c9ac77;
+}
+
 /* Light variant for dark backgrounds: white border & text */
 .sir-btn--light {
   border-color: #fff;
