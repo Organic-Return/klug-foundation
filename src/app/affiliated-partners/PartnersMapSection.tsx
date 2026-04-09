@@ -234,6 +234,7 @@ function PartnerListCard({
 export default function PartnersMapSection({ partners, title = 'Our Partner Network' }: PartnersMapSectionProps) {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -245,6 +246,17 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
     (p) => p.latitude !== null && p.latitude !== undefined &&
            p.longitude !== null && p.longitude !== undefined
   );
+
+  // Filter partners by search query
+  const filteredPartners = searchQuery.trim()
+    ? partners.filter((p) => {
+        const q = searchQuery.toLowerCase();
+        const name = `${p.firstName} ${p.lastName}`.toLowerCase();
+        const location = (p.location || '').toLowerCase();
+        const company = (p.company || '').toLowerCase();
+        return name.includes(q) || location.includes(q) || company.includes(q);
+      })
+    : partners;
 
   // Center on the United States
   const center = { lat: 39.8283, lng: -98.5795 };
@@ -301,12 +313,34 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
       <div className="flex flex-col lg:flex-row gap-0 border-y border-[#e8e6e3] dark:border-gray-800 overflow-hidden">
           {/* Partner List - Left Side */}
           <div className="w-full lg:w-2/5 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
-            <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-[#e8e6e3] dark:border-gray-800 p-4 z-10">
+            <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-[#e8e6e3] dark:border-gray-800 p-3 z-10 space-y-2">
               <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
-                {partnersWithCoords.length} {partnersWithCoords.length === 1 ? 'Partner' : 'Partners'} with locations
+                {filteredPartners.length} {filteredPartners.length === 1 ? 'Partner' : 'Partners'}{searchQuery ? ' found' : ' with locations'}
               </p>
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#aaa]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, city, or state..."
+                  className="w-full pl-8 pr-8 py-1.5 text-sm border border-[#e8e6e3] dark:border-gray-700 bg-white dark:bg-[#252525] text-[#1a1a1a] dark:text-white placeholder-[#aaa] focus:outline-none focus:border-[var(--color-gold)] transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#666] transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
             </div>
-            {partners.map((partner) => (
+            {filteredPartners.map((partner) => (
               <PartnerListCard
                 key={partner._id}
                 partner={partner}
