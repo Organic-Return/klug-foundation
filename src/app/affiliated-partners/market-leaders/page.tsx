@@ -215,13 +215,13 @@ export default async function MarketLeadersPage() {
             </div>
           )}
 
-          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-5">
-            It takes true masters to represent a masterpiece
-          </p>
-
-          <h1 className="font-serif text-white mb-6">
+          <h1 className="font-serif text-white mb-4">
             {pageContent?.heroTitle || 'Market Leaders'}
           </h1>
+
+          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-8">
+            It takes true masters to represent a masterpiece
+          </p>
 
           <p className="text-base md:text-lg text-white/60 font-light max-w-3xl mx-auto leading-relaxed mb-12">
             Market Leaders, an exclusive Sotheby&apos;s International Realty group, is the first and only global agent association of its kind. Composed of some of the industry&apos;s most prolific agents across the world&apos;s most prestigious destinations, Market Leaders provides industry intelligence, thought leadership and strategic introductions for its clients.
