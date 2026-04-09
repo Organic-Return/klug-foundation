@@ -301,7 +301,7 @@ export default function CityStats({
             <div className="text-center mt-10">
               <Link
                 href="/listings"
-                className="sir-btn"
+                className="sir-btn sir-btn--gold-light"
               >
                 <span>View All Listings</span>
                 <span className="sir-arrow" />
