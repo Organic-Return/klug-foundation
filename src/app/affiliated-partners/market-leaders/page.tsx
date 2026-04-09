@@ -5,7 +5,6 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "../components";
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
-import VideoListingCard from "../VideoListingCard";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 import { formatPrice } from '@/lib/listings';
@@ -86,24 +85,6 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
   return { active, sold };
 }
 
-function getPhotoUrl(listing: MLListing): string | null {
-  if (listing.default_photo_url) {
-    const url = listing.default_photo_url;
-    if (url.startsWith('//')) return `https:${url}`;
-    if (url.includes('anywhere.re')) return null; // broken CDN for listing photos
-    return url;
-  }
-  const media = Array.isArray(listing.media) ? listing.media : [];
-  const image = media.find((m: any) => m?.format === 'Image' && m?.url);
-  if (image?.url) {
-    const url = image.url;
-    if (url.startsWith('//')) return `https:${url}`;
-    if (url.includes('anywhere.re')) return null;
-    return url;
-  }
-  return null;
-}
-
 const MARKET_LEADERS_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "market_leader"] | order(sortOrder asc, lastName asc) {
   _id,
   partnerType,
@@ -174,7 +155,7 @@ export default async function MarketLeadersPage() {
 
   // Fetch market leader listings with videos
   const agentNames = partners.map(p => `${p.firstName} ${p.lastName}`).filter(n => n.trim().length > 1);
-  const { active: activeVideoListings, sold: soldVideoListings } = await getMarketLeaderListingsWithVideos(agentNames);
+  const { active: activeVideoListings } = await getMarketLeaderListingsWithVideos(agentNames);
 
   // Get hero image URL if available
   const heroImageUrl = pageContent?.heroImage
@@ -268,29 +249,38 @@ export default async function MarketLeadersPage() {
               </p>
               <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2">
               {activeVideoListings.slice(0, 4).map((listing) => {
                 const media = Array.isArray(listing.media) ? listing.media : [];
                 const video = media.find((m: any) => m?.format === 'Video' && m?.url && m.url.length > 20);
                 const matterport = media.find((m: any) => m?.format === '3D Video' && m?.url && m.url.length > 20);
                 const embedUrl = video?.url || matterport?.url || '';
-                const photo = getPhotoUrl(listing);
 
                 if (!embedUrl || (embedUrl.includes('brightcove') && !embedUrl.includes('videoId='))) return null;
 
                 return (
-                  <VideoListingCard
-                    key={listing.id}
-                    embedUrl={embedUrl}
-                    photoUrl={photo}
-                    price={formatPrice(listing.price_amount)}
-                    address={`${listing.street_address?.trim()}, ${listing.city}`}
-                    city={listing.city}
-                    state={listing.state_province_code}
-                    agentName={listing.primary_agent_name}
-                    title={`${listing.street_address}, ${listing.city}`}
-                    listingId={listing.id}
-                  />
+                  <div key={listing.id} className="relative">
+                    <div className="aspect-[16/9] bg-black">
+                      <iframe
+                        src={embedUrl}
+                        className="w-full h-full"
+                        allow="autoplay; fullscreen; encrypted-media"
+                        allowFullScreen
+                        title={`${listing.street_address}, ${listing.city}`}
+                      />
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                      <p className="text-white text-xl font-semibold mb-1">
+                        {formatPrice(listing.price_amount)}
+                      </p>
+                      <p className="text-white/70 text-sm font-light">
+                        {listing.street_address?.trim()}, {listing.city}, {listing.state_province_code}
+                      </p>
+                      <p className="text-[#c9ac77] text-xs font-light mt-1">
+                        {listing.primary_agent_name}
+                      </p>
+                    </div>
+                  </div>
                 );
               })}
             </div>
