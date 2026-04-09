@@ -255,39 +255,54 @@ export default async function MarketLeadersPage() {
         </div>
       </section>
 
-      {/* Newest Market Leader Listings - Full-screen video showcases */}
+      {/* Featured Market Leader Properties */}
       {activeVideoListings.length > 0 && (
-        <section className="bg-white dark:bg-[#1a1a1a]">
-          <div className="text-center py-16 md:py-20 px-6">
-            <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              Featured Market Leader Properties
-            </h2>
-            <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
-              Exclusive video tours from our Market Leaders
-            </p>
-            <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2">
-            {activeVideoListings.slice(0, 6).map((listing) => {
-              const media = Array.isArray(listing.media) ? listing.media : [];
-              const video = media.find((m: any) => m?.format === 'Video' && m?.url && m.url.length > 20);
-              const matterport = media.find((m: any) => m?.format === '3D Video' && m?.url && m.url.length > 20);
-              const embedUrl = video?.url || matterport?.url || '';
+        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+                Featured Market Leader Properties
+              </h2>
+              <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
+                Exclusive video tours from our Market Leaders
+              </p>
+              <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {activeVideoListings.slice(0, 4).map((listing) => {
+                const media = Array.isArray(listing.media) ? listing.media : [];
+                const video = media.find((m: any) => m?.format === 'Video' && m?.url && m.url.length > 20);
+                const matterport = media.find((m: any) => m?.format === '3D Video' && m?.url && m.url.length > 20);
+                const embedUrl = video?.url || matterport?.url || '';
+                const photo = getPhotoUrl(listing);
 
-              // Skip entries with empty or truncated URLs
-              if (!embedUrl || (embedUrl.includes('brightcove') && !embedUrl.includes('videoId='))) return null;
+                if (!embedUrl || (embedUrl.includes('brightcove') && !embedUrl.includes('videoId='))) return null;
 
-              return (
-                <VideoListingCard
-                  key={listing.id}
-                  embedUrl={embedUrl}
-                  price={formatPrice(listing.price_amount)}
-                  address={`${listing.street_address?.trim()}, ${listing.city}, ${listing.state_province_code}`}
-                  agentName={listing.primary_agent_name}
-                  title={`${listing.street_address}, ${listing.city}`}
-                />
-              );
-            })}
+                return (
+                  <VideoListingCard
+                    key={listing.id}
+                    embedUrl={embedUrl}
+                    photoUrl={photo}
+                    price={formatPrice(listing.price_amount)}
+                    address={`${listing.street_address?.trim()}, ${listing.city}`}
+                    city={listing.city}
+                    state={listing.state_province_code}
+                    agentName={listing.primary_agent_name}
+                    title={`${listing.street_address}, ${listing.city}`}
+                    listingId={listing.id}
+                  />
+                );
+              })}
+            </div>
+            <div className="text-center mt-10">
+              <Link
+                href="/affiliated-partners/market-leaders/listings"
+                className="sir-btn inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 px-8 py-4"
+              >
+                <span>View All Market Leader Properties</span>
+                <span className="sir-arrow" />
+              </Link>
+            </div>
           </div>
         </section>
       )}
