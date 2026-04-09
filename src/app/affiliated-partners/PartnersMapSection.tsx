@@ -115,9 +115,9 @@ function PartnerMarker({
         }`}
       >
         <div
-          className={`w-14 h-14 rounded-full overflow-hidden border-3 shadow-lg transition-all duration-300 ${
+          className={`w-8 h-8 rounded-full overflow-hidden border-2 shadow-md transition-all duration-300 ${
             isSelected
-              ? 'border-[var(--color-gold)] ring-4 ring-[var(--color-gold)]/30'
+              ? 'border-[var(--color-gold)] ring-2 ring-[var(--color-gold)]/30'
               : 'border-white hover:border-[var(--color-gold)]'
           }`}
         >
@@ -129,14 +129,14 @@ function PartnerMarker({
             />
           ) : (
             <div className="w-full h-full bg-[#f0f0f0] flex items-center justify-center text-[#aaa]">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             </div>
           )}
         </div>
         {/* Location pin below the photo */}
-        <div className={`absolute left-1/2 -translate-x-1/2 -bottom-2 w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent transition-colors duration-300 ${
+        <div className={`absolute left-1/2 -translate-x-1/2 -bottom-1 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent transition-colors duration-300 ${
           isSelected ? 'border-t-[var(--color-gold)]' : 'border-t-white'
         }`} />
       </button>
@@ -235,13 +235,8 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
            p.longitude !== null && p.longitude !== undefined
   );
 
-  // Calculate center of all partners
-  const center = partnersWithCoords.length > 0
-    ? {
-        lat: partnersWithCoords.reduce((sum, p) => sum + (p.latitude || 0), 0) / partnersWithCoords.length,
-        lng: partnersWithCoords.reduce((sum, p) => sum + (p.longitude || 0), 0) / partnersWithCoords.length,
-      }
-    : { lat: 39.1911, lng: -106.8175 }; // Default to Aspen
+  // Center on the United States
+  const center = { lat: 39.8283, lng: -98.5795 };
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     mapRef.current = map;
@@ -252,7 +247,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
           bounds.extend({ lat: partner.latitude, lng: partner.longitude });
         }
       });
-      map.fitBounds(bounds, { top: 50, right: 50, bottom: 50, left: 50 });
+      map.fitBounds(bounds, { top: 30, right: 30, bottom: 30, left: 30 });
     }
   }, [partnersWithCoords]);
 
@@ -320,7 +315,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={center}
-                zoom={5}
+                zoom={6}
                 options={mapOptions}
                 onLoad={onMapLoad}
               >
