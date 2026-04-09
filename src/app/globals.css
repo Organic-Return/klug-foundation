@@ -1560,13 +1560,28 @@ address {
   border-color: #c9ac77 !important;
 }
 
-/* Google Maps - prevent SIR styles from leaking into map.
-   Use !important with initial/unset to fully reset without breaking GM internals. */
-.gm-style,
-.gm-style * {
-  border-color: initial !important;
-  letter-spacing: normal !important;
+/* Google Maps - prevent SIR styles from leaking into map. */
+.gm-style button,
+.gm-style a {
+  border: none !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  display: block !important;
   text-transform: none !important;
+  letter-spacing: normal !important;
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  gap: 0 !important;
+  align-items: initial !important;
+}
+/* Restore GM's own zoom control styling */
+.gm-style .gm-control-active {
+  background-color: rgb(255, 255, 255) !important;
+  border-radius: 2px !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 /* ========================================
