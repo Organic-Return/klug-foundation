@@ -340,7 +340,7 @@ export default function HeroWithSearch({
               {/* Search Button */}
               <button
                 type="submit"
-                className="klug-search-btn sir-btn sir-btn--light ml-4"
+                className="klug-search-btn sir-btn ml-4"
               >
                 <span>Search</span>
                 <span className="sir-arrow" />
