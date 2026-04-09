@@ -719,7 +719,8 @@ async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty
 }
 
 // Generate an address slug for a street address (e.g. "3000 Ralston Avenue" -> "3000-Ralston-Avenue")
-export function toAddressSlug(streetAddress: string): string {
+export function toAddressSlug(streetAddress: string | null | undefined): string {
+  if (!streetAddress) return '';
   return streetAddress
     .trim()
     .replace(/[^a-zA-Z0-9\s-]/g, '')
