@@ -95,13 +95,17 @@ const mapOptions: google.maps.MapOptions = {
 function PartnerMarker({
   partner,
   isSelected,
+  isHovered,
   onClick
 }: {
   partner: EnrichedPartner;
   isSelected: boolean;
+  isHovered: boolean;
   onClick: () => void;
 }) {
   if (!partner.latitude || !partner.longitude) return null;
+
+  const highlighted = isSelected || isHovered;
 
   return (
     <OverlayViewF
@@ -111,12 +115,12 @@ function PartnerMarker({
       <button
         onClick={onClick}
         className={`klug-gallery-btn relative -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-          isSelected ? 'scale-125 z-20' : 'scale-100 z-10 hover:scale-110'
+          highlighted ? 'scale-125 z-20' : 'scale-100 z-10 hover:scale-110'
         }`}
       >
         <div
           className={`w-8 h-8 rounded-full overflow-hidden border-2 shadow-md transition-all duration-300 ${
-            isSelected
+            highlighted
               ? 'border-[var(--color-gold)] ring-2 ring-[var(--color-gold)]/30'
               : 'border-white hover:border-[var(--color-gold)]'
           }`}
@@ -148,10 +152,14 @@ function PartnerListCard({
   partner,
   isSelected,
   onClick,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   partner: EnrichedPartner;
   isSelected: boolean;
   onClick: () => void;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }) {
   const partnerUrl = getPartnerUrl(partner);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -166,6 +174,8 @@ function PartnerListCard({
     <div
       ref={cardRef}
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className={`px-3 py-2.5 border-b border-[#e8e6e3] dark:border-gray-800 cursor-pointer transition-all duration-300 ${
         isSelected
           ? 'bg-[var(--color-gold)]/10 border-l-4 border-l-[var(--color-gold)]'
@@ -223,6 +233,7 @@ function PartnerListCard({
 
 export default function PartnersMapSection({ partners, title = 'Our Partner Network' }: PartnersMapSectionProps) {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
+  const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -301,6 +312,8 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
                 partner={partner}
                 isSelected={selectedPartner === partner._id}
                 onClick={() => handlePartnerClick(partner._id)}
+                onMouseEnter={() => setHoveredPartner(partner._id)}
+                onMouseLeave={() => setHoveredPartner(null)}
               />
             ))}
           </div>
@@ -324,6 +337,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
                     key={partner._id}
                     partner={partner}
                     isSelected={selectedPartner === partner._id}
+                    isHovered={hoveredPartner === partner._id}
                     onClick={() => handlePartnerClick(partner._id)}
                   />
                 ))}
