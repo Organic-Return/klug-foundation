@@ -219,7 +219,7 @@ export default async function MarketLeadersPage() {
             {pageContent?.heroTitle || 'Market Leaders'}
           </h1>
 
-          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-8">
+          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-8 mx-auto">
             It takes true masters to represent a masterpiece
           </p>
 
