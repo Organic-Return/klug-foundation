@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "../components";
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
+import FeaturedVideoGrid from "../FeaturedVideoGrid";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 import { formatPrice } from '@/lib/listings';
@@ -83,6 +84,24 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
   const sold = diversify(withVideo.filter(l => !l.is_active), 6);
 
   return { active, sold };
+}
+
+function getPhotoUrl(listing: MLListing): string | null {
+  if (listing.default_photo_url) {
+    const url = listing.default_photo_url;
+    if (url.startsWith('//')) return `https:${url}`;
+    if (url.includes('anywhere.re')) return null;
+    return url;
+  }
+  const media = Array.isArray(listing.media) ? listing.media : [];
+  const image = media.find((m: any) => m?.format === 'Image' && m?.url);
+  if (image?.url) {
+    const url = image.url;
+    if (url.startsWith('//')) return `https:${url}`;
+    if (url.includes('anywhere.re')) return null;
+    return url;
+  }
+  return null;
 }
 
 const MARKET_LEADERS_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "market_leader"] | order(sortOrder asc, lastName asc) {
@@ -237,10 +256,28 @@ export default async function MarketLeadersPage() {
       </section>
 
       {/* Featured Market Leader Properties */}
-      {activeVideoListings.length > 0 && (
-        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
-          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-            <div className="text-center mb-12">
+      {activeVideoListings.length > 0 && (() => {
+        const videoListings = activeVideoListings.slice(0, 4).map((listing) => {
+          const media = Array.isArray(listing.media) ? listing.media : [];
+          const video = media.find((m: any) => m?.format === 'Video' && m?.url && m.url.length > 20);
+          const matterport = media.find((m: any) => m?.format === '3D Video' && m?.url && m.url.length > 20);
+          const embedUrl = video?.url || matterport?.url || '';
+          if (!embedUrl || (embedUrl.includes('brightcove') && !embedUrl.includes('videoId='))) return null;
+          return {
+            id: listing.id,
+            embedUrl,
+            photoUrl: getPhotoUrl(listing),
+            price: formatPrice(listing.price_amount),
+            street: listing.street_address?.trim() || '',
+            city: listing.city,
+            state: listing.state_province_code,
+            agentName: listing.primary_agent_name,
+          };
+        }).filter(Boolean) as { id: string; embedUrl: string; photoUrl: string | null; price: string; street: string; city: string; state: string; agentName: string }[];
+
+        return videoListings.length > 0 ? (
+          <section className="bg-white dark:bg-[#1a1a1a]">
+            <div className="text-center py-16 md:py-20 px-6">
               <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
                 Featured Market Leader Properties
               </h2>
@@ -249,42 +286,8 @@ export default async function MarketLeadersPage() {
               </p>
               <div className="w-12 h-px bg-[#c9ac77] mx-auto mt-6" />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2">
-              {activeVideoListings.slice(0, 4).map((listing) => {
-                const media = Array.isArray(listing.media) ? listing.media : [];
-                const video = media.find((m: any) => m?.format === 'Video' && m?.url && m.url.length > 20);
-                const matterport = media.find((m: any) => m?.format === '3D Video' && m?.url && m.url.length > 20);
-                const embedUrl = video?.url || matterport?.url || '';
-
-                if (!embedUrl || (embedUrl.includes('brightcove') && !embedUrl.includes('videoId='))) return null;
-
-                return (
-                  <div key={listing.id} className="relative">
-                    <div className="aspect-[16/9] bg-black">
-                      <iframe
-                        src={embedUrl}
-                        className="w-full h-full"
-                        allow="autoplay; fullscreen; encrypted-media"
-                        allowFullScreen
-                        title={`${listing.street_address}, ${listing.city}`}
-                      />
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                      <p className="text-white text-xl font-semibold mb-1">
-                        {formatPrice(listing.price_amount)}
-                      </p>
-                      <p className="text-white/70 text-sm font-light">
-                        {listing.street_address?.trim()}, {listing.city}, {listing.state_province_code}
-                      </p>
-                      <p className="text-[#c9ac77] text-xs font-light mt-1">
-                        {listing.primary_agent_name}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="text-center mt-10">
+            <FeaturedVideoGrid listings={videoListings} />
+            <div className="text-center py-10">
               <Link
                 href="/affiliated-partners/market-leaders/listings"
                 className="sir-btn inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 px-8 py-4"
@@ -293,9 +296,9 @@ export default async function MarketLeadersPage() {
                 <span className="sir-arrow" />
               </Link>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        ) : null;
+      })()}
 
       {/* Partner Map Section */}
       <PartnersMapSection
