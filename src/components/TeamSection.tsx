@@ -105,7 +105,7 @@ export default function TeamSection({
           {secondaryButtonText && secondaryButtonLink && (
             <Link
               href={secondaryButtonLink}
-              className="sir-btn sir-btn--gold"
+              className="sir-btn"
             >
               <span>{secondaryButtonText}</span>
               <span className="sir-arrow" />

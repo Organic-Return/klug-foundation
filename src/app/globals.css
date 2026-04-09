@@ -1480,7 +1480,7 @@ address {
   align-items: center;
   gap: 10px;
   border-radius: 0;
-  border: 1px solid #00254a;
+  border: 1px solid #c9ac77;
   color: #00254a;
   background-color: transparent;
   font-family: var(--font-open-sans), "Open Sans", sans-serif;
@@ -1494,11 +1494,11 @@ address {
   cursor: pointer;
 }
 
-/* Hover: navy fill, white text */
+/* Hover: gold fill, white text */
 .sir-btn:hover {
-  background-color: #00254a;
+  background-color: #c9ac77;
   color: #fff;
-  border-color: #00254a;
+  border-color: #c9ac77;
 }
 
 /* Arrow icon inside SIR buttons — slides right on hover */
@@ -1528,38 +1528,16 @@ address {
   width: 28px;
 }
 
-/* Gold variant: gold border, navy text, gold fill on hover */
-.sir-btn--gold {
-  border-color: #c9ac77;
-  color: #00254a;
-}
-.sir-btn--gold:hover {
-  background-color: #c9ac77;
-  color: #fff;
-  border-color: #c9ac77;
-}
-
-/* Gold variant for dark backgrounds: gold border, white text */
-.sir-btn--gold-light {
-  border-color: #c9ac77;
-  color: #fff;
-}
-.sir-btn--gold-light:hover {
-  background-color: #c9ac77;
-  color: #fff;
-  border-color: #c9ac77;
-}
-
-/* Light variant for dark backgrounds: white border & text */
+/* Light variant for dark backgrounds: white border & text, gold fill on hover */
 .sir-btn--light {
   border-color: #fff;
   color: #fff;
   background-color: transparent;
 }
 .sir-btn--light:hover {
-  background-color: #fff;
-  color: #00254a;
-  border-color: #fff;
+  background-color: #c9ac77;
+  color: #fff;
+  border-color: #c9ac77;
 }
 
 /* ========================================
