@@ -312,7 +312,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
 
       <div className="flex flex-col lg:flex-row gap-0 border-y border-[#e8e6e3] dark:border-gray-800 overflow-hidden">
           {/* Partner List - Left Side */}
-          <div className="w-full lg:w-2/5 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
+          <div className="w-full lg:w-[280px] lg:flex-shrink-0 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
             <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-[#e8e6e3] dark:border-gray-800 p-3 z-10 space-y-2">
               <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
                 {filteredPartners.length} {filteredPartners.length === 1 ? 'Partner' : 'Partners'}{searchQuery ? ' found' : ' with locations'}
@@ -353,7 +353,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
           </div>
 
           {/* Map - Right Side */}
-          <div className="w-full lg:w-3/5 h-[600px] lg:h-[800px] bg-[#f0f0f0] dark:bg-gray-800">
+          <div className="w-full lg:flex-1 h-[600px] lg:h-[800px] bg-[#f0f0f0] dark:bg-gray-800">
             {!isLoaded ? (
               <div className="w-full h-full flex items-center justify-center">
                 <div className="text-[#6a6a6a] dark:text-gray-400">Loading map...</div>
