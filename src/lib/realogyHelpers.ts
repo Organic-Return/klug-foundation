@@ -60,9 +60,6 @@ export function parseRemarksHtml(remarks: RemarkItem[] | string | null): string 
 export function normalizePhotoUrl(url: string | null): string | null {
   if (!url) return null;
 
-  // Filter out defunct CDN (returns 404s)
-  if (url.includes('anywhere.re')) return null;
-
   if (url.startsWith('//')) {
     return `https:${url}`;
   }
