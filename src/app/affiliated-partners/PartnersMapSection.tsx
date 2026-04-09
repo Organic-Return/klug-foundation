@@ -6,7 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { EnrichedPartner } from './components';
 import { getPartnerUrl } from './components';
-import { phoneHref } from '@/lib/phoneUtils';
 
 interface PartnersMapSectionProps {
   partners: EnrichedPartner[];
@@ -167,26 +166,26 @@ function PartnerListCard({
     <div
       ref={cardRef}
       onClick={onClick}
-      className={`p-4 border-b border-[#e8e6e3] dark:border-gray-800 cursor-pointer transition-all duration-300 ${
+      className={`px-3 py-2.5 border-b border-[#e8e6e3] dark:border-gray-800 cursor-pointer transition-all duration-300 ${
         isSelected
           ? 'bg-[var(--color-gold)]/10 border-l-4 border-l-[var(--color-gold)]'
           : 'hover:bg-[#f8f7f5] dark:hover:bg-[#252525]'
       }`}
     >
-      <div className="flex gap-4">
+      <div className="flex items-center gap-3">
         {/* Photo */}
-        <div className="flex-shrink-0 w-16 h-16 rounded-full overflow-hidden bg-[#f0f0f0] dark:bg-gray-800">
+        <div className="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-[#f0f0f0] dark:bg-gray-800">
           {partner.photoUrl ? (
             <Image
               src={partner.photoUrl}
               alt={`${partner.firstName} ${partner.lastName}`}
-              width={64}
-              height={64}
+              width={40}
+              height={40}
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">
-              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
               </svg>
             </div>
@@ -195,60 +194,28 @@ function PartnerListCard({
 
         {/* Details */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-serif text-lg text-[#1a1a1a] dark:text-white">
+          <h3 className="font-serif text-sm text-[#1a1a1a] dark:text-white leading-tight">
             {partner.firstName} {partner.lastName}
           </h3>
-          {partner.title && (
-            <p className="text-sm text-[var(--color-gold)]">{partner.title}</p>
-          )}
-          {partner.company && (
-            <p className="text-sm text-[#6a6a6a] dark:text-gray-400">{partner.company}</p>
-          )}
           {partner.location && (
-            <p className="text-sm text-[#888] dark:text-gray-500 flex items-center gap-1 mt-1">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <p className="text-[11px] text-[#888] dark:text-gray-500 flex items-center gap-1 mt-0.5 leading-tight">
+              <svg className="w-2.5 h-2.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              {partner.location}
+              <span className="truncate">{partner.location}</span>
             </p>
           )}
-
-          {/* Contact & View Details */}
-          <div className="flex items-center gap-3 mt-3">
-            {partner.email && (
-              <a
-                href={`mailto:${partner.email}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
-                title="Email"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </a>
-            )}
-            {partner.phone && (
-              <a
-                href={`tel:${phoneHref(partner.phone)}`}
-                onClick={(e) => e.stopPropagation()}
-                className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
-                title="Phone"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-              </a>
-            )}
-            <Link
-              href={partnerUrl}
-              onClick={(e) => e.stopPropagation()}
-              className="ml-auto text-xs uppercase tracking-wider text-[var(--color-gold)] hover:underline"
-            >
-              View Details
-            </Link>
-          </div>
         </div>
+
+        {/* View Details */}
+        <Link
+          href={partnerUrl}
+          onClick={(e) => e.stopPropagation()}
+          className="flex-shrink-0 text-[10px] uppercase tracking-wider text-[var(--color-gold)] hover:underline"
+        >
+          View
+        </Link>
       </div>
     </div>
   );
