@@ -1483,9 +1483,10 @@ address {
   align-items: center !important;
   gap: 10px !important;
   border-radius: 0 !important;
-  border: 1px solid #c9ac77 !important;
+  border: 1px solid #00254a !important;
   color: #00254a !important;
   background-color: transparent !important;
+  font-family: var(--font-open-sans), "Open Sans", sans-serif !important;
   font-size: 12px !important;
   font-weight: 400 !important;
   padding: 12px 24px !important;
@@ -1496,14 +1497,14 @@ address {
   cursor: pointer !important;
 }
 
-/* Hover: gold fill, white text */
+/* Hover: navy fill, white text */
 .klug-fonts-classic .sir-btn:hover,
 .klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
 .klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
 .klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
-  background-color: #c9ac77 !important;
+  background-color: #00254a !important;
   color: #fff !important;
-  border-color: #c9ac77 !important;
+  border-color: #00254a !important;
 }
 
 /* Arrow icon inside SIR buttons — slides right on hover */
@@ -1542,12 +1543,12 @@ address {
   width: 28px !important;
 }
 
-/* Buttons on dark backgrounds (hero, overlays): gold border & white text */
+/* Buttons on dark backgrounds (hero, overlays): white border & text */
 .klug-fonts-classic .sir-btn--light,
 .klug-fonts-classic .klug-hero-btn,
 .klug-fonts-classic a.sir-btn--light[class*="tracking-"],
 .klug-fonts-classic a.klug-hero-btn[class*="tracking-"] {
-  border-color: #c9ac77 !important;
+  border-color: #fff !important;
   color: #fff !important;
   background-color: transparent !important;
 }
@@ -1555,9 +1556,9 @@ address {
 .klug-fonts-classic .klug-hero-btn:hover,
 .klug-fonts-classic a.sir-btn--light[class*="tracking-"]:hover,
 .klug-fonts-classic a.klug-hero-btn[class*="tracking-"]:hover {
-  background-color: #c9ac77 !important;
-  color: #fff !important;
-  border-color: #c9ac77 !important;
+  background-color: #fff !important;
+  color: #00254a !important;
+  border-color: #fff !important;
 }
 
 /* Google Maps - prevent SIR button styles from leaking into map controls */
