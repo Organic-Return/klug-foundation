@@ -57,8 +57,25 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
     return media.some((m: any) => m?.format === 'Video' || m?.format === '3D Video');
   });
 
-  const active = filtered.filter(l => l.is_active).slice(0, 8);
-  const sold = filtered.filter(l => !l.is_active).slice(0, 8);
+  // Diversify: pick one listing per agent first, then fill remaining slots
+  const diversify = (listings: MLListing[], limit: number): MLListing[] => {
+    const seen = new Set<string>();
+    const first: MLListing[] = [];
+    const rest: MLListing[] = [];
+    for (const l of listings) {
+      const name = (l.primary_agent_name || '').toLowerCase();
+      if (!seen.has(name)) {
+        seen.add(name);
+        first.push(l);
+      } else {
+        rest.push(l);
+      }
+    }
+    return [...first, ...rest].slice(0, limit);
+  };
+
+  const active = diversify(filtered.filter(l => l.is_active), 8);
+  const sold = diversify(filtered.filter(l => !l.is_active), 8);
 
   return { active, sold };
 }
