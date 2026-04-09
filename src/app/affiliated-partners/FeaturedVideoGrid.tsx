@@ -15,6 +15,10 @@ interface VideoListing {
   agentName: string;
 }
 
+function toAddressSlug(street: string): string {
+  return street.trim().replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
+}
+
 export default function FeaturedVideoGrid({ listings }: { listings: VideoListing[] }) {
   const [activeVideo, setActiveVideo] = useState<VideoListing | null>(null);
 
@@ -69,7 +73,7 @@ export default function FeaturedVideoGrid({ listings }: { listings: VideoListing
                 {listing.agentName}
               </p>
               <Link
-                href={`/listings/${listing.id}`}
+                href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.street)}`}
                 className="klug-nav-link inline-block mt-3 text-[10px] uppercase tracking-[0.15em] text-white hover:text-[#c9ac77] transition-colors font-medium"
                 onClick={(e) => e.stopPropagation()}
               >
@@ -115,7 +119,7 @@ export default function FeaturedVideoGrid({ listings }: { listings: VideoListing
                 </p>
               </div>
               <Link
-                href={`/listings/${activeVideo.id}`}
+                href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(activeVideo.street)}`}
                 className="klug-nav-link text-[11px] uppercase tracking-wider text-[#c9ac77] hover:text-white transition-colors"
                 onClick={() => setActiveVideo(null)}
               >

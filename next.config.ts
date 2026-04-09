@@ -4,6 +4,15 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 
+  async rewrites() {
+    return [
+      {
+        source: '/affiliated-partners/market-leaders/listings/:slug',
+        destination: '/listings/:slug',
+      },
+    ];
+  },
+
   // Image optimization with modern formats
   images: {
     remotePatterns: [

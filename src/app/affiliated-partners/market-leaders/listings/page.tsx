@@ -4,7 +4,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
-import { formatPrice } from '@/lib/listings';
+import { formatPrice, toAddressSlug } from '@/lib/listings';
 
 export const revalidate = 60;
 
@@ -128,7 +128,7 @@ export default async function MarketLeaderListingsPage() {
                 const photo = getPhotoUrl(listing);
                 return (
                   <div key={listing.id} className="group border border-gray-200 overflow-hidden">
-                    <Link href={`/listings/${listing.id}`} className="block">
+                    <Link href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.street_address)}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
                         {photo ? (
                           <Image
@@ -190,7 +190,7 @@ export default async function MarketLeaderListingsPage() {
                 const photo = getPhotoUrl(listing);
                 return (
                   <div key={listing.id} className="group border border-gray-200 overflow-hidden">
-                    <Link href={`/listings/${listing.id}`} className="block">
+                    <Link href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.street_address)}`} className="block">
                       <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
                         {photo ? (
                           <Image

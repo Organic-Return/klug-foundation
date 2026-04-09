@@ -145,9 +145,9 @@ export function getListingHref(listing: { id: string; mls_number?: string }): st
   return `/listings/${listing.mls_number || listing.id}`;
 }
 
-// Resolve listing by slug — tries MLS number first, then database ID, then Realogy listing
+// Resolve listing by slug — tries MLS number first, then database ID, then Realogy listing, then address slug
 export async function getListingBySlug(slug: string): Promise<MLSProperty | null> {
-  return await getListingByMlsNumber(slug) || await getListingById(slug) || await getRealogyListingBySlug(slug);
+  return await getListingByMlsNumber(slug) || await getListingById(slug) || await getRealogyListingBySlug(slug) || await getRealogyListingByAddressSlug(slug);
 }
 
 // Deduplicate listings by mls_number, preferring rows with more complete data
@@ -688,6 +688,42 @@ async function getRealogyListingBySlug(slug: string): Promise<MLSProperty | null
 
   if (!data) return null;
   return transformRealogyListing(data);
+}
+
+// Look up a listing by address slug (e.g. "3000-Ralston-Avenue")
+async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty | null> {
+  if (!isRealogyConfigured()) return null;
+  // Convert slug back to address: "3000-Ralston-Avenue" -> "3000 Ralston Avenue"
+  const address = decodeURIComponent(slug).replace(/-/g, ' ').trim();
+  if (address.length < 3) return null;
+
+  const realogySupabase = getRealogySupabase();
+  if (!realogySupabase) return null;
+
+  const { data, error } = await realogySupabase
+    .from('realogy_listings')
+    .select(`
+      id, entity_id, rfg_listing_id, is_active, price_amount, street_address,
+      city, state_province_code, postal_code, district, no_of_bedrooms, total_bath,
+      full_bath, half_bath, three_quarter_bath, square_footage, building_area,
+      lot_size, year_built, property_type, listed_on, default_photo_url, media,
+      primary_agent_name, latitude, longitude, created_at, synced_at
+    `)
+    .ilike('street_address', address)
+    .order('price_amount', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+  return transformRealogyListing(data);
+}
+
+// Generate an address slug for a street address (e.g. "3000 Ralston Avenue" -> "3000-Ralston-Avenue")
+export function toAddressSlug(streetAddress: string): string {
+  return streetAddress
+    .trim()
+    .replace(/[^a-zA-Z0-9\s-]/g, '')
+    .replace(/\s+/g, '-');
 }
 
 export async function getOpenHouseListings(): Promise<MLSProperty[]> {
