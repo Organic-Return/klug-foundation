@@ -87,21 +87,26 @@ export async function fetchAgentData(agentStaffId: string, firstName?: string, l
     // Best approach: search by name first (most reliable), fall back to ID
     if (firstName && lastName) {
       const firstNameBase = firstName.split(' ')[0]; // "K. Ann" -> "K."
-      const { data: byName } = await supabase
+      const { data: byNameResults } = await supabase
         .from('realogy_agents')
         .select('first_name, last_name, photo_url, rfg_staff_id, entity_id, id, remarks, office_name')
         .ilike('first_name', `${firstNameBase}%`)
         .ilike('last_name', `${lastName}%`)
-        .limit(1)
-        .maybeSingle();
+        .limit(5);
 
-      if (byName) {
+      if (byNameResults && byNameResults.length > 0) {
+        // Prefer exact last name match with a photo
+        const best = byNameResults.find(r => r.last_name?.toLowerCase() === lastName.toLowerCase() && r.photo_url)
+          || byNameResults.find(r => r.last_name?.toLowerCase() === lastName.toLowerCase())
+          || byNameResults.find(r => r.photo_url)
+          || byNameResults[0];
+
         return {
-          agentStaffId: byName.rfg_staff_id || byName.entity_id || byName.id,
-          firstName: byName.first_name || '',
-          lastName: byName.last_name || '',
-          photoUrl: normalizePhotoUrl(byName.photo_url),
-          bio: parseRemarks(byName.remarks),
+          agentStaffId: best.rfg_staff_id || best.entity_id || best.id,
+          firstName: best.first_name || '',
+          lastName: best.last_name || '',
+          photoUrl: normalizePhotoUrl(best.photo_url),
+          bio: parseRemarks(best.remarks),
         };
       }
     }
