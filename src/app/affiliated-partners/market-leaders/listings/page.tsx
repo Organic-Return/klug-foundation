@@ -164,6 +164,11 @@ export default async function MarketLeaderListingsPage() {
                         {listing.total_bath != null && listing.square_footage != null && <span className="w-px h-3 bg-gray-300" />}
                         {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} SF</span>}
                       </div>
+                      {listing.primary_agent_name && (
+                        <p className="text-xs text-[#c9ac77] font-light mt-2">
+                          {listing.primary_agent_name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
@@ -226,6 +231,11 @@ export default async function MarketLeaderListingsPage() {
                         {listing.total_bath != null && listing.square_footage != null && <span className="w-px h-3 bg-gray-300" />}
                         {listing.square_footage != null && <span>{listing.square_footage.toLocaleString()} SF</span>}
                       </div>
+                      {listing.primary_agent_name && (
+                        <p className="text-xs text-[#c9ac77] font-light mt-2">
+                          {listing.primary_agent_name}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
