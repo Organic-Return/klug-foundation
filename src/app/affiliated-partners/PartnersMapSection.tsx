@@ -312,7 +312,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
 
       <div className="flex flex-col lg:flex-row gap-0 border-y border-[#e8e6e3] dark:border-gray-800 overflow-hidden">
           {/* Partner List - Left Side */}
-          <div className="w-full lg:w-[280px] lg:flex-shrink-0 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
+          <div className="w-full lg:w-[560px] lg:flex-shrink-0 max-h-[800px] overflow-y-auto bg-white dark:bg-[#1a1a1a]">
             <div className="sticky top-0 bg-white dark:bg-[#1a1a1a] border-b border-[#e8e6e3] dark:border-gray-800 p-3 z-10 space-y-2">
               <p className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
                 {filteredPartners.length} {filteredPartners.length === 1 ? 'Partner' : 'Partners'}{searchQuery ? ' found' : ' with locations'}
@@ -362,7 +362,7 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
               <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={center}
-                zoom={6}
+                zoom={7}
                 options={mapOptions}
                 onLoad={onMapLoad}
               >
