@@ -26,38 +26,33 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
   const supabase = getRealogySupabase();
   if (!supabase) return { active: [], sold: [] };
 
-  // Build OR filter for all agent names with wildcard matching
-  const namePatterns = agentNames.map(name => {
+  // Query per-agent (top listing each) to get diverse results
+  const allListings: MLListing[] = [];
+
+  // Batch agents in groups to avoid too many queries
+  for (const name of agentNames) {
     const parts = name.trim().split(/\s+/);
-    return `${parts[0]}%${parts[parts.length - 1]}`;
-  });
+    const pattern = `${parts[0]}%${parts[parts.length - 1]}`;
 
-  // Fetch listings with media (which may contain videos)
-  const { data, error } = await supabase
-    .from('realogy_listings')
-    .select('id, street_address, city, state_province_code, price_amount, is_active, default_photo_url, media, primary_agent_name')
-    .eq('listing_type', 'ForSale')
-    .not('media', 'is', null)
-    .order('price_amount', { ascending: false })
-    .limit(500);
+    const { data } = await supabase
+      .from('realogy_listings')
+      .select('id, street_address, city, state_province_code, price_amount, is_active, default_photo_url, media, primary_agent_name')
+      .ilike('primary_agent_name', pattern)
+      .eq('listing_type', 'ForSale')
+      .not('media', 'is', null)
+      .order('price_amount', { ascending: false })
+      .limit(3);
 
-  if (error || !data) return { active: [], sold: [] };
+    if (data) allListings.push(...data);
+  }
 
-  // Filter: must match an agent name AND have video in media
-  const filtered = data.filter(listing => {
-    const agentName = (listing.primary_agent_name || '').toLowerCase();
-    const matchesAgent = namePatterns.some(pattern => {
-      const parts = pattern.toLowerCase().split('%');
-      return parts.every(part => agentName.includes(part));
-    });
-    if (!matchesAgent) return false;
-
-    // Check for video in media
+  // Filter for listings with video in media
+  const withVideo = allListings.filter(listing => {
     const media = Array.isArray(listing.media) ? listing.media : [];
     return media.some((m: any) => m?.format === 'Video' || m?.format === '3D Video');
   });
 
-  // Diversify: pick one listing per agent first, then fill remaining slots
+  // Diversify: one per agent first
   const diversify = (listings: MLListing[], limit: number): MLListing[] => {
     const seen = new Set<string>();
     const first: MLListing[] = [];
@@ -74,8 +69,11 @@ async function getMarketLeaderListingsWithVideos(agentNames: string[]): Promise<
     return [...first, ...rest].slice(0, limit);
   };
 
-  const active = diversify(filtered.filter(l => l.is_active), 8);
-  const sold = diversify(filtered.filter(l => !l.is_active), 8);
+  // Sort by price desc for display
+  withVideo.sort((a, b) => (b.price_amount || 0) - (a.price_amount || 0));
+
+  const active = diversify(withVideo.filter(l => l.is_active), 6);
+  const sold = diversify(withVideo.filter(l => !l.is_active), 6);
 
   return { active, sold };
 }
@@ -182,20 +180,20 @@ export default async function MarketLeadersPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-[var(--color-navy)] py-20 md:py-28">
+      {/* Hero Section - Combined */}
+      <section className="relative bg-[var(--color-sothebys-blue)] py-20 md:py-28">
         {heroImageUrl && (
           <div className="absolute inset-0">
             <Image
               src={heroImageUrl}
               alt=""
               fill
-              className="object-cover opacity-30"
+              className="object-cover opacity-20"
               priority
             />
           </div>
         )}
-        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
+        <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           {/* Breadcrumb */}
           <div className="mb-6">
             <Link href="/affiliated-partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
@@ -206,7 +204,7 @@ export default async function MarketLeadersPage() {
           </div>
 
           {logoUrl && (
-            <div className="mb-8">
+            <div className="mb-6">
               <Image
                 src={logoUrl}
                 alt="Market Leaders Logo"
@@ -217,40 +215,33 @@ export default async function MarketLeadersPage() {
             </div>
           )}
 
+          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-5">
+            It takes true masters to represent a masterpiece
+          </p>
+
           <h1 className="font-serif text-white mb-6">
             {pageContent?.heroTitle || 'Market Leaders'}
           </h1>
-          <p className="text-lg md:text-xl text-white/70 font-light max-w-3xl mx-auto leading-relaxed">
-            {pageContent?.heroDescription ||
-              'Top-performing agents and industry leaders who consistently deliver exceptional results in their respective markets across the country.'}
-          </p>
-        </div>
-      </section>
 
-      {/* SIR Market Leaders Intro */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
-        <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
-          <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-6">
-            It takes true masters to represent a masterpiece
-          </p>
-          <div className="w-12 h-px bg-[#c9ac77] mx-auto mb-8" />
-          <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-base md:text-lg leading-relaxed mb-12 max-w-4xl mx-auto">
+          <p className="text-base md:text-lg text-white/60 font-light max-w-3xl mx-auto leading-relaxed mb-12">
             Market Leaders, an exclusive Sotheby&apos;s International Realty group, is the first and only global agent association of its kind. Composed of some of the industry&apos;s most prolific agents across the world&apos;s most prestigious destinations, Market Leaders provides industry intelligence, thought leadership and strategic introductions for its clients.
           </p>
+
+          <div className="w-12 h-px bg-[#c9ac77] mx-auto mb-12" />
 
           {/* Key Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             <div className="text-center">
               <p className="text-4xl md:text-5xl font-serif font-light text-[#c9ac77] mb-2">50</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Market Leaders</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light">Market Leaders</p>
             </div>
-            <div className="text-center border-x border-[#e8e6e3] dark:border-gray-700">
+            <div className="text-center border-x border-white/10">
               <p className="text-4xl md:text-5xl font-serif font-light text-[#c9ac77] mb-2">$500M+</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Buyer-Seller Connections</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light">Buyer-Seller Connections</p>
             </div>
             <div className="text-center">
               <p className="text-4xl md:text-5xl font-serif font-light text-[#c9ac77] mb-2">$8.2B+</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-[#8a8a8a] font-light">Annual Transactions</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-light">Annual Transactions</p>
             </div>
           </div>
         </div>
@@ -258,7 +249,7 @@ export default async function MarketLeadersPage() {
 
       {/* Newest Market Leader Listings - Full-screen video showcases */}
       {activeVideoListings.length > 0 && (
-        <section className="bg-[#0a0a0a]">
+        <section className="bg-[var(--color-sothebys-blue)]">
           <div className="text-center py-16 md:py-20 px-6">
             <h2 className="text-3xl md:text-4xl font-serif font-light text-white tracking-wide mb-4">
               Featured Market Leader Properties
