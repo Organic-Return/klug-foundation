@@ -1474,94 +1474,71 @@ address {
 /* Gold accent is preserved for separators, nav hovers, etc.
    Button backgrounds are handled by .sir-btn rules above. */
 
-/* SIR button base — applies to CTA buttons in classic template sections */
-.klug-fonts-classic .sir-btn,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):not(.gm-control-active):not(.gm-ui-hover-effect),
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):not(.gm-control-active):not(.gm-ui-hover-effect),
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  border-radius: 0 !important;
-  border: 1px solid #00254a !important;
-  color: #00254a !important;
-  background-color: transparent !important;
-  font-family: var(--font-open-sans), "Open Sans", sans-serif !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
-  padding: 12px 24px !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.15em !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-  cursor: pointer !important;
+/* SIR button base — opt-in only via .sir-btn class */
+.sir-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 0;
+  border: 1px solid #00254a;
+  color: #00254a;
+  background-color: transparent;
+  font-family: var(--font-open-sans), "Open Sans", sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  padding: 12px 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
 }
 
 /* Hover: navy fill, white text */
-.klug-fonts-classic .sir-btn:hover,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover {
-  background-color: #00254a !important;
-  color: #fff !important;
-  border-color: #00254a !important;
+.sir-btn:hover {
+  background-color: #00254a;
+  color: #fff;
+  border-color: #00254a;
 }
 
 /* Arrow icon inside SIR buttons — slides right on hover */
-.klug-fonts-classic .sir-btn .sir-arrow,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow {
-  display: inline-block !important;
-  width: 20px !important;
-  height: 1px !important;
-  background-color: currentColor !important;
-  position: relative !important;
-  transition: width 0.3s ease !important;
-  flex-shrink: 0 !important;
+.sir-btn .sir-arrow {
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  background-color: currentColor;
+  position: relative;
+  transition: width 0.3s ease;
+  flex-shrink: 0;
 }
-.klug-fonts-classic .sir-btn .sir-arrow::after,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow::after,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect) .sir-arrow::after,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn) .sir-arrow::after {
-  content: '' !important;
-  position: absolute !important;
-  right: 0 !important;
-  top: -3px !important;
-  width: 7px !important;
-  height: 7px !important;
-  border-top: 1px solid currentColor !important;
-  border-right: 1px solid currentColor !important;
-  transform: rotate(45deg) !important;
+.sir-btn .sir-arrow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-top: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+  transform: rotate(45deg);
 }
 
 /* Arrow grows on hover */
-.klug-fonts-classic .sir-btn:hover .sir-arrow,
-.klug-fonts-classic section button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover .sir-arrow,
-.klug-fonts-classic main button:not(.klug-nav-link):not(.klug-search-btn):not(.klug-stats-tab):not(.klug-gallery-btn):not(.gm-control-active):not(.gm-ui-hover-effect):hover .sir-arrow,
-.klug-fonts-classic a[class*="tracking-"]:not(.klug-nav-link):not(.klug-hero-btn):hover .sir-arrow {
-  width: 28px !important;
+.sir-btn:hover .sir-arrow {
+  width: 28px;
 }
 
-/* Buttons on dark backgrounds (hero, overlays): white border & text */
-.klug-fonts-classic .sir-btn--light,
-.klug-fonts-classic .klug-hero-btn,
-.klug-fonts-classic a.sir-btn--light[class*="tracking-"],
-.klug-fonts-classic a.klug-hero-btn[class*="tracking-"] {
-  border-color: #fff !important;
-  color: #fff !important;
-  background-color: transparent !important;
+/* Light variant for dark backgrounds: white border & text */
+.sir-btn--light {
+  border-color: #fff;
+  color: #fff;
+  background-color: transparent;
 }
-.klug-fonts-classic .sir-btn--light:hover,
-.klug-fonts-classic .klug-hero-btn:hover,
-.klug-fonts-classic a.sir-btn--light[class*="tracking-"]:hover,
-.klug-fonts-classic a.klug-hero-btn[class*="tracking-"]:hover {
-  background-color: #fff !important;
-  color: #00254a !important;
-  border-color: #fff !important;
+.sir-btn--light:hover {
+  background-color: #fff;
+  color: #00254a;
+  border-color: #fff;
 }
-
-/* Google Maps - prevent SIR button styles from leaking into map controls */
 
 /* ========================================
    SANITY STUDIO RESET
