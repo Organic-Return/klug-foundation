@@ -1540,6 +1540,17 @@ address {
   border-color: #c9ac77;
 }
 
+/* Gold-light variant for dark backgrounds: gold border, white text, gold fill on hover */
+.sir-btn--gold-light {
+  border-color: #c9ac77;
+  color: #fff;
+}
+.sir-btn--gold-light:hover {
+  background-color: #c9ac77;
+  color: #fff;
+  border-color: #c9ac77;
+}
+
 /* ========================================
    SANITY STUDIO RESET
    Undo all site typography/color overrides
