@@ -74,7 +74,7 @@ export interface EnrichedPartner extends Partner {
   bio: string;
 }
 
-export async function fetchAgentData(agentStaffId: string): Promise<AgentData | null> {
+export async function fetchAgentData(agentStaffId: string, firstName?: string, lastName?: string): Promise<AgentData | null> {
   // Query Realogy DB directly (avoids 401 during static build)
   if (!isRealogyConfigured()) return null;
 
@@ -82,18 +82,39 @@ export async function fetchAgentData(agentStaffId: string): Promise<AgentData | 
     const supabase = getRealogySupabase();
     if (!supabase) return null;
 
-    // Try rfg_staff_id first, then entity_id, then id (UUID)
     const isUuid = /^[0-9a-f]{8}-/.test(agentStaffId);
-    const column = isUuid ? 'id' : 'rfg_staff_id';
 
-    let { data, error } = await supabase
+    // Best approach: search by name first (most reliable), fall back to ID
+    if (firstName && lastName) {
+      const firstNameBase = firstName.split(' ')[0]; // "K. Ann" -> "K."
+      const { data: byName } = await supabase
+        .from('realogy_agents')
+        .select('first_name, last_name, photo_url, rfg_staff_id, entity_id, id, remarks, office_name')
+        .ilike('first_name', `${firstNameBase}%`)
+        .ilike('last_name', `${lastName}%`)
+        .limit(1)
+        .maybeSingle();
+
+      if (byName) {
+        return {
+          agentStaffId: byName.rfg_staff_id || byName.entity_id || byName.id,
+          firstName: byName.first_name || '',
+          lastName: byName.last_name || '',
+          photoUrl: normalizePhotoUrl(byName.photo_url),
+          bio: parseRemarks(byName.remarks),
+        };
+      }
+    }
+
+    // Fallback: search by ID (for backwards compat)
+    const column = isUuid ? 'id' : 'rfg_staff_id';
+    let { data } = await supabase
       .from('realogy_agents')
       .select('first_name, last_name, photo_url, rfg_staff_id, entity_id, id, remarks, office_name')
       .eq(column, agentStaffId)
       .limit(1)
       .maybeSingle();
 
-    // Fallback to entity_id if not found by rfg_staff_id
     if (!data && !isUuid) {
       const fallback = await supabase
         .from('realogy_agents')
@@ -102,10 +123,9 @@ export async function fetchAgentData(agentStaffId: string): Promise<AgentData | 
         .limit(1)
         .maybeSingle();
       data = fallback.data;
-      error = fallback.error;
     }
 
-    if (error || !data) return null;
+    if (!data) return null;
 
     return {
       agentStaffId: data.rfg_staff_id || data.entity_id || data.id,
@@ -121,7 +141,7 @@ export async function fetchAgentData(agentStaffId: string): Promise<AgentData | 
 }
 
 export async function enrichPartnerWithAgentData(partner: Partner): Promise<EnrichedPartner> {
-  const agentData = await fetchAgentData(partner.agentStaffId);
+  const agentData = await fetchAgentData(partner.agentStaffId, partner.firstName, partner.lastName);
 
   // Use override values from Sanity if provided, otherwise use database values
   const photoUrl = partner.overridePhoto
