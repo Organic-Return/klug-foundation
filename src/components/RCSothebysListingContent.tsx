@@ -377,11 +377,11 @@ export default function RCSothebysListingContent({
       )}
 
       {/* Two-Column Content */}
-      <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-10' : ''}`}>
+      <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-7' : ''}`}>
         {/* Property Info Card — full width, non-exclusive only */}
         {!agent && (
-          <div className="bg-white shadow-lg border-t-[3px] border-[var(--rc-gold)] mb-8">
-            <div className="px-6 py-5">
+          <div className="bg-white shadow-lg border-t-[3px] border-[var(--rc-gold)] mb-6">
+            <div className="px-6 py-3.5">
               {/* Top row: address + save */}
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
