@@ -463,6 +463,30 @@ export default async function ListingPage({ params }: ListingPageProps) {
   const hasPhotos = listing.photos && listing.photos.length > 0;
   const schemas = generateRealEstateSchema(listing);
 
+  // Non-exclusive listings: if no Klug team member is the listing/co-listing agent,
+  // use the RC Sotheby's layout (for Aspen/Glenwood MLS properties only)
+  const isKlugExclusive = listingAgent !== null;
+  if (!isKlugExclusive) {
+    const agentImageUrl = null; // No team member match
+    return (
+      <>
+        {schemas.map((schema, index) => (
+          <script
+            key={index}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
+        <RCSothebysListingContent
+          listing={listing}
+          agent={null}
+          coAgent={null}
+          googleMapsApiKey={googleMapsApiKey}
+        />
+      </>
+    );
+  }
+
   // Custom-one template: only for properties listed by team members with matching MLS IDs
   const isCustomOne = template === 'custom-one' && listingAgent !== null;
 
