@@ -912,7 +912,7 @@ export default function CustomOneListingContent({
       <section id="contact" className="py-16 md:py-24 bg-[var(--rc-cream)]">
         <div className="max-w-5xl mx-auto px-6 lg:px-12">
           <div className="text-center mb-12">
-            <p className="text-[var(--rc-gold)] text-xs tracking-[0.3em] uppercase mb-3">Schedule a Private Showing</p>
+            <p className="text-[var(--rc-gold)] text-xs tracking-[0.3em] uppercase mb-3 text-center">Schedule a Private Showing</p>
             <h2 className="font-serif text-3xl md:text-4xl text-[var(--rc-navy)]">Inquire About This Property</h2>
             <div className="w-16 h-[2px] bg-[var(--rc-gold)] mx-auto mt-5" />
           </div>
