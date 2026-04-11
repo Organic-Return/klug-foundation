@@ -378,55 +378,44 @@ export default function KlugListingContent({
 
       {/* Two-Column Content */}
       <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-7' : ''}`}>
-        {/* Property Info Card — full width, non-exclusive only */}
+        {/* Property Info Bar — full width, non-exclusive only */}
         {!agent && (
-          <div className="bg-white shadow-lg border-t-[3px] border-[var(--rc-gold)] mb-6">
-            <div className="px-6 py-3.5">
-              {/* Top row: address + save */}
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <h1
-                    className="text-[var(--rc-navy)] font-bold uppercase tracking-[0.1em] line-clamp-1"
-                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', fontSize: '1.125rem' }}
-                  >
+          <div className="bg-white border-b border-[var(--rc-brown)]/10 mb-6">
+            <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
                     {listing.address?.split(',')[0] || listing.address}
                   </h1>
-                  <div className="text-[var(--rc-brown)]/70 text-xs uppercase tracking-[0.1em] mt-0.5">
+                  <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
                     {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
-                  </div>
+                  </p>
                 </div>
-                <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
-              </div>
-              {/* Bottom row: price + stats */}
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-3">
-                <div className="text-[var(--rc-navy)] text-xl md:text-2xl font-bold">
-                  {formatPrice(listing.list_price)}
-                </div>
-                <div className="flex items-center gap-4 text-[var(--rc-brown)] text-xs">
+                <div className="flex flex-wrap items-center gap-6 md:gap-8">
                   {listing.bedrooms !== null && (
-                    <div className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                      </svg>
-                      <span>{listing.bedrooms} BD</span>
+                    <div className="text-center">
+                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bedrooms}</p>
+                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Beds</p>
                     </div>
                   )}
                   {listing.bathrooms !== null && (
-                    <div className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>{listing.bathrooms} BA</span>
+                    <div className="text-center">
+                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bathrooms}</p>
+                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Baths</p>
                     </div>
                   )}
                   {listing.square_feet && (
-                    <div className="flex items-center gap-1.5">
-                      <svg className="w-3.5 h-3.5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                      </svg>
-                      <span>{listing.square_feet.toLocaleString()} SF</span>
+                    <div className="text-center">
+                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.square_feet.toLocaleString()}</p>
+                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Sq Ft</p>
                     </div>
                   )}
+                  <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
+                  <div>
+                    <p className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">
+                      {formatPrice(listing.list_price)}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
