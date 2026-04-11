@@ -307,7 +307,7 @@ export default function CustomOneListingContent({
       {/* ═══════════════════════════════════════════
           HERO SLIDESHOW
           ═══════════════════════════════════════════ */}
-      <section className="relative w-full h-[70vh] md:h-[80vh] overflow-hidden bg-[var(--rc-navy)]">
+      <section className="relative w-full h-screen overflow-hidden bg-[var(--rc-navy)]">
         {heroPhoto ? (
           <Image
             src={heroPhoto}

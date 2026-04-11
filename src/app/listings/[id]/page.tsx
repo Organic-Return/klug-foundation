@@ -487,11 +487,10 @@ export default async function ListingPage({ params }: ListingPageProps) {
     );
   }
 
-  // Custom-one template: only for properties listed by team members with matching MLS IDs
-  const isCustomOne = template === 'custom-one' && listingAgent !== null;
+  // Klug exclusive: listed by a Klug team member — use the exclusive listing template
+  const isKlugListing = listingAgent !== null;
 
-  // Custom-one template: luxury single-property landing page
-  if (isCustomOne) {
+  if (isKlugListing) {
     // Resolve agent image URL server-side for the client component
     const agentImageUrl = listingAgent?.image
       ? urlFor(listingAgent.image).width(256).height(256).url()
