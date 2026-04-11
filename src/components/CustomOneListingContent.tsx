@@ -382,6 +382,20 @@ export default function CustomOneListingContent({
                   View Video
                 </button>
               )}
+              {hasVirtualTour && (
+                <button
+                  onClick={() => {
+                    setActiveTab('tours');
+                    document.getElementById('tours-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+                  </svg>
+                  Virtual Tour
+                </button>
+              )}
               <button
                 onClick={() => {
                   setLightboxIndex(0);
@@ -578,7 +592,7 @@ export default function CustomOneListingContent({
 
             {/* ─── Tabbed Media Section ─── */}
             {mediaTabs.length > 0 && (
-              <div>
+              <div id="tours-section">
                 {/* Tab headers */}
                 <div className="flex border-b border-[var(--rc-brown)]/15 mb-8 overflow-x-auto">
                   {mediaTabs.map((tab) => (
