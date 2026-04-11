@@ -422,9 +422,9 @@ export default function KlugListingContent({
           </div>
         )}
 
-        <div className={`grid grid-cols-1 ${agent ? 'lg:grid-cols-2' : 'lg:grid-cols-[3fr_2fr]'} gap-12 lg:gap-16 overflow-hidden`}>
+        <div className={`grid grid-cols-1 ${agent ? 'lg:grid-cols-2' : 'lg:grid-cols-[60%_1fr]'} gap-8 lg:gap-10 overflow-hidden`}>
           {/* Left Column: Property Details */}
-          <div className="min-w-0">
+          <div className="min-w-0 overflow-hidden">
             {/* Compact Gallery — non-exclusive listings only */}
             {!agent && (
               <div className="mb-8">
@@ -617,7 +617,7 @@ export default function KlugListingContent({
           </div>
 
           {/* Right Column: Contact Form + Share + Agent */}
-          <div className="space-y-8">
+          <div className="min-w-0 space-y-8">
             {/* Request More Information Form */}
             <div className="bg-[var(--rc-navy)] p-6 md:p-8">
               <h3
