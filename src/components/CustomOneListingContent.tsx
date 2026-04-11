@@ -85,6 +85,14 @@ export default function CustomOneListingContent({
   documents,
   videos,
 }: CustomOneListingContentProps) {
+  // Parallax scroll offset
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Hero slideshow
   const photos = listing.photos || [];
   const [heroIndex, setHeroIndex] = useState(0);
@@ -312,14 +320,19 @@ export default function CustomOneListingContent({
           ═══════════════════════════════════════════ */}
       <section className="relative w-full h-screen overflow-hidden bg-[var(--rc-navy)]">
         {heroPhoto ? (
-          <Image
-            src={heroPhoto}
-            alt={`${listing.address} - Photo ${heroIndex + 1}`}
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-          />
+          <div
+            className="absolute inset-0"
+            style={{ transform: `translateY(${scrollY * 0.3}px) scale(1.15)`, willChange: 'transform' }}
+          >
+            <Image
+              src={heroPhoto}
+              alt={`${listing.address} - Photo ${heroIndex + 1}`}
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+            />
+          </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-[var(--rc-navy)] to-[#1a3a5c]" />
         )}
