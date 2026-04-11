@@ -884,14 +884,6 @@ export default function CustomOneListingContent({
                   </form>
                 )}
               </div>
-
-              {/* Schedule Private Viewing CTA */}
-              <a
-                href="#contact"
-                className="sir-btn block w-full text-center py-4 text-xs tracking-[0.2em] uppercase"
-              >
-                Schedule Private Viewing
-              </a>
             </div>
           </div>
         </div>
