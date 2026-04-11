@@ -450,6 +450,60 @@ export default function CustomOneListingContent({
               )}
             </div>
 
+            {/* ─── Property Details Grid ─── */}
+            {stats.length > 0 && (
+              <div>
+                <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] mb-6">
+                  Property Details
+                </h2>
+                <div className="w-12 h-[2px] bg-[var(--rc-gold)] mb-6" />
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--rc-brown)]/10">
+                  {stats.map((stat) => (
+                    <div key={stat.label} className="bg-white p-5 text-center">
+                      <p className="text-xl font-light text-[var(--rc-navy)] mb-1">{stat.value}</p>
+                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">
+                        {stat.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Additional property info */}
+                <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
+                  {listing.mls_number && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">MLS #</span>
+                      <span className="text-[var(--rc-navy)]">{listing.mls_number}</span>
+                    </div>
+                  )}
+                  {listing.status && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Status</span>
+                      <span className="text-[var(--rc-navy)]">{listing.status}</span>
+                    </div>
+                  )}
+                  {listing.neighborhood && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Neighborhood</span>
+                      <span className="text-[var(--rc-navy)]">{listing.neighborhood}</span>
+                    </div>
+                  )}
+                  {listing.days_on_market !== null && listing.days_on_market !== undefined && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Days on Market</span>
+                      <span className="text-[var(--rc-navy)]">{listing.days_on_market}</span>
+                    </div>
+                  )}
+                  {listing.listing_date && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Listed</span>
+                      <span className="text-[var(--rc-navy)]">{new Date(listing.listing_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* ─── Tabbed Media Section ─── */}
             {mediaTabs.length > 0 && (
               <div>
@@ -594,59 +648,6 @@ export default function CustomOneListingContent({
               </div>
             )}
 
-            {/* ─── Property Details Grid ─── */}
-            {stats.length > 0 && (
-              <div>
-                <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] mb-6">
-                  Property Details
-                </h2>
-                <div className="w-12 h-[2px] bg-[var(--rc-gold)] mb-6" />
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-px bg-[var(--rc-brown)]/10">
-                  {stats.map((stat) => (
-                    <div key={stat.label} className="bg-white p-5 text-center">
-                      <p className="text-xl font-light text-[var(--rc-navy)] mb-1">{stat.value}</p>
-                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">
-                        {stat.label}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Additional property info */}
-                <div className="mt-6 grid grid-cols-2 gap-x-8 gap-y-3 text-sm">
-                  {listing.mls_number && (
-                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
-                      <span className="text-[var(--rc-brown)]/50">MLS #</span>
-                      <span className="text-[var(--rc-navy)]">{listing.mls_number}</span>
-                    </div>
-                  )}
-                  {listing.status && (
-                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
-                      <span className="text-[var(--rc-brown)]/50">Status</span>
-                      <span className="text-[var(--rc-navy)]">{listing.status}</span>
-                    </div>
-                  )}
-                  {listing.neighborhood && (
-                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
-                      <span className="text-[var(--rc-brown)]/50">Neighborhood</span>
-                      <span className="text-[var(--rc-navy)]">{listing.neighborhood}</span>
-                    </div>
-                  )}
-                  {listing.days_on_market !== null && listing.days_on_market !== undefined && (
-                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
-                      <span className="text-[var(--rc-brown)]/50">Days on Market</span>
-                      <span className="text-[var(--rc-navy)]">{listing.days_on_market}</span>
-                    </div>
-                  )}
-                  {listing.listing_date && (
-                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
-                      <span className="text-[var(--rc-brown)]/50">Listed</span>
-                      <span className="text-[var(--rc-navy)]">{new Date(listing.listing_date).toLocaleDateString()}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* ─── RIGHT COLUMN (1/3) ─── */}
