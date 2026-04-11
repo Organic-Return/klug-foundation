@@ -1097,19 +1097,6 @@ export default function CustomOneListingContent({
       </section>
 
       {/* ═══════════════════════════════════════════
-          MLS DISCLAIMER FOOTER
-          ═══════════════════════════════════════════ */}
-      <div className="bg-[var(--rc-navy)] border-t border-white/[0.06] py-8">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <p className="text-[10px] text-white/30 leading-relaxed">
-            MLS# {listing.mls_number}. Listing information is deemed reliable but not guaranteed.
-            All measurements and square footage are approximate. Buyer to verify all information.
-            Information sourced from the Multiple Listing Service.
-          </p>
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════
           LIGHTBOX OVERLAY
           ═══════════════════════════════════════════ */}
       {lightboxOpen && photos.length > 0 && (
