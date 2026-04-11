@@ -936,92 +936,84 @@ export default function CustomOneListingContent({
       {/* ═══════════════════════════════════════════
           BOTTOM CONTACT SECTION
           ═══════════════════════════════════════════ */}
-      <section id="contact" className="relative py-16 md:py-24 overflow-hidden">
-        {/* Background image with overlay */}
-        {photos[0] && (
-          <div className="absolute inset-0">
-            <Image
-              src={photos[0]}
-              alt=""
-              fill
-              className="object-cover"
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-[var(--color-sothebys-blue)]/85" />
-          </div>
-        )}
-        {!photos[0] && <div className="absolute inset-0 bg-[var(--color-sothebys-blue)]" />}
-        <div className="relative max-w-5xl mx-auto px-6 lg:px-12">
+      <section id="contact" className="py-16 md:py-24 bg-[#f5f3ef]">
+        <div className="max-w-5xl mx-auto px-6 lg:px-12">
           <div className="text-center mb-12">
-            <p className="text-[var(--rc-gold)] text-xs tracking-[0.3em] uppercase mb-3 text-center">Schedule a Private Showing</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-white">Inquire About This Property</h2>
+            <p className="text-[var(--rc-gold)] text-xs tracking-[0.3em] uppercase mb-3">Schedule a Private Showing</p>
+            <h2 className="font-serif text-3xl md:text-4xl text-[var(--rc-navy)]">Inquire About This Property</h2>
             <div className="w-16 h-[2px] bg-[var(--rc-gold)] mx-auto mt-5" />
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Agent info side */}
-            <div className="space-y-6">
-              {agent && (
-                <>
-                  <div className="flex items-start gap-5">
-                    {agent.imageUrl && (
-                      <div className="relative w-40 h-40 flex-shrink-0 overflow-hidden">
-                        <Image
-                          src={agent.imageUrl}
-                          alt={agent.name}
-                          fill
-                          className="object-cover object-top"
-                        />
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
-                      <Link
-                        href={`/team/${agent.slug.current}`}
-                        className="font-serif text-xl text-white hover:text-[var(--rc-gold)] transition-colors"
-                      >
-                        {agent.name}
-                      </Link>
-                      {agent.title && (
-                        <p className="text-sm text-white/60 mt-0.5">{agent.title}</p>
+          <div className="grid md:grid-cols-2 gap-0 shadow-lg overflow-hidden">
+            {/* Agent info side — dark navy card */}
+            <div className="relative bg-[var(--rc-navy)] p-10 flex flex-col justify-between">
+              {photos[0] && (
+                <div className="absolute inset-0">
+                  <Image src={photos[0]} alt="" fill className="object-cover opacity-15" sizes="50vw" />
+                </div>
+              )}
+              <div className="relative space-y-6">
+                {agent && (
+                  <>
+                    <div className="flex items-start gap-5">
+                      {agent.imageUrl && (
+                        <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden border-2 border-[var(--rc-gold)]/30">
+                          <Image
+                            src={agent.imageUrl}
+                            alt={agent.name}
+                            fill
+                            className="object-cover object-top"
+                          />
+                        </div>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {agent.phone && (
                       <div>
-                        <p className="text-[9px] tracking-[0.2em] text-[var(--rc-gold)] uppercase mb-1">Direct Line</p>
+                        <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
+                        <Link
+                          href={`/team/${agent.slug.current}`}
+                          className="font-serif text-xl text-white hover:text-[var(--rc-gold)] transition-colors"
+                        >
+                          {agent.name}
+                        </Link>
+                        {agent.title && (
+                          <p className="text-sm text-white/50 mt-0.5">{agent.title}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t border-white/10">
+                      {agent.phone && (
                         <a
                           href={`tel:${phoneHref(agent.phone)}`}
-                          className="text-white hover:text-[var(--rc-gold)] transition-colors"
+                          className="flex items-center gap-3 text-white/80 hover:text-[var(--rc-gold)] transition-colors text-sm"
                         >
+                          <svg className="w-4 h-4 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
                           {formatPhone(agent.phone)}
                         </a>
-                      </div>
-                    )}
-                    {agent.email && (
-                      <div>
-                        <p className="text-[9px] tracking-[0.2em] text-[var(--rc-gold)] uppercase mb-1">Email</p>
+                      )}
+                      {agent.email && (
                         <a
                           href={`mailto:${agent.email}`}
-                          className="text-white hover:text-[var(--rc-gold)] transition-colors"
+                          className="flex items-center gap-3 text-white/80 hover:text-[var(--rc-gold)] transition-colors text-sm"
                         >
+                          <svg className="w-4 h-4 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
                           {agent.email}
                         </a>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-
-              <p className="text-[var(--rc-brown)]/50 text-sm italic pt-4 border-t border-[var(--rc-brown)]/10">
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+              <p className="relative text-white/30 text-xs italic mt-8">
                 All inquiries are handled with the utmost discretion and confidentiality.
               </p>
             </div>
 
-            {/* Bottom Contact Form */}
-            <div className="bg-white border border-[var(--rc-brown)]/10 p-8">
+            {/* Contact Form — clean white card */}
+            <div className="bg-white p-10">
               {btmSubmitted ? (
                 <div className="text-center py-10">
                   <svg className="w-12 h-12 text-[var(--rc-gold)] mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
