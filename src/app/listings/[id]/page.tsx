@@ -10,7 +10,7 @@ import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import CustomOneListingContent from '@/components/CustomOneListingContent';
-import RCSothebysListingContent from '@/components/RCSothebysListingContent';
+import KlugListingContent from '@/components/KlugListingContent';
 
 export const revalidate = 60;
 
@@ -413,7 +413,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <RCSothebysListingContent
+      <KlugListingContent
         listing={listing}
         agent={null}
         coAgent={null}
