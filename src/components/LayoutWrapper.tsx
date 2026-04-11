@@ -26,16 +26,17 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   // Check if we're on a community page (no padding needed for full-height hero)
   const isCommunityPage = pathname?.startsWith('/communities/');
 
+  // Check if we're on a listing detail page (transparent header over hero)
+  const isListingDetail = pathname?.startsWith('/listings/') && pathname !== '/listings';
+
   // Check if we're on the listings page (no footer, fixed height layout)
   const isListingsPage = pathname === '/listings';
 
   // RC Sotheby's header is static (not fixed), so no forceBackground needed
   const isRCSothebys = template === 'rcsothebys-custom';
 
-  // Force blue header on ALL pages except homepage and community pages (which have transparent hero overlays)
-  // Skip for rcsothebys-custom since its header is always cream/static
-  // When pathname is null (initial render before hydration), default to transparent to avoid flash
-  const needsForceBackground = pathname != null && !isRCSothebys && !isHomepage && !isCommunityPage;
+  // Force blue header on ALL pages except those with transparent hero overlays
+  const needsForceBackground = pathname != null && !isRCSothebys && !isHomepage && !isCommunityPage && !isListingDetail;
 
   // Clone header element to add forceBackground prop if needed
   const headerWithProps = needsForceBackground && isValidElement(header)
@@ -65,7 +66,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
 
   // Regular pages: include header/footer with padding (except homepage, community pages, custom-one property pages, and rcsothebys-custom)
   // RC Sotheby's header is static so no padding offset needed
-  const needsPadding = !isRCSothebys && !isHomepage && !isCommunityPage && !isCustomOnePropertyPage;
+  const needsPadding = !isRCSothebys && !isHomepage && !isCommunityPage && !isCustomOnePropertyPage && !isListingDetail;
 
   return (
     <>
