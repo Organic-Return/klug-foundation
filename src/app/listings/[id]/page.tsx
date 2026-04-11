@@ -403,7 +403,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
     );
   }
 
-  // Non-exclusive listings: use the RC Sotheby's layout
+  // Non-exclusive listings: use the Klug custom template without agent
   return (
     <>
       {schemas.map((schema, index) => (
@@ -413,11 +413,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <RCSothebysListingContent
+      <CustomOneListingContent
         listing={listing}
         agent={null}
-        coAgent={null}
-        googleMapsApiKey={googleMapsApiKey}
+        documents={propertyEnhancement?.documents}
+        videos={propertyEnhancement?.videos}
       />
     </>
   );
