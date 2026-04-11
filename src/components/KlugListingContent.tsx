@@ -422,7 +422,7 @@ export default function KlugListingContent({
           </div>
         )}
 
-        <div className={`grid grid-cols-1 ${agent ? 'lg:grid-cols-2' : 'lg:grid-cols-[1fr_minmax(0,400px)]'} gap-12 lg:gap-16`}>
+        <div className={`grid grid-cols-1 ${agent ? 'lg:grid-cols-2' : 'lg:grid-cols-[2fr_1fr]'} gap-12 lg:gap-16`}>
           {/* Left Column: Property Details */}
           <div>
             {/* Compact Gallery — non-exclusive listings only */}
