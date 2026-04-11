@@ -94,6 +94,9 @@ export default function CustomOneListingContent({
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
+  // Video modal
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+
   // Media tabs
   type MediaTab = 'gallery' | 'videos' | 'tours' | 'documents';
   const [activeTab, setActiveTab] = useState<MediaTab>('gallery');
@@ -354,21 +357,77 @@ export default function CustomOneListingContent({
             <span className="text-white/80 text-sm tracking-wide">
               {heroIndex + 1} / {photos.length} Photos
             </span>
-            <button
-              onClick={() => {
-                setLightboxIndex(0);
-                setLightboxOpen(true);
-              }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              View Gallery
-            </button>
+            <div className="flex items-center gap-3">
+              {hasVideos && (
+                <button
+                  onClick={() => setVideoModalOpen(true)}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  View Video
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setLightboxIndex(0);
+                  setLightboxOpen(true);
+                }}
+                className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                View Gallery
+              </button>
+            </div>
           </div>
         )}
       </section>
+
+      {/* Video Modal */}
+      {videoModalOpen && hasVideos && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          onClick={() => setVideoModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-5xl mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setVideoModalOpen(false)}
+              className="absolute -top-12 right-0 text-white hover:text-[var(--rc-gold)] transition-colors"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="aspect-[16/9] bg-black">
+              <iframe
+                src={allVideos[0].embedUrl}
+                className="w-full h-full"
+                allow="autoplay; fullscreen; encrypted-media"
+                allowFullScreen
+                title={allVideos[0].title}
+              />
+            </div>
+            <div className="bg-[var(--rc-navy)] p-4 flex items-center justify-between">
+              <div>
+                <p className="text-white font-semibold">{displayPrice}</p>
+                <p className="text-white/60 text-sm font-light">{streetAddress}, {cityState}</p>
+              </div>
+              <button
+                onClick={() => setVideoModalOpen(false)}
+                className="text-[11px] uppercase tracking-wider text-[var(--rc-gold)] hover:text-white transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════
           PROPERTY INFO BAR
