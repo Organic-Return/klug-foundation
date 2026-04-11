@@ -874,15 +874,14 @@ export default function CustomOneListingContent({
           MAP SECTION
           ═══════════════════════════════════════════ */}
       {hasMap && (
-        <section id="location" className="py-16 md:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12">
-            <div className="text-center mb-10">
-              <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">Location</h2>
-              <div className="w-12 h-[2px] bg-[var(--rc-gold)] mx-auto mt-4 mb-3" />
-              <p className="text-[var(--rc-brown)]/60 text-sm">{fullAddress}</p>
-            </div>
+        <section id="location" className="bg-white">
+          <div className="text-center py-12">
+            <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">Location</h2>
+            <div className="w-12 h-[2px] bg-[var(--rc-gold)] mx-auto mt-4 mb-3" />
+            <p className="text-[var(--rc-brown)]/60 text-sm">{fullAddress}</p>
+          </div>
 
-            <div className="relative h-[400px] md:h-[500px] border border-[var(--rc-brown)]/10">
+            <div className="relative h-[500px] md:h-[600px]">
               <PropertyMap
                 latitude={listing.latitude!}
                 longitude={listing.longitude!}
@@ -891,7 +890,7 @@ export default function CustomOneListingContent({
               />
             </div>
 
-            <div className="flex justify-center mt-6">
+          <div className="flex justify-center py-6">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${listing.latitude},${listing.longitude}`}
                 target="_blank"
@@ -904,7 +903,6 @@ export default function CustomOneListingContent({
                 </svg>
               </a>
             </div>
-          </div>
         </section>
       )}
 
