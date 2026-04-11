@@ -874,11 +874,11 @@ export default function CustomOneListingContent({
           MAP SECTION
           ═══════════════════════════════════════════ */}
       {hasMap && (
-        <section id="location" className="bg-white">
+        <section id="location" className="bg-[var(--color-sothebys-blue)]">
           <div className="text-center py-12">
-            <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">Location</h2>
+            <h2 className="font-serif text-2xl md:text-3xl text-white">Location</h2>
             <div className="w-12 h-[2px] bg-[var(--rc-gold)] mx-auto mt-4 mb-3" />
-            <p className="text-[var(--rc-brown)]/60 text-sm">{fullAddress}</p>
+            <p className="text-white/60 text-sm">{fullAddress}</p>
           </div>
 
             <div className="relative h-[500px] md:h-[600px]">
