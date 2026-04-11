@@ -922,11 +922,25 @@ export default function CustomOneListingContent({
       {/* ═══════════════════════════════════════════
           BOTTOM CONTACT SECTION
           ═══════════════════════════════════════════ */}
-      <section id="contact" className="py-16 md:py-24 bg-[var(--rc-cream)]">
-        <div className="max-w-5xl mx-auto px-6 lg:px-12">
+      <section id="contact" className="relative py-16 md:py-24 overflow-hidden">
+        {/* Background image with overlay */}
+        {photos[0] && (
+          <div className="absolute inset-0">
+            <Image
+              src={photos[0]}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+            <div className="absolute inset-0 bg-[var(--color-sothebys-blue)]/85" />
+          </div>
+        )}
+        {!photos[0] && <div className="absolute inset-0 bg-[var(--color-sothebys-blue)]" />}
+        <div className="relative max-w-5xl mx-auto px-6 lg:px-12">
           <div className="text-center mb-12">
             <p className="text-[var(--rc-gold)] text-xs tracking-[0.3em] uppercase mb-3 text-center">Schedule a Private Showing</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-[var(--rc-navy)]">Inquire About This Property</h2>
+            <h2 className="font-serif text-3xl md:text-4xl text-white">Inquire About This Property</h2>
             <div className="w-16 h-[2px] bg-[var(--rc-gold)] mx-auto mt-5" />
           </div>
 
@@ -950,12 +964,12 @@ export default function CustomOneListingContent({
                       <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
                       <Link
                         href={`/team/${agent.slug.current}`}
-                        className="font-serif text-xl text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
+                        className="font-serif text-xl text-white hover:text-[var(--rc-gold)] transition-colors"
                       >
                         {agent.name}
                       </Link>
                       {agent.title && (
-                        <p className="text-sm text-[var(--rc-brown)]/60 mt-0.5">{agent.title}</p>
+                        <p className="text-sm text-white/60 mt-0.5">{agent.title}</p>
                       )}
                     </div>
                   </div>
@@ -966,7 +980,7 @@ export default function CustomOneListingContent({
                         <p className="text-[9px] tracking-[0.2em] text-[var(--rc-gold)] uppercase mb-1">Direct Line</p>
                         <a
                           href={`tel:${phoneHref(agent.phone)}`}
-                          className="text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
+                          className="text-white hover:text-[var(--rc-gold)] transition-colors"
                         >
                           {formatPhone(agent.phone)}
                         </a>
@@ -977,7 +991,7 @@ export default function CustomOneListingContent({
                         <p className="text-[9px] tracking-[0.2em] text-[var(--rc-gold)] uppercase mb-1">Email</p>
                         <a
                           href={`mailto:${agent.email}`}
-                          className="text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
+                          className="text-white hover:text-[var(--rc-gold)] transition-colors"
                         >
                           {agent.email}
                         </a>
