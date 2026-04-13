@@ -727,7 +727,7 @@ export default function KlugListingContent({
             <div className="pt-4">
               <h4
                 className="text-sm font-bold uppercase tracking-[0.1em] mb-3"
-                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
               >
                 Share Property
               </h4>
@@ -913,7 +913,7 @@ export default function KlugListingContent({
         <div className="text-center mb-10 md:mb-14">
           <h2
             className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em]"
-            style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
+            style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#ffffff' }}
           >
             Details
           </h2>
@@ -924,7 +924,7 @@ export default function KlugListingContent({
           <div>
             <h3
               className="text-sm font-bold uppercase tracking-[0.15em] mb-3"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
             >
               Listing Overview
             </h3>
@@ -983,7 +983,7 @@ export default function KlugListingContent({
           <div>
             <h3
               className="text-sm font-bold uppercase tracking-[0.15em] mb-3"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
             >
               Essential Info
             </h3>
@@ -1047,7 +1047,7 @@ export default function KlugListingContent({
             <div>
               <h3
                 className="text-sm font-bold uppercase tracking-[0.15em] mb-3"
-                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
               >
                 Features
               </h3>
@@ -1110,7 +1110,7 @@ export default function KlugListingContent({
             <div>
               <h3
                 className="text-sm font-bold uppercase tracking-[0.15em] mb-3"
-                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
               >
                 Amenities
               </h3>
@@ -1204,7 +1204,7 @@ export default function KlugListingContent({
           <div className="text-center mb-10">
             <h2
               className="text-3xl md:text-4xl lg:text-5xl font-light uppercase tracking-[0.08em] mb-4"
-              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#c19b5f' }}
+              style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', lineHeight: '1.1em', color: '#ffffff' }}
             >
               Inquire About This Property
             </h2>
