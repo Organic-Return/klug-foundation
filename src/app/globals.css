@@ -73,17 +73,28 @@ p {
 }
 
 /* Headings - elegant serif typography */
-h1, h2, h3, h4, h5, h6 {
+:not(#sanity-studio) > h1,
+:not(#sanity-studio) > h2,
+:not(#sanity-studio) > h3,
+:not(#sanity-studio) > h4,
+:not(#sanity-studio) > h5,
+:not(#sanity-studio) > h6,
+:where(:not(#sanity-studio, #sanity-studio *)) h1,
+:where(:not(#sanity-studio, #sanity-studio *)) h2,
+:where(:not(#sanity-studio, #sanity-studio *)) h3,
+:where(:not(#sanity-studio, #sanity-studio *)) h4,
+:where(:not(#sanity-studio, #sanity-studio *)) h5,
+:where(:not(#sanity-studio, #sanity-studio *)) h6 {
   font-family: var(--font-lora), Georgia, serif;
   font-weight: 400;
-  line-height: 1.3; /* Slightly more line height for better readability */
+  line-height: 1.3;
   letter-spacing: -0.02em;
   margin-top: 1.5em;
   margin-bottom: 0.75em;
 }
 
 /* H1: Hero/Page titles - 46px */
-h1 {
+h1:not(#sanity-studio *, [data-ui] *) {
   display: block;
   font-size: 46px;
   font-weight: 400;
@@ -98,82 +109,84 @@ h1 {
 }
 
 /* H2: Section titles - 32-56px */
-h2 {
-  font-size: clamp(2rem, 4vw, 3.5rem); /* 32px-56px */
+h2:not(#sanity-studio *, [data-ui] *) {
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 400;
   line-height: 1.25;
   letter-spacing: -0.025em;
 }
 
 /* H3: Subsection titles - 24-40px */
-h3 {
-  font-size: clamp(1.5rem, 3vw, 2.5rem); /* 24px-40px */
+h3:not(#sanity-studio *, [data-ui] *) {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.02em;
 }
 
 /* H4: Card titles - 20-30px */
-h4 {
-  font-size: clamp(1.25rem, 2vw, 1.875rem); /* 20px-30px */
+h4:not(#sanity-studio *, [data-ui] *) {
+  font-size: clamp(1.25rem, 2vw, 1.875rem);
   font-weight: 600;
   line-height: 1.4;
 }
 
 /* H5: Small headings - 18-24px */
-h5 {
-  font-size: clamp(1.125rem, 1.5vw, 1.5rem); /* 18px-24px */
+h5:not(#sanity-studio *, [data-ui] *) {
+  font-size: clamp(1.125rem, 1.5vw, 1.5rem);
   font-weight: 600;
   line-height: 1.4;
 }
 
 /* H6: Smallest headings - 16-20px */
-h6 {
-  font-size: clamp(1rem, 1vw, 1.25rem); /* 16px-20px */
+h6:not(#sanity-studio *, [data-ui] *) {
+  font-size: clamp(1rem, 1vw, 1.25rem);
   font-weight: 600;
   line-height: 1.5;
 }
 
 /* Links */
-a {
+a:not(#sanity-studio *, [data-ui] *) {
   font-family: inherit;
   text-decoration: none;
   transition: color 0.2s ease-in-out;
 }
 
 /* Buttons - base font family only, size controlled via Tailwind classes */
-button, .btn {
+button:not(#sanity-studio *, [data-ui] *), .btn {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
 /* Input elements */
-input, textarea, select {
+input:not(#sanity-studio *, [data-ui] *),
+textarea:not(#sanity-studio *, [data-ui] *),
+select:not(#sanity-studio *, [data-ui] *) {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: 1rem; /* 16px - prevents zoom on iOS */
+  font-size: 1rem;
   font-weight: 400;
   letter-spacing: 0.01em;
   line-height: 1.5;
 }
 
 /* Labels and small text */
-label {
+label:not(#sanity-studio *, [data-ui] *) {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: 0.875rem; /* 14px */
+  font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   line-height: 1.5;
 }
 
-small {
+small:not(#sanity-studio *, [data-ui] *) {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  font-size: 0.75rem; /* 12px - minimum for readability */
+  font-size: 0.75rem;
   font-weight: 400;
   letter-spacing: 0.02em;
   line-height: 1.5;
 }
 
 /* Address elements */
-address {
+address:not(#sanity-studio *, [data-ui] *) {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-style: normal;
   letter-spacing: 0.01em;
