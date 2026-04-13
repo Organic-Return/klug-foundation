@@ -622,7 +622,7 @@ export default function KlugListingContent({
             <div className="bg-[var(--rc-navy)] p-6 md:p-8">
               <h3
                 className="text-sm font-bold uppercase tracking-[0.08em] mb-6"
-                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
               >
                 Request More Information
               </h3>
@@ -683,8 +683,8 @@ export default function KlugListingContent({
                 {/* Schedule a Property Tour */}
                 <div className="pt-4">
                   <h4
-                    className="text-[10px] font-bold uppercase tracking-[0.08em] md:tracking-[0.15em] mb-3 whitespace-nowrap"
-                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
+                    className="text-sm font-bold uppercase tracking-[0.08em] mb-3"
+                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
                   >
                     Schedule a Property Tour
                   </h4>
