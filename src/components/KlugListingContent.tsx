@@ -621,7 +621,7 @@ export default function KlugListingContent({
             {/* Request More Information Form */}
             <div className="bg-[var(--rc-navy)] p-6 md:p-8">
               <h3
-                className="text-sm md:text-lg font-bold uppercase tracking-[0.08em] md:tracking-[0.15em] mb-6 whitespace-nowrap"
+                className="text-sm font-bold uppercase tracking-[0.08em] mb-6"
                 style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#c19b5f' }}
               >
                 Request More Information
