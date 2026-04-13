@@ -380,42 +380,40 @@ export default function KlugListingContent({
       <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-7' : ''}`}>
         {/* Property Info Bar — full width, non-exclusive only */}
         {!agent && (
-          <div className="bg-white border-b border-[var(--rc-brown)]/10 mb-6">
-            <div className="max-w-7xl mx-auto px-6 lg:px-12 py-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
-                    {listing.address?.split(',')[0] || listing.address}
-                  </h1>
-                  <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
-                    {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-6 md:gap-8">
-                  {listing.bedrooms !== null && (
-                    <div className="text-center">
-                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bedrooms}</p>
-                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Beds</p>
-                    </div>
-                  )}
-                  {listing.bathrooms !== null && (
-                    <div className="text-center">
-                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bathrooms}</p>
-                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Baths</p>
-                    </div>
-                  )}
-                  {listing.square_feet && (
-                    <div className="text-center">
-                      <p className="text-lg font-light text-[var(--rc-navy)]">{listing.square_feet.toLocaleString()}</p>
-                      <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Sq Ft</p>
-                    </div>
-                  )}
-                  <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
-                  <div>
-                    <p className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">
-                      {formatPrice(listing.list_price)}
-                    </p>
+          <div className="border-b border-[var(--rc-brown)]/10 mb-6 py-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
+                  {listing.address?.split(',')[0] || listing.address}
+                </h1>
+                <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
+                  {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-6 md:gap-8">
+                {listing.bedrooms !== null && (
+                  <div className="text-center">
+                    <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bedrooms}</p>
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Beds</p>
                   </div>
+                )}
+                {listing.bathrooms !== null && (
+                  <div className="text-center">
+                    <p className="text-lg font-light text-[var(--rc-navy)]">{listing.bathrooms}</p>
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Baths</p>
+                  </div>
+                )}
+                {listing.square_feet && (
+                  <div className="text-center">
+                    <p className="text-lg font-light text-[var(--rc-navy)]">{listing.square_feet.toLocaleString()}</p>
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Sq Ft</p>
+                  </div>
+                )}
+                <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
+                <div>
+                  <p className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">
+                    {formatPrice(listing.list_price)}
+                  </p>
                 </div>
               </div>
             </div>
