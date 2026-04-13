@@ -384,11 +384,8 @@ export default function KlugListingContent({
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
-                  {listing.address?.split(',')[0] || listing.address}
+                  {listing.address}{listing.city ? `, ${listing.city}` : ''}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
                 </h1>
-                <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
-                  {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
-                </p>
               </div>
               <div className="flex flex-wrap items-center gap-6 md:gap-8">
                 {listing.bedrooms !== null && (
