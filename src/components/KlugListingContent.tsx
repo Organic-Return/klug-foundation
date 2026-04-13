@@ -380,7 +380,7 @@ export default function KlugListingContent({
       <div className={`max-w-[1400px] mx-auto px-6 md:px-8 pb-16 md:pb-24 ${!agent ? 'pt-7' : ''}`}>
         {/* Property Info Bar — full width, non-exclusive only */}
         {!agent && (
-          <div className="border-b border-[var(--rc-brown)]/10 mb-6 py-6">
+          <div className="border-b border-[var(--rc-brown)]/10 mb-4 py-3">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
                 <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
