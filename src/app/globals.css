@@ -73,18 +73,17 @@ p {
 }
 
 /* Headings - elegant serif typography */
-:not(#sanity-studio) > h1,
-:not(#sanity-studio) > h2,
-:not(#sanity-studio) > h3,
-:not(#sanity-studio) > h4,
-:not(#sanity-studio) > h5,
-:not(#sanity-studio) > h6,
-:where(:not(#sanity-studio, #sanity-studio *)) h1,
-:where(:not(#sanity-studio, #sanity-studio *)) h2,
-:where(:not(#sanity-studio, #sanity-studio *)) h3,
-:where(:not(#sanity-studio, #sanity-studio *)) h4,
-:where(:not(#sanity-studio, #sanity-studio *)) h5,
-:where(:not(#sanity-studio, #sanity-studio *)) h6 {
+/* Site typography — scoped to avoid leaking into Sanity Studio */
+.klug-template h1, .klug-template h2, .klug-template h3,
+.klug-template h4, .klug-template h5, .klug-template h6,
+.custom-one-template h1, .custom-one-template h2, .custom-one-template h3,
+.custom-one-template h4, .custom-one-template h5, .custom-one-template h6,
+.luxury-template h1, .luxury-template h2, .luxury-template h3,
+.luxury-template h4, .luxury-template h5, .luxury-template h6,
+.modern-template h1, .modern-template h2, .modern-template h3,
+.modern-template h4, .modern-template h5, .modern-template h6,
+.rcsothebys-template h1, .rcsothebys-template h2, .rcsothebys-template h3,
+.rcsothebys-template h4, .rcsothebys-template h5, .rcsothebys-template h6 {
   font-family: var(--font-lora), Georgia, serif;
   font-weight: 400;
   line-height: 1.3;
@@ -94,7 +93,7 @@ p {
 }
 
 /* H1: Hero/Page titles - 46px */
-h1:not(#sanity-studio *, [data-ui] *) {
+.klug-template h1, .custom-one-template h1, .luxury-template h1, .modern-template h1, .rcsothebys-template h1 {
   display: block;
   font-size: 46px;
   font-weight: 400;
@@ -104,12 +103,10 @@ h1:not(#sanity-studio *, [data-ui] *) {
   letter-spacing: 1px;
   margin-block-start: 0.67em;
   margin-block-end: 0.67em;
-  margin-inline-start: 0px;
-  margin-inline-end: 0px;
 }
 
 /* H2: Section titles - 32-56px */
-h2:not(#sanity-studio *, [data-ui] *) {
+.klug-template h2, .custom-one-template h2, .luxury-template h2, .modern-template h2, .rcsothebys-template h2 {
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 400;
   line-height: 1.25;
@@ -117,7 +114,7 @@ h2:not(#sanity-studio *, [data-ui] *) {
 }
 
 /* H3: Subsection titles - 24-40px */
-h3:not(#sanity-studio *, [data-ui] *) {
+.klug-template h3, .custom-one-template h3, .luxury-template h3, .modern-template h3, .rcsothebys-template h3 {
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 600;
   line-height: 1.3;
@@ -125,42 +122,44 @@ h3:not(#sanity-studio *, [data-ui] *) {
 }
 
 /* H4: Card titles - 20-30px */
-h4:not(#sanity-studio *, [data-ui] *) {
+.klug-template h4, .custom-one-template h4, .luxury-template h4, .modern-template h4, .rcsothebys-template h4 {
   font-size: clamp(1.25rem, 2vw, 1.875rem);
   font-weight: 600;
   line-height: 1.4;
 }
 
 /* H5: Small headings - 18-24px */
-h5:not(#sanity-studio *, [data-ui] *) {
+.klug-template h5, .custom-one-template h5, .luxury-template h5, .modern-template h5, .rcsothebys-template h5 {
   font-size: clamp(1.125rem, 1.5vw, 1.5rem);
   font-weight: 600;
   line-height: 1.4;
 }
 
 /* H6: Smallest headings - 16-20px */
-h6:not(#sanity-studio *, [data-ui] *) {
+.klug-template h6, .custom-one-template h6, .luxury-template h6, .modern-template h6, .rcsothebys-template h6 {
   font-size: clamp(1rem, 1vw, 1.25rem);
   font-weight: 600;
   line-height: 1.5;
 }
 
-/* Links */
-a:not(#sanity-studio *, [data-ui] *) {
+/* Links — site only */
+.klug-template a, .custom-one-template a, .luxury-template a, .modern-template a, .rcsothebys-template a {
   font-family: inherit;
   text-decoration: none;
   transition: color 0.2s ease-in-out;
 }
 
-/* Buttons - base font family only, size controlled via Tailwind classes */
-button:not(#sanity-studio *, [data-ui] *), .btn {
+/* Buttons — site only */
+.klug-template button, .custom-one-template button, .luxury-template button, .modern-template button, .rcsothebys-template button, .btn {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
 }
 
-/* Input elements */
-input:not(#sanity-studio *, [data-ui] *),
-textarea:not(#sanity-studio *, [data-ui] *),
-select:not(#sanity-studio *, [data-ui] *) {
+/* Input elements — site only */
+.klug-template input, .klug-template textarea, .klug-template select,
+.custom-one-template input, .custom-one-template textarea, .custom-one-template select,
+.luxury-template input, .luxury-template textarea, .luxury-template select,
+.modern-template input, .modern-template textarea, .modern-template select,
+.rcsothebys-template input, .rcsothebys-template textarea, .rcsothebys-template select {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-size: 1rem;
   font-weight: 400;
@@ -168,8 +167,8 @@ select:not(#sanity-studio *, [data-ui] *) {
   line-height: 1.5;
 }
 
-/* Labels and small text */
-label:not(#sanity-studio *, [data-ui] *) {
+/* Labels — site only */
+.klug-template label, .custom-one-template label, .luxury-template label, .modern-template label, .rcsothebys-template label {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
@@ -177,7 +176,8 @@ label:not(#sanity-studio *, [data-ui] *) {
   line-height: 1.5;
 }
 
-small:not(#sanity-studio *, [data-ui] *) {
+/* Small text — site only */
+.klug-template small, .custom-one-template small, .luxury-template small, .modern-template small, .rcsothebys-template small {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-size: 0.75rem;
   font-weight: 400;
@@ -185,8 +185,8 @@ small:not(#sanity-studio *, [data-ui] *) {
   line-height: 1.5;
 }
 
-/* Address elements */
-address:not(#sanity-studio *, [data-ui] *) {
+/* Address elements — site only */
+.klug-template address, .custom-one-template address, .luxury-template address, .modern-template address, .rcsothebys-template address {
   font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   font-style: normal;
   letter-spacing: 0.01em;
