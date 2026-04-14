@@ -409,15 +409,6 @@ export default function HomepageContent({
           />
         )}
 
-        {/* In the News Section */}
-        {inTheNews?.enabled !== false && inTheNews?.articles && inTheNews.articles.length > 0 && (
-          <InTheNews
-            title={inTheNews.title}
-            subtitle={inTheNews.subtitle}
-            articles={inTheNews.articles}
-          />
-        )}
-
         {/* Featured Properties Carousel Section */}
         {featuredPropertiesCarousel?.enabled !== false && (
           <FeaturedAspenProperties
