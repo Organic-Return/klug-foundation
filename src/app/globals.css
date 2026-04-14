@@ -1566,68 +1566,18 @@ p {
 
 /* ========================================
    SANITY STUDIO RESET
-   Undo all site typography/color overrides
-   so Sanity Studio uses its default styles.
+   Undo Tailwind preflight and site styles
+   so Sanity Studio renders with its own CSS.
    ======================================== */
-#sanity-studio h1,
-#sanity-studio h2,
-#sanity-studio h3,
-#sanity-studio h4,
-#sanity-studio h5,
-#sanity-studio h6,
-#sanity-studio p,
-#sanity-studio a,
-#sanity-studio button,
-#sanity-studio input,
-#sanity-studio textarea,
-#sanity-studio select,
-#sanity-studio label,
-#sanity-studio small,
-#sanity-studio span,
-#sanity-studio div {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  letter-spacing: normal !important;
-  text-transform: none !important;
+#sanity-studio *,
+#sanity-studio *::before,
+#sanity-studio *::after {
+  all: revert;
+  box-sizing: revert;
 }
 
-#sanity-studio h1,
-#sanity-studio h2,
-#sanity-studio h3,
-#sanity-studio h4,
-#sanity-studio h5,
-#sanity-studio h6 {
-  font-size: revert !important;
-  font-weight: revert !important;
-  line-height: revert !important;
-  margin: revert !important;
-}
-
-#sanity-studio p {
-  font-size: revert !important;
-  line-height: revert !important;
-  max-width: none !important;
-  margin-bottom: revert !important;
-}
-
-#sanity-studio a {
-  text-decoration: revert !important;
-}
-
-/* Also reset via [data-ui] for Sanity elements rendered outside #sanity-studio */
-.klug-template [data-ui],
-.klug-template [data-ui] *,
-.klug-fonts-classic [data-ui],
-.klug-fonts-classic [data-ui] * {
-  font-family: revert !important;
-  font-weight: revert !important;
-  font-style: revert !important;
-  font-size: revert !important;
-  line-height: revert !important;
-  color: revert !important;
-  background-color: revert !important;
-  border-color: revert !important;
-  border-radius: revert !important;
-  padding: revert !important;
-  text-transform: revert !important;
-  letter-spacing: revert !important;
+#sanity-studio {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: normal;
+  -webkit-text-size-adjust: 100%;
 }
