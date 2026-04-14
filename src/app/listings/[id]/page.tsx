@@ -313,6 +313,11 @@ export default async function ListingPage({ params }: ListingPageProps) {
     notFound();
   }
 
+  // Only show active or pending listings
+  if (listing.status !== 'Active' && listing.status !== 'Pending') {
+    notFound();
+  }
+
   const template = settings?.template || 'classic';
 
   // Fetch property enhancements (videos/documents) from Sanity
