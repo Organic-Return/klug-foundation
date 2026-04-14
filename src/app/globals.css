@@ -1566,18 +1566,88 @@ p {
 
 /* ========================================
    SANITY STUDIO RESET
-   Undo Tailwind preflight and site styles
-   so Sanity Studio renders with its own CSS.
+   Undo Tailwind preflight inside Sanity Studio
+   so Studio's own CSS takes effect.
    ======================================== */
 #sanity-studio *,
 #sanity-studio *::before,
 #sanity-studio *::after {
-  all: revert;
-  box-sizing: revert;
+  border-width: revert !important;
+  border-style: revert !important;
+  border-color: revert !important;
+  box-sizing: revert !important;
+  line-height: revert !important;
+  margin: revert !important;
+  padding: revert !important;
 }
 
-#sanity-studio {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  line-height: normal;
-  -webkit-text-size-adjust: 100%;
+#sanity-studio h1, #sanity-studio h2, #sanity-studio h3,
+#sanity-studio h4, #sanity-studio h5, #sanity-studio h6 {
+  font-size: revert !important;
+  font-weight: revert !important;
+  margin: revert !important;
+}
+
+#sanity-studio img, #sanity-studio svg, #sanity-studio video,
+#sanity-studio canvas, #sanity-studio audio, #sanity-studio iframe,
+#sanity-studio embed, #sanity-studio object {
+  display: revert !important;
+  vertical-align: revert !important;
+  max-width: revert !important;
+  height: revert !important;
+}
+
+#sanity-studio ol, #sanity-studio ul, #sanity-studio menu {
+  list-style: revert !important;
+  margin: revert !important;
+  padding: revert !important;
+}
+
+#sanity-studio a {
+  color: revert !important;
+  text-decoration: revert !important;
+}
+
+#sanity-studio button, #sanity-studio input, #sanity-studio optgroup,
+#sanity-studio select, #sanity-studio textarea {
+  font-family: revert !important;
+  font-feature-settings: revert !important;
+  font-variation-settings: revert !important;
+  font-size: revert !important;
+  font-weight: revert !important;
+  line-height: revert !important;
+  letter-spacing: revert !important;
+  color: revert !important;
+  margin: revert !important;
+  padding: revert !important;
+}
+
+#sanity-studio table {
+  border-collapse: revert !important;
+  border-spacing: revert !important;
+}
+
+#sanity-studio blockquote, #sanity-studio dl, #sanity-studio dd,
+#sanity-studio figure, #sanity-studio p, #sanity-studio pre {
+  margin: revert !important;
+}
+
+#sanity-studio fieldset {
+  margin: revert !important;
+  padding: revert !important;
+}
+
+#sanity-studio hr {
+  border-top-width: revert !important;
+  height: revert !important;
+  color: revert !important;
+}
+
+#sanity-studio textarea {
+  resize: revert !important;
+}
+
+#sanity-studio ::placeholder {
+  opacity: revert !important;
+  color: revert !important;
 }
