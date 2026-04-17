@@ -54,7 +54,7 @@ export default function ClassicFeaturedProperty({
       const windowHeight = window.innerHeight;
       if (rect.bottom > 0 && rect.top < windowHeight) {
         const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
-        setParallaxOffset((progress - 0.5) * 150);
+        setParallaxOffset((progress - 0.5) * 250);
       }
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -137,7 +137,7 @@ export default function ClassicFeaturedProperty({
   return (
     <section ref={sectionRef} className="relative w-full aspect-video overflow-hidden">
       {/* Background: Videos or Image with parallax */}
-      <div className="absolute -top-[15%] -bottom-[15%] left-0 right-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
+      <div className="absolute -top-[25%] -bottom-[25%] left-0 right-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
         {hasVideos ? (
           <>
             {effectiveVideos.map((videoUrl, index) => (
