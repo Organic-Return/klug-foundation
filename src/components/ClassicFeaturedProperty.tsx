@@ -44,6 +44,23 @@ export default function ClassicFeaturedProperty({
   const [activeVideo, setActiveVideo] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [parallaxOffset, setParallaxOffset] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!sectionRef.current) return;
+      const rect = sectionRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      if (rect.bottom > 0 && rect.top < windowHeight) {
+        const progress = (windowHeight - rect.top) / (windowHeight + rect.height);
+        setParallaxOffset((progress - 0.5) * 100);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Test videos — remove once real videos are added via Sanity CMS
   const TEST_VIDEOS = [
@@ -118,9 +135,9 @@ export default function ClassicFeaturedProperty({
   const mainPhoto = property.photos?.[0];
 
   return (
-    <section className="relative w-full aspect-video overflow-hidden">
+    <section ref={sectionRef} className="relative w-full aspect-video overflow-hidden">
       {/* Background: Videos or Image with parallax */}
-      <div className="absolute inset-0" style={{ backgroundAttachment: 'fixed' }}>
+      <div className="absolute inset-[-15%] left-0 right-0" style={{ transform: `translateY(${parallaxOffset}px)` }}>
         {hasVideos ? (
           <>
             {effectiveVideos.map((videoUrl, index) => (
