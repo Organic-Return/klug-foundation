@@ -171,7 +171,7 @@ export default function CityStats({
             <button
               key={filter.value}
               onClick={() => handlePropertyFilterChange(filter.value)}
-              className={`klug-stats-tab px-1 pb-2 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border-b-2 ${
+              className={`klug-stats-tab px-1 pb-2 text-xs uppercase tracking-[0.15em] font-semibold transition-all duration-300 border-b-2 ${
                 propertyFilter === filter.value
                   ? 'text-[#c9ac77] border-[#c9ac77]'
                   : 'text-white/50 border-transparent hover:text-white hover:border-white/30'
@@ -188,7 +188,7 @@ export default function CityStats({
             <button
               key={city}
               onClick={() => setActiveCity(city)}
-              className={`klug-stats-tab px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-light transition-all duration-300 border ${
+              className={`klug-stats-tab px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold transition-all duration-300 border ${
                 activeCity === city
                   ? 'bg-[#c9ac77] text-white border-[#c9ac77]'
                   : 'bg-transparent text-white/60 border-white/30 hover:border-[#c9ac77] hover:text-white'
