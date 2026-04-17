@@ -218,37 +218,37 @@ export default function CityStats({
               {/* Top Row - Key Metrics */}
               <div className="grid grid-cols-2 md:grid-cols-4 border-b border-[#c9ac77]/20">
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
-                  <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">
+                  <p className="text-[2rem] md:text-[2.5rem] font-semibold text-[#c9ac77] mb-2">
                     {activeCityStats.totalActiveListings}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Total Active Listings
                   </p>
                 </div>
 
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20 md:border-r">
-                  <p className="text-3xl md:text-4xl font-light text-[#c9ac77] mb-2">
+                  <p className="text-[2rem] md:text-[2.5rem] font-semibold text-[#c9ac77] mb-2">
                     {activeCityStats.totalUnderContract}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Under Contract
                   </p>
                 </div>
 
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
-                  <p className="text-2xl md:text-3xl font-light text-white mb-2">
+                  <p className="text-[1.625rem] md:text-[2rem] font-semibold text-white mb-2">
                     {formatPrice(activeCityStats.avgListPrice)}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Avg. Price
                   </p>
                 </div>
 
                 <div className="p-6 md:p-8 text-center">
-                  <p className="text-2xl md:text-3xl font-light text-white mb-2">
+                  <p className="text-[1.625rem] md:text-[2rem] font-semibold text-white mb-2">
                     {activeCityStats.avgDaysOnMarket != null ? `${activeCityStats.avgDaysOnMarket}` : 'N/A'}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Avg. Days on Market
                   </p>
                 </div>
@@ -257,28 +257,28 @@ export default function CityStats({
               {/* Bottom Row - Secondary Metrics */}
               <div className={`grid ${propertyFilter !== 'land' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-3'}`}>
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
-                  <p className="text-xl md:text-2xl font-light text-[#c9ac77] mb-2">
+                  <p className="text-[1.375rem] md:text-[1.625rem] font-semibold text-[#c9ac77] mb-2">
                     {formatPrice(activeCityStats.highestPrice)}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Highest Listing
                   </p>
                 </div>
 
                 <div className="p-6 md:p-8 text-center border-r border-[#c9ac77]/20">
-                  <p className="text-xl md:text-2xl font-light text-white mb-2">
+                  <p className="text-[1.375rem] md:text-[1.625rem] font-semibold text-white mb-2">
                     {formatPrice(activeCityStats.lowestPrice)}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Lowest Listing
                   </p>
                 </div>
 
                 <div className={`p-6 md:p-8 text-center ${propertyFilter !== 'land' ? 'border-r border-[#c9ac77]/20' : ''}`}>
-                  <p className="text-xl md:text-2xl font-light text-white mb-2">
+                  <p className="text-[1.375rem] md:text-[1.625rem] font-semibold text-white mb-2">
                     {activeCityStats.avgSoldPrice ? formatPrice(activeCityStats.avgSoldPrice) : 'N/A'}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                     Avg. Sold Price (1 Yr)
                   </p>
                 </div>
@@ -286,10 +286,10 @@ export default function CityStats({
                 {/* Avg Price/Sq Ft - only for single-family and condos */}
                 {propertyFilter !== 'land' && (
                   <div className="p-6 md:p-8 text-center">
-                    <p className="text-xl md:text-2xl font-light text-white mb-2">
+                    <p className="text-[1.375rem] md:text-[1.625rem] font-semibold text-white mb-2">
                       {activeCityStats.avgPricePerSqFt ? `$${activeCityStats.avgPricePerSqFt.toLocaleString()}` : 'N/A'}
                     </p>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-light">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 font-semibold">
                       Avg. Price/Sq Ft
                     </p>
                   </div>
