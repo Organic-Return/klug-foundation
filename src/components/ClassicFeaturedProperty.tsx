@@ -19,7 +19,6 @@ interface Property {
   mls_number: string;
   status: string;
   property_type: string;
-  description: string | null;
 }
 
 interface ClassicFeaturedPropertyProps {
@@ -282,17 +281,6 @@ export default function ClassicFeaturedProperty({
           </Link>
         </div>
       </div>
-
-      {/* Property Description Bar */}
-      {property.description && (
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-black/50 backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-6 md:px-12 py-4">
-            <p className="text-white/80 text-sm font-light leading-relaxed line-clamp-2">
-              {property.description}
-            </p>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

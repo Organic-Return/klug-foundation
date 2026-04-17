@@ -389,27 +389,6 @@ export default function HomepageContent({
           />
         )}
 
-        {/* About Klug Properties — SEO Content Section */}
-        <section className="py-12 md:py-16 bg-white">
-          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
-            <div className="text-center mb-8">
-              <h2 className="font-serif text-[var(--color-sothebys-blue)] mb-4">Aspen Luxury Real Estate</h2>
-              <div className="w-16 h-px bg-[var(--color-gold)] mx-auto" />
-            </div>
-            <div className="text-[#4a4a4a] text-base font-light leading-relaxed space-y-4">
-              <p>
-                Klug Properties is a premier luxury real estate team operating under the Aspen Snowmass Sotheby&apos;s International Realty brand. With decades of experience in Colorado&apos;s most prestigious mountain communities, we specialize in representing exceptional homes across Aspen, Snowmass Village, Basalt, Carbondale, Woody Creek, and the greater Roaring Fork Valley.
-              </p>
-              <p>
-                Our deep understanding of the Aspen real estate market — from historic West End estates to contemporary Red Mountain residences, from ski-in Snowmass condominiums to sprawling Woody Creek ranches — enables us to match discerning buyers with properties that truly reflect their lifestyle. Whether you are seeking a primary mountain residence, a vacation retreat, or a long-term investment in one of the world&apos;s most desirable alpine destinations, our team provides the market knowledge and personalized service that only a locally rooted, globally connected firm can offer.
-              </p>
-              <p>
-                As part of the Sotheby&apos;s International Realty network, Klug Properties connects Colorado&apos;s luxury market to a worldwide audience of qualified buyers and sellers. From Aspen&apos;s renowned cultural scene and world-class skiing to the tranquil beauty of the Crystal River Valley, every property we represent tells a story of mountain living at its finest.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Featured Property Section */}
         {featuredProperty?.enabled && featuredProperty?.mlsId && (
           <ClassicFeaturedProperty
