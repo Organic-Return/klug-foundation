@@ -118,9 +118,9 @@ export default function ClassicFeaturedProperty({
   const mainPhoto = property.photos?.[0];
 
   return (
-    <section className="relative w-full aspect-video">
-      {/* Background: Videos or Image */}
-      <div className="absolute inset-0">
+    <section className="relative w-full aspect-video overflow-hidden">
+      {/* Background: Videos or Image with parallax */}
+      <div className="absolute inset-0" style={{ backgroundAttachment: 'fixed' }}>
         {hasVideos ? (
           <>
             {effectiveVideos.map((videoUrl, index) => (

@@ -49,7 +49,7 @@ export default function TeamSection({
   const teamMemberUrl = teamMember.slug?.current ? `/team/${teamMember.slug.current}` : null;
 
   return (
-    <section className="w-full py-16 md:py-24 lg:py-32" itemScope itemType="https://schema.org/Person">
+    <section className="w-full py-12 md:py-16 lg:py-20" itemScope itemType="https://schema.org/Person">
       <div className={`max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-start gap-6 sm:gap-8 lg:gap-12 ${isImageLeft ? '' : 'md:flex-row-reverse'}`}>
         {/* Image */}
         <div className="w-full md:w-1/2 lg:w-[55%] flex-shrink-0">

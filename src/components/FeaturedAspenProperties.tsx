@@ -123,7 +123,7 @@ export default function FeaturedAspenProperties({
     : '/listings';
 
   return (
-    <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414] overflow-hidden w-full">
+    <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414] overflow-hidden w-full">
       <div className="w-full px-6 md:px-12 lg:px-16">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16 max-w-7xl mx-auto">

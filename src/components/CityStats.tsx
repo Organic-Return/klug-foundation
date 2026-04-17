@@ -151,7 +151,7 @@ export default function CityStats({
   }
 
   return (
-    <section className="py-16 md:py-24 bg-[var(--rc-navy)]">
+    <section className="py-12 md:py-16 bg-[var(--rc-navy)]">
       <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">

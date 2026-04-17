@@ -37,15 +37,16 @@ export default function Accolades({
 
   return (
     <section
-      className="relative w-full"
+      className="relative w-full overflow-hidden"
       style={{
         backgroundImage: backgroundUrl ? `url(${backgroundUrl})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
       }}
     >
       <div className="absolute inset-0 bg-[#f8f7f5]/90 dark:bg-[#141414]/90" />
-      <div className="relative py-16 md:py-24">
+      <div className="relative py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Section Header */}
           <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white text-center mb-12 md:mb-16">
