@@ -123,12 +123,12 @@ export default function FeaturedAspenProperties({
     : '/listings';
 
   return (
-    <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414] overflow-hidden w-full">
+    <section className="py-12 md:py-16 bg-[var(--color-sothebys-blue)] overflow-hidden w-full">
       <div className="w-full px-6 md:px-12 lg:px-16">
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16 max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4 tracking-wide">{title}</h2>
-          <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-[17px] max-w-2xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-serif font-light text-white mb-4 tracking-wide">{title}</h2>
+          <p className="text-white/60 font-light text-[17px] max-w-2xl mx-auto">
             {subtitle}
           </p>
         </div>
@@ -302,7 +302,7 @@ export default function FeaturedAspenProperties({
         <div className="text-center mt-10 max-w-7xl mx-auto">
           <Link
             href={listingsHref}
-            className="sir-btn"
+            className="sir-btn sir-btn--gold-light"
           >
             <span>{buttonText}</span>
             <span className="sir-arrow" />
