@@ -89,7 +89,7 @@ export default function TeamSection({
           </h1>
 
           {teamMember.name && (
-            <span className="hidden" itemProp="name">{teamMember.name}</span>
+            <h2 className="hidden" itemProp="name">{teamMember.name}</h2>
           )}
 
           {teamMember.title && (

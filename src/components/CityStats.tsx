@@ -163,6 +163,10 @@ export default function CityStats({
             {subtitle}
           </p>
           <div className="w-12 h-px bg-[#c9ac77] mx-auto" />
+
+          <p className="text-white/50 text-sm font-light max-w-3xl mx-auto mb-8 text-center leading-relaxed mt-6">
+            Stay informed with current Aspen real estate trends, Snowmass Village homes for sale, and luxury properties throughout the Roaring Fork Valley. Our market data spans Basalt, Carbondale, Woody Creek, and beyond — providing the insight you need to make confident decisions in Colorado&apos;s most coveted mountain communities.
+          </p>
         </div>
 
         {/* Property Type Tabs */}

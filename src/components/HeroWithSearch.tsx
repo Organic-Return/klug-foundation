@@ -221,6 +221,10 @@ export default function HeroWithSearch({
               <p className="text-lg sm:text-xl md:text-2xl text-white/90 text-shadow-luxury max-w-3xl mx-auto animate-fade-in-up animate-delay-300 font-light tracking-wide">
                 {subtitle}
               </p>
+
+              <p className="text-white/70 text-sm font-light max-w-2xl mx-auto mb-6 text-center animate-fade-in-up animate-delay-400">
+                Klug Properties, in partnership with Aspen Snowmass Sotheby&apos;s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.
+              </p>
             </div>
           )}
         </div>

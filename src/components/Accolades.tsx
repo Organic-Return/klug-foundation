@@ -49,9 +49,13 @@ export default function Accolades({
       <div className="relative py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Section Header */}
-          <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white text-center mb-12 md:mb-16">
+          <h1 className="font-serif text-[var(--color-sothebys-blue)] dark:text-white text-center mb-4">
             {title}
           </h1>
+
+          <p className="text-[var(--color-sothebys-blue)]/70 dark:text-white/60 text-sm font-light max-w-2xl mx-auto text-center mb-8 leading-relaxed">
+            Recognized among the finest in luxury real estate, Klug Properties and Aspen Snowmass Sotheby&apos;s International Realty consistently set the standard for excellence in the Roaring Fork Valley.
+          </p>
 
           <div className="bg-white/80 dark:bg-[#1a1a1a]/80 py-12 px-6 md:px-8">
             <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8">
