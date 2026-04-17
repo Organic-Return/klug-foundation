@@ -14,6 +14,7 @@ interface HeroWithSearchProps {
   heroVideos?: HeroVideo[];
   title?: string;
   subtitle?: string;
+  seoDescription?: string;
   showSearch?: boolean;
   showTitleSubtitle?: boolean;
 }
@@ -69,6 +70,7 @@ export default function HeroWithSearch({
   heroVideos,
   title = 'Find Your Dream Home',
   subtitle = 'Discover the perfect property for you and your family',
+  seoDescription,
   showSearch = true,
   showTitleSubtitle = true,
 }: HeroWithSearchProps) {
@@ -222,9 +224,11 @@ export default function HeroWithSearch({
                 {subtitle}
               </p>
 
-              <p className="text-white/70 text-sm font-light max-w-2xl mx-auto mb-6 text-center animate-fade-in-up animate-delay-400">
-                Klug Properties, in partnership with Aspen Snowmass Sotheby&apos;s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.
-              </p>
+              {(seoDescription || true) && (
+                <p className="text-white/70 text-sm font-light max-w-2xl mx-auto mb-6 text-center animate-fade-in-up animate-delay-400">
+                  {seoDescription || 'Klug Properties, in partnership with Aspen Snowmass Sotheby\u2019s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.'}
+                </p>
+              )}
             </div>
           )}
         </div>

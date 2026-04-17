@@ -47,6 +47,7 @@ interface HomepageContentProps {
   heroVideos?: Array<{ videoUrl?: string; posterUrl?: string }>;
   heroTitle?: string;
   heroSubtitle?: string;
+  heroSeoDescription?: string;
   showSearch?: boolean;
   showTitleSubtitle?: boolean;
 
@@ -66,6 +67,7 @@ interface HomepageContentProps {
   accolades?: {
     enabled?: boolean;
     title?: string;
+    seoDescription?: string;
     backgroundImage?: any;
     items?: any[];
   };
@@ -103,6 +105,7 @@ interface HomepageContentProps {
     enabled?: boolean;
     title?: string;
     subtitle?: string;
+    seoDescription?: string;
     cities?: string[];
     limit?: number;
     buttonText?: string;
@@ -125,6 +128,7 @@ interface HomepageContentProps {
     enabled?: boolean;
     title?: string;
     subtitle?: string;
+    seoDescription?: string;
     cities?: Array<{
       city: string;
       enabled: boolean;
@@ -160,6 +164,7 @@ export default function HomepageContent({
   heroVideos,
   heroTitle,
   heroSubtitle,
+  heroSeoDescription,
   showSearch,
   showTitleSubtitle,
   teamSection,
@@ -331,6 +336,7 @@ export default function HomepageContent({
           <CityStats
             title={marketStatsSection?.title}
             subtitle={marketStatsSection?.subtitle}
+            seoDescription={marketStatsSection?.seoDescription}
             configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
           />
         )}
@@ -345,6 +351,7 @@ export default function HomepageContent({
         {accolades?.enabled !== false && accolades?.items && accolades.items.length > 0 && (
           <Accolades
             title={accolades.title}
+            seoDescription={accolades.seoDescription}
             backgroundImage={accolades.backgroundImage}
             items={accolades.items}
           />
@@ -364,6 +371,7 @@ export default function HomepageContent({
           heroVideos={heroVideos}
           title={heroTitle}
           subtitle={heroSubtitle}
+          seoDescription={heroSeoDescription}
           showSearch={showSearch !== false}
           showTitleSubtitle={showTitleSubtitle !== false}
         />
@@ -396,6 +404,7 @@ export default function HomepageContent({
           <CityStats
             title={marketStatsSection?.title}
             subtitle={marketStatsSection?.subtitle}
+            seoDescription={marketStatsSection?.seoDescription}
             configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
           />
         )}
@@ -404,6 +413,7 @@ export default function HomepageContent({
         {accolades?.enabled !== false && accolades?.items && accolades.items.length > 0 && (
           <Accolades
             title={accolades.title}
+            seoDescription={accolades.seoDescription}
             backgroundImage={accolades.backgroundImage}
             items={accolades.items}
           />
@@ -415,6 +425,7 @@ export default function HomepageContent({
             cities={featuredPropertiesCarousel?.cities}
             title={featuredPropertiesCarousel?.title}
             subtitle={featuredPropertiesCarousel?.subtitle}
+            seoDescription={featuredPropertiesCarousel?.seoDescription}
             limit={featuredPropertiesCarousel?.limit}
             buttonText={featuredPropertiesCarousel?.buttonText}
           />

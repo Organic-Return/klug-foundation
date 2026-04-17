@@ -188,6 +188,7 @@ export default async function Home() {
         heroVideos={heroVideos.length > 1 ? heroVideos : undefined}
         heroTitle={hero?.title}
         heroSubtitle={hero?.subtitle}
+        heroSeoDescription={hero?.seoDescription}
         showSearch={hero?.showSearch !== false}
         showTitleSubtitle={hero?.showTitleSubtitle !== false}
         teamSection={{
@@ -203,6 +204,7 @@ export default async function Home() {
         accolades={{
           enabled: accolades?.enabled,
           title: accolades?.title,
+          seoDescription: accolades?.seoDescription,
           backgroundImage: accolades?.backgroundImage,
           items: accolades?.items,
         }}
@@ -224,6 +226,7 @@ export default async function Home() {
           enabled: homepage?.featuredPropertiesCarousel?.enabled,
           title: homepage?.featuredPropertiesCarousel?.title,
           subtitle: homepage?.featuredPropertiesCarousel?.subtitle,
+          seoDescription: homepage?.featuredPropertiesCarousel?.seoDescription,
           cities: homepage?.featuredPropertiesCarousel?.cities,
           limit: homepage?.featuredPropertiesCarousel?.limit,
           buttonText: homepage?.featuredPropertiesCarousel?.buttonText,
@@ -236,6 +239,7 @@ export default async function Home() {
           enabled: homepage?.marketStatsSection?.enabled,
           title: homepage?.marketStatsSection?.title,
           subtitle: homepage?.marketStatsSection?.subtitle,
+          seoDescription: homepage?.marketStatsSection?.seoDescription,
           cities: homepage?.marketStatsSection?.cities,
         }}
         logoUrl={branding?.logo?.asset?.url ? urlFor(branding.logo).width(420).url() : undefined}

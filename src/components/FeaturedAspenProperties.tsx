@@ -21,6 +21,7 @@ interface FeaturedAspenPropertiesProps {
   cities?: string[];
   title?: string;
   subtitle?: string;
+  seoDescription?: string;
   limit?: number;
   buttonText?: string;
 }
@@ -29,6 +30,7 @@ export default function FeaturedAspenProperties({
   cities = ['Aspen'],
   title = 'Newest in Aspen',
   subtitle = 'Explore our latest luxury listings',
+  seoDescription,
   limit = 8,
   buttonText = 'View All Properties',
 }: FeaturedAspenPropertiesProps) {
@@ -132,7 +134,7 @@ export default function FeaturedAspenProperties({
             {subtitle}
           </p>
           <p className="text-white/50 text-sm font-light max-w-2xl mx-auto text-center mb-4 leading-relaxed mt-4">
-            From distinguished Aspen estates to refined mountain homes in Snowmass Village and the Roaring Fork Valley, each residence reflects the exceptional quality our clients expect.
+            {seoDescription || 'From distinguished Aspen estates to refined mountain homes in Snowmass Village and the Roaring Fork Valley, each residence reflects the exceptional quality our clients expect.'}
           </p>
         </div>
 

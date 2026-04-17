@@ -18,12 +18,14 @@ interface AccoladeItem {
 
 interface AccoladesProps {
   title?: string;
+  seoDescription?: string;
   backgroundImage?: any;
   items?: AccoladeItem[];
 }
 
 export default function Accolades({
   title = 'Our Accolades',
+  seoDescription,
   backgroundImage,
   items = [],
 }: AccoladesProps) {
@@ -54,7 +56,7 @@ export default function Accolades({
           </h1>
 
           <p className="text-[var(--color-sothebys-blue)]/70 dark:text-white/60 text-sm font-light max-w-2xl mx-auto text-center mb-8 leading-relaxed">
-            Recognized among the finest in luxury real estate, Klug Properties and Aspen Snowmass Sotheby&apos;s International Realty consistently set the standard for excellence in the Roaring Fork Valley.
+            {seoDescription || 'Recognized among the finest in luxury real estate, Klug Properties and Aspen Snowmass Sotheby\u2019s International Realty consistently set the standard for excellence in the Roaring Fork Valley.'}
           </p>
 
           <div className="bg-white/80 dark:bg-[#1a1a1a]/80 py-12 px-6 md:px-8">

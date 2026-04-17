@@ -40,6 +40,14 @@ export const homepage = defineType({
           initialValue: 'Discover the perfect property for you and your family',
         },
         {
+          name: 'seoDescription',
+          title: 'SEO Description',
+          type: 'text',
+          rows: 3,
+          description: 'Short paragraph below the subtitle for SEO. Mention key locations and services.',
+          initialValue: 'Klug Properties, in partnership with Aspen Snowmass Sotheby\'s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.',
+        },
+        {
           name: 'videoUrl',
           title: 'Background Video URL',
           type: 'url',
@@ -225,6 +233,14 @@ export const homepage = defineType({
           initialValue: 'Our Accolades',
         },
         {
+          name: 'seoDescription',
+          title: 'SEO Description',
+          type: 'text',
+          rows: 3,
+          description: 'Short paragraph below the title for SEO.',
+          initialValue: 'Recognized among the finest in luxury real estate, Klug Properties and Aspen Snowmass Sotheby\'s International Realty consistently set the standard for excellence in the Roaring Fork Valley.',
+        },
+        {
           name: 'backgroundImage',
           title: 'Background Image',
           type: 'image',
@@ -353,6 +369,14 @@ export const homepage = defineType({
           rows: 2,
           description: 'Subtitle displayed below the title',
           initialValue: 'Explore our latest luxury listings',
+        },
+        {
+          name: 'seoDescription',
+          title: 'SEO Description',
+          type: 'text',
+          rows: 3,
+          description: 'Short paragraph below the subtitle for SEO.',
+          initialValue: 'From distinguished Aspen estates to refined mountain homes in Snowmass Village and the Roaring Fork Valley, each residence reflects the exceptional quality our clients expect.',
         },
         {
           name: 'cities',
@@ -492,6 +516,14 @@ export const homepage = defineType({
           rows: 2,
           description: 'Subtitle displayed below the title',
           initialValue: 'Real-time market data across our featured communities',
+        },
+        {
+          name: 'seoDescription',
+          title: 'SEO Description',
+          type: 'text',
+          rows: 3,
+          description: 'Short paragraph below the subtitle for SEO. Mention key market areas.',
+          initialValue: 'Stay informed with current Aspen real estate trends, Snowmass Village homes for sale, and luxury properties throughout the Roaring Fork Valley. Our market data spans Basalt, Carbondale, Woody Creek, and beyond — providing the insight you need to make confident decisions in Colorado\'s most coveted mountain communities.',
         },
         {
           name: 'cities',

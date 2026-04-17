@@ -5,6 +5,7 @@ interface HomepageData {
   hero?: {
     title?: string;
     subtitle?: string;
+    seoDescription?: string;
     videoUrl?: string;
     videoFile?: any;
     fallbackImage?: any;
@@ -42,6 +43,7 @@ interface HomepageData {
   accolades?: {
     enabled?: boolean;
     title?: string;
+    seoDescription?: string;
     backgroundImage?: any;
     items?: Array<{
       type: 'number' | 'numberWithPrefix' | 'image';
@@ -66,6 +68,7 @@ interface HomepageData {
     enabled?: boolean;
     title?: string;
     subtitle?: string;
+    seoDescription?: string;
     cities?: string[];
     limit?: number;
     buttonText?: string;
@@ -92,6 +95,7 @@ interface HomepageData {
     enabled?: boolean;
     title?: string;
     subtitle?: string;
+    seoDescription?: string;
     cities?: Array<{
       city: string;
       enabled: boolean;
@@ -126,6 +130,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
   hero {
     title,
     subtitle,
+    seoDescription,
     videoUrl,
     videoFile {
       asset-> {
@@ -181,6 +186,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
   accolades {
     enabled,
     title,
+    seoDescription,
     backgroundImage {
       asset-> {
         _id,
@@ -217,6 +223,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
     enabled,
     title,
     subtitle,
+    seoDescription,
     cities,
     limit,
     buttonText
@@ -248,6 +255,7 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
     enabled,
     title,
     subtitle,
+    seoDescription,
     cities[] {
       city,
       enabled

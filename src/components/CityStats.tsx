@@ -31,6 +31,7 @@ interface CityStatsData {
 interface CityStatsProps {
   title?: string;
   subtitle?: string;
+  seoDescription?: string;
   configuredCities?: string[];
 }
 
@@ -53,6 +54,7 @@ function formatPrice(price: number): string {
 export default function CityStats({
   title = 'Market Insights',
   subtitle = 'Real-time market data across our featured communities',
+  seoDescription,
   configuredCities,
 }: CityStatsProps) {
   const [cities, setCities] = useState<string[]>([]);
@@ -165,7 +167,7 @@ export default function CityStats({
           <div className="w-12 h-px bg-[#c9ac77] mx-auto" />
 
           <p className="text-white/50 text-sm font-light max-w-3xl mx-auto mb-8 text-center leading-relaxed mt-6">
-            Stay informed with current Aspen real estate trends, Snowmass Village homes for sale, and luxury properties throughout the Roaring Fork Valley. Our market data spans Basalt, Carbondale, Woody Creek, and beyond — providing the insight you need to make confident decisions in Colorado&apos;s most coveted mountain communities.
+            {seoDescription || 'Stay informed with current Aspen real estate trends, Snowmass Village homes for sale, and luxury properties throughout the Roaring Fork Valley. Our market data spans Basalt, Carbondale, Woody Creek, and beyond \u2014 providing the insight you need to make confident decisions in Colorado\u2019s most coveted mountain communities.'}
           </p>
         </div>
 
