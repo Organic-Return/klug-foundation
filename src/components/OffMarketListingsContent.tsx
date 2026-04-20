@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAuth } from './AuthProvider';
 import AuthModal from './AuthModal';
 import SavePropertyButton from './SavePropertyButton';
@@ -7,12 +8,42 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { OffMarketListing, formatPrice, getTotalBathrooms } from '@/lib/offMarketListings';
 
+const PASSCODE = 'CKPMembers';
+const PASSCODE_STORAGE_KEY = 'ckp-off-market-passcode';
+
 interface OffMarketListingsContentProps {
   listings: OffMarketListing[];
 }
 
 export default function OffMarketListingsContent({ listings }: OffMarketListingsContentProps) {
   const { user, loading, signOut } = useAuth();
+  const [passcodeUnlocked, setPasscodeUnlocked] = useState(false);
+  const [passcodeInput, setPasscodeInput] = useState('');
+  const [passcodeError, setPasscodeError] = useState('');
+  const [showPasscodeForm, setShowPasscodeForm] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && sessionStorage.getItem(PASSCODE_STORAGE_KEY) === 'true') {
+      setPasscodeUnlocked(true);
+    }
+  }, []);
+
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcodeInput.trim() === PASSCODE) {
+      sessionStorage.setItem(PASSCODE_STORAGE_KEY, 'true');
+      setPasscodeUnlocked(true);
+      setPasscodeError('');
+    } else {
+      setPasscodeError('Incorrect passcode. Please try again.');
+    }
+  };
+
+  const handlePasscodeSignOut = () => {
+    sessionStorage.removeItem(PASSCODE_STORAGE_KEY);
+    setPasscodeUnlocked(false);
+    setPasscodeInput('');
+  };
 
   if (loading) {
     return (
@@ -22,8 +53,8 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
     );
   }
 
-  // Show registration gate if user is not logged in
-  if (!user) {
+  // Show registration gate if user is not logged in AND passcode not entered
+  if (!user && !passcodeUnlocked) {
     return (
       <div className="min-h-[80vh] bg-gray-50">
         {/* Hero Section with blurred preview */}
@@ -66,6 +97,53 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
 
             <AuthModal />
 
+            {/* Passcode bypass */}
+            <div className="mt-8 w-full max-w-md">
+              {!showPasscodeForm ? (
+                <div className="text-center">
+                  <button
+                    onClick={() => setShowPasscodeForm(true)}
+                    className="text-sm text-[var(--color-sothebys-blue)] hover:text-[var(--color-gold)] underline transition-colors"
+                  >
+                    Have a passcode? Enter it to bypass registration
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handlePasscodeSubmit} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                  <label htmlFor="passcode" className="block text-sm font-medium text-[var(--color-sothebys-blue)] mb-2">
+                    Enter Member Passcode
+                  </label>
+                  <input
+                    id="passcode"
+                    type="password"
+                    value={passcodeInput}
+                    onChange={(e) => { setPasscodeInput(e.target.value); setPasscodeError(''); }}
+                    placeholder="Passcode"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-[var(--color-gold)] text-sm"
+                    autoFocus
+                  />
+                  {passcodeError && (
+                    <p className="text-red-600 text-xs mt-2">{passcodeError}</p>
+                  )}
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[var(--color-sothebys-blue)] text-white py-3 rounded-md text-sm font-medium hover:bg-[var(--color-sothebys-blue)]/90 transition-colors"
+                    >
+                      Unlock
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowPasscodeForm(false); setPasscodeInput(''); setPasscodeError(''); }}
+                      className="px-4 py-3 border border-gray-300 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
             <div className="mt-8 flex items-center gap-8 text-gray-500">
               <div className="flex items-center gap-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,14 +184,29 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-white/70 mb-1">Signed in as</p>
-              <p className="font-medium">{user.email}</p>
-              <button
-                onClick={() => signOut()}
-                className="text-sm text-white/70 hover:text-white mt-1"
-              >
-                Sign Out
-              </button>
+              {user ? (
+                <>
+                  <p className="text-sm text-white/70 mb-1">Signed in as</p>
+                  <p className="font-medium">{user.email}</p>
+                  <button
+                    onClick={() => signOut()}
+                    className="text-sm text-white/70 hover:text-white mt-1"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-white/70 mb-1">Member Access</p>
+                  <p className="font-medium">Passcode Verified</p>
+                  <button
+                    onClick={handlePasscodeSignOut}
+                    className="text-sm text-white/70 hover:text-white mt-1"
+                  >
+                    Lock
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
