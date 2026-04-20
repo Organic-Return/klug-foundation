@@ -347,7 +347,7 @@ export default function Header({
                                     className="block group"
                                     onClick={() => setActiveDropdown(null)}
                                   >
-                                    <span className={`relative inline-block text-sm font-medium capitalize ${isSkiTown ? 'text-white/90' : 'text-gray-700'}`}>
+                                    <span className={`relative inline-block text-sm font-semibold capitalize ${isSkiTown ? 'text-white/90' : 'text-gray-700'}`}>
                                       {link.label}
                                       <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--color-gold)] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                                     </span>
