@@ -269,7 +269,7 @@ export default function Header({
                     href={item.url}
                     target={item.openInNewTab ? '_blank' : undefined}
                     rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                    className="klug-nav-link relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
+                    className="klug-nav-link relative py-2 font-semibold uppercase text-white whitespace-nowrap group flex-shrink-0"
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
@@ -278,7 +278,7 @@ export default function Header({
                 ) : (
                   <button
                     onClick={() => toggleDropdown(index)}
-                    className="klug-nav-link relative py-2 font-medium uppercase text-white whitespace-nowrap group flex-shrink-0"
+                    className="klug-nav-link relative py-2 font-semibold uppercase text-white whitespace-nowrap group flex-shrink-0"
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
                     {item.label}
