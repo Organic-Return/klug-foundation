@@ -311,13 +311,13 @@ export default function Header({
                                   className="block mb-2 group"
                                   onClick={() => setActiveDropdown(null)}
                                 >
-                                  <h3 className={`relative inline-block ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 400, lineHeight: 1.3, letterSpacing: '-0.02em' }}>
+                                  <h3 className={`relative inline-block ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.02em' }}>
                                     {column.title}
                                     <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--color-gold)] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                                   </h3>
                                 </Link>
                               ) : (
-                                <h3 className={`mb-2 ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 400, lineHeight: 1.3, letterSpacing: '-0.02em' }}>
+                                <h3 className={`mb-2 ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', fontWeight: 700, lineHeight: 1.3, letterSpacing: '-0.02em' }}>
                                   {column.title}
                                 </h3>
                               )
