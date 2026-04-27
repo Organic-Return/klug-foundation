@@ -1717,6 +1717,61 @@ export async function getListingsByAgentId(
   };
 }
 
+// Get the newest single family residential listings in a city (active statuses)
+export async function getNewestSingleFamilyByCity(
+  city: string,
+  limit = 10
+): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const activeStatuses = [
+    'Active',
+    'Coming Soon',
+    'Active Under Contract',
+    'Contingent',
+    'Pending',
+    'Pending Inspect/Feasib',
+    'Active U/C W/ Bump',
+    'To Be Built',
+  ];
+
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('*')
+    .ilike('city', city)
+    .in('status', activeStatuses)
+    .or(
+      'property_sub_type.eq.Single Family Residence,property_sub_type.eq.Site Built-Owned Lot,property_sub_type.eq.Residential,property_sub_type.is.null'
+    )
+    .not('property_type', 'in', '(Residential Lease,Commercial Lease,Res Vacant Land,RES Vacant Land,Commercial Sale)')
+    .not('list_price', 'is', null)
+    .order('listing_date', { ascending: false })
+    .limit(limit * 2);
+
+  if (error) {
+    console.error('Error fetching newest single family by city:', error);
+    return [];
+  }
+
+  const rows = (data || []).filter(
+    (r: any) => !EXCLUDED_LEASE_TYPES.includes(r.property_type)
+  );
+
+  // Dedupe by listing_id
+  const seen = new Set<string>();
+  const unique: any[] = [];
+  for (const row of rows) {
+    const id = String(row.listing_id || row.id);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    unique.push(row);
+    if (unique.length >= limit) break;
+  }
+
+  const listings = unique.map(transformListing);
+  return enrichListingsWithSIRMedia(listings);
+}
+
 // Get all sold/closed listings where any of the provided agent IDs match
 // in any role: list agent, co-list, buyer, or co-buyer.
 // Used for team-wide "sold by" pages.

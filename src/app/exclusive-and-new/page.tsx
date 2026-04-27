@@ -3,9 +3,8 @@ import { client } from '@/sanity/client';
 import {
   getListingsByAgentId,
   getMlsNumbersWithSIRMedia,
-  type MLSProperty,
+  getNewestSingleFamilyByCity,
 } from '@/lib/listings';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 import { getSiteName, getBaseUrl } from '@/lib/settings';
 import AgentListingsGrid from '@/components/AgentListingsGrid';
 
@@ -31,113 +30,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-// Fetch the 10 newest single-family residential listings in Aspen.
-async function getNewestAspenSingleFamily(limit = 10): Promise<MLSProperty[]> {
-  if (!isSupabaseConfigured()) return [];
-
-  const activeStatuses = [
-    'Active',
-    'Coming Soon',
-    'Active Under Contract',
-    'Contingent',
-    'Pending',
-    'Pending Inspect/Feasib',
-    'Active U/C W/ Bump',
-    'To Be Built',
-  ];
-
-  const { data, error } = await supabase
-    .from('graphql_listings')
-    .select('*')
-    .ilike('city', 'Aspen')
-    .in('status', activeStatuses)
-    .or(
-      'property_sub_type.eq.Single Family Residence,property_sub_type.eq.Site Built-Owned Lot,property_sub_type.eq.Residential,property_sub_type.is.null'
-    )
-    .not('property_type', 'in', '(Residential Lease,Commercial Lease,Res Vacant Land,RES Vacant Land,Commercial Sale)')
-    .not('list_price', 'is', null)
-    .order('listing_date', { ascending: false })
-    .limit(limit * 2); // overfetch a bit then dedupe
-
-  if (error) {
-    console.error('Error fetching newest Aspen single family:', error);
-    return [];
-  }
-
-  // Lightweight dedupe by listing_id
-  const seen = new Set<string>();
-  const unique: any[] = [];
-  for (const row of data || []) {
-    const id = String(row.listing_id || row.id);
-    if (seen.has(id)) continue;
-    seen.add(id);
-    unique.push(row);
-    if (unique.length >= limit) break;
-  }
-
-  // Use the existing transformer via dynamic import path. Easier: re-shape inline.
-  // The transform is exported indirectly through enrichment helpers; instead,
-  // delegate to getMlsNumbersWithSIRMedia to enrich, but we still need MLSProperty shape.
-  // Simplest: import transformListing-like behavior via the MLSProperty fields used by the grid.
-  return unique.map((row: any) => ({
-    id: row.id,
-    mls_number: row.mls_number || row.listing_id,
-    status: row.status === 'Closed' ? 'Sold' : row.status,
-    list_price: row.list_price,
-    sold_price: row.sold_price,
-    address: row.address,
-    city: row.city,
-    state: row.state || row.state_code,
-    zip_code: row.postal_code || row.zip_code,
-    neighborhood: row.subdivision_name || row.neighborhood,
-    bedrooms: row.bedrooms,
-    bathrooms: row.bathrooms,
-    bathrooms_full: row.bathrooms_full,
-    bathrooms_half: row.bathrooms_half,
-    bathrooms_three_quarter: row.bathrooms_three_quarter,
-    square_feet: row.square_feet || row.living_area,
-    lot_size: row.lot_size_acres,
-    year_built: row.year_built,
-    property_type: row.property_sub_type || row.property_type,
-    listing_date: row.listing_date,
-    sold_date: row.close_date,
-    days_on_market: row.days_on_market,
-    description: row.description,
-    features: {},
-    agent_name: row.list_agent_full_name,
-    agent_email: null,
-    photos: Array.isArray(row.media) ? row.media.filter((m: any) => m).map((m: any) => m.url || m).filter(Boolean) : [],
-    video_urls: [],
-    latitude: row.latitude,
-    longitude: row.longitude,
-    subdivision_name: row.subdivision_name,
-    mls_area_minor: row.mls_area_minor,
-    furnished: row.furnished,
-    fireplace_yn: row.fireplace_yn,
-    fireplace_features: row.fireplace_features,
-    fireplace_total: row.fireplace_total,
-    cooling: row.cooling,
-    heating: row.heating,
-    laundry_features: row.laundry_features,
-    attached_garage_yn: row.attached_garage_yn,
-    parking_features: row.parking_features,
-    association_amenities: row.association_amenities,
-    virtual_tour_url: row.virtual_tour_url,
-    list_agent_mls_id: row.list_agent_mls_id,
-    list_agent_full_name: row.list_agent_full_name,
-    co_list_agent_mls_id: row.co_list_agent_mls_id,
-    buyer_agent_mls_id: row.buyer_agent_mls_id,
-    co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
-    list_office_name: row.list_office_name,
-    open_house_date: row.open_house_date,
-    open_house_start_time: row.open_house_start_time,
-    open_house_end_time: row.open_house_end_time,
-    open_house_remarks: row.open_house_remarks,
-    created_at: row.created_at || '',
-    updated_at: row.updated_at || '',
-  })) as MLSProperty[];
-}
-
 export default async function ExclusiveAndNewPage() {
   // Look up Chris Klug's MLS ID from Sanity (preferred over hardcoded)
   const chris = await client.fetch<ChrisDoc | null>(
@@ -153,7 +45,7 @@ export default async function ExclusiveAndNewPage() {
   const chrisListings = await getListingsByAgentId(chrisMlsId, chris?.mlsAgentIdSold, chrisName);
 
   // Section 2: 10 newest single-family active listings in Aspen
-  const newestAspen = await getNewestAspenSingleFamily(10);
+  const newestAspen = await getNewestSingleFamilyByCity('Aspen', 10);
 
   // SIR media enrichment for both sets
   const allMlsNumbers = [
