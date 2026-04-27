@@ -700,6 +700,8 @@ async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty
   const realogySupabase = getRealogySupabase();
   if (!realogySupabase) return null;
 
+  // Note: realogy_listings often has trailing whitespace on street_address.
+  // Use a wildcard pattern and verify the match in JS to avoid false positives.
   const { data, error } = await realogySupabase
     .from('realogy_listings')
     .select(`
@@ -709,13 +711,18 @@ async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty
       lot_size, year_built, property_type, listed_on, default_photo_url, media,
       primary_agent_name, latitude, longitude, created_at, synced_at
     `)
-    .ilike('street_address', address)
+    .ilike('street_address', `${address}%`)
     .order('price_amount', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .limit(10);
 
-  if (error || !data) return null;
-  return transformRealogyListing(data);
+  if (error || !data || data.length === 0) return null;
+
+  // Pick the row whose trimmed street_address exactly matches (case-insensitive)
+  const target = address.toLowerCase();
+  const exact = data.find((row: any) => (row.street_address || '').trim().toLowerCase() === target);
+  const best = exact || data[0];
+
+  return transformRealogyListing(best);
 }
 
 // Generate an address slug for a street address (e.g. "3000 Ralston Avenue" -> "3000-Ralston-Avenue")
