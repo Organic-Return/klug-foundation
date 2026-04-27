@@ -54,9 +54,9 @@ export default async function Home() {
   const featuredProperty = homepage?.featuredProperty;
   const featuredCommunitiesConfig = homepage?.featuredCommunities;
 
-  // Auto-pull Chris Klug's most expensive active listing for the featured
-  // property section. Falls back to the CMS-set mlsId if the lookup fails.
-  let autoFeaturedMlsId: string | undefined;
+  // Auto-pull all of Chris Klug's active listings for the featured property
+  // rotator. Falls back to the CMS-set mlsId if the lookup fails.
+  let autoFeaturedMlsIds: string[] = [];
   try {
     const chris = await client.fetch<{ mlsAgentId?: string; name?: string } | null>(
       `*[_type == "teamMember" && (slug.current == "chris-klug" || lower(name) == "chris klug") && inactive != true][0]{ mlsAgentId, name }`,
@@ -65,7 +65,9 @@ export default async function Home() {
     );
     const chrisMlsId = chris?.mlsAgentId || '3837';
     const chrisListings = await getListingsByAgentId(chrisMlsId, undefined, chris?.name || 'Chris Klug');
-    autoFeaturedMlsId = chrisListings.activeListings[0]?.mls_number || undefined;
+    autoFeaturedMlsIds = chrisListings.activeListings
+      .map((l) => l.mls_number)
+      .filter((id): id is string => Boolean(id));
   } catch (err) {
     console.error('Featured property auto-pull failed:', err);
   }
@@ -232,7 +234,8 @@ export default async function Home() {
         heroProperties={heroProperties}
         featuredProperty={{
           enabled: featuredProperty?.enabled,
-          mlsId: autoFeaturedMlsId || featuredProperty?.mlsId,
+          mlsId: featuredProperty?.mlsId,
+          mlsIds: autoFeaturedMlsIds.length > 0 ? autoFeaturedMlsIds : undefined,
           title: featuredProperty?.title,
           headline: featuredProperty?.headline,
           buttonText: featuredProperty?.buttonText,

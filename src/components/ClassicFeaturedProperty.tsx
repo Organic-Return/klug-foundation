@@ -22,7 +22,8 @@ interface Property {
 }
 
 interface ClassicFeaturedPropertyProps {
-  mlsId: string;
+  mlsId?: string;
+  mlsIds?: string[];
   headline?: string;
   buttonText?: string;
   videos?: string[];
@@ -35,17 +36,24 @@ function formatSqft(sqft: number | null): string {
 
 export default function ClassicFeaturedProperty({
   mlsId,
-  headline = 'Featured Property',
+  mlsIds,
   buttonText = 'View Property',
   videos,
 }: ClassicFeaturedPropertyProps) {
-  const [property, setProperty] = useState<Property | null>(null);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [activePropertyIndex, setActivePropertyIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [activeVideo, setActiveVideo] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const propertyTimerRef = useRef<NodeJS.Timeout | null>(null);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [parallaxOffset, setParallaxOffset] = useState(0);
+
+  // Combine props: prefer mlsIds list, fall back to single mlsId
+  const idsToFetch = mlsIds && mlsIds.length > 0 ? mlsIds : (mlsId ? [mlsId] : []);
+  const property = properties[activePropertyIndex] || null;
+  const hasMultipleProperties = properties.length > 1;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -73,23 +81,51 @@ export default function ClassicFeaturedProperty({
   const hasMultipleVideos = effectiveVideos.length > 1;
 
   useEffect(() => {
-    async function fetchProperty() {
-      try {
-        const response = await fetch(`/api/listings/${mlsId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setProperty(data);
-        }
-      } catch (error) {
-        console.error('Error fetching property:', error);
-      } finally {
+    let cancelled = false;
+    async function fetchAll() {
+      if (idsToFetch.length === 0) {
         setIsLoading(false);
+        return;
+      }
+      try {
+        const results = await Promise.all(
+          idsToFetch.map(async (id) => {
+            try {
+              const res = await fetch(`/api/listings/${id}`);
+              if (!res.ok) return null;
+              return (await res.json()) as Property;
+            } catch {
+              return null;
+            }
+          })
+        );
+        if (cancelled) return;
+        const valid = results.filter((p): p is Property => p !== null && !!p.address);
+        setProperties(valid);
+        setActivePropertyIndex(0);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        if (!cancelled) setIsLoading(false);
       }
     }
-    if (mlsId) {
-      fetchProperty();
-    }
-  }, [mlsId]);
+    fetchAll();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsToFetch.join(',')]);
+
+  // Auto-rotate properties every 8 seconds when multiple are present
+  useEffect(() => {
+    if (!hasMultipleProperties) return;
+    propertyTimerRef.current = setInterval(() => {
+      setActivePropertyIndex((prev) => (prev + 1) % properties.length);
+    }, 8000);
+    return () => {
+      if (propertyTimerRef.current) clearInterval(propertyTimerRef.current);
+    };
+  }, [hasMultipleProperties, properties.length]);
 
   // Auto-rotate videos every 15 seconds
   useEffect(() => {
@@ -160,15 +196,30 @@ export default function ClassicFeaturedProperty({
               </div>
             ))}
           </>
-        ) : mainPhoto ? (
-          <Image
-            src={mainPhoto}
-            alt={property.address || 'Featured Property'}
-            fill
-            className="object-cover object-center"
-            priority
-            sizes="100vw"
-          />
+        ) : properties.length > 0 ? (
+          <>
+            {properties.map((p, i) => {
+              const photo = p.photos?.[0];
+              if (!photo) return null;
+              return (
+                <div
+                  key={p.id || p.mls_number || i}
+                  className={`absolute inset-0 transition-opacity duration-700 ${
+                    i === activePropertyIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                >
+                  <Image
+                    src={photo}
+                    alt={p.address || 'Featured Property'}
+                    fill
+                    className="object-cover object-center"
+                    priority={i === 0}
+                    sizes="100vw"
+                  />
+                </div>
+              );
+            })}
+          </>
         ) : (
           <div className="w-full h-full bg-[var(--color-cream)] flex items-center justify-center">
             <svg

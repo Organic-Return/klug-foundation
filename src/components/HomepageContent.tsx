@@ -76,6 +76,7 @@ interface HomepageContentProps {
   featuredProperty?: {
     enabled?: boolean;
     mlsId?: string;
+    mlsIds?: string[];
     title?: string;
     headline?: string;
     buttonText?: string;
@@ -307,9 +308,10 @@ export default function HomepageContent({
         )}
 
         {/* Featured Property Section */}
-        {featuredProperty?.enabled && featuredProperty?.mlsId && (
+        {featuredProperty?.enabled && (featuredProperty?.mlsId || (featuredProperty?.mlsIds && featuredProperty.mlsIds.length > 0)) && (
           <ClassicFeaturedProperty
             mlsId={featuredProperty.mlsId}
+            mlsIds={featuredProperty.mlsIds}
             headline={featuredProperty.headline}
             buttonText={featuredProperty.buttonText}
             videos={featuredProperty.videos}
@@ -390,9 +392,10 @@ export default function HomepageContent({
         )}
 
         {/* Featured Property Section */}
-        {featuredProperty?.enabled && featuredProperty?.mlsId && (
+        {featuredProperty?.enabled && (featuredProperty?.mlsId || (featuredProperty?.mlsIds && featuredProperty.mlsIds.length > 0)) && (
           <ClassicFeaturedProperty
             mlsId={featuredProperty.mlsId}
+            mlsIds={featuredProperty.mlsIds}
             headline={featuredProperty.headline}
             buttonText={featuredProperty.buttonText}
             videos={featuredProperty.videos}
