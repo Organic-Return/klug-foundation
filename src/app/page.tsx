@@ -3,7 +3,7 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import { getHomepageData, getAllCommunities } from '@/lib/homepage';
 import { getSettings, getBranding } from '@/lib/settings';
-import { getNewestHighPricedByCities, getNewestHighPricedByCity } from '@/lib/listings';
+import { getNewestHighPricedByCities, getNewestHighPricedByCity, getListingsByAgentId } from '@/lib/listings';
 import StructuredData from '@/components/StructuredData';
 import HomepageContent from '@/components/HomepageContent';
 
@@ -53,6 +53,22 @@ export default async function Home() {
   const accolades = homepage?.accolades;
   const featuredProperty = homepage?.featuredProperty;
   const featuredCommunitiesConfig = homepage?.featuredCommunities;
+
+  // Auto-pull Chris Klug's most expensive active listing for the featured
+  // property section. Falls back to the CMS-set mlsId if the lookup fails.
+  let autoFeaturedMlsId: string | undefined;
+  try {
+    const chris = await client.fetch<{ mlsAgentId?: string; name?: string } | null>(
+      `*[_type == "teamMember" && (slug.current == "chris-klug" || lower(name) == "chris klug") && inactive != true][0]{ mlsAgentId, name }`,
+      {},
+      { next: { revalidate: 300 } }
+    );
+    const chrisMlsId = chris?.mlsAgentId || '3837';
+    const chrisListings = await getListingsByAgentId(chrisMlsId, undefined, chris?.name || 'Chris Klug');
+    autoFeaturedMlsId = chrisListings.activeListings[0]?.mls_number || undefined;
+  } catch (err) {
+    console.error('Featured property auto-pull failed:', err);
+  }
 
   // Get video URL (either from Mux/uploaded file or external URL)
   const videoUrl = hero?.videoFile?.asset?.url || hero?.videoUrl;
@@ -216,7 +232,7 @@ export default async function Home() {
         heroProperties={heroProperties}
         featuredProperty={{
           enabled: featuredProperty?.enabled,
-          mlsId: featuredProperty?.mlsId,
+          mlsId: autoFeaturedMlsId || featuredProperty?.mlsId,
           title: featuredProperty?.title,
           headline: featuredProperty?.headline,
           buttonText: featuredProperty?.buttonText,
