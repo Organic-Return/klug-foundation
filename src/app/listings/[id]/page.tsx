@@ -11,6 +11,7 @@ import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import CustomOneListingContent from '@/components/CustomOneListingContent';
 import KlugListingContent from '@/components/KlugListingContent';
+import { findPartnerByAgentName, enrichPartnerWithAgentData, getPartnerUrl } from '@/app/affiliated-partners/components';
 
 export const revalidate = 60;
 
@@ -404,7 +405,35 @@ export default async function ListingPage({ params }: ListingPageProps) {
     );
   }
 
-  // Non-exclusive listings: use the RC Sotheby's layout
+  // Non-exclusive listings: try to find the listing agent in our affiliatedPartner
+  // Sanity records (e.g. Dusty Baker) so we can show their photo + contact info.
+  let partnerAgent: {
+    name: string;
+    slug: { current: string };
+    title?: string;
+    imageUrl?: string | null;
+    email?: string;
+    phone?: string;
+    mobile?: string;
+  } | null = null;
+
+  if (listing.agent_name) {
+    const partner = await findPartnerByAgentName(listing.agent_name);
+    if (partner) {
+      const enriched = await enrichPartnerWithAgentData(partner);
+      const partnerUrl = getPartnerUrl(enriched);
+      const partnerSlug = partnerUrl.split('/').pop() || 'partner';
+      partnerAgent = {
+        name: `${enriched.firstName} ${enriched.lastName}`.trim(),
+        slug: { current: partnerSlug },
+        title: enriched.title,
+        imageUrl: enriched.photoUrl,
+        email: enriched.email,
+        phone: enriched.phone,
+      };
+    }
+  }
+
   return (
     <>
       {schemas.map((schema, index) => (
@@ -416,7 +445,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
       ))}
       <KlugListingContent
         listing={listing}
-        agent={null}
+        agent={partnerAgent}
         coAgent={null}
         googleMapsApiKey={googleMapsApiKey}
       />

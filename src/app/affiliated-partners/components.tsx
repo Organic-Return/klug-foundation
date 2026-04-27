@@ -145,6 +145,26 @@ export async function fetchAgentData(agentStaffId: string, firstName?: string, l
   }
 }
 
+// Look up an affiliated partner by full agent name (e.g. "Dusty Baker") for
+// listing detail pages where the listing has agent_name from Realogy data.
+export async function findPartnerByAgentName(agentName: string): Promise<Partner | null> {
+  if (!agentName || agentName.trim().length < 2) return null;
+  const parts = agentName.trim().split(/\s+/);
+  if (parts.length < 2) return null;
+  const firstName = parts[0];
+  const lastName = parts[parts.length - 1];
+
+  const partner = await client.fetch<Partner | null>(
+    `*[_type == "affiliatedPartner" && active == true && firstName match $first && lastName match $last][0]{
+      _id, partnerType, firstName, lastName, agentStaffId, slug, title, company,
+      location, email, phone, website, overridePhoto, specialties, featured
+    }`,
+    { first: `${firstName}*`, last: `${lastName}*` },
+    { next: { revalidate: 300 } }
+  );
+  return partner;
+}
+
 export async function enrichPartnerWithAgentData(partner: Partner): Promise<EnrichedPartner> {
   const agentData = await fetchAgentData(partner.agentStaffId, partner.firstName, partner.lastName);
 
