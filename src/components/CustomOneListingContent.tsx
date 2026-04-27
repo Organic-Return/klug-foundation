@@ -744,7 +744,7 @@ export default function CustomOneListingContent({
                 <div className="bg-white border border-[var(--rc-brown)]/10 p-6">
                   <div className="flex items-start gap-4">
                     {agent.imageUrl && (
-                      <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden">
+                      <div className="relative w-32 h-[147px] flex-shrink-0 overflow-hidden">
                         <Image
                           src={agent.imageUrl}
                           alt={agent.name}
@@ -948,7 +948,7 @@ export default function CustomOneListingContent({
                   <>
                     <div className="flex items-start gap-5">
                       {agent.imageUrl && (
-                        <div className="relative w-32 h-32 flex-shrink-0 overflow-hidden border-2 border-[var(--rc-gold)]/30">
+                        <div className="relative w-32 h-[147px] flex-shrink-0 overflow-hidden border-2 border-[var(--rc-gold)]/30">
                           <Image
                             src={agent.imageUrl}
                             alt={agent.name}
