@@ -1,38 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useAuth } from './AuthProvider';
+import { useState } from 'react';
 import AuthModal from './AuthModal';
-import SavePropertyButton from './SavePropertyButton';
 import Image from 'next/image';
 import Link from 'next/link';
-import { OffMarketListing, formatPrice, getTotalBathrooms } from '@/lib/offMarketListings';
-
-const PASSCODE = 'CKPMembers';
-const PASSCODE_STORAGE_KEY = 'ckp-off-market-passcode';
+import { OffMarketListing, formatPrice } from '@/lib/offMarketListings';
+import { useOffMarketAccess } from '@/lib/useOffMarketAccess';
 
 interface OffMarketListingsContentProps {
   listings: OffMarketListing[];
 }
 
 export default function OffMarketListingsContent({ listings }: OffMarketListingsContentProps) {
-  const { user, loading, signOut } = useAuth();
-  const [passcodeUnlocked, setPasscodeUnlocked] = useState(false);
+  const {
+    user,
+    loading,
+    signOut,
+    unlockWithPasscode,
+    lockPasscode,
+    hasAccess,
+  } = useOffMarketAccess();
   const [passcodeInput, setPasscodeInput] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
   const [showPasscodeForm, setShowPasscodeForm] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && sessionStorage.getItem(PASSCODE_STORAGE_KEY) === 'true') {
-      setPasscodeUnlocked(true);
-    }
-  }, []);
-
   const handlePasscodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcodeInput.trim() === PASSCODE) {
-      sessionStorage.setItem(PASSCODE_STORAGE_KEY, 'true');
-      setPasscodeUnlocked(true);
+    if (unlockWithPasscode(passcodeInput)) {
       setPasscodeError('');
     } else {
       setPasscodeError('Incorrect passcode. Please try again.');
@@ -40,8 +34,7 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
   };
 
   const handlePasscodeSignOut = () => {
-    sessionStorage.removeItem(PASSCODE_STORAGE_KEY);
-    setPasscodeUnlocked(false);
+    lockPasscode();
     setPasscodeInput('');
   };
 
@@ -53,8 +46,8 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
     );
   }
 
-  // Show registration gate if user is not logged in AND passcode not entered
-  if (!user && !passcodeUnlocked) {
+  // Show registration gate if user has no access (no auth + no passcode)
+  if (!hasAccess) {
     return (
       <div className="min-h-[80vh] bg-gray-50">
         {/* Hero Section with blurred preview */}
@@ -228,82 +221,58 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
               <p className="text-gray-600">{listings.length} exclusive {listings.length === 1 ? 'property' : 'properties'} available</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {listings.map((listing) => (
-                <Link
-                  key={listing._id}
-                  href={`/off-market/${listing.slug}`}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow group"
-                >
-                  {/* Image */}
-                  <div className="aspect-[4/3] relative bg-gray-200">
-                    {listing.featuredImageUrl ? (
-                      <Image
-                        src={listing.featuredImageUrl}
-                        alt={listing.address || 'Property'}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full">
-                        <svg className="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-3">
+              {listings.map((listing) => {
+                const totalBaths = (listing.bathroomsFull || 0)
+                  + (listing.bathroomsThreeQuarter || 0) * 0.75
+                  + (listing.bathroomsHalf || 0) * 0.5;
+                return (
+                  <div key={listing._id} className="group border border-gray-200 overflow-hidden">
+                    <Link href={`/off-market/${listing.slug}`} className="block">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
+                        {listing.featuredImageUrl ? (
+                          <Image
+                            src={listing.featuredImageUrl}
+                            alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+                            fill
+                            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3">
+                          <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[var(--color-gold)] text-white">
+                            Off-Market
+                          </span>
+                        </div>
                       </div>
-                    )}
-
-                    {/* Status Badge */}
-                    <div className="absolute top-3 left-3">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded ${
-                        listing.status === 'Active' ? 'bg-green-500 text-white' :
-                        listing.status === 'Pending' ? 'bg-yellow-500 text-white' :
-                        listing.status === 'Coming Soon' ? 'bg-blue-500 text-white' :
-                        'bg-gray-500 text-white'
-                      }`}>
-                        {listing.status}
-                      </span>
-                    </div>
-
-                    {/* Off-Market Badge & Save Button */}
-                    <div className="absolute top-3 right-3 flex items-center gap-2">
-                      <span className="px-2 py-1 text-xs font-semibold rounded bg-[var(--color-gold)] text-white">
-                        Off-Market
-                      </span>
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <SavePropertyButton listingId={listing._id} listingType="off_market" />
+                    </Link>
+                    <div className="p-4">
+                      <h3 className="line-clamp-1 text-gray-900 font-semibold" style={{ fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
+                        {formatPrice(listing.listPrice)}
+                      </h3>
+                      <p className="leading-snug line-clamp-1 text-sm text-gray-700" style={{ marginBottom: '0.125rem' }}>
+                        {listing.address}
+                      </p>
+                      <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
+                        {listing.city}, {listing.state} {listing.zipCode}
+                      </p>
+                      <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
+                        {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
+                        {listing.bedrooms != null && totalBaths > 0 && <span className="w-px h-3 bg-gray-300" />}
+                        {totalBaths > 0 && <span>{totalBaths} Baths</span>}
+                        {totalBaths > 0 && listing.squareFeet && <span className="w-px h-3 bg-gray-300" />}
+                        {listing.squareFeet && <span>{listing.squareFeet.toLocaleString()} SF</span>}
                       </div>
                     </div>
                   </div>
-
-                  {/* Content */}
-                  <div className="p-4">
-                    <p className="text-2xl font-bold text-gray-900 mb-1">
-                      {formatPrice(listing.listPrice)}
-                    </p>
-                    <p className="text-gray-900 font-medium">{listing.address}</p>
-                    <p className="text-gray-500 text-sm mb-3">
-                      {listing.city}, {listing.state} {listing.zipCode}
-                    </p>
-
-                    {/* Stats */}
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      {listing.bedrooms !== null && (
-                        <span>{listing.bedrooms} bed</span>
-                      )}
-                      {(listing.bathroomsFull || listing.bathroomsHalf) && (
-                        <span>{getTotalBathrooms(listing)} bath</span>
-                      )}
-                      {listing.squareFeet && (
-                        <span>{listing.squareFeet.toLocaleString()} sqft</span>
-                      )}
-                    </div>
-
-                    {listing.propertyType && (
-                      <p className="text-xs text-gray-400 mt-2">{listing.propertyType}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

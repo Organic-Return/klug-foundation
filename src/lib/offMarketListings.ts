@@ -196,3 +196,74 @@ export function getTotalBathrooms(listing: OffMarketListing): number {
   const half = listing.bathroomsHalf || 0;
   return full + threeQuarter * 0.75 + half * 0.5;
 }
+
+/**
+ * Convert an OffMarketListing (Sanity) to MLSProperty shape so it can be
+ * rendered with components like CustomOneListingContent that expect MLSProperty.
+ */
+export function offMarketToMLSProperty(listing: OffMarketListing): any {
+  const totalBathrooms = getTotalBathrooms(listing);
+  // Combine featuredImageUrl with the photos array (no duplicates)
+  const allPhotos = [
+    ...(listing.featuredImageUrl ? [listing.featuredImageUrl] : []),
+    ...listing.photos.filter((p) => p && p !== listing.featuredImageUrl),
+  ];
+
+  return {
+    id: listing._id,
+    mls_number: listing.slug,
+    status: listing.status === 'Closed' ? 'Sold' : listing.status,
+    list_price: listing.listPrice,
+    sold_price: listing.soldPrice,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    zip_code: listing.zipCode,
+    neighborhood: listing.subdivisionName,
+    bedrooms: listing.bedrooms,
+    bathrooms: totalBathrooms,
+    bathrooms_full: listing.bathroomsFull,
+    bathrooms_half: listing.bathroomsHalf,
+    bathrooms_three_quarter: listing.bathroomsThreeQuarter,
+    square_feet: listing.squareFeet,
+    lot_size: listing.lotSize,
+    year_built: listing.yearBuilt,
+    property_type: listing.propertyType,
+    listing_date: listing.listingDate,
+    sold_date: listing.soldDate,
+    days_on_market: null,
+    description: listing.description,
+    features: {},
+    agent_name: listing.agentName,
+    agent_email: listing.agentEmail,
+    photos: allPhotos,
+    video_urls: [],
+    latitude: listing.latitude,
+    longitude: listing.longitude,
+    subdivision_name: listing.subdivisionName,
+    mls_area_minor: listing.mlsAreaMinor,
+    furnished: listing.furnished,
+    fireplace_yn: listing.fireplaceYn,
+    fireplace_features: listing.fireplaceFeatures,
+    fireplace_total: listing.fireplaceTotal,
+    cooling: listing.cooling,
+    heating: listing.heating,
+    laundry_features: listing.laundryFeatures,
+    attached_garage_yn: listing.attachedGarageYn,
+    parking_features: listing.parkingFeatures,
+    association_amenities: listing.associationAmenities,
+    virtual_tour_url: listing.virtualTourUrl,
+    list_agent_mls_id: null,
+    list_agent_full_name: listing.agentName,
+    co_list_agent_mls_id: null,
+    buyer_agent_mls_id: null,
+    co_buyer_agent_mls_id: null,
+    list_office_name: listing.officeName,
+    open_house_date: null,
+    open_house_start_time: null,
+    open_house_end_time: null,
+    open_house_remarks: null,
+    created_at: listing.publishedAt || '',
+    updated_at: '',
+  };
+}
