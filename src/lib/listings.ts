@@ -1716,3 +1716,56 @@ export async function getListingsByAgentId(
     soldListings: mergeWithSIRMedia(mlsResult.soldListings, realogyResult.soldListings),
   };
 }
+
+// Get all sold/closed listings where any of the provided agent IDs match
+// in any role: list agent, co-list, buyer, or co-buyer.
+// Used for team-wide "sold by" pages.
+export async function getSoldListingsByAgentIds(agentIds: string[]): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured() || agentIds.length === 0) return [];
+
+  const ids = Array.from(new Set(agentIds.filter(Boolean)));
+  if (ids.length === 0) return [];
+
+  // Build OR filter: any of the IDs matching any role
+  const orParts: string[] = [];
+  for (const id of ids) {
+    orParts.push(`list_agent_mls_id.eq.${id}`);
+    orParts.push(`co_list_agent_mls_id.eq.${id}`);
+    orParts.push(`buyer_agent_mls_id.eq.${id}`);
+    orParts.push(`co_buyer_agent_mls_id.eq.${id}`);
+  }
+  const filter = orParts.join(',');
+
+  const { data, error } = await supabase
+    .from('graphql_listings')
+    .select('*')
+    .not('listing_id', 'is', null)
+    .or(filter)
+    .in('status', ['Closed', 'Sold'])
+    .order('close_date', { ascending: false, nullsFirst: false })
+    .limit(1000);
+
+  if (error) {
+    console.error('Error fetching team sold listings:', error);
+    return [];
+  }
+
+  const rows = (data || []).filter((r: any) => !EXCLUDED_LEASE_TYPES.includes(r.property_type));
+
+  // Dedupe by listing_id, preferring rows with more complete data
+  const byListingId = new Map<string, any>();
+  for (const row of rows) {
+    if (!row.listing_id) continue;
+    const lid = String(row.listing_id);
+    const existing = byListingId.get(lid);
+    if (!existing) {
+      byListingId.set(lid, row);
+    } else {
+      const existingScore = (existing.updated_at ? 100 : 0) + (existing.address ? 1 : 0) + (existing.media ? 1 : 0);
+      const newScore = (row.updated_at ? 100 : 0) + (row.address ? 1 : 0) + (row.media ? 1 : 0);
+      if (newScore > existingScore) byListingId.set(lid, row);
+    }
+  }
+
+  return Array.from(byListingId.values()).map(transformListing);
+}
