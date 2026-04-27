@@ -1277,14 +1277,11 @@ function extractSIRMedia(row: any): SIRMediaAssets {
   const videoUrls: string[] = [];
   let virtualTourUrl: string | null = null;
 
-  // Skip photos from defunct CDNs (anywhere.re returns 404s)
-  const isDefunctCdn = (u: string) => u.includes('anywhere.re');
-
   if (row.default_photo_url) {
     const url = row.default_photo_url.startsWith('//')
       ? `https:${row.default_photo_url}`
       : row.default_photo_url;
-    if (!isDefunctCdn(url)) photos.push(url);
+    photos.push(url);
   }
 
   if (row.media && Array.isArray(row.media)) {
@@ -1298,7 +1295,7 @@ function extractSIRMedia(row: any): SIRMediaAssets {
       } else if (item.format === 'Video') {
         videoUrls.push(url);
       } else {
-        if (!isDefunctCdn(url) && !photos.includes(url)) photos.push(url);
+        if (!photos.includes(url)) photos.push(url);
       }
     }
   }
@@ -1307,12 +1304,9 @@ function extractSIRMedia(row: any): SIRMediaAssets {
 }
 
 function enrichListingWithSIRMedia(listing: MLSProperty, sir: SIRMediaAssets): MLSProperty {
-  // Filter out photos from defunct CDNs (anywhere.re returns 404s)
-  const usableSirPhotos = sir.photos.filter(url => !url.includes('anywhere.re'));
-
   return {
     ...listing,
-    photos: usableSirPhotos.length > 0 ? usableSirPhotos : listing.photos,
+    photos: sir.photos.length > 0 ? sir.photos : listing.photos,
     virtual_tour_url: sir.virtualTourUrl || listing.virtual_tour_url,
     video_urls: sir.videoUrls.length > 0 ? sir.videoUrls : listing.video_urls,
   };

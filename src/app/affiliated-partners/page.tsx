@@ -85,7 +85,6 @@ function getPartnerListingPhoto(listing: PartnerListing): string | null {
   if (listing.default_photo_url) {
     const url = listing.default_photo_url;
     if (url.startsWith('//')) return `https:${url}`;
-    if (url.includes('anywhere.re')) return null;
     return url;
   }
   const media = Array.isArray(listing.media) ? listing.media : [];
@@ -93,7 +92,6 @@ function getPartnerListingPhoto(listing: PartnerListing): string | null {
   if (image?.url) {
     const url = image.url;
     if (url.startsWith('//')) return `https:${url}`;
-    if (url.includes('anywhere.re')) return null;
     return url;
   }
   return null;
