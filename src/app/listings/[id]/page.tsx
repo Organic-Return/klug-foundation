@@ -434,6 +434,28 @@ export default async function ListingPage({ params }: ListingPageProps) {
     }
   }
 
+  // Partner-listed properties: use the same exclusive template as Klug listings
+  if (partnerAgent) {
+    return (
+      <>
+        {schemas.map((schema, index) => (
+          <script
+            key={index}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        ))}
+        <CustomOneListingContent
+          listing={listing}
+          agent={partnerAgent}
+          documents={propertyEnhancement?.documents}
+          videos={propertyEnhancement?.videos}
+        />
+      </>
+    );
+  }
+
+  // Fallback: no agent match — use the simpler Klug listing layout
   return (
     <>
       {schemas.map((schema, index) => (
@@ -445,7 +467,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
       ))}
       <KlugListingContent
         listing={listing}
-        agent={partnerAgent}
+        agent={null}
         coAgent={null}
         googleMapsApiKey={googleMapsApiKey}
       />
