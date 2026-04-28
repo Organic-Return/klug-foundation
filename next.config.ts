@@ -4,6 +4,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 
+  // Lighthouse Best Practices flags missing source maps for large
+  // first-party JS bundles. Marketing site code is fine to expose.
+  productionBrowserSourceMaps: true,
+
 
   // Image optimization with modern formats
   images: {
