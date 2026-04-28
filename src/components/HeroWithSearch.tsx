@@ -209,7 +209,7 @@ export default function HeroWithSearch({
       <div className="relative z-10 flex flex-col items-center px-4 sm:px-6 lg:px-8 pt-36 pb-4" style={{ minHeight: 'calc(100vh + 5rem)' }}>
         {/* Hero Text - Centered vertically in available space */}
         <div className="flex-1 flex items-center justify-center">
-          {showTitleSubtitle && (
+          {showTitleSubtitle ? (
             <div className="text-center max-w-4xl">
               <h1 className="text-white text-shadow-luxury animate-fade-in-up animate-delay-100">
                 {title}
@@ -224,11 +224,19 @@ export default function HeroWithSearch({
                 {subtitle}
               </p>
 
-              {(seoDescription || true) && (
-                <p className="text-white/70 text-sm font-light max-w-2xl mx-auto mb-6 text-center animate-fade-in-up animate-delay-400">
-                  {seoDescription || 'Klug Properties, in partnership with Aspen Snowmass Sotheby\u2019s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.'}
-                </p>
-              )}
+              <p className="text-white/70 text-sm font-light max-w-2xl mx-auto mb-6 text-center animate-fade-in-up animate-delay-400">
+                {seoDescription || 'Klug Properties, in partnership with Aspen Snowmass Sotheby\u2019s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.'}
+              </p>
+            </div>
+          ) : (
+            // SEO-only fallback: title/subtitle/description rendered as
+            // visually hidden but crawler-readable HTML when overlay is off.
+            <div className="sr-only">
+              <h1>{title}</h1>
+              <p>{subtitle}</p>
+              <p>
+                {seoDescription || 'Klug Properties, in partnership with Aspen Snowmass Sotheby\u2019s International Realty, offers unparalleled access to luxury real estate across the Roaring Fork Valley. From iconic Aspen estates to mountain residences in Snowmass Village, Basalt, and Woody Creek, we guide discerning clients to exceptional properties.'}
+              </p>
             </div>
           )}
         </div>
