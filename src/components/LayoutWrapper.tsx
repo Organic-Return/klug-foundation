@@ -49,10 +49,13 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     // Listings page: header but no footer, fixed viewport height
     return (
       <div className="h-screen flex flex-col overflow-hidden">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:text-[var(--color-navy)] focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:outline focus:outline-2 focus:outline-[var(--color-gold)]">
+          Skip to main content
+        </a>
         {headerWithProps}
-        <div className={`flex-1 overflow-hidden ${isRCSothebys ? '' : 'pt-20'}`}>
+        <main id="main-content" className={`flex-1 overflow-hidden ${isRCSothebys ? '' : 'pt-20'}`}>
           {children}
-        </div>
+        </main>
       </div>
     );
   }
@@ -67,10 +70,13 @@ export default function LayoutWrapper({ header, footer, children, template }: La
 
   return (
     <>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:text-[var(--color-navy)] focus:px-4 focus:py-2 focus:rounded focus:shadow-lg focus:outline focus:outline-2 focus:outline-[var(--color-gold)]">
+        Skip to main content
+      </a>
       {headerWithProps}
-      <div className={needsPadding ? 'pt-20' : ''}>
+      <main id="main-content" className={needsPadding ? 'pt-20' : ''}>
         {children}
-      </div>
+      </main>
       {footer}
     </>
   );

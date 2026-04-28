@@ -273,6 +273,7 @@ export default function HeroWithSearch({
               {/* Location Dropdown */}
               <div className="w-full sm:w-auto sm:flex-1 lg:flex-1">
                 <select
+                  aria-label="Location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white py-3 px-1 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
@@ -297,6 +298,7 @@ export default function HeroWithSearch({
               {/* Type Dropdown */}
               <div className="w-full sm:w-auto sm:flex-1 lg:flex-1">
                 <select
+                  aria-label="Property type"
                   value={propertyType}
                   onChange={(e) => setPropertyType(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white py-3 px-1 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
@@ -321,6 +323,7 @@ export default function HeroWithSearch({
               {/* Min Price Dropdown */}
               <div className="w-[calc(50%-0.5rem)] sm:w-auto sm:flex-1 lg:flex-1">
                 <select
+                  aria-label="Minimum price"
                   value={priceMin}
                   onChange={(e) => setPriceMin(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white py-3 px-1 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
@@ -345,6 +348,7 @@ export default function HeroWithSearch({
               {/* Max Price Dropdown */}
               <div className="w-[calc(50%-0.5rem)] sm:w-auto sm:flex-1 lg:flex-1">
                 <select
+                  aria-label="Maximum price"
                   value={priceMax}
                   onChange={(e) => setPriceMax(e.target.value)}
                   className="w-full bg-transparent border-0 border-b-2 border-white/50 text-white py-3 px-1 text-sm font-light tracking-wide focus:border-[var(--color-gold)] focus:ring-0 outline-none transition-colors cursor-pointer appearance-none"
@@ -370,6 +374,7 @@ export default function HeroWithSearch({
               <div className="w-full sm:w-auto sm:flex-1 lg:flex-1">
                 <input
                   type="text"
+                  aria-label="MLS number or keyword"
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   placeholder="MLS# / Keyword"

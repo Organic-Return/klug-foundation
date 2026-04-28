@@ -278,6 +278,9 @@ export default function Header({
                 ) : (
                   <button
                     onClick={() => toggleDropdown(index)}
+                    aria-haspopup="menu"
+                    aria-expanded={activeDropdown === index}
+                    aria-controls={`nav-dropdown-${index}`}
                     className="klug-nav-link relative py-2 font-semibold uppercase text-white whitespace-nowrap group flex-shrink-0"
                     style={{ fontSize: '16px', padding: '8px 14px', letterSpacing: '0.08em', fontFamily: 'var(--font-body)' }}
                   >
@@ -290,7 +293,7 @@ export default function Header({
                 {item.hasMegaMenu && item.megaMenuColumns && activeDropdown === index && (() => {
                   const isSkiTown = item.label.toLowerCase().includes('ski town') || item.label.toLowerCase().includes('affiliated');
                   return (
-                  <div className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-screen max-w-4xl px-4">
+                  <div id={`nav-dropdown-${index}`} role="menu" className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-screen max-w-4xl px-4">
                     <div className={`shadow-2xl p-8 border relative ${isSkiTown ? 'bg-[#00254a] border-[#00254a]' : 'bg-white border-gray-100'}`}>
                       <button
                         onClick={() => setActiveDropdown(null)}
@@ -370,7 +373,7 @@ export default function Header({
 
                 {/* Simple Dropdown */}
                 {!item.hasMegaMenu && item.simpleDropdown && item.simpleDropdown.length > 0 && activeDropdown === index && (
-                  <div className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-64">
+                  <div id={`nav-dropdown-${index}`} role="menu" className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-64">
                     <div className="bg-white shadow-xl py-4 border border-gray-100 relative">
                       <button
                         onClick={() => setActiveDropdown(null)}
@@ -564,6 +567,7 @@ export default function Header({
           <input
             ref={searchInputRef}
             type="text"
+            aria-label="Search by keyword, MLS number, or address"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by keyword, MLS#, or address..."
