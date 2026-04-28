@@ -182,11 +182,27 @@ export default async function RootLayout({
   const templateClass = template === 'modern' ? 'modern-template' : template === 'custom-one' ? 'custom-one-template' : template === 'luxury' ? 'luxury-template' : template === 'rcsothebys-custom' ? 'rcsothebys-template' : template === 'classic' ? 'klug-template' : '';
 
   // Font preset class for klug template (defaults to 'sothebys' if not set)
-  const fontPresetClass = template === 'classic' ? `klug-fonts-${settings?.fontPreset || 'sothebys'}` : '';
+  const fontPreset = settings?.fontPreset || 'sothebys';
+  const fontPresetClass = template === 'classic' ? `klug-fonts-${fontPreset}` : '';
+
+  // Only attach the font variables actually used by the active template.
+  // next/font/google preloads each font whose variable is rendered on the
+  // page; declaring them in module scope is cheap, but applying every
+  // variable to <body> made the browser preload all 7 families on every
+  // request. Scoping to the active template cuts ~5-6 woff2 downloads.
+  const fontVariables = (() => {
+    const inter_ = inter.variable; // body / inputs / buttons across all templates
+    if (template === 'luxury') return `${inter_} ${cormorantGaramond.variable} ${playfairDisplay.variable}`;
+    if (template === 'modern' || template === 'custom-one') return `${inter_} ${montserrat.variable}`;
+    if (template === 'rcsothebys-custom') return `${inter_} ${figtree.variable}`;
+    // classic template
+    if (fontPreset === 'classic') return `${inter_} ${openSans.variable} ${lora.variable}`;
+    return `${inter_} ${lora.variable}`; // sothebys preset
+  })();
 
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${lora.variable} ${cormorantGaramond.variable} ${montserrat.variable} ${playfairDisplay.variable} ${figtree.variable} ${openSans.variable} antialiased ${templateClass} ${fontPresetClass}`.trim()}>
+      <body className={`${fontVariables} antialiased ${templateClass} ${fontPresetClass}`.trim()}>
         <Analytics gaId={gaId} gtmId={gtmId} fbPixelId={fbPixelId} gadsConversionId={gadsConversionId} />
         <AuthProvider>
         <UTMCapture />

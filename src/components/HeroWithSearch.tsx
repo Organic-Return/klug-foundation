@@ -94,8 +94,22 @@ export default function HeroWithSearch({
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  // Defer video element/source rendering until after first paint so the
+  // poster image can become LCP without competing with the MP4 download.
+  const [videosReady, setVideosReady] = useState(false);
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const start = () => setVideosReady(true);
+    const ric = (window as any).requestIdleCallback as ((cb: () => void, opts?: { timeout: number }) => number) | undefined;
+    if (ric) {
+      ric(start, { timeout: 1500 });
+    } else {
+      const id = window.setTimeout(start, 800);
+      return () => window.clearTimeout(id);
+    }
+  }, []);
 
   const goToSlide = useCallback((index: number) => {
     if (index === activeSlide || isTransitioning) return;
@@ -161,17 +175,27 @@ export default function HeroWithSearch({
           }`}
         >
           {slide.videoUrl ? (
-            <video
-              ref={(el) => { videoRefs.current[index] = el; }}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-              poster={slide.posterUrl}
-            >
-              <source src={slide.videoUrl} type="video/mp4" />
-            </video>
+            videosReady ? (
+              <video
+                ref={(el) => { videoRefs.current[index] = el; }}
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="none"
+                className="w-full h-full object-cover"
+                poster={slide.posterUrl}
+              >
+                <source src={slide.videoUrl} type="video/mp4" />
+              </video>
+            ) : slide.posterUrl ? (
+              // Pre-paint placeholder so the LCP image renders without
+              // pulling in the MP4 download on the critical path.
+              <div
+                className="w-full h-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${slide.posterUrl})` }}
+              />
+            ) : null
           ) : slide.posterUrl ? (
             <div
               className="w-full h-full bg-cover bg-center"
