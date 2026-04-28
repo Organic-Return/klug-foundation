@@ -14,14 +14,27 @@ function urlFor(source: any) {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [homepage, settings] = await Promise.all([
+  const [homepage, settings, branding] = await Promise.all([
     getHomepageData(),
     getSettings(),
+    getBranding(),
   ]);
 
   const seo = homepage?.seo;
   const siteTitle = settings?.title || 'Real Estate';
   const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+
+  // Pick OG image: explicit SEO meta image > homepage hero fallback > branding logo
+  const ogImageUrl = seo?.metaImage?.asset?.url
+    ? urlFor(seo.metaImage).width(1200).height(630).fit('crop').url()
+    : homepage?.hero?.fallbackImage?.asset?.url
+      ? urlFor(homepage.hero.fallbackImage).width(1200).height(630).fit('crop').url()
+      : branding?.logo?.asset?.url
+        ? urlFor(branding.logo).width(1200).url()
+        : undefined;
+  const ogImages = ogImageUrl
+    ? [{ url: ogImageUrl, width: 1200, height: 630, alt: siteTitle }]
+    : undefined;
 
   return {
     title: seo?.metaTitle || siteTitle,
@@ -34,9 +47,15 @@ export async function generateMetadata(): Promise<Metadata> {
       title: seo?.metaTitle || siteTitle,
       description: seo?.metaDescription || settings?.description,
       url: baseUrl,
-      images: seo?.metaImage?.asset?.url
-        ? [{ url: urlFor(seo.metaImage).width(1200).url() }]
-        : undefined,
+      siteName: siteTitle,
+      type: 'website',
+      images: ogImages,
+    },
+    twitter: {
+      card: ogImageUrl ? 'summary_large_image' : 'summary',
+      title: seo?.metaTitle || siteTitle,
+      description: seo?.metaDescription || settings?.description,
+      images: ogImageUrl ? [ogImageUrl] : undefined,
     },
   };
 }
@@ -127,22 +146,74 @@ export default async function Home() {
 
   const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
+  // Logo URL for schema (square preferred for logo, full for image)
+  const orgLogoUrl = branding?.logo?.asset?.url
+    ? urlFor(branding.logo).width(600).url()
+    : undefined;
+
+  // Roaring Fork Valley service area — used for areaServed in LocalBusiness schema
+  const areaServedCities = [
+    'Aspen',
+    'Snowmass Village',
+    'Snowmass',
+    'Basalt',
+    'Carbondale',
+    'El Jebel',
+    'Woody Creek',
+    'Old Snowmass',
+    'Glenwood Springs',
+    'Marble',
+    'Redstone',
+  ];
+
   // RealEstateAgent / Organization structured data
   const organizationSchema = {
     '@context': 'https://schema.org',
-    '@type': ['RealEstateAgent', 'Organization'],
+    '@type': ['RealEstateAgent', 'LocalBusiness', 'Organization'],
     '@id': `${baseUrl}#organization`,
     name: settings?.title || 'Real Estate',
     description: settings?.description,
     url: baseUrl,
     telephone: settings?.contactInfo?.phone,
     email: settings?.contactInfo?.email,
+    priceRange: '$$$$',
+    logo: orgLogoUrl,
+    image: orgLogoUrl || fallbackImageUrl,
     address: settings?.contactInfo?.address
       ? {
           '@type': 'PostalAddress',
           streetAddress: settings.contactInfo.address,
+          addressLocality: 'Aspen',
+          addressRegion: 'CO',
+          addressCountry: 'US',
         }
-      : undefined,
+      : {
+          '@type': 'PostalAddress',
+          addressLocality: 'Aspen',
+          addressRegion: 'CO',
+          addressCountry: 'US',
+        },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 39.1911,
+      longitude: -106.8175,
+    },
+    areaServed: areaServedCities.map((name) => ({
+      '@type': 'City',
+      name,
+      containedInPlace: {
+        '@type': 'AdministrativeArea',
+        name: 'Roaring Fork Valley, Colorado',
+      },
+    })),
+    knowsAbout: [
+      'Luxury real estate',
+      'Aspen real estate',
+      'Snowmass real estate',
+      'Roaring Fork Valley homes',
+      'Mountain properties',
+      'Ski-in ski-out homes',
+    ],
     sameAs: [
       settings?.socialMedia?.facebook,
       settings?.socialMedia?.instagram,
@@ -160,6 +231,7 @@ export default async function Home() {
     name: settings?.title || 'Real Estate',
     url: baseUrl,
     description: settings?.description,
+    inLanguage: 'en-US',
     publisher: {
       '@id': `${baseUrl}#organization`,
     },
@@ -181,6 +253,8 @@ export default async function Home() {
     url: baseUrl,
     name: settings?.title || 'Real Estate',
     description: settings?.description,
+    inLanguage: 'en-US',
+    dateModified: new Date().toISOString(),
     isPartOf: {
       '@id': `${baseUrl}#website`,
     },

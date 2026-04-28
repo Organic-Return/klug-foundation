@@ -84,12 +84,12 @@ export default function TeamSection({
 
         {/* Content */}
         <div className="w-full md:w-1/2 lg:w-[45%] md:pl-6 lg:pl-8 xl:pl-16">
-          <h1 className="!mt-0 !pt-0 mb-3 sm:mb-4 lg:mb-6 text-[var(--color-sothebys-blue)] dark:text-white">
+          <h2 className="!mt-0 !pt-0 mb-3 sm:mb-4 lg:mb-6 text-[var(--color-sothebys-blue)] dark:text-white">
             {title}
-          </h1>
+          </h2>
 
           {teamMember.name && (
-            <h2 className="hidden" itemProp="name">{teamMember.name}</h2>
+            <span className="hidden" itemProp="name">{teamMember.name}</span>
           )}
 
           {teamMember.title && (
