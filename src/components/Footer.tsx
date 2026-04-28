@@ -103,7 +103,29 @@ export default function Footer({
   const footerLinks = columns.length > 0 ? columns[0]?.links || defaultLinks : defaultLinks;
 
   return (
-    <footer className="relative flex flex-col items-center w-full">
+    <footer
+      className="relative flex flex-col items-center w-full"
+      itemScope
+      itemType="https://schema.org/RealEstateAgent"
+    >
+      {/* Hidden microdata for crawlers (also covered by JSON-LD on homepage) */}
+      <meta itemProp="name" content={siteTitle} />
+      <meta itemProp="priceRange" content="$$$$" />
+      {description && <meta itemProp="description" content={description} />}
+      {contactInfo?.phone && <meta itemProp="telephone" content={contactInfo.phone} />}
+      {contactInfo?.email && <meta itemProp="email" content={contactInfo.email} />}
+      <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
+        {contactInfo?.address && <meta itemProp="streetAddress" content={contactInfo.address} />}
+        <meta itemProp="addressLocality" content="Aspen" />
+        <meta itemProp="addressRegion" content="CO" />
+        <meta itemProp="addressCountry" content="US" />
+      </div>
+      {socialMedia?.facebook && <link itemProp="sameAs" href={socialMedia.facebook} />}
+      {socialMedia?.instagram && <link itemProp="sameAs" href={socialMedia.instagram} />}
+      {socialMedia?.twitter && <link itemProp="sameAs" href={socialMedia.twitter} />}
+      {socialMedia?.linkedin && <link itemProp="sameAs" href={socialMedia.linkedin} />}
+      {socialMedia?.youtube && <link itemProp="sameAs" href={socialMedia.youtube} />}
+
       {/* Top Section - Sotheby's Blue Background with Portrait and Tagline */}
       <div className="flex flex-col w-full relative mt-14">
         <div className="relative bg-[#00254a] max-w-none w-full flex flex-col items-center p-0">
@@ -116,11 +138,12 @@ export default function Footer({
                 width={184}
                 height={237}
                 className="w-[165px] -mt-6 md:mt-0 md:absolute"
+                itemProp="image"
               />
             </div>
 
             {/* Tagline Image */}
-            <Link href="/" className="w-full md:w-8/12 xl:w-4/12 lg:max-w-none pb-0 xl:pl-10">
+            <Link href="/" className="w-full md:w-8/12 xl:w-4/12 lg:max-w-none pb-0 xl:pl-10" itemProp="url">
               <span className="sr-only">Homepage</span>
               <Image
                 src={taglineUrl}
@@ -128,6 +151,7 @@ export default function Footer({
                 width={416}
                 height={80}
                 className="w-full"
+                itemProp="logo"
               />
             </Link>
 
