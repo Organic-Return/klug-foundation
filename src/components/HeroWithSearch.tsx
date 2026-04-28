@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface HeroVideo {
   videoUrl?: string;
@@ -190,16 +191,26 @@ export default function HeroWithSearch({
               </video>
             ) : slide.posterUrl ? (
               // Pre-paint placeholder so the LCP image renders without
-              // pulling in the MP4 download on the critical path.
-              <div
-                className="w-full h-full bg-cover bg-center"
-                style={{ backgroundImage: `url(${slide.posterUrl})` }}
+              // pulling in the MP4 download on the critical path. Use
+              // next/image with priority on the first slide so the
+              // browser preloads the LCP candidate.
+              <Image
+                src={slide.posterUrl}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                className="object-cover"
               />
             ) : null
           ) : slide.posterUrl ? (
-            <div
-              className="w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${slide.posterUrl})` }}
+            <Image
+              src={slide.posterUrl}
+              alt=""
+              fill
+              priority={index === 0}
+              sizes="100vw"
+              className="object-cover"
             />
           ) : null}
         </div>
@@ -210,20 +221,20 @@ export default function HeroWithSearch({
 
       {/* Slide Indicator Dots - Left side, vertically centered */}
       {hasMultipleSlides && (
-        <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3">
+        <div className="absolute left-6 sm:left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3" role="tablist" aria-label="Hero slide selector">
           {slides.map((_, index) => (
-            <span
+            <button
               key={index}
-              role="button"
-              tabIndex={0}
+              type="button"
+              role="tab"
+              aria-selected={index === activeSlide}
+              aria-label={`Go to slide ${index + 1}`}
               onClick={() => handleDotClick(index)}
-              onKeyDown={(e) => e.key === 'Enter' && handleDotClick(index)}
-              className={`transition-all duration-300 rounded-full cursor-pointer ${
+              className={`transition-all duration-300 rounded-full cursor-pointer p-0 border-0 ${
                 index === activeSlide
                   ? 'w-3 h-3 bg-white'
                   : 'w-2 h-2 bg-white/40 hover:bg-white/70'
               }`}
-              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
