@@ -243,7 +243,7 @@ export default function HeroWithSearch({
 
         {/* Property Search Form - Bottom - Klugproperties Style */}
         {showSearch && (
-          <div className="w-full max-w-6xl animate-fade-in-up animate-delay-400">
+          <div className="w-full max-w-6xl animate-fade-in-up animate-delay-400 mb-[100px]">
             <h3 className="text-white text-left tracking-[0.2em] uppercase mb-6 pl-1" style={{ fontSize: '1.5rem', fontWeight: 400 }}>Property Search</h3>
             <form onSubmit={handleSearch} className="flex flex-wrap items-end justify-between gap-4 lg:gap-6">
               {/* Location Dropdown */}
