@@ -218,7 +218,7 @@ export default async function MagazinePage({
       />
       <main className="min-h-screen">
         {/* Hero Section - Magazine Cover Style */}
-        <section className="relative min-h-screen flex items-end">
+        <section className="relative min-h-[75vh] flex items-end">
           {heroImageUrl ? (
             <>
               <Image

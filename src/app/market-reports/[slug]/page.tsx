@@ -295,7 +295,7 @@ export default async function MarketReportPage({
       />
       <main className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative h-[60vh] md:h-[70vh] min-h-[500px]">
+        <section className="relative h-[45vh] md:h-[52vh] min-h-[375px]">
           {heroImageUrl ? (
             <>
               <Image

@@ -28,7 +28,7 @@ export default function CommunityHero({
 
   if (isLuxury) {
     return (
-      <section className="relative w-full h-screen min-h-[800px] overflow-hidden">
+      <section className="relative w-full h-[75vh] min-h-[600px] overflow-hidden">
         {/* Hero Image with Ken Burns */}
         <div
           className={`absolute inset-0 transition-transform duration-[20000ms] ease-linear ${
@@ -82,10 +82,10 @@ export default function CommunityHero({
                 style={{ transitionDelay: '600ms' }}
               />
 
-              {/* Description */}
+              {/* Description — limited to 2 lines */}
               {description && (
                 <p
-                  className={`font-luxury-body text-white/70 text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto mb-8 transition-all duration-1000 ${
+                  className={`font-luxury-body text-white/70 text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto mb-8 line-clamp-2 transition-all duration-1000 ${
                     isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                   }`}
                   style={{ transitionDelay: '750ms' }}
@@ -134,7 +134,7 @@ export default function CommunityHero({
 
   // Classic variant
   return (
-    <section className="relative w-full h-[70vh] md:h-[75vh] lg:h-[80vh] min-h-[500px]">
+    <section className="relative w-full h-[52vh] md:h-[56vh] lg:h-[60vh] min-h-[375px]">
       {/* Hero Image Container */}
       <div className="absolute inset-0">
         <Image
@@ -161,7 +161,7 @@ export default function CommunityHero({
             <div className="h-px bg-gradient-to-r from-[var(--color-gold)] to-[var(--color-gold-light)] mb-6 md:mb-8 w-16 md:w-24" />
 
             {description && (
-              <p className="text-lg md:text-xl text-white/90 font-light leading-relaxed max-w-2xl mb-6">
+              <p className="text-lg md:text-xl text-white/90 font-light leading-relaxed max-w-2xl mb-6 line-clamp-2">
                 {description}
               </p>
             )}

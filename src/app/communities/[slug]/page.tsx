@@ -534,14 +534,14 @@ export default async function CommunityPage({
             variant={variant}
           />
         ) : (
-          /* Fallback hero when no featured image - pt-20 for fixed header */
-          <div className={isLuxury ? 'bg-[var(--color-charcoal)] pt-28 pb-16 px-6' : 'bg-[var(--color-navy)] pt-28 pb-16 px-6'}>
+          /* Fallback hero when no featured image - pt-24 for fixed header (was pt-28; -25% on overall band) */
+          <div className={isLuxury ? 'bg-[var(--color-charcoal)] pt-24 pb-12 px-6' : 'bg-[var(--color-navy)] pt-24 pb-12 px-6'}>
             <div className="max-w-7xl mx-auto">
               <h1 className={isLuxury ? 'font-luxury text-white font-light tracking-wide' : 'text-white'}>
                 {community.title}
               </h1>
               {community.description && (
-                <p className={isLuxury ? 'text-lg text-white/70 mt-6 max-w-2xl font-luxury-body font-light' : 'text-lg text-white/80 mt-6 max-w-2xl'}>
+                <p className={isLuxury ? 'text-lg text-white/70 mt-6 max-w-2xl font-luxury-body font-light line-clamp-2' : 'text-lg text-white/80 mt-6 max-w-2xl line-clamp-2'}>
                   {community.description}
                 </p>
               )}

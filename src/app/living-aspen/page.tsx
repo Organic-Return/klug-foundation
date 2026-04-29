@@ -51,7 +51,7 @@ export default async function LivingAspenPage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="bg-[var(--color-navy)] pt-32 pb-16 md:pt-40 md:pb-20">
+      <section className="bg-[var(--color-navy)] pt-24 pb-12 md:pt-32 md:pb-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">
             Living Aspen
