@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { getSoldListingsByAgentIds, getMlsNumbersWithSIRMedia } from '@/lib/listings';
@@ -123,9 +124,8 @@ export default async function SoldByKlugPropertiesPage() {
   const heroTitle = page?.heroTitle || 'Sold by Klug Properties';
   const heroDescription = page?.heroDescription
     || "Properties closed by Chris Klug and the Klug Properties team across Aspen, Snowmass Village, and the Roaring Fork Valley — representing buyers and sellers in Colorado's most prestigious mountain communities.";
-  const heroImageUrl = page?.heroImage?.asset?.url
-    ? urlFor(page.heroImage).width(2400).height(1200).fit('crop').auto('format').url()
-    : null;
+  // Use the original asset URL so next/image can build a proper srcSet.
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || null;
   const showStats = page?.showStats !== false;
   const statsPropertiesLabel = page?.statsPropertiesLabel || 'Properties Sold';
   const statsVolumeLabel = page?.statsVolumeLabel || 'Total Sales Volume';
@@ -133,16 +133,19 @@ export default async function SoldByKlugPropertiesPage() {
 
   return (
     <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
-      {/* Hero */}
+      {/* Hero — transparent header sits on top, so add extra top padding */}
       <section
-        className={`relative py-20 md:py-28 ${heroImageUrl ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
       >
-        {heroImageUrl && (
+        {heroImageRaw && (
           <>
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${heroImageUrl})` }}
-              aria-hidden="true"
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
             />
             <div
               className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"

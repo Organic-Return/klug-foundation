@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import {
@@ -137,22 +138,26 @@ export default async function ExclusiveAndNewPage() {
     || `The ${newestLimit} most recently listed single family residences in ${newestCity}, refreshed continuously from the MLS.`;
   const newestEmptyText = page?.newestEmptyText || `No new ${newestCity} listings available.`;
 
-  const heroImageUrl = page?.heroImage?.asset?.url
-    ? urlFor(page.heroImage).width(2400).height(1200).fit('crop').auto('format').url()
-    : null;
+  // Use the original asset URL and let Next/image generate the
+  // responsive srcSet via /_next/image — fixes blur on hi-DPI
+  // displays where the previous fixed-width 2400x1200 was undersized.
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || null;
 
   return (
     <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
-      {/* Hero */}
+      {/* Hero — transparent header sits on top, so add extra top padding */}
       <section
-        className={`relative py-20 md:py-28 ${heroImageUrl ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
       >
-        {heroImageUrl && (
+        {heroImageRaw && (
           <>
-            <div
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${heroImageUrl})` }}
-              aria-hidden="true"
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
             />
             {/* Dark overlay so the headline stays legible regardless of the image */}
             <div
