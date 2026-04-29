@@ -129,7 +129,7 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
             <>
               <button
                 onClick={handlePrevPhoto}
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                 aria-label="Previous photo"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
               </button>
               <button
                 onClick={handleNextPhoto}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[var(--color-charcoal)] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
                 aria-label="Next photo"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
