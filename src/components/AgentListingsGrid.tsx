@@ -51,9 +51,19 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
 
   const displayPrice = isSold && listing.sold_price ? listing.sold_price : listing.list_price;
 
+  const href = getListingHref(listing);
+
   return (
-    <Link href={getListingHref(listing)} className="group block">
+    <div className="group relative block">
       <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden">
+        {/* Link covers the image area only, sits below the carousel
+            buttons via z-index so prev/next clicks don't navigate. */}
+        <Link
+          href={href}
+          aria-label={listing.address || 'View property'}
+          className="absolute inset-0 z-10"
+        />
+
         {currentPhoto && !imageError ? (
           <Image
             src={currentPhoto}
@@ -71,13 +81,14 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
           </div>
         )}
 
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 pointer-events-none" />
 
         {hasMultiplePhotos && (
           <>
             <button
+              type="button"
               onClick={handlePrevPhoto}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute z-20 left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
               aria-label="Previous photo"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,15 +96,16 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
               </svg>
             </button>
             <button
+              type="button"
               onClick={handleNextPhoto}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute z-20 right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white text-[#1a1a1a] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
               aria-label="Next photo"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
               </svg>
             </button>
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute z-20 bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               {photos.slice(0, 5).map((_, idx) => (
                 <div
                   key={idx}
@@ -156,7 +168,7 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
         </div>
       </div>
 
-      <div className="pt-4 pb-2">
+      <Link href={href} className="block pt-4 pb-2">
         <div className="text-xl font-light text-[#1a1a1a] dark:text-white tracking-wide mb-2">
           {isSold && listing.sold_price ? (
             <>
@@ -195,8 +207,8 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
           )}
           {listing.square_feet && <span>{formatSqft(listing.square_feet)}</span>}
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
