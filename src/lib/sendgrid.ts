@@ -106,6 +106,71 @@ function buildLeadEmailHtml(data: LeadEmailData): string {
 }
 
 /**
+ * Send a welcome email to a newly registered user. Replaces Supabase's
+ * default confirmation email which is rate-limited and frequently
+ * marked as spam.
+ */
+export async function sendWelcomeEmail(
+  toEmail: string,
+  options: {
+    name?: string;
+    siteName?: string;
+    siteUrl?: string;
+  } = {}
+): Promise<void> {
+  if (!isSendGridConfigured()) {
+    console.warn('SendGrid not configured — skipping welcome email to', toEmail);
+    return;
+  }
+
+  const siteName = options.siteName || 'Klug Properties';
+  const siteUrl = options.siteUrl || 'https://klugproperties.com';
+  const greetingName = options.name?.trim() || 'there';
+
+  const html = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;background:#fff;">
+      <div style="background:#002349;padding:32px 24px;text-align:center;">
+        <h1 style="color:#fff;font-size:22px;margin:0;font-weight:400;letter-spacing:0.04em;">Welcome to ${siteName}</h1>
+      </div>
+      <div style="padding:32px 24px;color:#1a1a1a;">
+        <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">Hi ${greetingName},</p>
+        <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">
+          Thank you for creating an account with ${siteName}. You now have access to our exclusive
+          off-market listings and member-only collection of luxury properties across Aspen,
+          Snowmass Village, and the Roaring Fork Valley.
+        </p>
+        <p style="font-size:16px;line-height:1.6;margin:0 0 24px;">
+          You can sign in any time to browse, save properties, and receive updates from our team.
+        </p>
+        <p style="margin:32px 0;text-align:center;">
+          <a href="${siteUrl}/off-market"
+             style="display:inline-block;background:#002349;color:#fff;text-decoration:none;padding:14px 32px;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;">
+            View Off-Market Listings
+          </a>
+        </p>
+        <p style="font-size:14px;line-height:1.6;color:#6a6a6a;margin:24px 0 0;">
+          If you have any questions or want a personal introduction to a property, just reply to
+          this email — a member of our team will be in touch.
+        </p>
+      </div>
+      <div style="padding:20px 24px;border-top:1px solid #eee;text-align:center;color:#888;font-size:12px;">
+        <p style="margin:0 0 4px;">${siteName}</p>
+        <p style="margin:0;">
+          <a href="${siteUrl}" style="color:#888;text-decoration:none;">${siteUrl.replace(/^https?:\/\//, '')}</a>
+        </p>
+      </div>
+    </div>
+  `;
+
+  await sgMail.send({
+    to: toEmail,
+    from: { email: fromEmail, name: siteName },
+    subject: `Welcome to ${siteName}`,
+    html,
+  });
+}
+
+/**
  * Send lead notification email to the assigned agent.
  */
 export async function sendLeadNotificationEmail(

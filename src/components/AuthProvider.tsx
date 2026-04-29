@@ -60,20 +60,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, metadata?: { name?: string }) => {
     if (!supabase) return { error: new Error('Auth not configured') };
-    // Send the confirmation email link back to /auth/callback on the
-    // current origin. Without this, Supabase falls back to its
-    // configured Site URL which often points at localhost.
-    const emailRedirectTo =
-      typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined;
-    const { error } = await supabase.auth.signUp({
+
+    // Route signup through our /api/auth/signup endpoint instead of
+    // calling supabase.auth.signUp directly. The server creates the
+    // user via the Supabase admin API (auto-confirmed) and sends a
+    // welcome email via SendGrid, bypassing Supabase's rate-limited
+    // default email service.
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name: metadata?.name }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        return { error: new Error(json?.error || 'Could not create account.') };
+      }
+    } catch (err) {
+      return { error: err instanceof Error ? err : new Error('Network error during signup.') };
+    }
+
+    // Account exists and is auto-confirmed — sign the user in so the
+    // app gets a session immediately.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        data: metadata,
-        emailRedirectTo,
-      },
     });
-    return { error };
+    return { error: signInError };
   };
 
   const signOut = async () => {
