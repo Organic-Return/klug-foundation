@@ -112,6 +112,14 @@ export default function HeroWithSearch({
     }
   }, []);
 
+  const advanceToNext = useCallback(() => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+      setIsTransitioning(false);
+    }, 500);
+  }, [slides.length]);
+
   const goToSlide = useCallback((index: number) => {
     if (index === activeSlide || isTransitioning) return;
     setIsTransitioning(true);
@@ -121,36 +129,40 @@ export default function HeroWithSearch({
     }, 500);
   }, [activeSlide, isTransitioning]);
 
-  // Auto-advance slides
+  // Auto-advance: video slides advance via the <video> onEnded handler
+  // (so each video plays in full); image-only slides fall back to a
+  // fixed display duration since there is no "ended" event for an img.
   useEffect(() => {
     if (!hasMultipleSlides) return;
+    const current = slides[activeSlide];
+    if (current?.videoUrl) return; // wait for onEnded
 
-    timerRef.current = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setActiveSlide((prev) => (prev + 1) % slides.length);
-        setIsTransitioning(false);
-      }, 500);
-    }, 12000);
-
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(advanceToNext, 8000);
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [hasMultipleSlides, slides.length]);
+  }, [hasMultipleSlides, slides, activeSlide, advanceToNext]);
 
-  // Reset timer when manually changing slides
+  // Pause inactive videos and start the active one from the beginning
+  // so every slide plays its full video before advancing.
+  useEffect(() => {
+    if (!videosReady) return;
+    videoRefs.current.forEach((el, i) => {
+      if (!el) return;
+      if (i === activeSlide) {
+        try { el.currentTime = 0; } catch {}
+        el.play().catch(() => {});
+      } else {
+        el.pause();
+      }
+    });
+  }, [activeSlide, videosReady]);
+
   const handleDotClick = useCallback((index: number) => {
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
     goToSlide(index);
-    // Restart auto-advance
-    timerRef.current = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setActiveSlide((prev) => (prev + 1) % slides.length);
-        setIsTransitioning(false);
-      }, 500);
-    }, 12000);
-  }, [goToSlide, slides.length]);
+  }, [goToSlide]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,12 +192,17 @@ export default function HeroWithSearch({
               <video
                 ref={(el) => { videoRefs.current[index] = el; }}
                 autoPlay
-                loop
+                {...(slides.length === 1 ? { loop: true } : {})}
                 muted
                 playsInline
                 preload={index === activeSlide ? 'auto' : 'none'}
                 className="w-full h-full object-cover"
                 poster={slide.posterUrl}
+                onEnded={() => {
+                  if (slides.length > 1 && index === activeSlide) {
+                    advanceToNext();
+                  }
+                }}
               >
                 <source src={slide.videoUrl} type="video/mp4" />
               </video>
