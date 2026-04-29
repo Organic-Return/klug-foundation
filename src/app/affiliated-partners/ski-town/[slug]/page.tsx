@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
+import { getRealogyListingsByAgentName, formatPrice, toAddressSlug } from '@/lib/listings';
 
 // Query by slug or by generated slug from firstName-lastName
 const PARTNER_BY_SLUG_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town" && (slug.current == $slug || lower(firstName + "-" + lastName) == $slug)][0] {
@@ -70,6 +71,13 @@ export default async function SkiTownPartnerPage({ params }: Props) {
   }
 
   const enrichedPartner = await enrichPartnerWithAgentData(partner);
+
+  // Fetch agent listings from the SIR/Realogy dataset by full name —
+  // same pattern as the market-leader partner page.
+  const agentName = `${partner.firstName} ${partner.lastName}`;
+  const rawListings = await getRealogyListingsByAgentName(agentName);
+  const activeListings = rawListings.activeListings;
+  const soldListings = rawListings.soldListings;
 
   return (
     <main className="min-h-screen">
@@ -221,6 +229,125 @@ export default async function SkiTownPartnerPage({ params }: Props) {
           )}
         </div>
       </section>
+
+      {/* Active Listings */}
+      {activeListings.length > 0 && (
+        <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              Active Listings
+            </h2>
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-10">
+              {activeListings.length} {activeListings.length === 1 ? 'property' : 'properties'} currently for sale
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-3">
+              {activeListings.slice(0, 12).map((listing) => (
+                <div key={listing.id} className="group border border-gray-200 overflow-hidden">
+                  <Link href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.address)}`} className="block">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
+                      {listing.photos?.[0] ? (
+                        <Image
+                          src={listing.photos[0]}
+                          alt={listing.address || 'Property'}
+                          fill
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </Link>
+                  <div className="p-4">
+                    <h3 className="line-clamp-1 text-gray-900 font-semibold" style={{ fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
+                      {formatPrice(listing.list_price)}
+                    </h3>
+                    <p className="leading-snug line-clamp-1 text-sm text-gray-700" style={{ marginBottom: '0.125rem' }}>
+                      {listing.address}
+                    </p>
+                    <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
+                      {listing.city}, {listing.state}
+                    </p>
+                    <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
+                      {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
+                      {listing.bedrooms != null && listing.bathrooms != null && <span className="w-px h-3 bg-gray-300" />}
+                      {listing.bathrooms != null && <span>{listing.bathrooms} Baths</span>}
+                      {listing.bathrooms != null && listing.square_feet != null && <span className="w-px h-3 bg-gray-300" />}
+                      {listing.square_feet != null && <span>{listing.square_feet.toLocaleString()} SF</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Sold Listings */}
+      {soldListings.length > 0 && (
+        <section className="py-16 md:py-24 bg-white dark:bg-[#0a0a0a]">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              Recently Sold
+            </h2>
+            <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-10">
+              {soldListings.length} {soldListings.length === 1 ? 'property' : 'properties'} recently sold
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 xl:grid-cols-3">
+              {soldListings.slice(0, 12).map((listing) => (
+                <div key={listing.id} className="group border border-gray-200 overflow-hidden">
+                  <Link href={`/affiliated-partners/market-leaders/listings/${toAddressSlug(listing.address)}`} className="block">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-[var(--color-taupe)]">
+                      {listing.photos?.[0] ? (
+                        <Image
+                          src={listing.photos[0]}
+                          alt={listing.address || 'Property'}
+                          fill
+                          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105 grayscale-[30%]"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <svg className="w-12 h-12 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={0.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                          </svg>
+                        </div>
+                      )}
+                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                        <span className="px-3 py-1.5 text-[10px] uppercase tracking-[0.15em] font-medium bg-[#8a8a8a] text-white">
+                          Sold
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                  <div className="p-4">
+                    <h3 className="line-clamp-1 text-gray-900 font-semibold" style={{ fontSize: '1.125rem', lineHeight: 1.2, marginBottom: '0.25rem' }}>
+                      {formatPrice(listing.sold_price || listing.list_price)}
+                    </h3>
+                    <p className="leading-snug line-clamp-1 text-sm text-gray-700" style={{ marginBottom: '0.125rem' }}>
+                      {listing.address}
+                    </p>
+                    <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
+                      {listing.city}, {listing.state}
+                    </p>
+                    <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
+                      {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
+                      {listing.bedrooms != null && listing.bathrooms != null && <span className="w-px h-3 bg-gray-300" />}
+                      {listing.bathrooms != null && <span>{listing.bathrooms} Baths</span>}
+                      {listing.bathrooms != null && listing.square_feet != null && <span className="w-px h-3 bg-gray-300" />}
+                      {listing.square_feet != null && <span>{listing.square_feet.toLocaleString()} SF</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Back Navigation */}
       <section className="py-12 bg-[#f8f7f5] dark:bg-[#141414] border-t border-[#e8e6e3] dark:border-gray-800">
