@@ -31,6 +31,36 @@ export function parseRemarks(remarks: RemarkItem[] | string | null): string {
   return '';
 }
 
+/**
+ * Pick the listing's narrative description from a Realogy remarks array.
+ * Listings store remarks as `[{type: "Property Description", remark, htmlRemark}, ...]`,
+ * so we look for that type first before falling back to the first item.
+ */
+export function parseListingRemarks(remarks: RemarkItem[] | string | null): string {
+  if (!remarks) return '';
+
+  const pickFromArray = (arr: RemarkItem[]): string => {
+    const propertyDesc = arr.find(
+      (r) => r?.type === 'Property Description' || r?.type === 'Public Remarks'
+    );
+    const item = propertyDesc || arr[0];
+    return item?.remark || item?.htmlRemark || '';
+  };
+
+  if (typeof remarks === 'string') {
+    try {
+      const parsed = JSON.parse(remarks);
+      if (Array.isArray(parsed)) return pickFromArray(parsed);
+      return parsed?.remark || parsed?.htmlRemark || '';
+    } catch {
+      return remarks;
+    }
+  }
+
+  if (Array.isArray(remarks)) return pickFromArray(remarks);
+  return '';
+}
+
 export function parseRemarksHtml(remarks: RemarkItem[] | string | null): string {
   if (!remarks) return '';
 

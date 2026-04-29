@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { getRealogySupabase, isRealogyConfigured } from './realogySupabase';
 import { getSupabaseServer } from './supabase-server';
+import { parseListingRemarks } from './realogyHelpers';
 
 // Property types to always exclude (rentals / leases)
 const EXCLUDED_LEASE_TYPES = ['Residential Lease', 'Commercial Lease'];
@@ -1409,7 +1410,7 @@ function transformRealogyListing(row: any): MLSProperty {
     listing_date: row.listed_on,
     sold_date: null,
     days_on_market: daysOnMarket,
-    description: row.description || null,
+    description: parseListingRemarks(row.remarks) || row.description || null,
     features: {},
     agent_name: row.primary_agent_name,
     agent_email: null,
