@@ -60,11 +60,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, metadata?: { name?: string }) => {
     if (!supabase) return { error: new Error('Auth not configured') };
+    // Send the confirmation email link back to /auth/callback on the
+    // current origin. Without this, Supabase falls back to its
+    // configured Site URL which often points at localhost.
+    const emailRedirectTo =
+      typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined;
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: metadata,
+        emailRedirectTo,
       },
     });
     return { error };
