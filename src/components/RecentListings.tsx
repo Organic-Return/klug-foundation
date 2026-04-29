@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getListingHref } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 
 interface Listing {
   id: string;
@@ -37,11 +38,6 @@ function formatPrice(price: number | null): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
-}
-
-function formatSqft(sqft: number | null): string {
-  if (!sqft) return '';
-  return new Intl.NumberFormat('en-US').format(sqft) + ' sq ft';
 }
 
 // Extract just the street address, removing city/state/zip if present
@@ -200,24 +196,13 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
           </p>
         )}
 
-        {/* Property details - minimal separator style */}
-        <div className={`flex items-center text-xs font-light ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#6a6a6a] dark:text-gray-400'}`}>
-          {listing.bedrooms && (
-            <>
-              <span>{listing.bedrooms} Beds</span>
-              <span className={`mx-2 ${variant === 'luxury' ? 'text-[var(--color-taupe)]' : 'text-[#d0d0d0]'}`}>|</span>
-            </>
-          )}
-          {listing.bathrooms && (
-            <>
-              <span>{listing.bathrooms} Baths</span>
-              {listing.square_feet && <span className={`mx-2 ${variant === 'luxury' ? 'text-[var(--color-taupe)]' : 'text-[#d0d0d0]'}`}>|</span>}
-            </>
-          )}
-          {listing.square_feet && (
-            <span>{formatSqft(listing.square_feet)}</span>
-          )}
-        </div>
+        {/* Property details */}
+        <PropertyVitals
+          bedrooms={listing.bedrooms}
+          bathrooms={listing.bathrooms}
+          squareFeet={listing.square_feet}
+          className={`text-sm font-light ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#4a4a4a] dark:text-gray-300'}`}
+        />
       </div>
     </Link>
   );

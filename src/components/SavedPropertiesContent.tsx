@@ -8,6 +8,7 @@ import AuthModal from './AuthModal';
 import SavePropertyButton from './SavePropertyButton';
 import { getSavedProperties, SavedProperty } from '@/lib/savedProperties';
 import { getListingHref, MLSProperty } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 import { OffMarketListing } from '@/lib/offMarketListings';
 
 interface SavedPropertiesContentProps {
@@ -174,11 +175,12 @@ export default function SavedPropertiesContent({
                         <p className="text-gray-500 text-sm mb-3">
                           {listing.city}, {listing.state} {listing.zip_code}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          {listing.bedrooms !== null && <span>{listing.bedrooms} bed</span>}
-                          {listing.bathrooms !== null && <span>{listing.bathrooms} bath</span>}
-                          {listing.square_feet && <span>{listing.square_feet.toLocaleString()} sqft</span>}
-                        </div>
+                        <PropertyVitals
+                          bedrooms={listing.bedrooms}
+                          bathrooms={listing.bathrooms}
+                          squareFeet={listing.square_feet}
+                          className="text-sm text-gray-600"
+                        />
                       </div>
                     </div>
                   ))}
@@ -229,15 +231,16 @@ export default function SavedPropertiesContent({
                         <p className="text-gray-500 text-sm mb-3">
                           {listing.city}, {listing.state} {listing.zipCode}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          {listing.bedrooms !== null && <span>{listing.bedrooms} bed</span>}
-                          {(listing.bathroomsFull || listing.bathroomsHalf) && (
-                            <span>
-                              {(listing.bathroomsFull || 0) + (listing.bathroomsThreeQuarter || 0) * 0.75 + (listing.bathroomsHalf || 0) * 0.5} bath
-                            </span>
-                          )}
-                          {listing.squareFeet && <span>{listing.squareFeet.toLocaleString()} sqft</span>}
-                        </div>
+                        <PropertyVitals
+                          bedrooms={listing.bedrooms}
+                          bathrooms={
+                            (listing.bathroomsFull || listing.bathroomsHalf || listing.bathroomsThreeQuarter)
+                              ? (listing.bathroomsFull || 0) + (listing.bathroomsThreeQuarter || 0) * 0.75 + (listing.bathroomsHalf || 0) * 0.5
+                              : null
+                          }
+                          squareFeet={listing.squareFeet}
+                          className="text-sm text-gray-600"
+                        />
                       </div>
                     </div>
                   ))}

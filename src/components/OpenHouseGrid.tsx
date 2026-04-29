@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getListingHref, type MLSProperty } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 
 interface OpenHouseGridProps {
   listings: MLSProperty[];
@@ -152,21 +153,12 @@ function OpenHouseCard({ listing }: { listing: MLSProperty }) {
         <div className="text-[var(--rc-brown)]/60 text-xs uppercase tracking-wider mb-3">
           {[listing.city, listing.state].filter(Boolean).join(', ')}
         </div>
-        <div className="flex justify-center items-center gap-3 text-[var(--rc-brown)] text-xs uppercase tracking-wider">
-          {listing.bedrooms != null && <span>{listing.bedrooms} BD</span>}
-          {listing.bathrooms != null && (
-            <>
-              <span className="text-[var(--rc-brown)]/30">|</span>
-              <span>{listing.bathrooms} BA</span>
-            </>
-          )}
-          {listing.square_feet != null && (
-            <>
-              <span className="text-[var(--rc-brown)]/30">|</span>
-              <span>{listing.square_feet.toLocaleString()} SF</span>
-            </>
-          )}
-        </div>
+        <PropertyVitals
+          bedrooms={listing.bedrooms}
+          bathrooms={listing.bathrooms}
+          squareFeet={listing.square_feet}
+          className="text-sm text-[var(--rc-brown)] justify-center"
+        />
       </div>
     </Link>
   );

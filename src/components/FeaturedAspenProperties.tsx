@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatPrice, getListingHref } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 
 interface Property {
   id: string;
@@ -256,17 +257,12 @@ export default function FeaturedAspenProperties({
                       </p>
 
                       {/* Property Details */}
-                      <div className="flex gap-4 text-xs text-white/70 mb-5">
-                        {property.bedrooms !== null && (
-                          <span>{property.bedrooms} Beds</span>
-                        )}
-                        {property.bathrooms !== null && (
-                          <span>{property.bathrooms} Baths</span>
-                        )}
-                        {property.square_feet && (
-                          <span>{property.square_feet.toLocaleString()} Sq Ft</span>
-                        )}
-                      </div>
+                      <PropertyVitals
+                        bedrooms={property.bedrooms}
+                        bathrooms={property.bathrooms}
+                        squareFeet={property.square_feet}
+                        className="text-sm text-white/80 mb-5"
+                      />
 
                       {/* CTA Button - Only show on active card */}
                       {isActive && (

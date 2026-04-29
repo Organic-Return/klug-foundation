@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import ListingsMap from './ListingsMap';
 import SavePropertyButton from './SavePropertyButton';
 import { getListingHref, type MLSProperty, type SortOption } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 
 interface ListingsContentProps {
   listings: MLSProperty[];
@@ -36,19 +37,6 @@ function formatPrice(price: number | null): string {
   }).format(price);
 }
 
-function formatSqft(sqft: number | null): string {
-  if (!sqft) return '';
-  return new Intl.NumberFormat('en-US').format(sqft) + ' sq ft';
-}
-
-function formatLotSize(acres: number | null): string {
-  if (!acres) return '';
-  if (acres >= 1) {
-    return acres.toFixed(2) + ' acres';
-  }
-  const sqft = acres * 43560;
-  return new Intl.NumberFormat('en-US').format(Math.round(sqft)) + ' sq ft lot';
-}
 
 // Extract just the street address, removing city/state/zip if present
 function getStreetAddress(fullAddress: string | null, city: string | null, state: string | null, zipCode: string | null): string {
@@ -277,43 +265,19 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
         </p>
 
         {/* Property Details */}
-        <div
-          className={`flex items-center gap-3 text-[10px] uppercase ${
+        <PropertyVitals
+          bedrooms={listing.bedrooms}
+          bathrooms={listing.bathrooms}
+          squareFeet={listing.square_feet}
+          acres={listing.lot_size}
+          className={`text-sm ${
             template === 'luxury'
-              ? 'text-[var(--color-warm-gray)] tracking-[0.12em]'
+              ? 'text-[var(--color-warm-gray)]'
               : isModernStyle
-              ? 'text-[var(--modern-gray)] tracking-[0.15em] pt-3 border-t border-[var(--modern-gray-lighter)] mb-2'
-              : 'text-gray-500 tracking-wider'
+              ? 'text-[var(--modern-gray)] pt-3 border-t border-[var(--modern-gray-lighter)] mb-2'
+              : 'text-gray-600'
           }`}
-        >
-          {listing.bedrooms !== null && (
-            <span>{listing.bedrooms} Beds</span>
-          )}
-          {listing.bathrooms !== null && (
-            <>
-              <span className={`w-px h-3 ${
-                template === 'luxury'
-                  ? 'bg-[var(--color-light-gray)]'
-                  : isModernStyle
-                  ? 'bg-[var(--modern-gray-lighter)]'
-                  : 'bg-gray-300'
-              }`} />
-              <span>{listing.bathrooms} Baths</span>
-            </>
-          )}
-          {listing.square_feet !== null && (
-            <>
-              <span className={`w-px h-3 ${
-                template === 'luxury'
-                  ? 'bg-[var(--color-light-gray)]'
-                  : isModernStyle
-                  ? 'bg-[var(--modern-gray-lighter)]'
-                  : 'bg-gray-300'
-              }`} />
-              <span>{listing.square_feet.toLocaleString()} SF</span>
-            </>
-          )}
-        </div>
+        />
 
         {/* CTA Button - Modern template */}
         {isModernStyle && (

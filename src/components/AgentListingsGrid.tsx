@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getListingHref, type MLSProperty } from '@/lib/listings';
+import PropertyVitals from '@/components/PropertyVitals';
 
 interface AgentListingsGridProps {
   activeListings: MLSProperty[];
@@ -20,11 +21,6 @@ function formatPrice(price: number | null): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
-}
-
-function formatSqft(sqft: number | null): string {
-  if (!sqft) return '';
-  return new Intl.NumberFormat('en-US').format(sqft) + ' sq ft';
 }
 
 function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false }: { listing: MLSProperty; isSold?: boolean; hasVideo?: boolean; hasMatterport?: boolean }) {
@@ -48,8 +44,6 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
     setImageError(false);
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
-
-  const displayPrice = isSold && listing.sold_price ? listing.sold_price : listing.list_price;
 
   const href = getListingHref(listing);
 
@@ -192,21 +186,13 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
             {listing.zip_code && ` ${listing.zip_code}`}
           </p>
         )}
-        <div className="flex items-center text-xs text-[#6a6a6a] dark:text-gray-400 font-light">
-          {listing.bedrooms && (
-            <>
-              <span>{listing.bedrooms} Beds</span>
-              <span className="mx-2 text-[#d0d0d0]">|</span>
-            </>
-          )}
-          {listing.bathrooms && (
-            <>
-              <span>{listing.bathrooms} Baths</span>
-              {listing.square_feet && <span className="mx-2 text-[#d0d0d0]">|</span>}
-            </>
-          )}
-          {listing.square_feet && <span>{formatSqft(listing.square_feet)}</span>}
-        </div>
+        <PropertyVitals
+          bedrooms={listing.bedrooms}
+          bathrooms={listing.bathrooms}
+          squareFeet={listing.square_feet}
+          acres={listing.lot_size}
+          className="text-sm text-[#4a4a4a] dark:text-gray-300 font-light"
+        />
       </Link>
     </div>
   );

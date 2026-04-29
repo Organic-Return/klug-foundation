@@ -5,6 +5,7 @@ import AuthModal from './AuthModal';
 import Image from 'next/image';
 import Link from 'next/link';
 import { OffMarketListing, formatPrice } from '@/lib/offMarketListings';
+import PropertyVitals from '@/components/PropertyVitals';
 import { useOffMarketAccess } from '@/lib/useOffMarketAccess';
 
 interface OffMarketListingsContentProps {
@@ -262,13 +263,12 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
                       <p className="leading-snug line-clamp-1 text-xs text-gray-500" style={{ marginBottom: '0.5rem' }}>
                         {listing.city}, {listing.state} {listing.zipCode}
                       </p>
-                      <div className="flex items-center gap-3 text-[10px] uppercase text-gray-500 tracking-wider">
-                        {listing.bedrooms != null && <span>{listing.bedrooms} Beds</span>}
-                        {listing.bedrooms != null && totalBaths > 0 && <span className="w-px h-3 bg-gray-300" />}
-                        {totalBaths > 0 && <span>{totalBaths} Baths</span>}
-                        {totalBaths > 0 && listing.squareFeet && <span className="w-px h-3 bg-gray-300" />}
-                        {listing.squareFeet && <span>{listing.squareFeet.toLocaleString()} SF</span>}
-                      </div>
+                      <PropertyVitals
+                        bedrooms={listing.bedrooms}
+                        bathrooms={totalBaths > 0 ? totalBaths : null}
+                        squareFeet={listing.squareFeet}
+                        className="text-sm text-gray-600"
+                      />
                     </div>
                   </div>
                 );
