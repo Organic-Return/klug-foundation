@@ -39,7 +39,11 @@ export default async function SoldByKlugPropertiesPage() {
     )
   );
 
-  const soldListings = await getSoldListingsByAgentIds(agentIds);
+  const fetchedSold = await getSoldListingsByAgentIds(agentIds);
+  // Sort sold listings by list price, highest first.
+  const soldListings = [...fetchedSold].sort(
+    (a, b) => (b.list_price ?? 0) - (a.list_price ?? 0)
+  );
 
   // Calculate stats
   const totalSold = soldListings.length;
@@ -64,9 +68,6 @@ export default async function SoldByKlugPropertiesPage() {
       {/* Hero */}
       <section className="bg-[var(--color-sothebys-blue)] py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
-          <p className="text-[#c9ac77] text-xs tracking-[0.3em] uppercase mb-6">
-            A Legacy of Results
-          </p>
           <h1 className="font-serif text-white tracking-wide mb-6">
             Sold by Klug Properties
           </h1>
