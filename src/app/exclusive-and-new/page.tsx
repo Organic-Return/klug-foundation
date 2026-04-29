@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { client } from '@/sanity/client';
+import { createImageUrlBuilder } from '@sanity/image-url';
 import {
   getListingsByAgentId,
   getMlsNumbersWithSIRMedia,
@@ -8,53 +9,131 @@ import {
 import { getSiteName, getBaseUrl } from '@/lib/settings';
 import AgentListingsGrid from '@/components/AgentListingsGrid';
 
-// Refresh frequently so newest Aspen listings stay current
+const builder = createImageUrlBuilder(client);
+function urlFor(source: any) { return builder.image(source); }
+
+// Refresh frequently so newest single-family listings stay current
 export const revalidate = 300;
 
-interface ChrisDoc {
+interface AgentDoc {
   _id: string;
   name: string;
   mlsAgentId?: string;
   mlsAgentIdSold?: string;
 }
 
+interface PageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  agent?: AgentDoc | null;
+  exclusiveSectionTitle?: string;
+  exclusiveEmptyText?: string;
+  newestCity?: string;
+  newestLimit?: number;
+  newestSectionTitle?: string;
+  newestSectionDescription?: string;
+  newestEmptyText?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: any;
+  };
+}
+
+const PAGE_QUERY = `*[_type == "exclusiveAndNewPage" && _id == "exclusiveAndNewPage"][0]{
+  heroTitle,
+  heroDescription,
+  agent->{ _id, name, mlsAgentId, mlsAgentIdSold },
+  exclusiveSectionTitle,
+  exclusiveEmptyText,
+  newestCity,
+  newestLimit,
+  newestSectionTitle,
+  newestSectionDescription,
+  newestEmptyText,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
+const FALLBACK_AGENT_QUERY = `*[_type == "teamMember" && (slug.current == "chris-klug" || lower(name) == "chris klug")][0]{ _id, name, mlsAgentId, mlsAgentIdSold }`;
+
+async function getPageData(): Promise<PageDoc | null> {
+  return client.fetch<PageDoc | null>(PAGE_QUERY, {}, { next: { revalidate: 300 } });
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const [siteName, baseUrl] = await Promise.all([getSiteName(), getBaseUrl()]);
-  const title = `Exclusive and New | ${siteName}`;
-  const description = `Chris Klug's current active listings and the 10 newest single family homes for sale in Aspen, Colorado.`;
+  const [siteName, baseUrl, page] = await Promise.all([
+    getSiteName(),
+    getBaseUrl(),
+    getPageData(),
+  ]);
+  const heroTitle = page?.heroTitle || 'Exclusive and New';
+  const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || `Current active listings and the newest single family homes for sale.`;
+  const ogImage = page?.seo?.ogImage?.asset?.url
+    ? urlFor(page.seo.ogImage).width(1200).height(630).fit('crop').url()
+    : undefined;
   return {
     title,
     description,
     alternates: { canonical: `${baseUrl}/exclusive-and-new` },
-    openGraph: { title, description, url: `${baseUrl}/exclusive-and-new` },
+    openGraph: {
+      title,
+      description,
+      url: `${baseUrl}/exclusive-and-new`,
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+    },
   };
 }
 
 export default async function ExclusiveAndNewPage() {
-  // Look up Chris Klug's MLS ID from Sanity (preferred over hardcoded)
-  const chris = await client.fetch<ChrisDoc | null>(
-    `*[_type == "teamMember" && (slug.current == "chris-klug" || lower(name) == "chris klug")][0]{ _id, name, mlsAgentId, mlsAgentIdSold }`,
-    {},
-    { next: { revalidate: 300 } }
-  );
+  const page = await getPageData();
 
-  const chrisMlsId = chris?.mlsAgentId || '3837';
-  const chrisName = chris?.name || 'Chris Klug';
+  // Resolve the featured agent — prefer page.agent reference, fall back
+  // to the legacy "find Chris Klug" lookup, then a hardcoded MLS id.
+  let agent: AgentDoc | null = page?.agent ?? null;
+  if (!agent) {
+    agent = await client.fetch<AgentDoc | null>(
+      FALLBACK_AGENT_QUERY,
+      {},
+      { next: { revalidate: 300 } }
+    );
+  }
+  const agentMlsId = agent?.mlsAgentId || '3837';
+  const agentName = agent?.name || 'Chris Klug';
 
-  // Section 1: Chris's active listings
-  const chrisListings = await getListingsByAgentId(chrisMlsId, chris?.mlsAgentIdSold, chrisName);
+  const newestCity = page?.newestCity || 'Aspen';
+  const newestLimit = page?.newestLimit ?? 10;
 
-  // Section 2: 10 newest single-family active listings in Aspen
-  const newestAspen = await getNewestSingleFamilyByCity('Aspen', 10);
+  // Section 1: agent's active listings
+  const agentListings = await getListingsByAgentId(agentMlsId, agent?.mlsAgentIdSold, agentName);
+
+  // Section 2: newest single-family active listings in newestCity
+  const newestListings = await getNewestSingleFamilyByCity(newestCity, newestLimit);
 
   // SIR media enrichment for both sets
   const allMlsNumbers = [
-    ...chrisListings.activeListings.map((l) => l.mls_number),
-    ...newestAspen.map((l) => l.mls_number),
+    ...agentListings.activeListings.map((l) => l.mls_number),
+    ...newestListings.map((l) => l.mls_number),
   ].filter(Boolean) as string[];
   const sirMedia = await getMlsNumbersWithSIRMedia(allMlsNumbers);
   const mlsWithVideos = Array.from(sirMedia.videos);
   const mlsWithMatterport = Array.from(sirMedia.matterports);
+
+  const heroTitle = page?.heroTitle || 'Exclusive and New';
+  const heroDescription = page?.heroDescription
+    || "Chris Klug's current exclusive listings, alongside the freshest single family homes to hit the Aspen market. Updated continuously from the MLS.";
+  const exclusiveSectionTitle = page?.exclusiveSectionTitle || 'Current Listings';
+  const exclusiveEmptyText = page?.exclusiveEmptyText || 'No active listings at this time.';
+  const newestSectionTitle = page?.newestSectionTitle || `Newest ${newestCity} Single Family Homes`;
+  const newestSectionDescription = page?.newestSectionDescription
+    || `The ${newestLimit} most recently listed single family residences in ${newestCity}, refreshed continuously from the MLS.`;
+  const newestEmptyText = page?.newestEmptyText || `No new ${newestCity} listings available.`;
 
   return (
     <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
@@ -62,33 +141,32 @@ export default async function ExclusiveAndNewPage() {
       <section className="bg-[var(--color-sothebys-blue)] py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           <h1 className="font-serif text-white tracking-wide mb-6">
-            Exclusive and New
+            {heroTitle}
           </h1>
           <div className="w-16 h-px bg-[#c9ac77] mx-auto mb-6" />
           <p className="text-base md:text-lg text-white/70 font-light max-w-3xl mx-auto leading-relaxed">
-            Chris Klug&apos;s current exclusive listings, alongside the freshest single
-            family homes to hit the Aspen market. Updated continuously from the MLS.
+            {heroDescription}
           </p>
         </div>
       </section>
 
-      {/* Section 1: Chris's Exclusive Listings */}
+      {/* Section 1: Featured Agent's Exclusive Listings */}
       <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
             <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              Current Listings
+              {exclusiveSectionTitle}
             </h2>
             <div className="w-16 h-px bg-[var(--color-gold)] mx-auto" />
           </div>
 
-          {chrisListings.activeListings.length === 0 ? (
+          {agentListings.activeListings.length === 0 ? (
             <p className="text-center text-[#6a6a6a] dark:text-gray-400 font-light py-8">
-              No active listings at this time.
+              {exclusiveEmptyText}
             </p>
           ) : (
             <AgentListingsGrid
-              activeListings={chrisListings.activeListings}
+              activeListings={agentListings.activeListings}
               soldListings={[]}
               mlsWithVideos={mlsWithVideos}
               mlsWithMatterport={mlsWithMatterport}
@@ -97,27 +175,26 @@ export default async function ExclusiveAndNewPage() {
         </div>
       </section>
 
-      {/* Section 2: Newest Single Family in Aspen */}
+      {/* Section 2: Newest Single Family in selected city */}
       <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
             <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              Newest Aspen Single Family Homes
+              {newestSectionTitle}
             </h2>
             <div className="w-16 h-px bg-[var(--color-gold)] mx-auto mb-6" />
             <p className="text-sm md:text-base text-[#6a6a6a] dark:text-gray-400 font-light max-w-2xl mx-auto leading-relaxed">
-              The ten most recently listed single family residences in Aspen, refreshed
-              continuously from the Aspen Glenwood MLS.
+              {newestSectionDescription}
             </p>
           </div>
 
-          {newestAspen.length === 0 ? (
+          {newestListings.length === 0 ? (
             <p className="text-center text-[#6a6a6a] dark:text-gray-400 font-light py-8">
-              No new Aspen listings available.
+              {newestEmptyText}
             </p>
           ) : (
             <AgentListingsGrid
-              activeListings={newestAspen}
+              activeListings={newestListings}
               soldListings={[]}
               mlsWithVideos={mlsWithVideos}
               mlsWithMatterport={mlsWithMatterport}

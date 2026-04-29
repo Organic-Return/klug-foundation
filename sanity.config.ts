@@ -73,10 +73,19 @@ export default defineConfig({
                   .schemaType('buildersPage')
                   .documentId('buildersPage')
               ),
+            // Exclusive and New Page singleton
+            S.listItem()
+              .title('Exclusive and New Page')
+              .icon(() => '✨')
+              .child(
+                S.document()
+                  .schemaType('exclusiveAndNewPage')
+                  .documentId('exclusiveAndNewPage')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),
