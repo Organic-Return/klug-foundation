@@ -82,10 +82,19 @@ export default defineConfig({
                   .schemaType('exclusiveAndNewPage')
                   .documentId('exclusiveAndNewPage')
               ),
+            // Sold by Klug Properties Page singleton
+            S.listItem()
+              .title('Sold by Klug Properties Page')
+              .icon(() => '🏷️')
+              .child(
+                S.document()
+                  .schemaType('soldByKlugPage')
+                  .documentId('soldByKlugPage')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),

@@ -24,5 +24,6 @@ import { buildersPage } from './buildersPage'
 import { sitePage } from './sitePage'
 import { pressArticle } from './pressArticle'
 import { exclusiveAndNewPage } from './exclusiveAndNewPage'
+import { soldByKlugPage } from './soldByKlugPage'
 
-export const schemaTypes = [post, community, publication, settings, homepage, teamMember, accolade, navigation, mlsConfiguration, whyKlugProperties, testimonialsPage, affiliatedPartner, affiliatedPartnersPage, offMarketListing, propertyEnhancement, buyPage, sellPage, aboutPage, resourcesPage, relocationPage, firstTimeBuyersPage, builder, buildersPage, sitePage, pressArticle, exclusiveAndNewPage]
+export const schemaTypes = [post, community, publication, settings, homepage, teamMember, accolade, navigation, mlsConfiguration, whyKlugProperties, testimonialsPage, affiliatedPartner, affiliatedPartnersPage, offMarketListing, propertyEnhancement, buyPage, sellPage, aboutPage, resourcesPage, relocationPage, firstTimeBuyersPage, builder, buildersPage, sitePage, pressArticle, exclusiveAndNewPage, soldByKlugPage]
