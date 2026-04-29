@@ -107,7 +107,9 @@ export default async function Home() {
       const url = v.videoFile?.asset?.url || v.videoUrl;
       const poster = v.poster?.asset?.url
         ? urlFor(v.poster).width(1920).url()
-        : undefined;
+        : fallbackImageUrl; // Fall back to primary hero image so the
+                            // slide has a visible background while the
+                            // video element is still loading.
       if (url || poster) {
         heroVideos.push({ videoUrl: url, posterUrl: poster });
       }

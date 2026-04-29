@@ -183,7 +183,7 @@ export default function HeroWithSearch({
                 loop
                 muted
                 playsInline
-                preload="none"
+                preload={index === activeSlide ? 'auto' : 'none'}
                 className="w-full h-full object-cover"
                 poster={slide.posterUrl}
               >
