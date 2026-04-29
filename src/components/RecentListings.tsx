@@ -83,13 +83,20 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
     setCurrentPhotoIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
   };
 
+  const href = getListingHref(listing);
+
   return (
-    <Link
-      href={getListingHref(listing)}
-      className="group block"
-    >
+    <div className="group relative block">
       {/* Image Container */}
       <div className="relative aspect-square bg-[#f5f5f5] overflow-hidden">
+        {/* Link covers the image area only, sits below the carousel
+            buttons via z-index so prev/next clicks don't navigate. */}
+        <Link
+          href={href}
+          aria-label={listing.address || 'View property'}
+          className="absolute inset-0 z-10"
+        />
+
         {currentPhoto ? (
           <Image
             src={currentPhoto}
@@ -112,14 +119,15 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
         )}
 
         {/* Elegant hover overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500 pointer-events-none" />
 
         {/* Photo navigation - minimal arrows */}
         {hasMultiplePhotos && (
           <>
             <button
+              type="button"
               onClick={handlePrevPhoto}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#1a1a1a] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute z-20 left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#1a1a1a] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
               aria-label="Previous photo"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,8 +135,9 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
               </svg>
             </button>
             <button
+              type="button"
               onClick={handleNextPhoto}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#1a1a1a] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute z-20 right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 hover:bg-white text-[#1a1a1a] shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
               aria-label="Next photo"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,7 +146,7 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
             </button>
 
             {/* Minimal photo indicator dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="absolute z-20 bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               {photos.slice(0, 5).map((_, idx) => (
                 <div
                   key={idx}
@@ -154,7 +163,7 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
         )}
 
         {/* Status badge - minimal style */}
-        <div className="absolute top-3 left-3 flex gap-2">
+        <div className="absolute z-20 top-3 left-3 flex gap-2 pointer-events-none">
           {/* New Listing badge - show if listed within last 7 days */}
           {listing.listing_date && (() => {
             const listingDate = new Date(listing.listing_date);
@@ -176,8 +185,8 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
 
       </div>
 
-      {/* Content */}
-      <div className="pt-4 pb-2">
+      {/* Content — own Link so the body stays clickable */}
+      <Link href={href} className="block pt-4 pb-2">
         {/* Price */}
         <div className={`text-xl font-light tracking-wide mb-2 ${variant === 'luxury' ? 'font-luxury text-[var(--color-charcoal)]' : 'text-[#1a1a1a] dark:text-white'}`}>
           {formatPrice(listing.list_price)}
@@ -203,8 +212,8 @@ function PropertyCard({ listing, variant = 'classic' }: { listing: Listing; vari
           squareFeet={listing.square_feet}
           className={`text-sm font-light ${variant === 'luxury' ? 'font-luxury-body text-[var(--color-warm-gray)]' : 'text-[#4a4a4a] dark:text-gray-300'}`}
         />
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }
 
