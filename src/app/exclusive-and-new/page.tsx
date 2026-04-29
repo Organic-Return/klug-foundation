@@ -61,9 +61,6 @@ export default async function ExclusiveAndNewPage() {
       {/* Hero */}
       <section className="bg-[var(--color-sothebys-blue)] py-20 md:py-28">
         <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
-          <p className="text-[#c9ac77] text-xs tracking-[0.3em] uppercase mb-6">
-            Aspen Real Estate
-          </p>
           <h1 className="font-serif text-white tracking-wide mb-6">
             Exclusive and New
           </h1>
@@ -79,9 +76,6 @@ export default async function ExclusiveAndNewPage() {
       <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
-            <p className="text-[var(--color-gold)] text-xs tracking-[0.3em] uppercase mb-3">
-              Chris Klug Exclusive
-            </p>
             <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
               Current Listings
             </h2>
@@ -107,9 +101,6 @@ export default async function ExclusiveAndNewPage() {
       <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
-            <p className="text-[var(--color-gold)] text-xs tracking-[0.3em] uppercase mb-3">
-              Just Listed
-            </p>
             <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
               Newest Aspen Single Family Homes
             </h2>
