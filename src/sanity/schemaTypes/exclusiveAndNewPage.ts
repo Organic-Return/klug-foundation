@@ -20,6 +20,14 @@ export const exclusiveAndNewPage = defineType({
       initialValue:
         "Chris Klug's current exclusive listings, alongside the freshest single family homes to hit the Aspen market. Updated continuously from the MLS.",
     }),
+    defineField({
+      name: 'heroImage',
+      title: 'Hero Background Image',
+      type: 'image',
+      description:
+        'Optional background photo for the hero band. When set, it replaces the solid blue background. The hero title and description sit on top with a dark overlay for contrast.',
+      options: { hotspot: true },
+    }),
 
     defineField({
       name: 'agent',

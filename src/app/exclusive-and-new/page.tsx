@@ -25,6 +25,7 @@ interface AgentDoc {
 interface PageDoc {
   heroTitle?: string;
   heroDescription?: string;
+  heroImage?: any;
   agent?: AgentDoc | null;
   exclusiveSectionTitle?: string;
   exclusiveEmptyText?: string;
@@ -43,6 +44,7 @@ interface PageDoc {
 const PAGE_QUERY = `*[_type == "exclusiveAndNewPage" && _id == "exclusiveAndNewPage"][0]{
   heroTitle,
   heroDescription,
+  heroImage { asset->{ _id, url } },
   agent->{ _id, name, mlsAgentId, mlsAgentIdSold },
   exclusiveSectionTitle,
   exclusiveEmptyText,
@@ -135,16 +137,36 @@ export default async function ExclusiveAndNewPage() {
     || `The ${newestLimit} most recently listed single family residences in ${newestCity}, refreshed continuously from the MLS.`;
   const newestEmptyText = page?.newestEmptyText || `No new ${newestCity} listings available.`;
 
+  const heroImageUrl = page?.heroImage?.asset?.url
+    ? urlFor(page.heroImage).width(2400).height(1200).fit('crop').auto('format').url()
+    : null;
+
   return (
     <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Hero */}
-      <section className="bg-[var(--color-sothebys-blue)] py-20 md:py-28">
-        <div className="max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
+      <section
+        className={`relative py-20 md:py-28 ${heroImageUrl ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+      >
+        {heroImageUrl && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${heroImageUrl})` }}
+              aria-hidden="true"
+            />
+            {/* Dark overlay so the headline stays legible regardless of the image */}
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           <h1 className="font-serif text-white tracking-wide mb-6">
             {heroTitle}
           </h1>
           <div className="w-16 h-px bg-[#c9ac77] mx-auto mb-6" />
-          <p className="text-base md:text-lg text-white/70 font-light max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-white/80 font-light max-w-3xl mx-auto leading-relaxed">
             {heroDescription}
           </p>
         </div>
