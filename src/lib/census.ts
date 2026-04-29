@@ -61,7 +61,13 @@ export async function fetchDemographicData(coordinates: Coordinates): Promise<Ce
     const geocodeData = await geocodeResponse.json();
 
     if (!geocodeData.result?.geographies?.['Census Tracts']?.[0]) {
-      console.error('❌ Unable to geocode coordinates');
+      console.error(
+        '❌ Unable to geocode coordinates',
+        { lat: coordinates.lat, lng: coordinates.lng },
+        coordinates.lng > 0 && coordinates.lat > 24 && coordinates.lat < 50
+          ? '(longitude is positive but lat is in the US — likely missing the negative sign)'
+          : ''
+      );
       return null;
     }
 
