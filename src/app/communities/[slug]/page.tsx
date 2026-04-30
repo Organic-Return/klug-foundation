@@ -25,6 +25,14 @@ const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
   marketInsightsCity,
   nearbySchools,
   localHighlights,
+  featuredImage {
+    ...,
+    asset->{
+      _id,
+      url,
+      metadata { dimensions }
+    }
+  },
   neighborhoods[] {
     ...,
     image {
@@ -402,10 +410,11 @@ export default async function CommunityPage({
       'Unknown reason');
   }
 
-  // Higher resolution for hero image (full width)
-  const heroImageUrl = community.featuredImage
-    ? urlFor(community.featuredImage)?.width(1920).height(800).url()
-    : null;
+  // Use the full-resolution asset URL so next/image inside
+  // <CommunityHero> can generate a proper responsive srcSet from
+  // the original (forcing width=1920 here meant retina displays
+  // upscaled the 1920px output, causing visible softness).
+  const heroImageUrl = community.featuredImage?.asset?.url || null;
 
   // Fetch dynamic price range based on active listings
   let priceRange: string | null = null;
