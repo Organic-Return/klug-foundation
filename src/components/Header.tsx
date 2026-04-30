@@ -138,10 +138,6 @@ export default function Header({
   // Check if on certain pages to force blue background
   const isPartnersPage = pathname?.startsWith('/affiliated-partners');
   const isMarketReportsPage = pathname?.startsWith('/market-reports');
-  // Community pages have a short hero on small screens; the transparent
-  // header looked white once scrolled past the hero into the white
-  // content beneath. Force blue here so the bar always stays solid.
-  const isCommunityPage = pathname?.startsWith('/communities/');
 
   useEffect(() => {
     setIsMounted(true);
@@ -227,7 +223,7 @@ export default function Header({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isMounted && (isScrolled || forceBackground || isPartnersPage || isMarketReportsPage || isCommunityPage)
+        isMounted && (isScrolled || forceBackground || isPartnersPage || isMarketReportsPage)
           ? 'bg-[var(--color-sothebys-blue)] shadow-md'
           : 'bg-transparent'
       }`}
