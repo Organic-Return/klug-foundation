@@ -4,6 +4,7 @@ import { visionTool } from '@sanity/vision'
 import { muxInput } from 'sanity-plugin-mux-input'
 import { codeInput } from '@sanity/code-input'
 import { assist } from '@sanity/assist'
+import { media } from 'sanity-plugin-media'
 import { schemaTypes } from './src/sanity/schemaTypes'
 
 export default defineConfig({
@@ -102,6 +103,7 @@ export default defineConfig({
     muxInput(),
     codeInput(),
     assist(),
+    media(),
   ],
 
   schema: {
