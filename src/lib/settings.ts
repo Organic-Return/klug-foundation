@@ -36,6 +36,7 @@ interface SiteSettings {
     phone?: string;
     address?: string;
   };
+  defaultHeroImage?: { asset?: { _id?: string; url?: string } };
   seo?: {
     defaultMetaImage?: any;
     keywords?: string[];
@@ -63,6 +64,7 @@ const SETTINGS_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   socialMedia,
   contactInfo,
   seo,
+  defaultHeroImage { asset->{ _id, url } },
   branding {
     logo {
       asset->
@@ -237,4 +239,14 @@ export async function getSiteName(): Promise<string> {
 export async function getBaseUrl(): Promise<string> {
   const settings = await getSettings();
   return process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+}
+
+/**
+ * Returns the site-wide fallback hero/header image URL, or null if none is set.
+ * Use this on landing pages that want a shared default hero photo when the page
+ * doesn't have its own heroImage configured.
+ */
+export async function getDefaultHeroImageUrl(): Promise<string | null> {
+  const settings = await getSettings();
+  return settings?.defaultHeroImage?.asset?.url || null;
 }

@@ -76,6 +76,14 @@ export const settings = defineType({
       initialValue: 2,
     }),
     defineField({
+      name: 'defaultHeroImage',
+      title: 'Default Hero Image',
+      type: 'image',
+      description:
+        'Site-wide fallback hero/header background photo. Used on /living-aspen, /blog, /in-the-news, /why-klug-properties, /testimonials, /affiliated-partners (and its sub-pages), and /market-reports whenever a page has no hero image of its own. The hero title and description sit on top with a dark overlay for contrast.',
+      options: { hotspot: true },
+    }),
+    defineField({
       name: 'branding',
       title: 'Branding',
       type: 'object',

@@ -2,7 +2,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { getSiteName, getBaseUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "./components";
 import CTASection from "./CTASection";
 import PartnersMapSection from "./PartnersMapSection";
@@ -141,9 +141,10 @@ async function getLatestPartnerListings(partners: Partner[], limit = 10): Promis
 }
 
 export default async function AffiliatedPartnersPage() {
-  const [partners, pageContent] = await Promise.all([
+  const [partners, pageContent, defaultHeroUrl] = await Promise.all([
     client.fetch<Partner[]>(PARTNERS_QUERY, {}, options),
     client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
+    getDefaultHeroImageUrl(),
   ]);
 
   // Count partners by type
@@ -161,10 +162,10 @@ export default async function AffiliatedPartnersPage() {
   // Get featured partners for preview
   const enrichedFeaturedPartners = enrichedPartners.filter(p => p.featured).slice(0, 4);
 
-  // Get hero image URL if available
+  // Get hero image URL if available, fall back to site-wide default
   const heroImageUrl = pageContent?.heroImage
     ? urlFor(pageContent.heroImage)?.width(1920).height(800).url()
-    : null;
+    : defaultHeroUrl;
 
   // Get logo URL if available
   const logoUrl = pageContent?.logo
@@ -181,8 +182,8 @@ export default async function AffiliatedPartnersPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-[var(--color-navy)] py-20 md:py-28">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section className="relative bg-[var(--color-navy)] pt-36 pb-20 md:pt-44 md:pb-28">
         {heroImageUrl && (
           <div className="absolute inset-0">
             <Image

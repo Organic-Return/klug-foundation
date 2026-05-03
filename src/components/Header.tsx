@@ -137,7 +137,6 @@ export default function Header({
 
   // Check if on certain pages to force blue background
   const isPartnersPage = pathname?.startsWith('/affiliated-partners');
-  const isMarketReportsPage = pathname?.startsWith('/market-reports');
 
   useEffect(() => {
     setIsMounted(true);
@@ -223,7 +222,7 @@ export default function Header({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isMounted && (isScrolled || forceBackground || isPartnersPage || isMarketReportsPage)
+        isMounted && (isScrolled || forceBackground || isPartnersPage)
           ? 'bg-[var(--color-sothebys-blue)] shadow-md'
           : 'bg-transparent'
       }`}

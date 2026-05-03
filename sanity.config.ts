@@ -92,10 +92,46 @@ export default defineConfig({
                   .schemaType('soldByKlugPage')
                   .documentId('soldByKlugPage')
               ),
+            // Market Reports Page singleton
+            S.listItem()
+              .title('Market Reports Page')
+              .icon(() => '📈')
+              .child(
+                S.document()
+                  .schemaType('marketReportsPage')
+                  .documentId('marketReportsPage')
+              ),
+            // Living Aspen Page singleton
+            S.listItem()
+              .title('Living Aspen Page')
+              .icon(() => '📖')
+              .child(
+                S.document()
+                  .schemaType('livingAspenPage')
+                  .documentId('livingAspenPage')
+              ),
+            // Blog Page singleton
+            S.listItem()
+              .title('Blog Page')
+              .icon(() => '📝')
+              .child(
+                S.document()
+                  .schemaType('blogPage')
+                  .documentId('blogPage')
+              ),
+            // In the News Page singleton
+            S.listItem()
+              .title('In the News Page')
+              .icon(() => '📰')
+              .child(
+                S.document()
+                  .schemaType('inTheNewsPage')
+                  .documentId('inTheNewsPage')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),

@@ -4,7 +4,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { getSiteName, getBaseUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 
 const POSTS_COUNT_QUERY = `count(*[_type == "post"])`;
 
@@ -17,6 +17,36 @@ const POSTS_QUERY = `*[_type == "post"] | order(publishedAt desc) [$start..$end]
   seo
 }`;
 
+interface PageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: { asset?: { _id?: string; url?: string } };
+  latestEyebrow?: string;
+  moreArticlesTitle?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: { asset?: { url?: string } };
+  };
+}
+
+const PAGE_QUERY = `*[_type == "blogPage" && _id == "blogPage"][0]{
+  heroTitle,
+  heroDescription,
+  heroImage { asset->{ _id, url } },
+  latestEyebrow,
+  moreArticlesTitle,
+  emptyTitle,
+  emptyText,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
 const POSTS_PER_PAGE = 12;
 
 const { projectId, dataset } = client.config();
@@ -27,18 +57,27 @@ const urlFor = (source: any) =>
 
 const options = { next: { revalidate: 30 } };
 
+async function getPageData(): Promise<PageDoc | null> {
+  return client.fetch<PageDoc | null>(PAGE_QUERY, {}, options);
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const [baseUrl, siteName, page] = await Promise.all([getBaseUrl(), getSiteName(), getPageData()]);
+  const heroTitle = page?.heroTitle || 'Blog';
+  const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || 'Insights, market updates, and real estate news.';
 
   return {
-    title: `Blog | ${siteName}`,
-    description: 'Insights, market updates, and real estate news.',
+    title,
+    description,
     alternates: {
       canonical: `${baseUrl}/blog`,
     },
     openGraph: {
-      title: `Blog | ${siteName}`,
-      description: 'Insights, market updates, and real estate news.',
+      title,
+      description,
       type: 'website',
       url: `${baseUrl}/blog`,
     },
@@ -55,9 +94,11 @@ export default async function BlogPage({
   const start = (currentPage - 1) * POSTS_PER_PAGE;
   const end = start + POSTS_PER_PAGE - 1;
 
-  const [posts, totalCount] = await Promise.all([
+  const [posts, totalCount, page, defaultHeroUrl] = await Promise.all([
     client.fetch<SanityDocument[]>(POSTS_QUERY, { start, end }, options),
     client.fetch<number>(POSTS_COUNT_QUERY, {}, options),
+    getPageData(),
+    getDefaultHeroImageUrl(),
   ]);
 
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
@@ -65,16 +106,44 @@ export default async function BlogPage({
   const featuredPost = isFirstPage ? posts[0] : null;
   const gridPosts = isFirstPage ? posts.slice(1) : posts;
 
+  const heroTitle = page?.heroTitle || 'Blog';
+  const heroDescription = page?.heroDescription
+    || 'Insights, market updates, and lifestyle content from Aspen Snowmass and the Roaring Fork Valley.';
+  const latestEyebrow = page?.latestEyebrow || 'Latest Post';
+  const moreArticlesTitle = page?.moreArticlesTitle || 'More Articles';
+  const emptyTitle = page?.emptyTitle || 'No Posts Yet';
+  const emptyText = page?.emptyText || 'Blog posts will be published soon. Check back later.';
+
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
+
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-[var(--color-sothebys-blue)] pt-32 pb-16 md:pt-40 md:pb-20">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+      >
+        {heroImageRaw && (
+          <>
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">
-            Blog
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
-            Insights, market updates, and lifestyle content from Aspen Snowmass and the Roaring Fork Valley.
+            {heroDescription}
           </p>
         </div>
       </section>
@@ -85,7 +154,7 @@ export default async function BlogPage({
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-8">
               <span className="text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase">
-                Latest Post
+                {latestEyebrow}
               </span>
             </div>
             <Link
@@ -156,7 +225,7 @@ export default async function BlogPage({
             {isFirstPage && (
               <div className="mb-12">
                 <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                  More Articles
+                  {moreArticlesTitle}
                 </h2>
               </div>
             )}
@@ -236,7 +305,6 @@ export default async function BlogPage({
 
               {/* Page Numbers */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                // Show first, last, current, and neighbors
                 const showPage =
                   page === 1 ||
                   page === totalPages ||
@@ -297,10 +365,10 @@ export default async function BlogPage({
         <section className="py-24 md:py-32 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              No Posts Yet
+              {emptyTitle}
             </h2>
             <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
-              Blog posts will be published soon. Check back later.
+              {emptyText}
             </p>
           </div>
         </section>

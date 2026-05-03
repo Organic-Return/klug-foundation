@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "../components";
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
-import { getSiteName, getBaseUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 
 const SKI_TOWN_PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town"] | order(sortOrder asc, lastName asc) {
   _id,
@@ -62,9 +62,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SkiTownPartnersPage() {
-  const [partners, pageContent] = await Promise.all([
+  const [partners, pageContent, defaultHeroUrl] = await Promise.all([
     client.fetch<Partner[]>(SKI_TOWN_PARTNERS_QUERY, {}, options),
     client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
+    getDefaultHeroImageUrl(),
   ]);
 
   // Enrich all partners with agent data from the database
@@ -75,10 +76,10 @@ export default async function SkiTownPartnersPage() {
   const featuredPartners = enrichedPartners.filter(p => p.featured);
   const regularPartners = enrichedPartners.filter(p => !p.featured);
 
-  // Get hero image URL if available
+  // Get hero image URL if available, fall back to site-wide default
   const heroImageUrl = pageContent?.heroImage
     ? urlFor(pageContent.heroImage)?.width(1920).height(800).url()
-    : null;
+    : defaultHeroUrl;
 
   // Get logo URL if available
   const logoUrl = pageContent?.logo
@@ -87,8 +88,8 @@ export default async function SkiTownPartnersPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-[var(--color-navy)] py-20 md:py-28">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section className="relative bg-[var(--color-navy)] pt-36 pb-20 md:pt-44 md:pb-28">
         {heroImageUrl && (
           <div className="absolute inset-0">
             <Image

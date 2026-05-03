@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { getDefaultHeroImageUrl } from "@/lib/settings";
 
 const WHY_KLUG_QUERY = `*[_type == "whyKlugProperties"][0]{
   heroTitle,
@@ -191,7 +192,10 @@ const ServiceIcon = ({ icon }: { icon?: string }) => {
 };
 
 export default async function WhyKlugPropertiesPage() {
-  const data = await client.fetch<SanityDocument>(WHY_KLUG_QUERY, {}, options);
+  const [data, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument>(WHY_KLUG_QUERY, {}, options),
+    getDefaultHeroImageUrl(),
+  ]);
 
   if (!data) {
     return (
@@ -213,7 +217,7 @@ export default async function WhyKlugPropertiesPage() {
 
   const heroImageUrl = data.heroImage
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
-    : null;
+    : defaultHeroUrl;
 
   return (
     <main className="min-h-screen">

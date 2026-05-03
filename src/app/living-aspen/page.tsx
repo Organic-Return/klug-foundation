@@ -4,6 +4,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import { getDefaultHeroImageUrl } from "@/lib/settings";
 
 const MAGAZINES_QUERY = `*[_type == "publication" && publicationType == "magazine"] | order(publishedAt desc) {
   _id,
@@ -15,6 +16,44 @@ const MAGAZINES_QUERY = `*[_type == "publication" && publicationType == "magazin
   featured
 }`;
 
+interface PageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: { asset?: { _id?: string; url?: string } };
+  latestEyebrow?: string;
+  pastIssuesTitle?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaButtonLabel?: string;
+  ctaButtonHref?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: { asset?: { url?: string } };
+  };
+}
+
+const PAGE_QUERY = `*[_type == "livingAspenPage" && _id == "livingAspenPage"][0]{
+  heroTitle,
+  heroDescription,
+  heroImage { asset->{ _id, url } },
+  latestEyebrow,
+  pastIssuesTitle,
+  emptyTitle,
+  emptyText,
+  ctaTitle,
+  ctaDescription,
+  ctaButtonLabel,
+  ctaButtonHref,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
 const { projectId, dataset } = client.config();
 const urlFor = (source: any) =>
   projectId && dataset
@@ -23,18 +62,28 @@ const urlFor = (source: any) =>
 
 const options = { next: { revalidate: 30 } };
 
+async function getPageData(): Promise<PageDoc | null> {
+  return client.fetch<PageDoc | null>(PAGE_QUERY, {}, options);
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const page = await getPageData();
+  const heroTitle = page?.heroTitle || 'Living Aspen';
+  const title = page?.seo?.metaTitle || `${heroTitle} | Luxury Lifestyle Magazine`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.';
 
   return {
-    title: 'Living Aspen | Luxury Lifestyle Magazine',
-    description: 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.',
+    title,
+    description,
     alternates: {
       canonical: `${baseUrl}/living-aspen`,
     },
     openGraph: {
-      title: 'Living Aspen | Luxury Lifestyle Magazine',
-      description: 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.',
+      title,
+      description,
       type: 'website',
       url: `${baseUrl}/living-aspen`,
     },
@@ -42,22 +91,58 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LivingAspenPage() {
-  const magazines = await client.fetch<SanityDocument[]>(MAGAZINES_QUERY, {}, options);
+  const [magazines, page, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument[]>(MAGAZINES_QUERY, {}, options),
+    getPageData(),
+    getDefaultHeroImageUrl(),
+  ]);
 
-  // Separate featured and regular magazines
   const featuredMagazine = magazines.find((m) => m.featured);
   const regularMagazines = magazines.filter((m) => !m.featured || m._id !== featuredMagazine?._id);
 
+  const heroTitle = page?.heroTitle || 'Living Aspen';
+  const heroDescription = page?.heroDescription
+    || 'Discover the essence of Aspen living through our curated magazine. Local culture, design inspiration, and the stories that define mountain luxury.';
+  const latestEyebrow = page?.latestEyebrow || 'Latest Issue';
+  const pastIssuesTitle = page?.pastIssuesTitle || 'Past Issues';
+  const emptyTitle = page?.emptyTitle || 'Coming Soon';
+  const emptyText = page?.emptyText || 'Our first issue of Living Aspen is in the works. Stay tuned.';
+  const ctaTitle = page?.ctaTitle || 'Stay Connected';
+  const ctaDescription = page?.ctaDescription
+    || 'Subscribe to receive the latest issue of Living Aspen and exclusive insights into the Aspen lifestyle.';
+  const ctaButtonLabel = page?.ctaButtonLabel || 'Subscribe';
+  const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
+
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
+
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-[var(--color-navy)] pt-24 pb-12 md:pt-32 md:pb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-navy)]'}`}
+      >
+        {heroImageRaw && (
+          <>
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-navy)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">
-            Living Aspen
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
-            Discover the essence of Aspen living through our curated magazine. Local culture, design inspiration, and the stories that define mountain luxury.
+            {heroDescription}
           </p>
         </div>
       </section>
@@ -68,7 +153,7 @@ export default async function LivingAspenPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-8">
               <span className="text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase">
-                Latest Issue
+                {latestEyebrow}
               </span>
             </div>
             <Link
@@ -135,7 +220,7 @@ export default async function LivingAspenPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-12">
               <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                Past Issues
+                {pastIssuesTitle}
               </h2>
             </div>
 
@@ -188,10 +273,10 @@ export default async function LivingAspenPage() {
         <section className="py-24 md:py-32 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              Coming Soon
+              {emptyTitle}
             </h2>
             <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
-              Our first issue of Living Aspen is in the works. Stay tuned.
+              {emptyText}
             </p>
           </div>
         </section>
@@ -205,17 +290,17 @@ export default async function LivingAspenPage() {
 
         <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-            Stay Connected
+            {ctaTitle}
           </h2>
           <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            Subscribe to receive the latest issue of Living Aspen and exclusive insights into the Aspen lifestyle.
+            {ctaDescription}
           </p>
 
           <Link
-            href="/contact-us"
+            href={ctaButtonHref}
             className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
           >
-            Subscribe
+            {ctaButtonLabel}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

@@ -4,6 +4,7 @@ import { client } from "@/sanity/client";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getDefaultHeroImageUrl } from "@/lib/settings";
 
 const PRESS_ARTICLES_QUERY = `*[_type == "pressArticle"] | order(publishedAt desc) {
   _id,
@@ -27,6 +28,44 @@ const PRESS_ARTICLES_QUERY = `*[_type == "pressArticle"] | order(publishedAt des
   featured
 }`;
 
+interface PageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: { asset?: { _id?: string; url?: string } };
+  featuredEyebrow?: string;
+  allArticlesTitle?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaButtonLabel?: string;
+  ctaButtonHref?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: { asset?: { url?: string } };
+  };
+}
+
+const PAGE_QUERY = `*[_type == "inTheNewsPage" && _id == "inTheNewsPage"][0]{
+  heroTitle,
+  heroDescription,
+  heroImage { asset->{ _id, url } },
+  featuredEyebrow,
+  allArticlesTitle,
+  emptyTitle,
+  emptyText,
+  ctaTitle,
+  ctaDescription,
+  ctaButtonLabel,
+  ctaButtonHref,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
 const { projectId, dataset } = client.config();
 const urlFor = (source: any) =>
   projectId && dataset
@@ -34,6 +73,10 @@ const urlFor = (source: any) =>
     : null;
 
 const options = { next: { revalidate: 30 } };
+
+async function getPageData(): Promise<PageDoc | null> {
+  return client.fetch<PageDoc | null>(PAGE_QUERY, {}, options);
+}
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString('en-US', {
@@ -45,16 +88,22 @@ function formatDate(dateString: string): string {
 
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const page = await getPageData();
+  const heroTitle = page?.heroTitle || 'In the News';
+  const title = page?.seo?.metaTitle || `${heroTitle} | Press & Media Coverage`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || 'Read about us in leading publications including Robb Report, Wall Street Journal, and more.';
 
   return {
-    title: 'In the News | Press & Media Coverage',
-    description: 'Read about us in leading publications including Robb Report, Wall Street Journal, and more.',
+    title,
+    description,
     alternates: {
       canonical: `${baseUrl}/in-the-news`,
     },
     openGraph: {
-      title: 'In the News | Press & Media Coverage',
-      description: 'Read about us in leading publications including Robb Report, Wall Street Journal, and more.',
+      title,
+      description,
       type: 'website',
       url: `${baseUrl}/in-the-news`,
     },
@@ -62,21 +111,58 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function InTheNewsPage() {
-  const articles = await client.fetch<SanityDocument[]>(PRESS_ARTICLES_QUERY, {}, options);
+  const [articles, page, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument[]>(PRESS_ARTICLES_QUERY, {}, options),
+    getPageData(),
+    getDefaultHeroImageUrl(),
+  ]);
 
   const featuredArticle = articles.find((a) => a.featured);
   const regularArticles = articles.filter((a) => !a.featured || a._id !== featuredArticle?._id);
 
+  const heroTitle = page?.heroTitle || 'In the News';
+  const heroDescription = page?.heroDescription
+    || 'As featured in leading publications. Browse our latest press coverage and media mentions.';
+  const featuredEyebrow = page?.featuredEyebrow || 'Featured';
+  const allArticlesTitle = page?.allArticlesTitle || 'All Articles';
+  const emptyTitle = page?.emptyTitle || 'No Articles Yet';
+  const emptyText = page?.emptyText || 'Press coverage and media mentions will appear here. Check back soon.';
+  const ctaTitle = page?.ctaTitle || 'Media Inquiries';
+  const ctaDescription = page?.ctaDescription
+    || 'For press inquiries, interviews, or media coverage opportunities, please get in touch with our team.';
+  const ctaButtonLabel = page?.ctaButtonLabel || 'Contact Us';
+  const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
+
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
+
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-[var(--color-sothebys-blue)] pt-32 pb-16 md:pt-40 md:pb-20">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+      >
+        {heroImageRaw && (
+          <>
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">
-            In the News
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
-            As featured in leading publications. Browse our latest press coverage and media mentions.
+            {heroDescription}
           </p>
         </div>
       </section>
@@ -87,7 +173,7 @@ export default async function InTheNewsPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-8">
               <span className="text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase">
-                Featured
+                {featuredEyebrow}
               </span>
             </div>
             <a
@@ -198,7 +284,7 @@ export default async function InTheNewsPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-12">
               <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                All Articles
+                {allArticlesTitle}
               </h2>
             </div>
 
@@ -300,10 +386,10 @@ export default async function InTheNewsPage() {
         <section className="py-24 md:py-32 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              No Articles Yet
+              {emptyTitle}
             </h2>
             <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
-              Press coverage and media mentions will appear here. Check back soon.
+              {emptyText}
             </p>
           </div>
         </section>
@@ -313,17 +399,17 @@ export default async function InTheNewsPage() {
       <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-            Media Inquiries
+            {ctaTitle}
           </h2>
           <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            For press inquiries, interviews, or media coverage opportunities, please get in touch with our team.
+            {ctaDescription}
           </p>
 
           <Link
-            href="/contact-us"
+            href={ctaButtonHref}
             className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
           >
-            Contact Us
+            {ctaButtonLabel}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

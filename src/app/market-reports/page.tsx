@@ -15,6 +15,44 @@ const MARKET_REPORTS_QUERY = `*[_type == "publication" && publicationType == "ma
   featured
 }`;
 
+interface PageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: { asset?: { _id?: string; url?: string } };
+  featuredEyebrow?: string;
+  allReportsTitle?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaButtonLabel?: string;
+  ctaButtonHref?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: { asset?: { url?: string } };
+  };
+}
+
+const PAGE_QUERY = `*[_type == "marketReportsPage" && _id == "marketReportsPage"][0]{
+  heroTitle,
+  heroDescription,
+  heroImage { asset->{ _id, url } },
+  featuredEyebrow,
+  allReportsTitle,
+  emptyTitle,
+  emptyText,
+  ctaTitle,
+  ctaDescription,
+  ctaButtonLabel,
+  ctaButtonHref,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
 const { projectId, dataset } = client.config();
 const urlFor = (source: any) =>
   projectId && dataset
@@ -23,18 +61,28 @@ const urlFor = (source: any) =>
 
 const options = { next: { revalidate: 30 } };
 
+async function getPageData(): Promise<PageDoc | null> {
+  return client.fetch<PageDoc | null>(PAGE_QUERY, {}, options);
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const page = await getPageData();
+  const heroTitle = page?.heroTitle || 'Market Reports';
+  const title = page?.seo?.metaTitle || `${heroTitle} | Real Estate Insights`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.';
 
   return {
-    title: 'Market Reports | Real Estate Insights',
-    description: 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.',
+    title,
+    description,
     alternates: {
       canonical: `${baseUrl}/market-reports`,
     },
     openGraph: {
-      title: 'Market Reports | Real Estate Insights',
-      description: 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.',
+      title,
+      description,
       type: 'website',
       url: `${baseUrl}/market-reports`,
     },
@@ -42,22 +90,58 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MarketReportsPage() {
-  const reports = await client.fetch<SanityDocument[]>(MARKET_REPORTS_QUERY, {}, options);
+  const [reports, page] = await Promise.all([
+    client.fetch<SanityDocument[]>(MARKET_REPORTS_QUERY, {}, options),
+    getPageData(),
+  ]);
 
   // Separate featured and regular reports
   const featuredReport = reports.find((r) => r.featured);
   const regularReports = reports.filter((r) => !r.featured || r._id !== featuredReport?._id);
 
+  const heroTitle = page?.heroTitle || 'Market Reports';
+  const heroDescription = page?.heroDescription
+    || 'In-depth analysis and insights into the luxury real estate market. Stay informed with our comprehensive reports.';
+  const featuredEyebrow = page?.featuredEyebrow || 'Featured Report';
+  const allReportsTitle = page?.allReportsTitle || 'All Reports';
+  const emptyTitle = page?.emptyTitle || 'No Reports Available';
+  const emptyText = page?.emptyText || 'Market reports will be published soon. Check back later.';
+  const ctaTitle = page?.ctaTitle || 'Request a Custom Analysis';
+  const ctaDescription = page?.ctaDescription
+    || 'Need market insights for a specific area or property type? Our team can provide tailored analysis for your needs.';
+  const ctaButtonLabel = page?.ctaButtonLabel || 'Contact Us';
+  const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
+
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || null;
+
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-[var(--color-sothebys-blue)] pt-24 pb-12 md:pt-32 md:pb-16">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+      >
+        {heroImageRaw && (
+          <>
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">
-            Market Reports
+            {heroTitle}
           </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
-            In-depth analysis and insights into the luxury real estate market. Stay informed with our comprehensive reports.
+            {heroDescription}
           </p>
         </div>
       </section>
@@ -68,7 +152,7 @@ export default async function MarketReportsPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-8">
               <span className="text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase">
-                Featured Report
+                {featuredEyebrow}
               </span>
             </div>
             <Link
@@ -136,7 +220,7 @@ export default async function MarketReportsPage() {
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-12">
               <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                All Reports
+                {allReportsTitle}
               </h2>
             </div>
 
@@ -196,10 +280,10 @@ export default async function MarketReportsPage() {
         <section className="py-24 md:py-32 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              No Reports Available
+              {emptyTitle}
             </h2>
             <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
-              Market reports will be published soon. Check back later.
+              {emptyText}
             </p>
           </div>
         </section>
@@ -209,17 +293,17 @@ export default async function MarketReportsPage() {
       <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
         <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-            Request a Custom Analysis
+            {ctaTitle}
           </h2>
           <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            Need market insights for a specific area or property type? Our team can provide tailored analysis for your needs.
+            {ctaDescription}
           </p>
 
           <Link
-            href="/contact-us"
+            href={ctaButtonHref}
             className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
           >
-            Contact Us
+            {ctaButtonLabel}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

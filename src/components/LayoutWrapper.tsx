@@ -30,7 +30,16 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   // top of (rather than getting forced into the solid blue state).
   const hasTransparentHero =
     pathname === '/exclusive-and-new' ||
-    pathname === '/sold-by-klug-properties';
+    pathname === '/sold-by-klug-properties' ||
+    pathname === '/market-reports' ||
+    pathname === '/living-aspen' ||
+    pathname === '/blog' ||
+    pathname === '/in-the-news' ||
+    pathname === '/why-klug-properties' ||
+    pathname === '/testimonials' ||
+    pathname === '/affiliated-partners' ||
+    pathname === '/affiliated-partners/ski-town' ||
+    pathname === '/affiliated-partners/market-leaders';
 
   // Check if we're on the listings page (no footer, fixed height layout)
   const isListingsPage = pathname === '/listings';

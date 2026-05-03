@@ -6,7 +6,7 @@ import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor }
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
 import FeaturedVideoGrid from "../FeaturedVideoGrid";
-import { getSiteName, getBaseUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 import { formatPrice } from '@/lib/listings';
 
@@ -171,9 +171,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MarketLeadersPage() {
-  const [partners, pageContent] = await Promise.all([
+  const [partners, pageContent, defaultHeroUrl] = await Promise.all([
     client.fetch<Partner[]>(MARKET_LEADERS_QUERY, {}, options),
     client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
+    getDefaultHeroImageUrl(),
   ]);
 
   // Enrich all partners with agent data from the database
@@ -188,10 +189,10 @@ export default async function MarketLeadersPage() {
   const agentNames = partners.map(p => `${p.firstName} ${p.lastName}`).filter(n => n.trim().length > 1);
   const { active: activeVideoListings } = await getMarketLeaderListingsWithVideos(agentNames);
 
-  // Get hero image URL if available
+  // Get hero image URL if available, fall back to site-wide default
   const heroImageUrl = pageContent?.heroImage
     ? urlFor(pageContent.heroImage)?.width(1920).height(800).url()
-    : null;
+    : defaultHeroUrl;
 
   // Get logo URL if available
   const logoUrl = pageContent?.logo
@@ -200,8 +201,8 @@ export default async function MarketLeadersPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section - Combined */}
-      <section className="relative bg-[var(--color-sothebys-blue)] py-20 md:py-28">
+      {/* Hero Section - Combined — transparent header sits on top, so add extra top padding */}
+      <section className="relative bg-[var(--color-sothebys-blue)] pt-36 pb-20 md:pt-44 md:pb-28">
         {heroImageUrl && (
           <div className="absolute inset-0">
             <Image

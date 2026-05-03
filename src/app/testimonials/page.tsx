@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import StructuredData from "@/components/StructuredData";
+import { getDefaultHeroImageUrl } from "@/lib/settings";
 
 const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
   heroTitle,
@@ -139,7 +140,10 @@ const TransactionBadge = ({ type }: { type?: string }) => {
 };
 
 export default async function TestimonialsPage() {
-  const data = await client.fetch<SanityDocument>(TESTIMONIALS_QUERY, {}, options);
+  const [data, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument>(TESTIMONIALS_QUERY, {}, options),
+    getDefaultHeroImageUrl(),
+  ]);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
   if (!data) {
@@ -162,7 +166,7 @@ export default async function TestimonialsPage() {
 
   const heroImageUrl = data.heroImage
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
-    : null;
+    : defaultHeroUrl;
 
   const featuredTestimonials = data.testimonials?.filter((t: any) => t.featured) || [];
   const regularTestimonials = data.testimonials?.filter((t: any) => !t.featured) || [];
