@@ -25,6 +25,10 @@ interface PageDoc {
   moreArticlesTitle?: string;
   emptyTitle?: string;
   emptyText?: string;
+  ctaTitle?: string;
+  ctaDescription?: string;
+  ctaButtonLabel?: string;
+  ctaButtonHref?: string;
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -40,6 +44,10 @@ const PAGE_QUERY = `*[_type == "blogPage" && _id == "blogPage"][0]{
   moreArticlesTitle,
   emptyTitle,
   emptyText,
+  ctaTitle,
+  ctaDescription,
+  ctaButtonLabel,
+  ctaButtonHref,
   seo {
     metaTitle,
     metaDescription,
@@ -113,6 +121,11 @@ export default async function BlogPage({
   const moreArticlesTitle = page?.moreArticlesTitle || 'More Articles';
   const emptyTitle = page?.emptyTitle || 'No Posts Yet';
   const emptyText = page?.emptyText || 'Blog posts will be published soon. Check back later.';
+  const ctaTitle = page?.ctaTitle || 'Have a Question?';
+  const ctaDescription = page?.ctaDescription
+    || 'Reach out to our team for personalized advice, market insights, or to start your search.';
+  const ctaButtonLabel = page?.ctaButtonLabel || 'Contact Us';
+  const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
@@ -373,6 +386,41 @@ export default async function BlogPage({
           </div>
         </section>
       )}
+
+      {/* Contact CTA */}
+      <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
+        {heroImageRaw && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-fixed"
+              style={{ backgroundImage: `url(${heroImageRaw})` }}
+              aria-hidden="true"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/70 dark:bg-black/70"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
+            {ctaTitle}
+          </h2>
+          <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+            {ctaDescription}
+          </p>
+
+          <Link
+            href={ctaButtonHref}
+            className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
+          >
+            {ctaButtonLabel}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

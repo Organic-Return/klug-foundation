@@ -501,20 +501,24 @@ export default async function WhyKlugPropertiesPage() {
       )}
 
       {/* CTA Section */}
-      {data.ctaTitle && (
-        <section className="relative py-20 md:py-28">
-          {data.ctaImage ? (
+      {data.ctaTitle && (() => {
+        const ctaImageUrl = data.ctaImage
+          ? urlFor(data.ctaImage)?.width(1920).height(800).url() || null
+          : heroImageUrl;
+        return (
+        <section className="relative py-20 md:py-28 bg-[var(--color-navy)] overflow-hidden">
+          {ctaImageUrl && (
             <>
-              <Image
-                src={urlFor(data.ctaImage)?.width(1920).height(600).url() || ''}
-                alt="Contact Us"
-                fill
-                className="object-cover"
+              <div
+                className="absolute inset-0 bg-cover bg-center bg-fixed"
+                style={{ backgroundImage: `url(${ctaImageUrl})` }}
+                aria-hidden="true"
               />
-              <div className="absolute inset-0 bg-[var(--color-navy)]/80" />
+              <div
+                className="absolute inset-0 bg-[var(--color-navy)]/80"
+                aria-hidden="true"
+              />
             </>
-          ) : (
-            <div className="absolute inset-0 bg-[var(--color-navy)]" />
           )}
 
           <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
@@ -539,7 +543,8 @@ export default async function WhyKlugPropertiesPage() {
             )}
           </div>
         </section>
-      )}
+        );
+      })()}
     </main>
   );
 }

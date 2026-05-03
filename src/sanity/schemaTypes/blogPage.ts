@@ -55,6 +55,33 @@ export const blogPage = defineType({
     }),
 
     defineField({
+      name: 'ctaTitle',
+      title: 'Bottom CTA — Title',
+      type: 'string',
+      initialValue: 'Have a Question?',
+    }),
+    defineField({
+      name: 'ctaDescription',
+      title: 'Bottom CTA — Description',
+      type: 'text',
+      rows: 3,
+      initialValue:
+        'Reach out to our team for personalized advice, market insights, or to start your search.',
+    }),
+    defineField({
+      name: 'ctaButtonLabel',
+      title: 'Bottom CTA — Button Label',
+      type: 'string',
+      initialValue: 'Contact Us',
+    }),
+    defineField({
+      name: 'ctaButtonHref',
+      title: 'Bottom CTA — Button Link',
+      type: 'string',
+      initialValue: '/contact-us',
+    }),
+
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'object',

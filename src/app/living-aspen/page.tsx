@@ -283,10 +283,20 @@ export default async function LivingAspenPage() {
       )}
 
       {/* Subscribe CTA */}
-      <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] relative overflow-hidden">
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }} />
-        </div>
+      <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
+        {heroImageRaw && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-fixed"
+              style={{ backgroundImage: `url(${heroImageRaw})` }}
+              aria-hidden="true"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/70 dark:bg-black/70"
+              aria-hidden="true"
+            />
+          </>
+        )}
 
         <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
