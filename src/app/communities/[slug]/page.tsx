@@ -155,7 +155,7 @@ const components: PortableTextComponents = {
       <p className="mb-6 text-[#4a4a4a] dark:text-gray-300 leading-[1.8] font-light text-[17px]">{children}</p>
     ),
     h1: ({ children }: { children?: ReactNode }) => (
-      <h1 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h1>
+      <h2 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h2>
     ),
     h2: ({ children }: { children?: ReactNode }) => (
       <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white mt-10 mb-5 tracking-wide">{children}</h2>
@@ -251,7 +251,7 @@ const luxuryComponents: PortableTextComponents = {
       <p className="mb-6 text-[var(--color-warm-gray)] leading-[1.8] font-luxury-body font-light text-[17px]">{children}</p>
     ),
     h1: ({ children }: { children?: ReactNode }) => (
-      <h1 className="font-luxury text-[var(--color-charcoal)] mt-12 mb-6 font-light tracking-wide">{children}</h1>
+      <h2 className="font-luxury text-[var(--color-charcoal)] mt-12 mb-6 font-light tracking-wide">{children}</h2>
     ),
     h2: ({ children }: { children?: ReactNode }) => (
       <h2 className="text-2xl md:text-3xl font-luxury font-light text-[var(--color-charcoal)] mt-10 mb-5 tracking-wide">{children}</h2>
