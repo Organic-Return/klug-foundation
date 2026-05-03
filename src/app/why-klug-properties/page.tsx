@@ -501,10 +501,15 @@ export default async function WhyKlugPropertiesPage() {
       )}
 
       {/* CTA Section */}
-      {data.ctaTitle && (() => {
+      {(() => {
         const ctaImageUrl = data.ctaImage
           ? urlFor(data.ctaImage)?.width(1920).height(800).url() || null
           : heroImageUrl;
+        const ctaTitle = data.ctaTitle || 'Ready to Get Started?';
+        const ctaSubtitle = data.ctaSubtitle
+          || 'Connect with our team to discuss your next move in the Aspen and Roaring Fork Valley market.';
+        const ctaButtonText = data.ctaButtonText || 'Contact Us';
+        const ctaButtonLink = data.ctaButtonLink || '/contact-us';
         return (
         <section className="relative py-20 md:py-28 bg-[var(--color-navy)] overflow-hidden">
           {ctaImageUrl && (
@@ -523,24 +528,20 @@ export default async function WhyKlugPropertiesPage() {
 
           <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-              {data.ctaTitle}
+              {ctaTitle}
             </h2>
-            {data.ctaSubtitle && (
-              <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-                {data.ctaSubtitle}
-              </p>
-            )}
-            {data.ctaButtonText && (
-              <Link
-                href={data.ctaButtonLink || '/contact-us'}
-                className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
-              >
-                {data.ctaButtonText}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            )}
+            <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
+              {ctaSubtitle}
+            </p>
+            <Link
+              href={ctaButtonLink}
+              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+            >
+              {ctaButtonText}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
           </div>
         </section>
         );
