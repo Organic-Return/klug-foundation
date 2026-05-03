@@ -998,17 +998,19 @@ export default async function CommunityPage({
             <ModernContactCTA />
           ) : isLuxury ? (
             <section className="py-32 md:py-44 bg-[var(--color-charcoal)] relative overflow-hidden">
-              {/* Background image with overlay */}
+              {/* Parallax background image with overlay */}
               {heroImageUrl && (
-                <div className="absolute inset-0">
-                  <img
-                    src={heroImageUrl}
-                    alt=""
-                    className="w-full h-full object-cover opacity-20"
-                    style={{ filter: 'grayscale(100%)' }}
+                <>
+                  <div
+                    className="absolute inset-0 bg-cover bg-center bg-fixed"
+                    style={{ backgroundImage: `url(${heroImageUrl})`, filter: 'grayscale(100%)' }}
+                    aria-hidden="true"
                   />
-                  <div className="absolute inset-0 bg-[var(--color-charcoal)]/80" />
-                </div>
+                  <div
+                    className="absolute inset-0 bg-[var(--color-charcoal)]/80"
+                    aria-hidden="true"
+                  />
+                </>
               )}
               <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
                 <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-5 font-luxury-body">
@@ -1027,7 +1029,7 @@ export default async function CommunityPage({
                   className="group inline-flex items-center gap-4 font-luxury-body text-white text-[13px] uppercase tracking-[0.25em]"
                 >
                   <span className="border-b border-white/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
-                    Schedule a Consultation
+                    Contact
                   </span>
                   <svg className="w-5 h-5 transform group-hover:translate-x-2 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -1036,8 +1038,21 @@ export default async function CommunityPage({
               </div>
             </section>
           ) : (
-            <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
-              <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+            <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
+              {heroImageUrl && (
+                <>
+                  <div
+                    className="absolute inset-0 bg-cover bg-center bg-fixed"
+                    style={{ backgroundImage: `url(${heroImageUrl})` }}
+                    aria-hidden="true"
+                  />
+                  <div
+                    className="absolute inset-0 bg-[var(--color-sothebys-blue)]/70 dark:bg-black/70"
+                    aria-hidden="true"
+                  />
+                </>
+              )}
+              <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
                   Begin Your Journey
                 </h2>
@@ -1049,7 +1064,7 @@ export default async function CommunityPage({
                   href="/contact-us"
                   className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-white transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
                 >
-                  Schedule a Consultation
+                  Contact
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
