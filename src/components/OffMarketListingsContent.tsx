@@ -97,8 +97,11 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
                 <div className="text-center">
                   <button
                     onClick={() => setShowPasscodeForm(true)}
-                    className="text-sm text-[var(--color-sothebys-blue)] hover:text-[var(--color-gold)] underline transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 border-2 border-[var(--color-gold)] bg-white text-[var(--color-sothebys-blue)] text-sm font-medium tracking-wide rounded-md shadow-sm hover:bg-[var(--color-gold)] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-gold)] focus-visible:ring-offset-2 transition-colors"
                   >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 7a4 4 0 11-4 4m-7 5l5-5m0 0l1.5 1.5M9 11l3 3" />
+                    </svg>
                     Have a passcode? Enter it to bypass registration
                   </button>
                 </div>
