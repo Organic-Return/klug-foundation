@@ -4,6 +4,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import { getDefaultHeroImageUrl } from "@/lib/settings";
 
 const MARKET_REPORTS_QUERY = `*[_type == "publication" && publicationType == "market-report"] | order(publishedAt desc) {
   _id,
@@ -90,9 +91,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MarketReportsPage() {
-  const [reports, page] = await Promise.all([
+  const [reports, page, defaultHeroUrl] = await Promise.all([
     client.fetch<SanityDocument[]>(MARKET_REPORTS_QUERY, {}, options),
     getPageData(),
+    getDefaultHeroImageUrl(),
   ]);
 
   // Separate featured and regular reports
@@ -112,7 +114,7 @@ export default async function MarketReportsPage() {
   const ctaButtonLabel = page?.ctaButtonLabel || 'Contact Us';
   const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
 
-  const heroImageRaw: string | null = page?.heroImage?.asset?.url || null;
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
   return (
     <main className="min-h-screen">
@@ -290,8 +292,21 @@ export default async function MarketReportsPage() {
       )}
 
       {/* Contact CTA */}
-      <section className="py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a]">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 text-center">
+      <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
+        {heroImageRaw && (
+          <>
+            <div
+              className="absolute inset-0 bg-cover bg-center bg-fixed"
+              style={{ backgroundImage: `url(${heroImageRaw})` }}
+              aria-hidden="true"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/70 dark:bg-black/70"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
             {ctaTitle}
           </h2>
