@@ -221,29 +221,32 @@ export default async function WhyKlugPropertiesPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-end">
-        {heroImageUrl ? (
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageUrl ? '' : 'bg-[var(--color-navy)]'}`}
+      >
+        {heroImageUrl && (
           <>
             <Image
               src={heroImageUrl}
-              alt={data.heroTitle || 'Why Klug Properties'}
+              alt=""
               fill
-              className="object-cover"
               priority
+              sizes="100vw"
+              className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10" />
+            <div
+              className="absolute inset-0 bg-[var(--color-navy)]/65"
+              aria-hidden="true"
+            />
           </>
-        ) : (
-          <div className="absolute inset-0 bg-[var(--color-navy)]" />
         )}
-
-        <div className="relative max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 pb-16 md:pb-24">
-          <h1 className="font-serif text-white mb-4 max-w-4xl">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+          <h1 className="font-serif text-white mb-6 max-w-4xl">
             {data.heroTitle}
           </h1>
           {data.heroSubtitle && (
-            <p className="text-lg md:text-xl text-white/80 font-light max-w-2xl leading-relaxed">
+            <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
               {data.heroSubtitle}
             </p>
           )}
