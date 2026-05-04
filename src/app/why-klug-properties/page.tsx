@@ -282,10 +282,12 @@ export default async function WhyKlugPropertiesPage() {
                 </div>
               </div>
             ) : (
-              // Centered single-column layout when there's no image
-              <div className="max-w-3xl mx-auto text-center">
+              // Centered single-column layout when there's no image —
+              // matches the geometry of the Services-section header below
+              // (max-w-2xl, mb-4 under the title) so the two stack cleanly.
+              <div className="max-w-2xl mx-auto text-center">
                 {data.introTitle && (
-                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-8 tracking-wide">
+                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4 tracking-wide">
                     {data.introTitle}
                   </h2>
                 )}
