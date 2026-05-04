@@ -150,7 +150,9 @@ const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && _id == "affil
   ctaButtonLink
 }`;
 
-const options = { next: { revalidate: 60 } };
+// Refresh promptly when editors publish in Sanity Studio
+export const revalidate = 10;
+const options = { next: { revalidate: 10 } };
 
 export async function generateMetadata(): Promise<Metadata> {
   const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
