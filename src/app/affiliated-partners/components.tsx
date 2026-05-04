@@ -15,7 +15,6 @@ export const urlFor = (source: any) =>
 // Page content interface for CMS-driven page settings
 export interface PageContent {
   _id: string;
-  pageType: 'main' | 'ski_town' | 'market_leaders';
   heroTitle?: string;
   heroDescription?: string;
   heroImage?: any;

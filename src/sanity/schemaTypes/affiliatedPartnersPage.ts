@@ -1,5 +1,10 @@
 import { defineType, defineField } from 'sanity'
 
+const MAIN_ID = 'affiliatedPartnersPageMain'
+// Treat both the published doc and its draft (drafts.<id>) as the same logical doc
+const idMatches = (documentId: string | undefined, target: string) =>
+  documentId?.replace(/^drafts\./, '') === target
+
 export const affiliatedPartnersPage = defineType({
   name: 'affiliatedPartnersPage',
   title: 'Affiliated Partners Page',
@@ -7,16 +12,11 @@ export const affiliatedPartnersPage = defineType({
   fields: [
     defineField({
       name: 'pageType',
-      title: 'Page Type',
+      title: 'Page Type (legacy)',
       type: 'string',
-      options: {
-        list: [
-          { title: 'Main Landing Page', value: 'main' },
-          { title: 'Ski Town Partners', value: 'ski_town' },
-          { title: 'Market Leaders', value: 'market_leaders' },
-        ],
-      },
-      validation: (Rule) => Rule.required(),
+      description:
+        'Kept for backwards compatibility. The page each singleton powers is now determined by the document ID, so this field can be left blank.',
+      hidden: true,
     }),
 
     // Hero Section
@@ -57,7 +57,7 @@ export const affiliatedPartnersPage = defineType({
       name: 'skiTownCard',
       title: 'Ski Town Category Card',
       type: 'object',
-      hidden: ({ parent }) => parent?.pageType !== 'main',
+      hidden: ({ document }) => !idMatches(document?._id, MAIN_ID),
       fields: [
         {
           name: 'title',
@@ -91,7 +91,7 @@ export const affiliatedPartnersPage = defineType({
       name: 'marketLeadersCard',
       title: 'Market Leaders Category Card',
       type: 'object',
-      hidden: ({ parent }) => parent?.pageType !== 'main',
+      hidden: ({ document }) => !idMatches(document?._id, MAIN_ID),
       fields: [
         {
           name: 'title',
@@ -127,7 +127,7 @@ export const affiliatedPartnersPage = defineType({
       name: 'featuredSectionTitle',
       title: 'Featured Section Title',
       type: 'string',
-      hidden: ({ parent }) => parent?.pageType !== 'main',
+      hidden: ({ document }) => !idMatches(document?._id, MAIN_ID),
       description: 'Title for the featured partners section',
     }),
 
@@ -174,18 +174,14 @@ export const affiliatedPartnersPage = defineType({
   ],
   preview: {
     select: {
-      pageType: 'pageType',
       title: 'heroTitle',
+      media: 'logo',
     },
-    prepare({ pageType, title }) {
-      const typeLabels: Record<string, string> = {
-        main: 'Main Landing Page',
-        ski_town: 'Ski Town Partners',
-        market_leaders: 'Market Leaders',
-      }
+    prepare({ title, media }) {
       return {
-        title: typeLabels[pageType] || pageType,
-        subtitle: title || 'No title set',
+        title: title || 'Affiliated Partners Page',
+        subtitle: 'Page',
+        media,
       }
     },
   },

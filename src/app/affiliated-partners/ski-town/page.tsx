@@ -28,9 +28,8 @@ const SKI_TOWN_PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == tru
   featured
 }`;
 
-const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && pageType == "ski_town"][0] {
+const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && _id == "affiliatedPartnersPageSkiTown"][0] {
   _id,
-  pageType,
   heroTitle,
   heroDescription,
   heroImage,

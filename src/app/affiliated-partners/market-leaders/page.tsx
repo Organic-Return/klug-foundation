@@ -137,9 +137,8 @@ const MARKET_LEADERS_QUERY = `*[_type == "affiliatedPartner" && active == true &
   featured
 }`;
 
-const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && pageType == "market_leaders"][0] {
+const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && _id == "affiliatedPartnersPageMarketLeaders"][0] {
   _id,
-  pageType,
   heroTitle,
   heroDescription,
   heroImage,

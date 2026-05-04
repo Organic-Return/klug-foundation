@@ -128,10 +128,37 @@ export default defineConfig({
                   .schemaType('inTheNewsPage')
                   .documentId('inTheNewsPage')
               ),
+            // Affiliated Partners — Main Page singleton
+            S.listItem()
+              .title('Affiliated Partners — Main Page')
+              .icon(() => '🤝')
+              .child(
+                S.document()
+                  .schemaType('affiliatedPartnersPage')
+                  .documentId('affiliatedPartnersPageMain')
+              ),
+            // Affiliated Partners — Ski Town singleton
+            S.listItem()
+              .title('Affiliated Partners — Ski Town')
+              .icon(() => '⛰️')
+              .child(
+                S.document()
+                  .schemaType('affiliatedPartnersPage')
+                  .documentId('affiliatedPartnersPageSkiTown')
+              ),
+            // Affiliated Partners — Market Leaders singleton
+            S.listItem()
+              .title('Affiliated Partners — Market Leaders')
+              .icon(() => '🏆')
+              .child(
+                S.document()
+                  .schemaType('affiliatedPartnersPage')
+                  .documentId('affiliatedPartnersPageMarketLeaders')
+              ),
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage', 'affiliatedPartnersPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),

@@ -30,9 +30,8 @@ const PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true] | orde
   featured
 }`;
 
-const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && pageType == "main"][0] {
+const PAGE_CONTENT_QUERY = `*[_type == "affiliatedPartnersPage" && _id == "affiliatedPartnersPageMain"][0] {
   _id,
-  pageType,
   heroTitle,
   heroDescription,
   heroImage,
