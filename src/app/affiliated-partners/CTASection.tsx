@@ -5,21 +5,26 @@ import Link from 'next/link';
 import ContactModal from '@/components/ContactModal';
 
 interface CTASectionProps {
-  title?: string;
-  description?: string;
-  buttonText?: string;
-  buttonAction?: 'link' | 'contact_modal';
-  buttonLink?: string;
+  title?: string | null;
+  description?: string | null;
+  buttonText?: string | null;
+  buttonAction?: 'link' | 'contact_modal' | null;
+  buttonLink?: string | null;
 }
 
-export default function CTASection({
-  title = 'Looking to Partner With Us?',
-  description = "We're always looking to connect with exceptional real estate professionals who share our commitment to excellence.",
-  buttonText = 'Get in Touch',
-  buttonAction = 'link',
-  buttonLink = '/contact-us',
-}: CTASectionProps) {
+export default function CTASection(props: CTASectionProps) {
   const [contactModalOpen, setContactModalOpen] = useState(false);
+
+  // Default-parameter syntax only handles `undefined`. Sanity GROQ projects
+  // unset fields as `null`, which previously slipped through and caused
+  // `<Link href={null}>` to crash Next's format-url at prerender. Coerce
+  // explicitly so the section is safe regardless of what Sanity returns.
+  const title = props.title || 'Looking to Partner With Us?';
+  const description = props.description
+    || "We're always looking to connect with exceptional real estate professionals who share our commitment to excellence.";
+  const buttonText = props.buttonText || 'Get in Touch';
+  const buttonAction = props.buttonAction || 'link';
+  const buttonLink = props.buttonLink || '/contact-us';
 
   return (
     <section className="py-20 md:py-28 bg-[var(--color-navy)]">
