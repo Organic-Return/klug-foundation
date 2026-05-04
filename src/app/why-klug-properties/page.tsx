@@ -257,20 +257,21 @@ export default async function WhyKlugPropertiesPage() {
       {(data.introTitle || data.introContent) && (
         <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <div>
-                {data.introTitle && (
-                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-8 tracking-wide">
-                    {data.introTitle}
-                  </h2>
-                )}
-                {data.introContent && (
-                  <div className="prose prose-lg max-w-none">
-                    <PortableText value={data.introContent} components={portableTextComponents} />
-                  </div>
-                )}
-              </div>
-              {data.introImage && (
+            {data.introImage ? (
+              // Two-column layout when an intro image is set
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                <div>
+                  {data.introTitle && (
+                    <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-8 tracking-wide">
+                      {data.introTitle}
+                    </h2>
+                  )}
+                  {data.introContent && (
+                    <div className="prose prose-lg max-w-none">
+                      <PortableText value={data.introContent} components={portableTextComponents} />
+                    </div>
+                  )}
+                </div>
                 <div className="relative aspect-[4/3] lg:aspect-square">
                   <Image
                     src={urlFor(data.introImage)?.width(800).height(800).url() || ''}
@@ -279,8 +280,22 @@ export default async function WhyKlugPropertiesPage() {
                     className="object-cover"
                   />
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              // Centered single-column layout when there's no image
+              <div className="max-w-3xl mx-auto text-center">
+                {data.introTitle && (
+                  <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-8 tracking-wide">
+                    {data.introTitle}
+                  </h2>
+                )}
+                {data.introContent && (
+                  <div className="prose prose-lg max-w-none mx-auto [&_p]:text-center">
+                    <PortableText value={data.introContent} components={portableTextComponents} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}
