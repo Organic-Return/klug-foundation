@@ -168,9 +168,10 @@ export default async function AffiliatedPartnersPage() {
     ? urlFor(pageContent.heroImage)?.width(1920).height(800).url()
     : defaultHeroUrl;
 
-  // Get logo URL if available
+  // Width-only URL preserves the logo's natural aspect ratio so wide
+  // wordmarks don't get cropped.
   const logoUrl = pageContent?.logo
-    ? urlFor(pageContent.logo)?.width(200).height(80).url()
+    ? urlFor(pageContent.logo)?.width(1200).url()
     : null;
 
   // Get category card images
@@ -198,13 +199,14 @@ export default async function AffiliatedPartnersPage() {
         )}
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           {logoUrl && (
-            <div className="mb-8">
+            <div className="mb-8 mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
               <Image
                 src={logoUrl}
                 alt="Partners Logo"
-                width={200}
-                height={80}
-                className="mx-auto"
+                width={1200}
+                height={240}
+                className="w-full h-auto"
+                sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
               />
             </div>
           )}

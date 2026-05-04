@@ -195,9 +195,10 @@ export default async function MarketLeadersPage() {
     ? urlFor(pageContent.heroImage)?.width(1920).height(800).url()
     : defaultHeroUrl;
 
-  // Get logo URL if available
+  // Width-only URL preserves the logo's natural aspect ratio so wide
+  // wordmarks don't get cropped.
   const logoUrl = pageContent?.logo
-    ? urlFor(pageContent.logo)?.width(200).height(80).url()
+    ? urlFor(pageContent.logo)?.width(1200).url()
     : null;
 
   return (
@@ -226,13 +227,14 @@ export default async function MarketLeadersPage() {
           </div>
 
           {logoUrl && (
-            <div className="mb-6">
+            <div className="mb-6 mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
               <Image
                 src={logoUrl}
                 alt="Market Leaders Logo"
-                width={200}
-                height={80}
-                className="mx-auto"
+                width={1200}
+                height={240}
+                className="w-full h-auto"
+                sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
               />
             </div>
           )}
