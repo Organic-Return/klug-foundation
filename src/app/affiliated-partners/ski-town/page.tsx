@@ -113,22 +113,30 @@ export default async function SkiTownPartnersPage() {
             <span className="text-white/80 text-sm font-light">Ski Town</span>
           </div>
 
-          {logoUrl && (
-            <div className="mb-8 mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
-              <Image
-                src={logoUrl}
-                alt="Ski Town Partners Logo"
-                width={1200}
-                height={240}
-                className="w-full h-auto"
-                sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
-              />
-            </div>
+          {/* When a logo is uploaded, it becomes the visual heading and
+              the h1 text is hidden from sighted users via sr-only — search
+              engines and screen readers still see the heading text. */}
+          {logoUrl ? (
+            <h1 className="mb-6">
+              <span className="block mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
+                <Image
+                  src={logoUrl}
+                  alt=""
+                  width={1200}
+                  height={240}
+                  className="w-full h-auto"
+                  sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
+                />
+              </span>
+              <span className="sr-only">
+                {pageContent?.heroTitle || 'Ski Town Partners'}
+              </span>
+            </h1>
+          ) : (
+            <h1 className="font-serif text-white mb-6">
+              {pageContent?.heroTitle || 'Ski Town Partners'}
+            </h1>
           )}
-
-          <h1 className="font-serif text-white mb-6">
-            {pageContent?.heroTitle || 'Ski Town Partners'}
-          </h1>
           <p className="text-lg md:text-xl text-white/70 font-light max-w-3xl mx-auto leading-relaxed">
             {pageContent?.heroDescription ||
               'Expert agents specializing in premier ski resort communities. From Aspen to Vail, Park City to Jackson Hole, our partners know mountain real estate.'}

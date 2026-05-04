@@ -226,22 +226,30 @@ export default async function MarketLeadersPage() {
             <span className="text-white/80 text-sm font-light">Market Leaders</span>
           </div>
 
-          {logoUrl && (
-            <div className="mb-6 mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
-              <Image
-                src={logoUrl}
-                alt="Market Leaders Logo"
-                width={1200}
-                height={240}
-                className="w-full h-auto"
-                sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
-              />
-            </div>
+          {/* When a logo is uploaded, it becomes the visual heading and
+              the h1 text is hidden from sighted users via sr-only — search
+              engines and screen readers still see the heading text. */}
+          {logoUrl ? (
+            <h1 className="mb-4">
+              <span className="block mx-auto max-w-[280px] sm:max-w-[360px] md:max-w-[440px]">
+                <Image
+                  src={logoUrl}
+                  alt=""
+                  width={1200}
+                  height={240}
+                  className="w-full h-auto"
+                  sizes="(max-width: 640px) 280px, (max-width: 768px) 360px, 440px"
+                />
+              </span>
+              <span className="sr-only">
+                {pageContent?.heroTitle || 'Market Leaders'}
+              </span>
+            </h1>
+          ) : (
+            <h1 className="font-serif text-white mb-4">
+              {pageContent?.heroTitle || 'Market Leaders'}
+            </h1>
           )}
-
-          <h1 className="font-serif text-white mb-4">
-            {pageContent?.heroTitle || 'Market Leaders'}
-          </h1>
 
           <p className="text-[#c9ac77] text-[11px] uppercase tracking-[0.3em] font-light mb-8 mx-auto">
             It takes true masters to represent a masterpiece
