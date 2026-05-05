@@ -128,6 +128,15 @@ export default defineConfig({
                   .schemaType('inTheNewsPage')
                   .documentId('inTheNewsPage')
               ),
+            // Team Page singleton
+            S.listItem()
+              .title('Team Page')
+              .icon(() => '👥')
+              .child(
+                S.document()
+                  .schemaType('teamPage')
+                  .documentId('teamPage')
+              ),
             // Affiliated Partners — Main Page singleton
             S.listItem()
               .title('Affiliated Partners — Main Page')
@@ -158,7 +167,7 @@ export default defineConfig({
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage', 'affiliatedPartnersPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage', 'affiliatedPartnersPage', 'teamPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),
