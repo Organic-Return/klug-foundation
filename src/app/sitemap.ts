@@ -32,7 +32,7 @@ async function getMarketLeaderListingSlugs(): Promise<string[]> {
   const supabase = getRealogySupabase();
   if (!supabase) return [];
   const partners = await client.fetch<Array<{ firstName: string; lastName: string }>>(
-    `*[_type == "affiliatedPartner" && active == true && partnerType == "market_leader"]{ firstName, lastName }`
+    `*[_type == "affiliatedPartner" && active == true]{ firstName, lastName }`
   );
   const slugs = new Set<string>();
   for (const p of partners) {
@@ -40,16 +40,26 @@ async function getMarketLeaderListingSlugs(): Promise<string[]> {
     if (name.length < 3) continue;
     const parts = name.split(/\s+/);
     const pattern = `${parts[0]}%${parts[parts.length - 1]}`;
-    const { data } = await supabase
-      .from('realogy_listings')
-      .select('street_address')
-      .ilike('primary_agent_name', pattern)
-      .eq('listing_type', 'ForSale')
-      .limit(50);
-    for (const row of (data ?? []) as MarketLeaderRow[]) {
-      if (!row.street_address) continue;
-      const slug = toAddressSlug(row.street_address);
-      if (slug) slugs.add(slug);
+    // Page through everything attributed to this agent — active +
+    // sold combined — so high-volume agents like Josh Behr don't
+    // get their sold inventory cut off at an arbitrary limit.
+    let from = 0;
+    const PAGE = 1000;
+    for (let pageIdx = 0; pageIdx < 5; pageIdx++) {
+      const { data, error } = await supabase
+        .from('realogy_listings')
+        .select('street_address')
+        .ilike('primary_agent_name', pattern)
+        .eq('listing_type', 'ForSale')
+        .range(from, from + PAGE - 1);
+      if (error || !data || data.length === 0) break;
+      for (const row of data as MarketLeaderRow[]) {
+        if (!row.street_address) continue;
+        const slug = toAddressSlug(row.street_address);
+        if (slug) slugs.add(slug);
+      }
+      if (data.length < PAGE) break;
+      from += PAGE;
     }
   }
   return Array.from(slugs);
