@@ -37,8 +37,44 @@ interface YouTubeVideo {
   };
 }
 
-interface YouTubeResponse {
-  items: YouTubeVideo[];
+interface PlaylistItem {
+  snippet: {
+    title: string;
+    description: string;
+    thumbnails: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
+    publishedAt: string;
+    channelTitle: string;
+    resourceId: { videoId: string };
+  };
+}
+
+interface PlaylistItemsResponse {
+  items: PlaylistItem[];
+  nextPageToken?: string;
+}
+
+interface ChannelsResponse {
+  items?: Array<{
+    contentDetails?: {
+      relatedPlaylists?: {
+        uploads?: string;
+      };
+    };
+  }>;
+}
+
+async function getUploadsPlaylistId(apiKey: string, channelId: string): Promise<string | null> {
+  // YouTube channel IDs that start with "UC" can be converted to the
+  // matching uploads playlist by replacing the second char with "U"
+  // (UCxxxx → UUxxxx). Verify with the API as a fallback.
+  if (channelId.startsWith('UC')) {
+    return 'UU' + channelId.slice(2);
+  }
+  const url = `https://www.googleapis.com/youtube/v3/channels?key=${apiKey}&id=${channelId}&part=contentDetails`;
+  const res = await fetch(url, { next: { revalidate: 3600 } });
+  if (!res.ok) return null;
+  const data: ChannelsResponse = await res.json();
+  return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads || null;
 }
 
 async function getYouTubeVideos(): Promise<YouTubeVideo[]> {
@@ -53,21 +89,60 @@ async function getYouTubeVideos(): Promise<YouTubeVideo[]> {
   }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20&type=video`;
-
-    console.log('📡 Fetching YouTube videos...');
-    const response = await fetch(url, { next: { revalidate: 3600 } }); // Cache for 1 hour
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('❌ YouTube API error:', response.status, errorText);
+    const uploadsPlaylistId = await getUploadsPlaylistId(apiKey, channelId);
+    if (!uploadsPlaylistId) {
+      console.error('❌ Could not resolve uploads playlist for channel', channelId);
       return [];
     }
 
-    const data: YouTubeResponse = await response.json();
-    console.log('✅ Successfully fetched', data.items?.length || 0, 'videos');
+    // Page through the uploads playlist so we get every video, not just
+    // the most recent 20 (search.list silently truncates and skips items).
+    const all: YouTubeVideo[] = [];
+    let pageToken: string | undefined;
+    const maxPages = 10; // safety cap → up to 500 videos
 
-    return data.items || [];
+    for (let page = 0; page < maxPages; page++) {
+      const params = new URLSearchParams({
+        key: apiKey,
+        playlistId: uploadsPlaylistId,
+        part: 'snippet',
+        maxResults: '50',
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
+        { next: { revalidate: 3600 } }
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ YouTube API error:', response.status, errorText);
+        break;
+      }
+      const data: PlaylistItemsResponse = await response.json();
+      for (const item of data.items || []) {
+        const thumb =
+          item.snippet.thumbnails.high?.url
+          || item.snippet.thumbnails.medium?.url
+          || item.snippet.thumbnails.default?.url;
+        if (!thumb || !item.snippet.resourceId?.videoId) continue;
+        all.push({
+          id: { videoId: item.snippet.resourceId.videoId },
+          snippet: {
+            title: item.snippet.title,
+            description: item.snippet.description,
+            thumbnails: { high: { url: thumb } },
+            publishedAt: item.snippet.publishedAt,
+            channelTitle: item.snippet.channelTitle,
+          },
+        });
+      }
+      if (!data.nextPageToken) break;
+      pageToken = data.nextPageToken;
+    }
+
+    console.log('✅ Successfully fetched', all.length, 'videos');
+    return all;
   } catch (error) {
     console.error('❌ Error fetching YouTube videos:', error);
     return [];
