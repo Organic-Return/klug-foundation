@@ -39,7 +39,11 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname === '/testimonials' ||
     pathname === '/affiliated-partners' ||
     pathname === '/affiliated-partners/ski-town' ||
-    pathname === '/affiliated-partners/market-leaders';
+    pathname === '/affiliated-partners/market-leaders' ||
+    // Market Leader listing detail pages share the full-screen
+    // property template, which has its own image hero — let the
+    // header sit transparently on top of it.
+    pathname?.startsWith('/affiliated-partners/market-leaders/listings/') === true;
 
   // Check if we're on the listings page (no footer, fixed height layout)
   const isListingsPage = pathname === '/listings';
