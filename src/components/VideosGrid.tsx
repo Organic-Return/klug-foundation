@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface VideoItem {
@@ -54,21 +53,24 @@ export default function VideosGrid({ videos }: VideosGridProps) {
               aria-label={`Play ${video.title}`}
               className="group block w-full"
             >
-              <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                {/* Proxy through Next's image optimizer (no
-                    `unoptimized`) so the browser sees a request to
-                    our own /_next/image endpoint instead of
-                    i.ytimg.com. Sidesteps ad-blocker rules that
-                    target YouTube CDN hostnames and leave the card
-                    as a black tile. */}
-                <Image
-                  src={video.thumbnailUrl}
-                  alt={video.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              <div className="relative aspect-video bg-gray-900 overflow-hidden">
+                {/* Auto-playing muted loop of the actual YouTube video
+                    used as the "thumbnail" — the static image route
+                    consistently rendered black on this user's
+                    browser/network, so just play the video itself.
+                    pointer-events-none lets the wrapping <button>
+                    still capture clicks. The slight scale-up hides
+                    YouTube's letterbox branding bars that bleed in
+                    above and below the video frame. loading="lazy"
+                    keeps off-screen embeds idle until scrolled to. */}
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${video.videoId}&modestbranding=1&playsinline=1&rel=0&fs=0&disablekb=1&iv_load_policy=3`}
+                  title={video.title}
+                  loading="lazy"
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] pointer-events-none"
+                  allow="autoplay; encrypted-media; picture-in-picture"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
+                <div className="absolute inset-0 bg-black bg-opacity-10 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 shadow-lg">
                     <svg
                       className="w-7 h-7 text-white ml-1"
