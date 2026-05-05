@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/client';
-import { getListings, getListingHref } from '@/lib/listings';
+import { getListings, getListingHref, toAddressSlug } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
 import { getSettings, getYouTubeCredentials } from '@/lib/settings';
+import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 
 // Sanity queries for dynamic content
 const COMMUNITIES_QUERY = `*[_type == "community"]{ "slug": slug.current, _updatedAt }`;
@@ -20,6 +21,38 @@ const TEAM_MEMBERS_QUERY = `*[_type == "teamMember" && defined(slug.current) && 
 
 interface YouTubeUploadItem {
   snippet?: { resourceId?: { videoId?: string }; publishedAt?: string };
+}
+
+interface MarketLeaderRow {
+  street_address: string | null;
+}
+
+async function getMarketLeaderListingSlugs(): Promise<string[]> {
+  if (!isRealogyConfigured()) return [];
+  const supabase = getRealogySupabase();
+  if (!supabase) return [];
+  const partners = await client.fetch<Array<{ firstName: string; lastName: string }>>(
+    `*[_type == "affiliatedPartner" && active == true && partnerType == "market_leader"]{ firstName, lastName }`
+  );
+  const slugs = new Set<string>();
+  for (const p of partners) {
+    const name = `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim();
+    if (name.length < 3) continue;
+    const parts = name.split(/\s+/);
+    const pattern = `${parts[0]}%${parts[parts.length - 1]}`;
+    const { data } = await supabase
+      .from('realogy_listings')
+      .select('street_address')
+      .ilike('primary_agent_name', pattern)
+      .eq('listing_type', 'ForSale')
+      .limit(50);
+    for (const row of (data ?? []) as MarketLeaderRow[]) {
+      if (!row.street_address) continue;
+      const slug = toAddressSlug(row.street_address);
+      if (slug) slugs.add(slug);
+    }
+  }
+  return Array.from(slugs);
 }
 
 async function getYouTubeVideoIds(): Promise<Array<{ videoId: string; publishedAt?: string }>> {
@@ -175,7 +208,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   // Fetch dynamic content from Sanity + YouTube
-  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos] = await Promise.all([
+  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos, marketLeaderListingSlugs] = await Promise.all([
     client.fetch<Array<{ slug: string; _updatedAt: string }>>(COMMUNITIES_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MARKET_REPORTS_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MAGAZINES_QUERY),
@@ -187,6 +220,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "aboutPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`),
     getYouTubeVideoIds().catch(() => [] as Array<{ videoId: string; publishedAt?: string }>),
+    getMarketLeaderListingSlugs().catch(() => [] as string[]),
   ]);
 
   // Conditionally add singleton content pages (only if they exist in this project's Sanity dataset)
@@ -267,6 +301,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // Market Leader listing detail pages
+  // (/affiliated-partners/market-leaders/listings/[slug])
+  const marketLeaderListingsIndex: MetadataRoute.Sitemap = [{
+    url: `${baseUrl}/affiliated-partners/market-leaders/listings`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.6,
+  }];
+  const marketLeaderListingPages: MetadataRoute.Sitemap = (marketLeaderListingSlugs || []).map((slug) => ({
+    url: `${baseUrl}/affiliated-partners/market-leaders/listings/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'daily' as const,
+    priority: 0.6,
+  }));
+
   // Fetch every MLS listing — active and closed/sold — paginating through
   // the dataset so the sitemap exposes the full inventory the /listings page
   // shows visitors. Sold listings are valuable SEO surfaces (track record,
@@ -319,6 +368,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...partnerPages,
     ...teamMemberPages,
     ...videoPages,
+    ...marketLeaderListingsIndex,
+    ...marketLeaderListingPages,
     ...listingPages,
     ...offMarketPages,
   ];
