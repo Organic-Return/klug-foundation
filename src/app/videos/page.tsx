@@ -41,7 +41,13 @@ interface PlaylistItem {
   snippet: {
     title: string;
     description: string;
-    thumbnails: { high?: { url: string }; medium?: { url: string }; default?: { url: string } };
+    thumbnails: {
+      maxres?: { url: string };
+      standard?: { url: string };
+      high?: { url: string };
+      medium?: { url: string };
+      default?: { url: string };
+    };
     publishedAt: string;
     channelTitle: string;
     resourceId: { videoId: string };
@@ -121,13 +127,22 @@ async function getYouTubeVideos(): Promise<YouTubeVideo[]> {
       }
       const data: PlaylistItemsResponse = await response.json();
       for (const item of data.items || []) {
+        // Prefer the proper 16:9 thumbnails (maxres / standard) over
+        // hqdefault — YouTube returns hqdefault as 480×360 with black
+        // bars on top and bottom, which renders as a mostly-black tile
+        // when cropped into a wide aspect-video container.
+        const t = item.snippet.thumbnails;
+        const videoId = item.snippet.resourceId?.videoId;
         const thumb =
-          item.snippet.thumbnails.high?.url
-          || item.snippet.thumbnails.medium?.url
-          || item.snippet.thumbnails.default?.url;
-        if (!thumb || !item.snippet.resourceId?.videoId) continue;
+          t.maxres?.url
+          || (videoId ? `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg` : undefined)
+          || t.standard?.url
+          || t.high?.url
+          || t.medium?.url
+          || t.default?.url;
+        if (!thumb || !videoId) continue;
         all.push({
-          id: { videoId: item.snippet.resourceId.videoId },
+          id: { videoId },
           snippet: {
             title: item.snippet.title,
             description: item.snippet.description,
