@@ -130,16 +130,9 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                   </p>
                 )}
                 {(enrichedPartner.company || enrichedPartner.location) && (
-                  <p className="text-[#6a6a6a] dark:text-gray-400 text-base font-light mb-6">
+                  <p className="text-[#6a6a6a] dark:text-gray-400 text-base font-light mb-8">
                     {[enrichedPartner.company, enrichedPartner.location].filter(Boolean).join(' · ')}
                   </p>
-                )}
-                {enrichedPartner.bio && (
-                  <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-4 mb-8 whitespace-pre-line">
-                    {enrichedPartner.bio.split(/\n\s*\n+/).map((para, j) => (
-                      <p key={j}>{para.trim()}</p>
-                    ))}
-                  </div>
                 )}
 
                 <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
@@ -184,6 +177,23 @@ export default async function SkiTownPartnerPage({ params }: Props) {
           </article>
         </div>
       </section>
+
+      {/* About — full bio */}
+      {enrichedPartner.bio && (
+        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a] border-t border-[#e8e6e3] dark:border-gray-800">
+          <div className="max-w-3xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              About {enrichedPartner.firstName}
+            </h2>
+            <div className="w-12 h-px bg-[var(--color-gold)] mb-8" />
+            <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-5 whitespace-pre-line">
+              {enrichedPartner.bio.split(/\n\s*\n+/).map((para, j) => (
+                <p key={j}>{para.trim()}</p>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Specialties */}
       {enrichedPartner.specialties && enrichedPartner.specialties.length > 0 && (
