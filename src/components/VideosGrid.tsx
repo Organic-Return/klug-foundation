@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface VideoItem {
   videoId: string;
@@ -39,39 +40,50 @@ export default function VideosGrid({ videos }: VideosGridProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {videos.map((video) => (
-          <button
+          <article
             key={video.videoId}
-            type="button"
-            onClick={() => {
-              setActiveVideoId(video.videoId);
-              setActiveTitle(video.title);
-            }}
-            className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow text-left"
+            className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
           >
-            <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
-              <Image
-                src={video.thumbnailUrl}
-                alt={video.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                unoptimized
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
-                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 shadow-lg">
-                  <svg
-                    className="w-7 h-7 text-white ml-1"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+            {/* Thumbnail — opens the in-page modal player */}
+            <button
+              type="button"
+              onClick={() => {
+                setActiveVideoId(video.videoId);
+                setActiveTitle(video.title);
+              }}
+              aria-label={`Play ${video.title}`}
+              className="group block w-full"
+            >
+              <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <Image
+                  src={video.thumbnailUrl}
+                  alt={video.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  unoptimized
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 shadow-lg">
+                    <svg
+                      className="w-7 h-7 text-white ml-1"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            </button>
+
+            {/* Title + description — links to the detail page */}
+            <Link
+              href={`/videos/${video.videoId}`}
+              className="group block p-4"
+            >
+              <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-[var(--color-gold)] transition-colors">
                 {video.title}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
@@ -81,8 +93,8 @@ export default function VideosGrid({ videos }: VideosGridProps) {
                 <span>{video.channelTitle}</span>
                 <span>{new Date(video.publishedAt).toLocaleDateString()}</span>
               </div>
-            </div>
-          </button>
+            </Link>
+          </article>
         ))}
       </div>
 
