@@ -82,7 +82,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-[var(--color-navy)] pt-12 md:pt-16">
+      <section className="relative bg-[var(--color-sothebys-blue)] pt-12 md:pt-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
           <div className="mb-8 md:mb-12">
@@ -98,8 +98,8 @@ export default async function SkiTownPartnerPage({ params }: Props) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2">
-            {/* Left: square headshot */}
-            <div className="relative aspect-square w-full bg-[#f0f0f0] dark:bg-gray-800">
+            {/* Left: portrait headshot — natural 418×560 aspect (~3:4) */}
+            <div className="relative aspect-[418/560] w-full bg-[#f0f0f0] dark:bg-gray-800">
               {enrichedPartner.photoUrl ? (
                 <Image
                   src={enrichedPartner.photoUrl}
@@ -107,7 +107,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                   fill
                   className="object-cover"
                   priority
-                  sizes="(max-width: 768px) 100vw, 600px"
+                  sizes="(max-width: 768px) 100vw, 418px"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-[#aaa] dark:text-gray-600">
@@ -119,7 +119,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
             </div>
 
             {/* Right: blue panel with name, office, location, and contact */}
-            <div className="bg-[var(--color-sothebys-blue)] p-8 md:p-10 lg:p-14 flex flex-col justify-center">
+            <div className="p-8 md:p-10 lg:p-14 flex flex-col justify-center">
               <h1 className="font-serif text-white mb-3">
                 {enrichedPartner.firstName} {enrichedPartner.lastName}
               </h1>
