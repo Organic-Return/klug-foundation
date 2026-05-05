@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { client } from '@/sanity/client';
 import { getListings, getListingHref } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
-import { getSettings } from '@/lib/settings';
+import { getSettings, getYouTubeCredentials } from '@/lib/settings';
 
 // Sanity queries for dynamic content
 const COMMUNITIES_QUERY = `*[_type == "community"]{ "slug": slug.current, _updatedAt }`;
@@ -16,6 +16,41 @@ const PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true]{
   lastName,
   _updatedAt
 }`;
+const TEAM_MEMBERS_QUERY = `*[_type == "teamMember" && defined(slug.current) && inactive != true]{ "slug": slug.current, _updatedAt }`;
+
+interface YouTubeUploadItem {
+  snippet?: { resourceId?: { videoId?: string }; publishedAt?: string };
+}
+
+async function getYouTubeVideoIds(): Promise<Array<{ videoId: string; publishedAt?: string }>> {
+  const { apiKey, channelId } = await getYouTubeCredentials();
+  if (!apiKey || !channelId || !channelId.startsWith('UC')) return [];
+  const uploadsPlaylistId = 'UU' + channelId.slice(2);
+  const out: Array<{ videoId: string; publishedAt?: string }> = [];
+  let pageToken: string | undefined;
+  for (let page = 0; page < 10; page++) {
+    const params = new URLSearchParams({
+      key: apiKey,
+      playlistId: uploadsPlaylistId,
+      part: 'snippet',
+      maxResults: '50',
+    });
+    if (pageToken) params.set('pageToken', pageToken);
+    const res = await fetch(
+      `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
+      { next: { revalidate: 3600 } }
+    );
+    if (!res.ok) break;
+    const data = (await res.json()) as { items?: YouTubeUploadItem[]; nextPageToken?: string };
+    for (const item of data.items || []) {
+      const vid = item.snippet?.resourceId?.videoId;
+      if (vid) out.push({ videoId: vid, publishedAt: item.snippet?.publishedAt });
+    }
+    if (!data.nextPageToken) break;
+    pageToken = data.nextPageToken;
+  }
+  return out;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const settings = await getSettings();
@@ -89,19 +124,69 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.5,
     },
+    {
+      url: `${baseUrl}/team`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/in-the-news`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exclusive-and-new`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/sold-by-klug-properties`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/open-houses`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/buy/first-time-buyers`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/buy/relocation`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.2,
+    },
   ];
 
-  // Fetch dynamic content from Sanity
-  const [communities, marketReports, magazines, posts, partners, buyPage, sellPage, aboutPage, resourcesPage] = await Promise.all([
+  // Fetch dynamic content from Sanity + YouTube
+  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos] = await Promise.all([
     client.fetch<Array<{ slug: string; _updatedAt: string }>>(COMMUNITIES_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MARKET_REPORTS_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MAGAZINES_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(POSTS_QUERY),
     client.fetch<Array<{ slug: string; partnerType: string; firstName: string; lastName: string; _updatedAt: string }>>(PARTNERS_QUERY),
+    client.fetch<Array<{ slug: string; _updatedAt: string }>>(TEAM_MEMBERS_QUERY),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "buyPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "sellPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "aboutPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`),
+    getYouTubeVideoIds().catch(() => [] as Array<{ videoId: string; publishedAt?: string }>),
   ]);
 
   // Conditionally add singleton content pages (only if they exist in this project's Sanity dataset)
@@ -166,6 +251,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
+  // Team member detail pages
+  const teamMemberPages: MetadataRoute.Sitemap = (teamMembers || []).map((member) => ({
+    url: `${baseUrl}/team/${member.slug}`,
+    lastModified: new Date(member._updatedAt),
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }));
+
+  // Video detail pages
+  const videoPages: MetadataRoute.Sitemap = (youtubeVideos || []).map((video) => ({
+    url: `${baseUrl}/videos/${video.videoId}`,
+    lastModified: video.publishedAt ? new Date(video.publishedAt) : new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  }));
+
   // Fetch MLS listings (limit to recent/active for performance)
   let listingPages: MetadataRoute.Sitemap = [];
   try {
@@ -202,6 +303,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...magazinePages,
     ...postPages,
     ...partnerPages,
+    ...teamMemberPages,
+    ...videoPages,
     ...listingPages,
     ...offMarketPages,
   ];
