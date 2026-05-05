@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 
 interface VideoItem {
@@ -55,13 +54,20 @@ export default function VideosGrid({ videos }: VideosGridProps) {
               className="group block w-full"
             >
               <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                <Image
-                  src={video.thumbnailUrl}
-                  alt={video.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  unoptimized
+                {/* Iframe poster — YouTube's own player renders the
+                    actual video frame as the still image, dodging
+                    ad-blocker rules that occasionally strip the
+                    i.ytimg.com thumbnail URL. The iframe is muted
+                    + paused (autoplay disabled) so it stays a
+                    poster, not a player, until the user clicks
+                    through to the modal. pointer-events-none lets
+                    our wrapping <button> capture the click. */}
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${video.videoId}?controls=0&disablekb=1&modestbranding=1&playsinline=1&fs=0&rel=0`}
+                  title={video.title}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full pointer-events-none"
+                  allow="accelerometer; encrypted-media; gyroscope; picture-in-picture"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 shadow-lg">
