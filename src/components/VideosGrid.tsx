@@ -66,21 +66,12 @@ export default function VideosGrid({ videos }: VideosGridProps) {
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[140%] h-[140%] pointer-events-none"
                   allow="encrypted-media; picture-in-picture"
                 />
-                {/* Play-button overlay — signals the card is
-                    clickable. Sits above the iframe so YouTube's
-                    own UI never bleeds through. */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center pointer-events-none">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all duration-200 shadow-lg">
-                    <svg
-                      className="w-7 h-7 text-white ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
+                {/* Hover scrim only — the paused YouTube iframe
+                    already shows its own play button, so we don't
+                    add a second one. The transparent layer just
+                    darkens slightly on hover to signal the click
+                    target. */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none" />
               </div>
             </button>
 
@@ -89,7 +80,7 @@ export default function VideosGrid({ videos }: VideosGridProps) {
               href={`/videos/${video.videoId}`}
               className="group block p-4"
             >
-              <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-[var(--color-gold)] transition-colors">
+              <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-[var(--color-gold)] transition-colors">
                 {video.title}
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
