@@ -12,6 +12,17 @@ function urlFor(source: any) {
   return builder.image(source);
 }
 
+// Split free-text Sanity body fields on blank lines so each paragraph
+// renders as its own <p> tag (otherwise multi-paragraph bios collapse
+// into one block of text in the DOM).
+function splitParagraphs(text: string | undefined | null): string[] {
+  if (!text) return [];
+  return text
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
 interface TeamMember {
   _id: string;
   name: string;
@@ -225,9 +236,11 @@ export default async function TeamPage() {
           <h1 className="font-serif text-white mb-6">
             {heroTitle}
           </h1>
-          <p className="text-lg md:text-xl text-white/80 font-light leading-relaxed">
-            {heroDescription}
-          </p>
+          <div className="space-y-4 text-lg md:text-xl text-white/80 font-light leading-relaxed">
+            {splitParagraphs(heroDescription).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -302,9 +315,11 @@ export default async function TeamPage() {
                         </p>
                       )}
                       {m.bio && (
-                        <p className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] mb-8 line-clamp-6">
-                          {m.bio}
-                        </p>
+                        <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-4 mb-8">
+                          {splitParagraphs(m.bio).map((para, j) => (
+                            <p key={j}>{para}</p>
+                          ))}
+                        </div>
                       )}
 
                       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-8 text-sm">
@@ -363,9 +378,11 @@ export default async function TeamPage() {
                 )}
                 <div className={`${philosophyImageUrl ? '' : 'mx-auto'} w-12 h-px bg-[var(--color-gold)] mb-6`} />
                 {philosophyContent && (
-                  <p className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[17px] whitespace-pre-line">
-                    {philosophyContent}
-                  </p>
+                  <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[17px] space-y-4">
+                    {splitParagraphs(philosophyContent).map((para, i) => (
+                      <p key={i}>{para}</p>
+                    ))}
+                  </div>
                 )}
               </div>
               {philosophyImageUrl && (
@@ -403,9 +420,11 @@ export default async function TeamPage() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
             {ctaTitle}
           </h2>
-          <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-            {ctaDescription}
-          </p>
+          <div className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed space-y-3">
+            {splitParagraphs(ctaDescription).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
+          </div>
           <Link
             href={ctaButtonHref}
             className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-10 py-4 border border-[var(--color-gold)] hover:bg-transparent hover:border-white"
