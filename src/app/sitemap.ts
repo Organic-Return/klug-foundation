@@ -267,16 +267,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
-  // Fetch MLS listings (limit to recent/active for performance)
+  // Fetch every MLS listing — active and closed/sold — paginating through
+  // the dataset so the sitemap exposes the full inventory the /listings page
+  // shows visitors. Sold listings are valuable SEO surfaces (track record,
+  // historical pricing) so we no longer exclude them.
   let listingPages: MetadataRoute.Sitemap = [];
   try {
-    const { listings } = await getListings(1, 500, { excludedStatuses: ['Closed'] });
-    listingPages = listings.map((listing) => ({
-      url: `${baseUrl}${getListingHref(listing)}`,
-      lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
-      changeFrequency: 'daily' as const,
-      priority: 0.8,
-    }));
+    const PAGE_SIZE = 1000;
+    const seen = new Set<string>();
+    for (let page = 1; page <= 20; page++) {
+      const { listings, totalPages } = await getListings(page, PAGE_SIZE);
+      if (!listings || listings.length === 0) break;
+      for (const listing of listings) {
+        const href = getListingHref(listing);
+        if (seen.has(href)) continue;
+        seen.add(href);
+        listingPages.push({
+          url: `${baseUrl}${href}`,
+          lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
+          changeFrequency: 'daily' as const,
+          priority: 0.8,
+        });
+      }
+      if (page >= totalPages) break;
+    }
   } catch (error) {
     console.error('Error fetching listings for sitemap:', error);
   }
