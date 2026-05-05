@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
+import { htmlToPlainText, splitParagraphs } from '@/lib/textUtils';
 import { getRealogyListingsByAgentName, formatPrice, toAddressSlug } from '@/lib/listings';
 
 // Query by slug or by generated slug from firstName-lastName
@@ -179,21 +180,25 @@ export default async function SkiTownPartnerPage({ params }: Props) {
       </section>
 
       {/* About — full bio */}
-      {enrichedPartner.bio && (
-        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a] border-t border-[#e8e6e3] dark:border-gray-800">
-          <div className="max-w-3xl mx-auto px-6 md:px-12 lg:px-16">
-            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              About {enrichedPartner.firstName}
-            </h2>
-            <div className="w-12 h-px bg-[var(--color-gold)] mb-8" />
-            <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-5 whitespace-pre-line">
-              {enrichedPartner.bio.split(/\n\s*\n+/).map((para, j) => (
-                <p key={j}>{para.trim()}</p>
-              ))}
+      {enrichedPartner.bio && (() => {
+        const bioParas = splitParagraphs(htmlToPlainText(enrichedPartner.bio));
+        if (bioParas.length === 0) return null;
+        return (
+          <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a] border-t border-[#e8e6e3] dark:border-gray-800">
+            <div className="max-w-3xl mx-auto px-6 md:px-12 lg:px-16">
+              <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+                About {enrichedPartner.firstName}
+              </h2>
+              <div className="w-12 h-px bg-[var(--color-gold)] mb-8" />
+              <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-5">
+                {bioParas.map((para, j) => (
+                  <p key={j}>{para}</p>
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        );
+      })()}
 
       {/* Specialties */}
       {enrichedPartner.specialties && enrichedPartner.specialties.length > 0 && (

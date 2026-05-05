@@ -6,21 +6,11 @@ import Link from "next/link";
 import { getSiteTemplate, getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 import TeamGrid from "@/components/TeamGrid";
 import { phoneHref, formatPhone } from "@/lib/phoneUtils";
+import { htmlToPlainText, splitParagraphs } from "@/lib/textUtils";
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) {
   return builder.image(source);
-}
-
-// Split free-text Sanity body fields on blank lines so each paragraph
-// renders as its own <p> tag (otherwise multi-paragraph bios collapse
-// into one block of text in the DOM).
-function splitParagraphs(text: string | undefined | null): string[] {
-  if (!text) return [];
-  return text
-    .split(/\n\s*\n+/)
-    .map((p) => p.trim())
-    .filter(Boolean);
 }
 
 interface TeamMember {
@@ -196,7 +186,7 @@ export default async function TeamPage() {
     name: m.name,
     slug: m.slug,
     title: m.title?.replace(/\bResidential\b/g, 'Real Estate Broker'),
-    bio: m.bio,
+    bio: htmlToPlainText(m.bio),
     email: m.email,
     phone: m.phone || m.mobile,
     imageUrl: m.image ? urlFor(m.image).width(720).height(900).url() : undefined,

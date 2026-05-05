@@ -11,6 +11,7 @@ import AgentHeroGallery from "@/components/AgentHeroGallery";
 import AgentContactForm from "@/components/AgentContactForm";
 import AgentContactButton from "@/components/AgentContactButton";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
+import { htmlToPlainText, splitParagraphs } from '@/lib/textUtils';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) {
@@ -399,20 +400,25 @@ export default async function TeamMemberPage({ params }: Props) {
       </section>
 
       {/* About — full bio */}
-      {member.bio && (
-        <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a] border-t border-[#e8e6e3] dark:border-gray-800">
-          <div className="max-w-3xl mx-auto px-6 md:px-12 lg:px-16">
-            <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
-              About {member.name.split(' ')[0]}
-            </h2>
-            <div className="w-12 h-px bg-[var(--color-gold)] mb-8" />
-            <div
-              className="prose prose-lg max-w-none font-light leading-relaxed dark:prose-invert text-[#4a4a4a] dark:text-gray-300 [&_p]:mb-5 [&_a]:text-[var(--color-gold)] [&_a]:underline hover:[&_a]:opacity-80"
-              dangerouslySetInnerHTML={{ __html: sanitizeBioHtml(member.bio) }}
-            />
-          </div>
-        </section>
-      )}
+      {member.bio && (() => {
+        const bioParas = splitParagraphs(htmlToPlainText(member.bio));
+        if (bioParas.length === 0) return null;
+        return (
+          <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a] border-t border-[#e8e6e3] dark:border-gray-800">
+            <div className="max-w-3xl mx-auto px-6 md:px-12 lg:px-16">
+              <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+                About {member.name.split(' ')[0]}
+              </h2>
+              <div className="w-12 h-px bg-[var(--color-gold)] mb-8" />
+              <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-5">
+                {bioParas.map((para, j) => (
+                  <p key={j}>{para}</p>
+                ))}
+              </div>
+            </div>
+          </section>
+        );
+      })()}
       </>
       )}
 
