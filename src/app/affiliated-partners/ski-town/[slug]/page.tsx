@@ -81,25 +81,25 @@ export default async function SkiTownPartnerPage({ params }: Props) {
 
   return (
     <main className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative bg-[var(--color-sothebys-blue)] pt-12 md:pt-16">
+      {/* Hero Section — editorial card on white, matches /team layout */}
+      <section className="bg-white dark:bg-[#1a1a1a] pt-12 md:pt-16 pb-16 md:pb-24">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
-          <div className="mb-8 md:mb-12">
-            <Link href="/affiliated-partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
+          <div className="mb-8 md:mb-12 text-sm font-light">
+            <Link href="/affiliated-partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Affiliated Partners
             </Link>
-            <span className="text-white/30 mx-2">/</span>
-            <Link href="/affiliated-partners/ski-town" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
+            <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>
+            <Link href="/affiliated-partners/ski-town" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Ski Town
             </Link>
-            <span className="text-white/30 mx-2">/</span>
-            <span className="text-white/80 text-sm font-light">{enrichedPartner.firstName} {enrichedPartner.lastName}</span>
+            <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>
+            <span className="text-[#1a1a1a] dark:text-white">{enrichedPartner.firstName} {enrichedPartner.lastName}</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-10 items-stretch">
-            {/* Left: portrait headshot — natural 418×560 aspect (~3:4) */}
-            <div className="relative aspect-[418/560] w-full bg-[#f0f0f0] dark:bg-gray-800">
+          <article className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 lg:gap-20 items-center">
+            {/* Photo */}
+            <div className="relative aspect-[4/5] w-full bg-[#f0f0f0] dark:bg-gray-800 md:order-1">
               {enrichedPartner.photoUrl ? (
                 <Image
                   src={enrichedPartner.photoUrl}
@@ -107,7 +107,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                   fill
                   className="object-cover"
                   priority
-                  sizes="(max-width: 768px) 100vw, 418px"
+                  sizes="(max-width: 768px) 100vw, 600px"
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center text-[#aaa] dark:text-gray-600">
@@ -118,50 +118,51 @@ export default async function SkiTownPartnerPage({ params }: Props) {
               )}
             </div>
 
-            {/* Right: blue panel with name, office, location, and contact —
-                left-edge gold bar acts as a vertical accent on md+ */}
-            <div className="p-8 md:p-0 md:py-4 md:pl-10 lg:pl-14 md:border-l md:border-[var(--color-gold)] flex flex-col justify-center">
-              <h1 className="font-serif text-white mb-3">
-                {enrichedPartner.firstName} {enrichedPartner.lastName}
-              </h1>
-              {enrichedPartner.title && (
-                <p className="text-[var(--color-gold)] text-lg font-light mb-3">
-                  {enrichedPartner.title}
-                </p>
-              )}
-              {enrichedPartner.company && (
-                <p className="text-white/80 text-base font-light mb-1">
-                  {enrichedPartner.company}
-                </p>
-              )}
-              {enrichedPartner.location && (
-                <p className="text-white/60 text-base font-light">
-                  {enrichedPartner.location}
-                </p>
-              )}
+            {/* Bio + contact */}
+            <div className="md:order-2">
+              <div className="md:border-l md:border-[var(--color-gold)] md:pl-8 lg:pl-12">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-2">
+                  {enrichedPartner.firstName} {enrichedPartner.lastName}
+                </h1>
+                {enrichedPartner.title && (
+                  <p className="text-[var(--color-gold)] text-sm md:text-base uppercase tracking-[0.18em] font-light mb-2">
+                    {enrichedPartner.title}
+                  </p>
+                )}
+                {(enrichedPartner.company || enrichedPartner.location) && (
+                  <p className="text-[#6a6a6a] dark:text-gray-400 text-base font-light mb-6">
+                    {[enrichedPartner.company, enrichedPartner.location].filter(Boolean).join(' · ')}
+                  </p>
+                )}
+                {enrichedPartner.bio && (
+                  <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-4 mb-8 whitespace-pre-line">
+                    {enrichedPartner.bio.split(/\n\s*\n+/).map((para, j) => (
+                      <p key={j}>{para.trim()}</p>
+                    ))}
+                  </div>
+                )}
 
-              {(enrichedPartner.email || enrichedPartner.phone || enrichedPartner.website) && (
-                <div className="mt-8 pt-6 border-t border-white/15 space-y-3">
-                  {enrichedPartner.email && (
-                    <a
-                      href={`mailto:${enrichedPartner.email}`}
-                      className="flex items-center gap-3 text-white/90 hover:text-[var(--color-gold)] transition-colors break-all"
-                    >
-                      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                      </svg>
-                      <span className="font-light text-sm md:text-base">{enrichedPartner.email}</span>
-                    </a>
-                  )}
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
                   {enrichedPartner.phone && (
                     <a
                       href={`tel:${phoneHref(enrichedPartner.phone)}`}
-                      className="flex items-center gap-3 text-white/90 hover:text-[var(--color-gold)] transition-colors"
+                      className="inline-flex items-center gap-2 text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors"
                     >
-                      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                       <span className="font-light">{formatPhone(enrichedPartner.phone)}</span>
+                    </a>
+                  )}
+                  {enrichedPartner.email && (
+                    <a
+                      href={`mailto:${enrichedPartner.email}`}
+                      className="inline-flex items-center gap-2 text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors break-all"
+                    >
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      <span className="font-light">{enrichedPartner.email}</span>
                     </a>
                   )}
                   {enrichedPartner.website && (
@@ -169,59 +170,41 @@ export default async function SkiTownPartnerPage({ params }: Props) {
                       href={enrichedPartner.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 text-white/90 hover:text-[var(--color-gold)] transition-colors"
+                      className="inline-flex items-center gap-2 text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors"
                     >
-                      <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
                       </svg>
                       <span className="font-light">Visit Website</span>
                     </a>
                   )}
                 </div>
-              )}
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      {/* Specialties */}
+      {enrichedPartner.specialties && enrichedPartner.specialties.length > 0 && (
+        <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414]">
+          <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
+            <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
+              Specialties
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {enrichedPartner.specialties.map((specialty, index) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-white dark:bg-[#252525] text-[#4a4a4a] dark:text-gray-300 text-sm font-light"
+                >
+                  {specialty}
+                </span>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Main Content */}
-      <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
-        <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
-          {/* Bio */}
-          {enrichedPartner.bio && (
-            <div className="mb-12">
-              <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
-                About {enrichedPartner.firstName}
-              </h2>
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                <p className="text-[#4a4a4a] dark:text-gray-300 font-light leading-relaxed whitespace-pre-line">
-                  {enrichedPartner.bio}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Specialties */}
-          {enrichedPartner.specialties && enrichedPartner.specialties.length > 0 && (
-            <div className="mb-12">
-              <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
-                Specialties
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {enrichedPartner.specialties.map((specialty, index) => (
-                  <span
-                    key={index}
-                    className="px-4 py-2 bg-[#f8f7f5] dark:bg-[#252525] text-[#4a4a4a] dark:text-gray-300 text-sm font-light"
-                  >
-                    {specialty}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Active Listings */}
       {activeListings.length > 0 && (
