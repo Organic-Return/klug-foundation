@@ -1,7 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { getYouTubeCredentials } from "@/lib/settings";
+import VideosGrid from "@/components/VideosGrid";
 
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
@@ -185,54 +185,18 @@ YOUTUBE_CHANNEL_ID=your_channel_id_here`}
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {videos.map((video) => (
-            <a
-              key={video.id.videoId}
-              href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
-            >
-              <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
-                <Image
-                  src={video.snippet.thumbnails.high.url}
-                  alt={video.snippet.title}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  unoptimized
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg
-                      className="w-8 h-8 text-white ml-1"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M8 5v14l11-7z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {video.snippet.title}
-                </h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">
-                  {video.snippet.description}
-                </p>
-                <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                  <span>{video.snippet.channelTitle}</span>
-                  <span>
-                    {new Date(video.snippet.publishedAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </a>
-          ))}
-        </div>
+        <VideosGrid
+          videos={videos.map((v) => ({
+            videoId: v.id.videoId,
+            title: v.snippet.title,
+            description: v.snippet.description,
+            thumbnailUrl: v.snippet.thumbnails.high.url,
+            publishedAt: v.snippet.publishedAt,
+            channelTitle: v.snippet.channelTitle,
+          }))}
+        />
       )}
     </main>
   );
 }
+
