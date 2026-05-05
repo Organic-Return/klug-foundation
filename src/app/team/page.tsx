@@ -299,7 +299,7 @@ export default async function TeamPage() {
                         </p>
                       )}
                       {m.bio && (
-                        <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-4 mb-8">
+                        <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[16px] md:text-[17px] space-y-4 mb-8 line-clamp-6">
                           {splitParagraphs(m.bio).map((para, j) => (
                             <p key={j}>{para}</p>
                           ))}
