@@ -96,7 +96,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
             <span className="text-white/80 text-sm font-light">{enrichedPartner.firstName} {enrichedPartner.lastName}</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-12 items-center">
             {/* Left: portrait headshot — natural 418×560 aspect (~3:4) */}
             <div className="relative aspect-[418/560] w-full bg-[#f0f0f0] dark:bg-gray-800">
               {enrichedPartner.photoUrl ? (
