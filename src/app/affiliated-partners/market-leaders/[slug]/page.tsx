@@ -96,7 +96,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
             <span className="text-white/80 text-sm font-light">{enrichedPartner.firstName} {enrichedPartner.lastName}</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-12 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 md:gap-10 items-stretch">
             {/* Left: portrait headshot — natural 418×560 aspect (~3:4) */}
             <div className="relative aspect-[418/560] w-full bg-[#f0f0f0] dark:bg-gray-800">
               {enrichedPartner.photoUrl ? (
@@ -117,8 +117,9 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
               )}
             </div>
 
-            {/* Right: blue panel with name, office, location, and contact */}
-            <div className="p-8 md:p-10 lg:p-14 flex flex-col justify-center">
+            {/* Right: blue panel with name, office, location, and contact —
+                left-edge gold bar acts as a vertical accent on md+ */}
+            <div className="p-8 md:p-0 md:py-4 md:pl-10 lg:pl-14 md:border-l md:border-[var(--color-gold)] flex flex-col justify-center">
               <h1 className="font-serif text-white mb-3">
                 {enrichedPartner.firstName} {enrichedPartner.lastName}
               </h1>
