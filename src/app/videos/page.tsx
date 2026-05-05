@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { getYouTubeCredentials } from "@/lib/settings";
 
@@ -118,11 +119,14 @@ YOUTUBE_CHANNEL_ID=your_channel_id_here`}
               rel="noopener noreferrer"
               className="group bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
             >
-              <div className="relative aspect-video bg-gray-200 dark:bg-gray-700">
-                <img
+              <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                <Image
                   src={video.snippet.thumbnails.high.url}
                   alt={video.snippet.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-opacity flex items-center justify-center">
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
