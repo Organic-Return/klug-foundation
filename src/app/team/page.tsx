@@ -174,13 +174,11 @@ export default async function TeamPage() {
 
   // Klug / non-RC editorial variant — hero, stats, alternating member sections,
   // philosophy block, parallax CTA. Driven by the teamPage singleton in Sanity.
-  const heroEyebrow = page?.heroEyebrow || 'Klug Properties';
   const heroTitle = page?.heroTitle || 'Our Team';
   const heroDescription = page?.heroDescription
-    || 'Three full-time licensed real estate professionals born and raised in Colorado and the Roaring Fork Valley with over 25 years of combined real estate success and over $1 billion in career sales.';
+    || 'Three full-time licensed real estate professionals born and raised in Colorado and the Roaring Fork Valley with over 25 years of combined real estate success and over $1 billion in career sales. We love this community and what we do, and we are passionate about sharing it and giving back through the Chris Klug Foundation and other local non-profits we support, such as the Aspen Center for Environmental Studies, Independence Pass Foundation, and Aspen Cycling Club.';
   const heroImageRaw = page?.heroImage?.asset?.url || defaultHeroUrl;
   const stats = page?.stats?.filter((s) => s?.value) || [];
-  const membersSectionTitle = page?.membersSectionTitle || 'Meet the Team';
   const philosophyTitle = page?.philosophyTitle;
   const philosophyContent = page?.philosophyContent;
   const philosophyImageUrl = page?.philosophyImage
@@ -227,15 +225,10 @@ export default async function TeamPage() {
           </>
         )}
         <div className="relative max-w-4xl mx-auto px-6 md:px-12 lg:px-16 text-center">
-          {heroEyebrow && (
-            <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-4">
-              {heroEyebrow}
-            </p>
-          )}
-          <div className="w-12 h-px bg-[var(--color-gold)] mx-auto mb-6" />
           <h1 className="font-serif text-white mb-6">
             {heroTitle}
           </h1>
+          <div className="w-12 h-px bg-[var(--color-gold)] mx-auto mb-8" />
           <div className="space-y-4 text-lg md:text-xl text-white/80 font-light leading-relaxed">
             {splitParagraphs(heroDescription).map((para, i) => (
               <p key={i}>{para}</p>
@@ -267,15 +260,6 @@ export default async function TeamPage() {
       {/* Team Members — alternating editorial layout */}
       <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
-          {membersSectionTitle && (
-            <div className="text-center mb-16 md:mb-24">
-              <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.3em] font-light mb-4">
-                {membersSectionTitle}
-              </p>
-              <div className="w-12 h-px bg-[var(--color-gold)] mx-auto" />
-            </div>
-          )}
-
           <div className="space-y-20 md:space-y-32">
             {editorialMembers.map((m, i) => {
               const photoLeft = i % 2 === 0;
