@@ -10,7 +10,7 @@ export interface LeadInput {
   email: string;
   phone?: string;
   message?: string;
-  leadType: 'property_inquiry' | 'schedule_tour' | 'general' | 'contact';
+  leadType: 'property_inquiry' | 'schedule_tour' | 'general' | 'contact' | 'account_signup';
   inquiryType?: string;
   propertyAddress?: string;
   propertyMlsId?: string;

@@ -34,6 +34,18 @@ function AuthCallbackInner() {
     }
 
     let resolved = false;
+    const fireSignupNotification = async (accessToken: string) => {
+      // Fire-and-forget: tell the server a user has finished verifying,
+      // so it can record a lead + email the site owner. Idempotent.
+      try {
+        await fetch('/api/auth/signup-notification', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+      } catch (err) {
+        console.error('signup notification call failed:', err);
+      }
+    };
     const finish = (nextStatus: CallbackStatus, nextMessage: string) => {
       if (resolved) return;
       resolved = true;
@@ -47,6 +59,7 @@ function AuthCallbackInner() {
         return;
       }
       if (data.session) {
+        fireSignupNotification(data.session.access_token);
         finish('success', 'Your email is confirmed. Redirecting…');
         setTimeout(() => router.replace('/'), 1500);
       }
@@ -54,6 +67,7 @@ function AuthCallbackInner() {
 
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        fireSignupNotification(session.access_token);
         finish('success', 'Your email is confirmed. Redirecting…');
         setTimeout(() => router.replace('/'), 1500);
       }
