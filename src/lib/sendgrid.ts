@@ -171,6 +171,67 @@ export async function sendWelcomeEmail(
 }
 
 /**
+ * Send the email-verification link to a newly-signed-up user.
+ * The link comes from supabase.auth.admin.generateLink({ type: 'signup' })
+ * — clicking it confirms the user's email and signs them in.
+ */
+export async function sendVerificationEmail(
+  toEmail: string,
+  verificationUrl: string,
+  options: {
+    name?: string;
+    siteName?: string;
+  } = {}
+): Promise<void> {
+  if (!isSendGridConfigured()) {
+    console.warn('SendGrid not configured — skipping verification email to', toEmail);
+    return;
+  }
+
+  const siteName = options.siteName || 'Klug Properties';
+  const greetingName = options.name?.trim() || 'there';
+
+  const html = `
+    <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;background:#fff;">
+      <div style="background:#002349;padding:32px 24px;text-align:center;">
+        <h1 style="color:#fff;font-size:22px;margin:0;font-weight:400;letter-spacing:0.04em;">Verify your email</h1>
+      </div>
+      <div style="padding:32px 24px;color:#1a1a1a;">
+        <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">Hi ${greetingName},</p>
+        <p style="font-size:16px;line-height:1.6;margin:0 0 16px;">
+          Thank you for creating an account with ${siteName}. Please confirm your email
+          address to finish setting up your account and unlock access to our off-market
+          listings and saved-properties feature.
+        </p>
+        <p style="margin:32px 0;text-align:center;">
+          <a href="${verificationUrl}"
+             style="display:inline-block;background:#002349;color:#fff;text-decoration:none;padding:14px 32px;font-size:14px;letter-spacing:0.08em;text-transform:uppercase;">
+            Verify Email Address
+          </a>
+        </p>
+        <p style="font-size:13px;line-height:1.6;color:#6a6a6a;margin:24px 0 0;">
+          If the button doesn't work, copy and paste this link into your browser:<br>
+          <span style="color:#002349;word-break:break-all;">${verificationUrl}</span>
+        </p>
+        <p style="font-size:13px;line-height:1.6;color:#6a6a6a;margin:24px 0 0;">
+          If you didn't create this account, you can safely ignore this email.
+        </p>
+      </div>
+      <div style="padding:20px 24px;border-top:1px solid #eee;text-align:center;color:#888;font-size:12px;">
+        <p style="margin:0 0 4px;">${siteName}</p>
+      </div>
+    </div>
+  `;
+
+  await sgMail.send({
+    to: toEmail,
+    from: { email: fromEmail, name: siteName },
+    subject: `Verify your email for ${siteName}`,
+    html,
+  });
+}
+
+/**
  * Send lead notification email to the assigned agent.
  */
 export async function sendLeadNotificationEmail(

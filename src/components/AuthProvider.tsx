@@ -61,11 +61,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, metadata?: { name?: string }) => {
     if (!supabase) return { error: new Error('Auth not configured') };
 
-    // Route signup through our /api/auth/signup endpoint instead of
-    // calling supabase.auth.signUp directly. The server creates the
-    // user via the Supabase admin API (auto-confirmed) and sends a
-    // welcome email via SendGrid, bypassing Supabase's rate-limited
-    // default email service.
+    // Route signup through our /api/auth/signup endpoint. The server
+    // creates the user (unconfirmed) via the Supabase admin API and
+    // emails a verification link through SendGrid. The user must
+    // click the link before they can sign in.
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
@@ -80,13 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: err instanceof Error ? err : new Error('Network error during signup.') };
     }
 
-    // Account exists and is auto-confirmed — sign the user in so the
-    // app gets a session immediately.
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error: signInError };
+    // Account is created but unconfirmed — surface success to the UI
+    // so it can prompt the user to check their email. We deliberately
+    // do NOT sign them in here; signInWithPassword would fail until
+    // they verify their email anyway.
+    return { error: null };
   };
 
   const signOut = async () => {
