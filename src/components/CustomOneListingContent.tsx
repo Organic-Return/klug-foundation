@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
+import SavePropertyButton from '@/components/SavePropertyButton';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { getUTMData } from './UTMCapture';
 
@@ -319,6 +320,11 @@ export default function CustomOneListingContent({
           HERO SLIDESHOW
           ═══════════════════════════════════════════ */}
       <section className="relative w-full h-screen overflow-hidden bg-[var(--rc-navy)]">
+        {/* Save (heart) — top-right corner over the hero */}
+        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
+          <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
+        </div>
+
         {heroPhoto ? (
           <div
             className="absolute inset-0"
