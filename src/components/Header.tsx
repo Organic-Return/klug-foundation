@@ -7,6 +7,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import ContactModal from './ContactModal';
+import AuthModal from './AuthModal';
+import { useAuth } from './AuthProvider';
 
 const builder = createImageUrlBuilder(client);
 
@@ -125,6 +127,14 @@ export default function Header({
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user } = useAuth();
+
+  // Close the auth modal automatically once a session exists
+  // (covers email/password sign-in completing in-modal).
+  useEffect(() => {
+    if (user && authModalOpen) setAuthModalOpen(false);
+  }, [user, authModalOpen]);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [location, setLocation] = useState('');
@@ -420,6 +430,26 @@ export default function Header({
               </svg>
             </button>
 
+            {/* Account / Sign In */}
+            {user ? (
+              <Link
+                href="/account"
+                className="hidden min-[1265px]:inline-flex items-center uppercase tracking-[0.12em] font-normal text-white hover:text-[var(--color-gold)] transition-colors"
+                style={{ fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 500 }}
+                aria-label="My account"
+              >
+                My Account
+              </Link>
+            ) : (
+              <button
+                onClick={() => setAuthModalOpen(true)}
+                className="hidden min-[1265px]:inline-flex items-center uppercase tracking-[0.12em] font-normal text-white hover:text-[var(--color-gold)] transition-colors"
+                style={{ fontFamily: 'var(--font-body)', fontSize: '13px', fontWeight: 500 }}
+              >
+                Sign In
+              </button>
+            )}
+
             {/* Contact CTA - hidden at ≤1400px and hidden in classic font preset */}
             <button
               onClick={() => setContactModalOpen(true)}
@@ -537,6 +567,29 @@ export default function Header({
               </div>
             ))}
 
+            {/* Mobile Account / Sign In */}
+            {user ? (
+              <Link
+                href="/account"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center uppercase tracking-[0.12em] font-normal text-[#1a1a1a] border-t border-gray-200 mt-2 pt-4"
+                style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500 }}
+              >
+                My Account
+              </Link>
+            ) : (
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAuthModalOpen(true);
+                }}
+                className="block w-full text-center uppercase tracking-[0.12em] font-normal text-[#1a1a1a] border-t border-gray-200 mt-2 pt-4"
+                style={{ fontFamily: 'var(--font-body)', fontSize: '14px', fontWeight: 500 }}
+              >
+                Sign In
+              </button>
+            )}
+
             {/* Mobile CTA */}
             <button
               onClick={() => {
@@ -597,6 +650,29 @@ export default function Header({
         onClose={() => setContactModalOpen(false)}
         agent={agent}
       />
+
+      {/* Auth Modal — fixed overlay, click-outside to close */}
+      {authModalOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center"
+          onClick={() => setAuthModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <AuthModal onClose={() => setAuthModalOpen(false)} />
+          </div>
+          <button
+            onClick={() => setAuthModalOpen(false)}
+            className="absolute top-6 right-6 text-white/80 hover:text-white"
+            aria-label="Close"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </header>
   );
 }
