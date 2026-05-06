@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { EnrichedPartner } from './components';
 import { getPartnerUrl } from './components';
+import { grayscaleMapStyles } from '@/lib/mapStyles';
 
 interface PartnersMapSectionProps {
   partners: EnrichedPartner[];
@@ -23,73 +24,7 @@ const mapOptions: google.maps.MapOptions = {
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: false,
-  styles: [
-    {
-      elementType: 'geometry',
-      stylers: [{ color: '#e0e0e0' }],
-    },
-    {
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#6a6a6a' }],
-    },
-    {
-      elementType: 'labels.text.stroke',
-      stylers: [{ color: '#f5f5f5' }],
-    },
-    {
-      featureType: 'administrative',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#c9c9c9' }],
-    },
-    {
-      featureType: 'administrative.land_parcel',
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#9e9e9e' }],
-    },
-    {
-      featureType: 'landscape',
-      elementType: 'geometry',
-      stylers: [{ color: '#e8e8e8' }],
-    },
-    {
-      featureType: 'poi',
-      stylers: [{ visibility: 'off' }],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry',
-      stylers: [{ color: '#ffffff' }],
-    },
-    {
-      featureType: 'road',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#d6d6d6' }],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'geometry',
-      stylers: [{ color: '#dadada' }],
-    },
-    {
-      featureType: 'road.highway',
-      elementType: 'geometry.stroke',
-      stylers: [{ color: '#c0c0c0' }],
-    },
-    {
-      featureType: 'transit',
-      stylers: [{ visibility: 'off' }],
-    },
-    {
-      featureType: 'water',
-      elementType: 'geometry',
-      stylers: [{ color: '#c9c9c9' }],
-    },
-    {
-      featureType: 'water',
-      elementType: 'labels.text.fill',
-      stylers: [{ color: '#9e9e9e' }],
-    },
-  ],
+  styles: grayscaleMapStyles,
 };
 
 function PartnerMarker({

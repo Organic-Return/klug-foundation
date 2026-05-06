@@ -3,6 +3,7 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, PolygonF, OverlayViewF, OverlayView } from '@react-google-maps/api';
 import { getListingHref, type MLSProperty } from '@/lib/listings';
+import { grayscaleMapStyles } from '@/lib/mapStyles';
 
 interface ListingsMapProps {
   listings: MLSProperty[];
@@ -121,52 +122,13 @@ const mapContainerStyle = {
   height: '100%',
 };
 
-// Grayscale map styles to match the individual listing page
-const grayscaleStyles: google.maps.MapTypeStyle[] = [
-  {
-    // Apply grayscale to all elements
-    elementType: 'all',
-    stylers: [{ saturation: -100 }],
-  },
-  {
-    // Slightly lighten water for better contrast
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{ lightness: 20 }],
-  },
-  {
-    // Make roads slightly lighter
-    featureType: 'road',
-    elementType: 'geometry.fill',
-    stylers: [{ lightness: 40 }],
-  },
-  {
-    // Subtle road outlines
-    featureType: 'road',
-    elementType: 'geometry.stroke',
-    stylers: [{ lightness: 60 }],
-  },
-  {
-    // Lighten POI backgrounds
-    featureType: 'poi',
-    elementType: 'geometry',
-    stylers: [{ lightness: 20 }],
-  },
-  {
-    // Make labels more readable
-    featureType: 'all',
-    elementType: 'labels.text.fill',
-    stylers: [{ lightness: -20 }],
-  },
-];
-
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: false,
   zoomControl: true,
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: true,
-  styles: grayscaleStyles,
+  styles: grayscaleMapStyles,
 };
 
 const polygonOptions = {

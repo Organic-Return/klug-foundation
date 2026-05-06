@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useMemo } from 'react';
 import { GoogleMap, useJsApiLoader, OverlayViewF, OverlayView } from '@react-google-maps/api';
+import { grayscaleMapStyles } from '@/lib/mapStyles';
 
 interface PropertyMapProps {
   latitude: number;
@@ -45,44 +46,13 @@ export default function PropertyMap({ latitude, longitude, address, price, googl
 
   const center = useMemo(() => ({ lat: latitude, lng: longitude }), [latitude, longitude]);
 
-  // Grayscale map styles - memoized to prevent re-renders
-  const mapOptions = useMemo(() => ({
+  const mapOptions = useMemo<google.maps.MapOptions>(() => ({
     disableDefaultUI: false,
     zoomControl: true,
     streetViewControl: false,
     mapTypeControl: false,
     fullscreenControl: true,
-    styles: [
-      {
-        elementType: 'all',
-        stylers: [{ saturation: -100 }],
-      },
-      {
-        featureType: 'water',
-        elementType: 'geometry',
-        stylers: [{ lightness: 20 }],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry.fill',
-        stylers: [{ lightness: 40 }],
-      },
-      {
-        featureType: 'road',
-        elementType: 'geometry.stroke',
-        stylers: [{ lightness: 60 }],
-      },
-      {
-        featureType: 'poi',
-        elementType: 'geometry',
-        stylers: [{ lightness: 20 }],
-      },
-      {
-        featureType: 'all',
-        elementType: 'labels.text.fill',
-        stylers: [{ lightness: -20 }],
-      },
-    ],
+    styles: grayscaleMapStyles,
   }), []);
 
   const onLoad = useCallback((map: google.maps.Map) => {
