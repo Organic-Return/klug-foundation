@@ -606,7 +606,6 @@ export default function KlugListingContent({
                     </div>
                   )}
                   <div>
-                    <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
                     <Link
                       href={`/real-estate-agent/${defaultAgent.slug.current}`}
                       className="font-serif text-lg text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
