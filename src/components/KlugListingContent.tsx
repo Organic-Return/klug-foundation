@@ -23,6 +23,8 @@ interface RCSothebysListingContentProps {
   listing: MLSProperty;
   agent: ListingAgentInfo | null;
   coAgent?: ListingAgentInfo | null;
+  /** Brokerage contact shown on non-exclusive listings (e.g. Chris Klug). */
+  defaultAgent?: ListingAgentInfo | null;
   googleMapsApiKey?: string;
 }
 
@@ -40,6 +42,7 @@ export default function KlugListingContent({
   listing,
   agent,
   coAgent,
+  defaultAgent,
   googleMapsApiKey,
 }: RCSothebysListingContentProps) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
@@ -587,6 +590,62 @@ export default function KlugListingContent({
 
           {/* Right Column: Contact Form + Share + Agent */}
           <div className="min-w-0 space-y-8">
+            {/* Listing Agent card — non-exclusive listings only, shows Chris Klug as the brokerage contact */}
+            {!agent && defaultAgent && (
+              <div className="bg-white border border-[var(--rc-brown)]/10 p-6">
+                <div className="flex items-start gap-4">
+                  {defaultAgent.imageUrl && (
+                    <div className="relative w-32 h-[147px] flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={defaultAgent.imageUrl}
+                        alt={defaultAgent.name}
+                        fill
+                        className="object-cover object-top"
+                        sizes="128px"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
+                    <Link
+                      href={`/real-estate-agent/${defaultAgent.slug.current}`}
+                      className="font-serif text-lg text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
+                    >
+                      {defaultAgent.name}
+                    </Link>
+                    {defaultAgent.title && (
+                      <p className="text-xs text-[var(--rc-brown)]/60 mt-0.5">{defaultAgent.title}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 space-y-2 text-sm">
+                  {defaultAgent.phone && (
+                    <a
+                      href={`tel:${phoneHref(defaultAgent.phone)}`}
+                      className="flex items-center gap-2 text-[var(--rc-brown)] hover:text-[var(--rc-gold)] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                      {formatPhone(defaultAgent.phone)}
+                    </a>
+                  )}
+                  {defaultAgent.email && (
+                    <a
+                      href={`mailto:${defaultAgent.email}`}
+                      className="flex items-center gap-2 text-[var(--rc-brown)] hover:text-[var(--rc-gold)] transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      {defaultAgent.email}
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Inquire About This Property — matches the exclusive listing template */}
             <div className="bg-white border border-[var(--rc-brown)]/10 p-6">
               <h3 className="font-serif text-lg text-[var(--rc-navy)] mb-1">Inquire About This Property</h3>

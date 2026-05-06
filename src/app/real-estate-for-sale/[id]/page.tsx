@@ -477,7 +477,30 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
     );
   }
 
-  // Fallback: no agent match — use the simpler Klug listing layout
+  // Fallback: no agent match — surface Chris Klug as the brokerage contact
+  // on the non-exclusive sidebar, matching what the exclusive template does.
+  const defaultTeamMember = await client.fetch<ListingAgent | null>(
+    `*[_type == "teamMember" && slug.current == "chris-klug" && inactive != true][0]{
+      name, slug, title, image, email, phone, mobile
+    }`,
+    {},
+    { next: { revalidate: 60 } }
+  );
+
+  const defaultAgent = defaultTeamMember
+    ? {
+        name: defaultTeamMember.name,
+        slug: defaultTeamMember.slug,
+        title: defaultTeamMember.title?.replace(/\bResidential\b/g, 'Real Estate Broker'),
+        imageUrl: defaultTeamMember.image
+          ? urlFor(defaultTeamMember.image).width(400).height(500).fit('crop').crop('top').url()
+          : null,
+        email: defaultTeamMember.email,
+        phone: defaultTeamMember.phone,
+        mobile: defaultTeamMember.mobile,
+      }
+    : null;
+
   return (
     <>
       {schemas.map((schema, index) => (
@@ -491,6 +514,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
         listing={listing}
         agent={null}
         coAgent={null}
+        defaultAgent={defaultAgent}
         googleMapsApiKey={googleMapsApiKey}
       />
     </>
