@@ -52,8 +52,6 @@ export default function KlugListingContent({
   const [formEmail, setFormEmail] = useState('');
   const [formPhone, setFormPhone] = useState('');
   const [formMessage, setFormMessage] = useState('');
-  const [tourInPerson, setTourInPerson] = useState(false);
-  const [tourVirtual, setTourVirtual] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formError, setFormError] = useState('');
@@ -114,11 +112,6 @@ export default function KlugListingContent({
     setFormSubmitting(true);
     setFormError('');
 
-    const tourTypes = [tourInPerson && 'In Person', tourVirtual && 'Virtual'].filter(Boolean);
-    const leadType = tourTypes.length > 0 ? 'schedule_tour' : 'property_inquiry';
-    const tourInfo = tourTypes.length > 0 ? `\n\nTour preference: ${tourTypes.join(', ')}` : '';
-    const fullMessage = (formMessage || '') + tourInfo;
-
     try {
       const utm = getUTMData();
       const res = await fetch('/api/leads', {
@@ -129,8 +122,8 @@ export default function KlugListingContent({
           lastName: formLastName,
           email: formEmail,
           phone: formPhone || undefined,
-          message: fullMessage || undefined,
-          leadType,
+          message: formMessage || undefined,
+          leadType: 'property_inquiry',
           propertyAddress: listing.address || `Property ${listing.mls_number}`,
           propertyMlsId: listing.mls_number || undefined,
           propertyPrice: listing.list_price || undefined,
@@ -594,108 +587,92 @@ export default function KlugListingContent({
 
           {/* Right Column: Contact Form + Share + Agent */}
           <div className="min-w-0 space-y-8">
-            {/* Request More Information Form */}
-            <div className="bg-[var(--rc-navy)] p-6 md:p-8">
-              <h3
-                className="text-sm font-bold uppercase tracking-[0.08em] mb-6"
-                style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
-              >
-                Request More Information
-              </h3>
+            {/* Inquire About This Property — matches the exclusive listing template */}
+            <div className="bg-white border border-[var(--rc-brown)]/10 p-6">
+              <h3 className="font-serif text-lg text-[var(--rc-navy)] mb-1">Inquire About This Property</h3>
+              <div className="w-8 h-[2px] bg-[var(--rc-gold)] mb-5" />
+
               {formSubmitted ? (
-                <div className="text-center py-6">
-                  <div className="w-12 h-12 rounded-full bg-[var(--rc-gold)]/20 flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <p className="text-white font-medium mb-1">Request Sent!</p>
-                  <p className="text-white/60 text-sm">An agent will respond within 24 hours.</p>
+                <div className="text-center py-8">
+                  <svg className="w-10 h-10 text-[var(--rc-gold)] mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-[var(--rc-navy)] font-medium">Thank you for your inquiry.</p>
+                  <p className="text-[var(--rc-brown)]/60 text-sm mt-1">We will be in touch shortly.</p>
                 </div>
               ) : (
-              <form className="space-y-4" onSubmit={handleFormSubmit}>
-                {formError && <p className="text-red-400 text-sm">{formError}</p>}
-                <div className="grid grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    placeholder="First name"
-                    value={formFirstName}
-                    onChange={(e) => setFormFirstName(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Last name"
-                    value={formLastName}
-                    onChange={(e) => setFormLastName(e.target.value)}
-                    required
-                    className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
-                  />
-                </div>
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={formEmail}
-                  onChange={(e) => setFormEmail(e.target.value)}
-                  required
-                  className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone"
-                  value={formPhone}
-                  onChange={(e) => setFormPhone(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors"
-                />
-                <textarea
-                  placeholder="Message..."
-                  rows={3}
-                  value={formMessage}
-                  onChange={(e) => setFormMessage(e.target.value)}
-                  className="w-full bg-transparent border-0 border-b border-white/30 text-white text-sm py-2.5 px-0 placeholder:text-white/40 focus:border-[var(--rc-gold)] focus:ring-0 outline-none transition-colors resize-none"
-                />
-
-                {/* Schedule a Property Tour */}
-                <div className="pt-4">
-                  <h4
-                    className="text-sm font-bold uppercase tracking-[0.08em] mb-3"
-                    style={{ fontFamily: 'var(--font-figtree), Figtree, sans-serif', color: '#ffffff' }}
-                  >
-                    Schedule a Property Tour
-                  </h4>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                <form onSubmit={handleFormSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label htmlFor="req-firstName" className="text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5">First Name</label>
                       <input
-                        type="checkbox"
-                        checked={tourInPerson}
-                        onChange={(e) => setTourInPerson(e.target.checked)}
-                        className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm"
+                        id="req-firstName"
+                        type="text"
+                        required
+                        value={formFirstName}
+                        onChange={(e) => setFormFirstName(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border border-[var(--rc-brown)]/20 text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)] focus:outline-none transition-colors text-sm"
+                        placeholder="First"
                       />
-                      <span className="text-white/70 text-sm">In Person Onsite Tour</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    </div>
+                    <div>
+                      <label htmlFor="req-lastName" className="text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5">Last Name</label>
                       <input
-                        type="checkbox"
-                        checked={tourVirtual}
-                        onChange={(e) => setTourVirtual(e.target.checked)}
-                        className="w-4 h-4 border-white/30 bg-transparent text-[var(--rc-gold)] focus:ring-[var(--rc-gold)] rounded-sm"
+                        id="req-lastName"
+                        type="text"
+                        required
+                        value={formLastName}
+                        onChange={(e) => setFormLastName(e.target.value)}
+                        className="w-full px-4 py-3 bg-white border border-[var(--rc-brown)]/20 text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)] focus:outline-none transition-colors text-sm"
+                        placeholder="Last"
                       />
-                      <span className="text-white/70 text-sm">Virtual Online Tour</span>
-                    </label>
+                    </div>
                   </div>
-                </div>
+                  <div>
+                    <label htmlFor="req-email" className="text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5">Email</label>
+                    <input
+                      id="req-email"
+                      type="email"
+                      required
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-[var(--rc-brown)]/20 text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)] focus:outline-none transition-colors text-sm"
+                      placeholder="Email address"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="req-phone" className="text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5">Phone</label>
+                    <input
+                      id="req-phone"
+                      type="tel"
+                      value={formPhone}
+                      onChange={(e) => setFormPhone(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-[var(--rc-brown)]/20 text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)] focus:outline-none transition-colors text-sm"
+                      placeholder="Phone number"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="req-message" className="text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5">Message</label>
+                    <textarea
+                      id="req-message"
+                      rows={3}
+                      value={formMessage}
+                      onChange={(e) => setFormMessage(e.target.value)}
+                      className="w-full px-4 py-3 bg-white border border-[var(--rc-brown)]/20 text-[var(--rc-navy)] placeholder:text-[var(--rc-brown)]/40 focus:border-[var(--rc-gold)] focus:outline-none transition-colors text-sm resize-none"
+                      placeholder={`I'm interested in ${listing.address?.split(',')[0] || 'this property'}...`}
+                    />
+                  </div>
 
-                <div className="pt-2 flex justify-end">
+                  {formError && <p className="text-red-600 text-xs">{formError}</p>}
+
                   <button
                     type="submit"
                     disabled={formSubmitting || !formFirstName || !formLastName || !formEmail}
-                    className="bg-transparent border border-white/30 text-white text-[11px] font-bold uppercase tracking-[0.15em] px-8 py-3 hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="sir-btn w-full py-3 text-xs tracking-[0.15em] uppercase disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {formSubmitting ? 'Sending...' : 'Submit'}
+                    {formSubmitting ? 'Sending...' : 'Send Inquiry'}
                   </button>
-                </div>
-              </form>
+                </form>
               )}
             </div>
 
