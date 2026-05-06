@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
+import AuthModal from './AuthModal';
+import { useAuth } from './AuthProvider';
 
 const builder = createImageUrlBuilder(client);
 
@@ -71,6 +73,8 @@ export default function Footer({
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const [email, setEmail] = useState('');
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const { user } = useAuth();
 
   // Get image URLs from Sanity or use defaults
   const portraitUrl = footer?.portraitImage
@@ -284,7 +288,7 @@ export default function Footer({
             </div>
           </div>
 
-          {/* Terms of Service */}
+          {/* Terms of Service + Account */}
           <div className="w-full lg:w-1/3 max-w-md px-4 lg:pl-7 lg:pr-0">
             <h3 className="text-3xl w-full border-b border-gray-300 mb-9 pb-3 font-light">
               Terms Of Service
@@ -300,6 +304,20 @@ export default function Footer({
                   <Link href="/terms-of-service" className="hover:text-[var(--color-gold)] transition-colors">
                     Terms Of Service
                   </Link>
+                </dd>
+                <dd className="text-sm mb-3">
+                  {user ? (
+                    <Link href="/account" className="hover:text-[var(--color-gold)] transition-colors">
+                      My Account
+                    </Link>
+                  ) : (
+                    <button
+                      onClick={() => setAuthModalOpen(true)}
+                      className="hover:text-[var(--color-gold)] transition-colors text-left"
+                    >
+                      Sign In
+                    </button>
+                  )}
                 </dd>
               </dl>
             </div>
@@ -364,6 +382,29 @@ export default function Footer({
           Organic Return
         </a>
       </div>
+
+      {/* Auth Modal — opens when "Sign In" footer link is clicked */}
+      {authModalOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center"
+          onClick={() => setAuthModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <AuthModal onClose={() => setAuthModalOpen(false)} />
+          </div>
+          <button
+            onClick={() => setAuthModalOpen(false)}
+            className="absolute top-6 right-6 text-white/80 hover:text-white"
+            aria-label="Close"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
     </footer>
   );
 }
