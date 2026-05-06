@@ -233,7 +233,7 @@ export default function ModernPropertyCarousel({
         }`}
       >
         <Link
-          href="/listings"
+          href="/real-estate-for-sale"
           className="inline-flex items-center gap-2 group text-[var(--modern-gray)] hover:text-[var(--modern-gold)] transition-colors duration-300 text-sm uppercase tracking-[0.2em]"
         >
           <span>View All Properties</span>

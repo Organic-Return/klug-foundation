@@ -168,7 +168,7 @@ export default function LuxuryPropertyCarousel({
 
               {/* View All Link */}
               <Link
-                href="/listings"
+                href="/real-estate-for-sale"
                 className="hidden lg:inline-flex items-center gap-4 mt-8 group font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
               >
                 <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
@@ -305,7 +305,7 @@ export default function LuxuryPropertyCarousel({
               </div>
 
               <Link
-                href="/listings"
+                href="/real-estate-for-sale"
                 className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
               >
                 <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">

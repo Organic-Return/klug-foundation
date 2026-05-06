@@ -322,7 +322,7 @@ export default async function TeamPage() {
                       </div>
 
                       <Link
-                        href={`/team/${m.slug.current}`}
+                        href={`/real-estate-agent/${m.slug.current}`}
                         className="inline-flex items-center gap-3 text-[var(--color-sothebys-blue)] dark:text-[var(--color-gold)] text-[11px] uppercase tracking-[0.25em] font-light border-b border-[var(--color-gold)]/40 pb-1 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors"
                       >
                         Full Bio &amp; Listings

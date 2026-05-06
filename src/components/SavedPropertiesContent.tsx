@@ -129,7 +129,7 @@ export default function SavedPropertiesContent({
               Start exploring properties and click the heart icon to save your favorites.
             </p>
             <Link
-              href="/listings"
+              href="/real-estate-for-sale"
               className="inline-block bg-[var(--color-gold)] text-white font-semibold py-3 px-6 rounded-md hover:bg-transparent hover:text-[var(--color-gold)] border-2 border-[var(--color-gold)] transition-colors"
             >
               Browse Listings

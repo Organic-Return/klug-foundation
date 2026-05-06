@@ -205,7 +205,7 @@ export const homepage = defineType({
           name: 'secondaryButtonLink',
           title: 'Secondary Button Link',
           type: 'string',
-          initialValue: '/team',
+          initialValue: '/about/our-team',
         },
       ],
     }),

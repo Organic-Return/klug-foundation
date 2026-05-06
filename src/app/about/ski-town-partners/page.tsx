@@ -2,9 +2,9 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "../components";
-import CTASection from "../CTASection";
-import PartnersMapSection from "../PartnersMapSection";
+import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "@/app/affiliated-partners/components";
+import CTASection from "@/app/affiliated-partners/CTASection";
+import PartnersMapSection from "@/app/affiliated-partners/PartnersMapSection";
 import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
 
 const SKI_TOWN_PARTNERS_QUERY = `*[_type == "affiliatedPartner" && active == true && partnerType == "ski_town"] | order(sortOrder asc, lastName asc) {
@@ -106,7 +106,7 @@ export default async function SkiTownPartnersPage() {
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           {/* Breadcrumb */}
           <div className="mb-6">
-            <Link href="/affiliated-partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
+            <Link href="/about/partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
               Affiliated Partners
             </Link>
             <span className="text-white/30 mx-2">/</span>
@@ -187,7 +187,7 @@ export default async function SkiTownPartnersPage() {
               <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-8">
                 No ski town partners yet. Check back soon!
               </p>
-              <Link href="/affiliated-partners" className="text-[var(--color-gold)] hover:underline">
+              <Link href="/about/partners" className="text-[var(--color-gold)] hover:underline">
                 View All Partners
               </Link>
             </div>

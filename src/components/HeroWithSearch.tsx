@@ -174,7 +174,7 @@ export default function HeroWithSearch({
     if (priceMax) params.append('maxPrice', priceMax);
     if (keyword.trim()) params.append('q', keyword.trim());
 
-    router.push(`/listings?${params.toString()}`);
+    router.push(`/real-estate-for-sale?${params.toString()}`);
   };
 
   return (

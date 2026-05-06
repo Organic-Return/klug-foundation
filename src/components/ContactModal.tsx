@@ -333,7 +333,7 @@ export default function ContactModal({ isOpen, onClose, agent }: ContactModalPro
                   />
                   <label htmlFor="privacyConsent" className="text-xs text-gray-500 leading-relaxed">
                     I agree to the{' '}
-                    <a href="/privacy-policy" className="text-[var(--color-sothebys-blue)] hover:underline">
+                    <a href="/privacy" className="text-[var(--color-sothebys-blue)] hover:underline">
                       Privacy Policy
                     </a>{' '}
                     and consent to being contacted regarding my inquiry. I understand my information will be handled in accordance with applicable data protection laws. <span className="text-red-500">*</span>

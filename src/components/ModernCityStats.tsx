@@ -173,7 +173,7 @@ export default function ModernCityStats({
           {cityData.map((data, index) => (
             <Link
               key={data.city}
-              href={`/listings?city=${encodeURIComponent(data.city)}`}
+              href={`/real-estate-for-sale?city=${encodeURIComponent(data.city)}`}
               className={`group p-8 transition-all duration-500 ${
                 isDark
                   ? 'bg-white/5 border border-white/10 hover:border-[var(--modern-gold)]/50'

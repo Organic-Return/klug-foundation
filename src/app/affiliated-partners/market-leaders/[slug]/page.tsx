@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const canonicalUrl = `${baseUrl}/affiliated-partners/market-leaders/${slug}`;
+  const canonicalUrl = `${baseUrl}/real-estate-agent/${slug}`;
 
   return {
     title: `${partner.firstName} ${partner.lastName} | Market Leader | ${siteName}`,
@@ -86,7 +86,7 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
           <div className="mb-8 md:mb-12 text-sm font-light">
-            <Link href="/affiliated-partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
+            <Link href="/about/partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Affiliated Partners
             </Link>
             <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>

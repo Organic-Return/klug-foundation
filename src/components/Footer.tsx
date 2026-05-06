@@ -93,11 +93,11 @@ export default function Footer({
   // Default links if none provided
   const defaultLinks: FooterLink[] = [
     { label: 'Home', url: '/' },
-    { label: 'Featured Properties', url: '/listings' },
+    { label: 'Featured Properties', url: '/real-estate-for-sale' },
     { label: 'About Klug Properties', url: '/about' },
-    { label: 'Blog', url: '/blog' },
+    { label: 'Blog', url: '/about/blog' },
     { label: 'Living Aspen', url: '/media/living-aspen-magazine' },
-    { label: 'Market Reports', url: '/market-reports' },
+    { label: 'Market Reports', url: '/aspen-snowmass-market-reports' },
   ];
 
   const footerLinks = columns.length > 0 ? columns[0]?.links || defaultLinks : defaultLinks;
@@ -314,7 +314,7 @@ export default function Footer({
             Property Types
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm">
-            <Link href="/listings" className="hover:text-[var(--color-gold)] transition-colors">
+            <Link href="/real-estate-for-sale" className="hover:text-[var(--color-gold)] transition-colors">
               Homes for Sale
             </Link>
             <Link href="/rentals" className="hover:text-[var(--color-gold)] transition-colors">

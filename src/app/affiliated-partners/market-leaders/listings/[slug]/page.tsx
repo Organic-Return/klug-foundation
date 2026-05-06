@@ -1,5 +1,5 @@
-import ListingPage from '@/app/listings/[id]/page';
-export { generateMetadata } from '@/app/listings/[id]/page';
+import ListingPage from '@/app/real-estate-for-sale/[id]/page';
+export { generateMetadata } from '@/app/real-estate-for-sale/[id]/page';
 
 export const revalidate = 60;
 

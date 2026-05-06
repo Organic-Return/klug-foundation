@@ -92,7 +92,7 @@ export default function ListingsSearchClient({
 
     // Update URL without navigation
     const qs = params.toString();
-    const url = qs ? `/listings?${qs}` : '/listings';
+    const url = qs ? `/real-estate-for-sale?${qs}` : '/real-estate-for-sale';
     window.history.replaceState(null, '', url);
 
     setLoading(true);

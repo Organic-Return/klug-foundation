@@ -756,7 +756,7 @@ export default function CustomOneListingContent({
                     <div>
                       <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
                       <Link
-                        href={`/team/${agent.slug.current}`}
+                        href={`/real-estate-agent/${agent.slug.current}`}
                         className="font-serif text-lg text-[var(--rc-navy)] hover:text-[var(--rc-gold)] transition-colors"
                       >
                         {agent.name}
@@ -960,7 +960,7 @@ export default function CustomOneListingContent({
                       <div>
                         <p className="text-[9px] tracking-[0.2em] uppercase text-[var(--rc-gold)] mb-1">Listing Agent</p>
                         <Link
-                          href={`/team/${agent.slug.current}`}
+                          href={`/real-estate-agent/${agent.slug.current}`}
                           className="font-serif text-xl text-white hover:text-[var(--rc-gold)] transition-colors"
                         >
                           {agent.name}

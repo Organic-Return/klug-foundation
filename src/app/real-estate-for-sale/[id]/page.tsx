@@ -332,7 +332,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
   if (canonicalize) {
     const canonicalSlug = buildListingSlug(listing);
     if (canonicalSlug && id !== canonicalSlug) {
-      redirect(`/listings/${canonicalSlug}`);
+      redirect(`/real-estate-for-sale/${canonicalSlug}`);
     }
   }
 

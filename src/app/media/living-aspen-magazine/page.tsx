@@ -6,7 +6,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
 
-const MARKET_REPORTS_QUERY = `*[_type == "publication" && publicationType == "market-report"] | order(publishedAt desc) {
+const MAGAZINES_QUERY = `*[_type == "publication" && publicationType == "magazine"] | order(publishedAt desc) {
   _id,
   title,
   slug,
@@ -20,8 +20,8 @@ interface PageDoc {
   heroTitle?: string;
   heroDescription?: string;
   heroImage?: { asset?: { _id?: string; url?: string } };
-  featuredEyebrow?: string;
-  allReportsTitle?: string;
+  latestEyebrow?: string;
+  pastIssuesTitle?: string;
   emptyTitle?: string;
   emptyText?: string;
   ctaTitle?: string;
@@ -35,12 +35,12 @@ interface PageDoc {
   };
 }
 
-const PAGE_QUERY = `*[_type == "marketReportsPage" && _id == "marketReportsPage"][0]{
+const PAGE_QUERY = `*[_type == "livingAspenPage" && _id == "livingAspenPage"][0]{
   heroTitle,
   heroDescription,
   heroImage { asset->{ _id, url } },
-  featuredEyebrow,
-  allReportsTitle,
+  latestEyebrow,
+  pastIssuesTitle,
   emptyTitle,
   emptyText,
   ctaTitle,
@@ -69,49 +69,48 @@ async function getPageData(): Promise<PageDoc | null> {
 export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
   const page = await getPageData();
-  const heroTitle = page?.heroTitle || 'Market Reports';
-  const title = page?.seo?.metaTitle || `${heroTitle} | Real Estate Insights`;
+  const heroTitle = page?.heroTitle || 'Living Aspen';
+  const title = page?.seo?.metaTitle || `${heroTitle} | Luxury Lifestyle Magazine`;
   const description = page?.seo?.metaDescription
     || page?.heroDescription
-    || 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.';
+    || 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.';
 
   return {
     title,
     description,
     alternates: {
-      canonical: `${baseUrl}/market-reports`,
+      canonical: `${baseUrl}/living-aspen`,
     },
     openGraph: {
       title,
       description,
       type: 'website',
-      url: `${baseUrl}/market-reports`,
+      url: `${baseUrl}/living-aspen`,
     },
   };
 }
 
-export default async function MarketReportsPage() {
-  const [reports, page, defaultHeroUrl] = await Promise.all([
-    client.fetch<SanityDocument[]>(MARKET_REPORTS_QUERY, {}, options),
+export default async function LivingAspenPage() {
+  const [magazines, page, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument[]>(MAGAZINES_QUERY, {}, options),
     getPageData(),
     getDefaultHeroImageUrl(),
   ]);
 
-  // Separate featured and regular reports
-  const featuredReport = reports.find((r) => r.featured);
-  const regularReports = reports.filter((r) => !r.featured || r._id !== featuredReport?._id);
+  const featuredMagazine = magazines.find((m) => m.featured);
+  const regularMagazines = magazines.filter((m) => !m.featured || m._id !== featuredMagazine?._id);
 
-  const heroTitle = page?.heroTitle || 'Market Reports';
+  const heroTitle = page?.heroTitle || 'Living Aspen';
   const heroDescription = page?.heroDescription
-    || 'In-depth analysis and insights into the luxury real estate market. Stay informed with our comprehensive reports.';
-  const featuredEyebrow = page?.featuredEyebrow || 'Featured Report';
-  const allReportsTitle = page?.allReportsTitle || 'All Reports';
-  const emptyTitle = page?.emptyTitle || 'No Reports Available';
-  const emptyText = page?.emptyText || 'Market reports will be published soon. Check back later.';
-  const ctaTitle = page?.ctaTitle || 'Request a Custom Analysis';
+    || 'Discover the essence of Aspen living through our curated magazine. Local culture, design inspiration, and the stories that define mountain luxury.';
+  const latestEyebrow = page?.latestEyebrow || 'Latest Issue';
+  const pastIssuesTitle = page?.pastIssuesTitle || 'Past Issues';
+  const emptyTitle = page?.emptyTitle || 'Coming Soon';
+  const emptyText = page?.emptyText || 'Our first issue of Living Aspen is in the works. Stay tuned.';
+  const ctaTitle = page?.ctaTitle || 'Stay Connected';
   const ctaDescription = page?.ctaDescription
-    || 'Need market insights for a specific area or property type? Our team can provide tailored analysis for your needs.';
-  const ctaButtonLabel = page?.ctaButtonLabel || 'Contact Us';
+    || 'Subscribe to receive the latest issue of Living Aspen and exclusive insights into the Aspen lifestyle.';
+  const ctaButtonLabel = page?.ctaButtonLabel || 'Subscribe';
   const ctaButtonHref = page?.ctaButtonHref || '/contact-us';
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
@@ -120,7 +119,7 @@ export default async function MarketReportsPage() {
     <main className="min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
-        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-navy)]'}`}
       >
         {heroImageRaw && (
           <>
@@ -133,7 +132,7 @@ export default async function MarketReportsPage() {
               className="object-cover"
             />
             <div
-              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              className="absolute inset-0 bg-[var(--color-navy)]/65"
               aria-hidden="true"
             />
           </>
@@ -148,26 +147,26 @@ export default async function MarketReportsPage() {
         </div>
       </section>
 
-      {/* Featured Report */}
-      {featuredReport && (
+      {/* Featured Magazine */}
+      {featuredMagazine && (
         <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-8">
               <span className="text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase">
-                {featuredEyebrow}
+                {latestEyebrow}
               </span>
             </div>
             <Link
-              href={`/market-reports/${featuredReport.slug?.current}`}
+              href={`/media/living-aspen-magazine/${featuredMagazine.slug?.current}`}
               className="group block"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
                 {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden">
-                  {featuredReport.headerImage && (
+                <div className="relative aspect-[3/4] overflow-hidden">
+                  {featuredMagazine.headerImage && (
                     <Image
-                      src={urlFor(featuredReport.headerImage)?.width(800).height(600).url() || ''}
-                      alt={featuredReport.title}
+                      src={urlFor(featuredMagazine.headerImage)?.width(800).height(1067).url() || ''}
+                      alt={featuredMagazine.title}
                       fill
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
                     />
@@ -178,25 +177,24 @@ export default async function MarketReportsPage() {
                 {/* Content */}
                 <div className="flex flex-col justify-center">
                   <h2 className="text-3xl md:text-4xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4 tracking-wide group-hover:text-[var(--color-gold)] transition-colors duration-300">
-                    {featuredReport.title}
+                    {featuredMagazine.title}
                   </h2>
-                  {featuredReport.excerpt && (
+                  {featuredMagazine.excerpt && (
                     <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-lg leading-relaxed mb-6">
-                      {featuredReport.excerpt}
+                      {featuredMagazine.excerpt}
                     </p>
                   )}
                   <div className="flex items-center gap-4">
                     <span className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
-                      {new Date(featuredReport.publishedAt).toLocaleDateString('en-US', {
+                      {new Date(featuredMagazine.publishedAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
-                        day: 'numeric',
                       })}
                     </span>
                   </div>
                   <div className="mt-8">
                     <span className="inline-flex items-center gap-2 text-[var(--color-gold)] text-sm font-medium tracking-wider uppercase group-hover:gap-4 transition-all duration-300">
-                      Read Report
+                      Read Issue
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
@@ -210,65 +208,58 @@ export default async function MarketReportsPage() {
       )}
 
       {/* Divider */}
-      {featuredReport && regularReports.length > 0 && (
+      {featuredMagazine && regularMagazines.length > 0 && (
         <div className="w-full flex justify-center py-4 bg-[#f8f7f5] dark:bg-[#141414]">
           <div className="w-24 h-px bg-gradient-to-r from-transparent via-[var(--color-gold)] to-transparent" />
         </div>
       )}
 
-      {/* All Reports Grid */}
-      {regularReports.length > 0 && (
+      {/* All Magazines Grid */}
+      {regularMagazines.length > 0 && (
         <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
             <div className="mb-12">
               <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide">
-                {allReportsTitle}
+                {pastIssuesTitle}
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {regularReports.map((report) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {regularMagazines.map((magazine) => (
                 <Link
-                  key={report._id}
-                  href={`/market-reports/${report.slug?.current}`}
-                  className="group bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300"
+                  key={magazine._id}
+                  href={`/media/living-aspen-magazine/${magazine.slug?.current}`}
+                  className="group"
                 >
                   {/* Image */}
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    {report.headerImage && (
+                  <div className="relative aspect-[3/4] overflow-hidden mb-4">
+                    {magazine.headerImage && (
                       <Image
-                        src={urlFor(report.headerImage)?.width(600).height(375).url() || ''}
-                        alt={report.title}
+                        src={urlFor(magazine.headerImage)?.width(500).height(667).url() || ''}
+                        alt={magazine.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
+                  <div>
                     <span className="text-xs text-[#6a6a6a] dark:text-gray-400 font-light tracking-wider uppercase">
-                      {new Date(report.publishedAt).toLocaleDateString('en-US', {
+                      {new Date(magazine.publishedAt).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                       })}
                     </span>
-                    <h3 className="text-xl font-serif font-light text-[#1a1a1a] dark:text-white mt-2 mb-3 tracking-wide group-hover:text-[var(--color-gold)] transition-colors duration-300">
-                      {report.title}
+                    <h3 className="text-xl font-serif font-light text-[#1a1a1a] dark:text-white mt-2 tracking-wide group-hover:text-[var(--color-gold)] transition-colors duration-300">
+                      {magazine.title}
                     </h3>
-                    {report.excerpt && (
-                      <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-sm leading-relaxed line-clamp-2">
-                        {report.excerpt}
+                    {magazine.excerpt && (
+                      <p className="text-[#4a4a4a] dark:text-gray-300 font-light text-sm leading-relaxed mt-2 line-clamp-2">
+                        {magazine.excerpt}
                       </p>
                     )}
-                    <div className="mt-4">
-                      <span className="inline-flex items-center gap-2 text-[var(--color-gold)] text-xs font-medium tracking-wider uppercase">
-                        Read More
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                        </svg>
-                      </span>
-                    </div>
                   </div>
                 </Link>
               ))}
@@ -278,7 +269,7 @@ export default async function MarketReportsPage() {
       )}
 
       {/* Empty State */}
-      {reports.length === 0 && (
+      {magazines.length === 0 && (
         <section className="py-24 md:py-32 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">
             <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-4">
@@ -291,7 +282,7 @@ export default async function MarketReportsPage() {
         </section>
       )}
 
-      {/* Contact CTA */}
+      {/* Subscribe CTA */}
       <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
         {heroImageRaw && (
           <>
@@ -306,6 +297,7 @@ export default async function MarketReportsPage() {
             />
           </>
         )}
+
         <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
             {ctaTitle}

@@ -122,8 +122,8 @@ export default function FeaturedAspenProperties({
 
   // Build the listings link - if single city, filter by that city
   const listingsHref = cities.length === 1
-    ? `/listings?city=${encodeURIComponent(cities[0])}`
-    : '/listings';
+    ? `/real-estate-for-sale?city=${encodeURIComponent(cities[0])}`
+    : '/real-estate-for-sale';
 
   return (
     <section className="py-12 md:py-16 bg-[var(--color-sothebys-blue)] overflow-hidden w-full">

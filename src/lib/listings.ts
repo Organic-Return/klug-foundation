@@ -184,7 +184,7 @@ export function getListingHref(listing: {
   state?: string | null;
   zip_code?: string | null;
 }): string {
-  return `/listings/${buildListingSlug(listing)}`;
+  return `/real-estate-for-sale/${buildListingSlug(listing)}`;
 }
 
 // Resolve listing by slug — handles both the new address-based format

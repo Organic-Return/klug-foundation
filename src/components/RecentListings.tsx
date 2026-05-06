@@ -325,7 +325,7 @@ export default function RecentListings({
           <div className="text-center mt-14 md:mt-16">
             {isLuxury ? (
               <Link
-                href={`/listings?city=${encodeURIComponent(city)}`}
+                href={`/real-estate-for-sale?city=${encodeURIComponent(city)}`}
                 className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em]"
               >
                 <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-300">
@@ -337,7 +337,7 @@ export default function RecentListings({
               </Link>
             ) : (
               <Link
-                href={`/listings?city=${encodeURIComponent(city)}`}
+                href={`/real-estate-for-sale?city=${encodeURIComponent(city)}`}
                 className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-[var(--color-gold)] text-white px-8 py-3.5 border border-[var(--color-gold)] hover:bg-transparent hover:border-[#1a1a1a] hover:text-[#1a1a1a] dark:hover:border-white dark:hover:text-white"
               >
                 View All Listings

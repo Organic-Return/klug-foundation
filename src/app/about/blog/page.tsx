@@ -171,7 +171,7 @@ export default async function BlogPage({
               </span>
             </div>
             <Link
-              href={`/${featuredPost.slug?.current}`}
+              href={`/about/blog/${featuredPost.slug?.current}`}
               className="group block"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -247,7 +247,7 @@ export default async function BlogPage({
               {gridPosts.map((post) => (
                 <Link
                   key={post._id}
-                  href={`/${post.slug?.current}`}
+                  href={`/about/blog/${post.slug?.current}`}
                   className="group bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300"
                 >
                   {/* Image */}
@@ -306,7 +306,7 @@ export default async function BlogPage({
               {/* Previous */}
               {currentPage > 1 && (
                 <Link
-                  href={`/blog?page=${currentPage - 1}`}
+                  href={`/about/blog?page=${currentPage - 1}`}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors duration-200"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,7 +339,7 @@ export default async function BlogPage({
                 return (
                   <Link
                     key={page}
-                    href={`/blog?page=${page}`}
+                    href={`/about/blog?page=${page}`}
                     className={`w-10 h-10 flex items-center justify-center text-sm transition-colors duration-200 ${
                       page === currentPage
                         ? 'bg-[var(--color-sothebys-blue)] text-white'
@@ -354,7 +354,7 @@ export default async function BlogPage({
               {/* Next */}
               {currentPage < totalPages && (
                 <Link
-                  href={`/blog?page=${currentPage + 1}`}
+                  href={`/about/blog?page=${currentPage + 1}`}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm text-[#4a4a4a] dark:text-gray-300 hover:text-[var(--color-gold)] transition-colors duration-200"
                 >
                   Next

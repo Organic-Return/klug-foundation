@@ -219,7 +219,7 @@ export default async function MarketLeadersPage() {
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           {/* Breadcrumb */}
           <div className="mb-6">
-            <Link href="/affiliated-partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
+            <Link href="/about/partners" className="text-white/50 hover:text-white/80 text-sm font-light transition-colors">
               Affiliated Partners
             </Link>
             <span className="text-white/30 mx-2">/</span>
@@ -367,7 +367,7 @@ export default async function MarketLeadersPage() {
               <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-8">
                 No market leaders yet. Check back soon!
               </p>
-              <Link href="/affiliated-partners" className="text-[var(--color-gold)] hover:underline">
+              <Link href="/about/partners" className="text-[var(--color-gold)] hover:underline">
                 View All Partners
               </Link>
             </div>

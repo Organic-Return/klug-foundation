@@ -275,7 +275,7 @@ export default function CommunityMarketStats({
             <div className="text-center mt-10">
               {isLuxury ? (
                 <Link
-                  href={`/listings?city=${encodeURIComponent(city)}`}
+                  href={`/real-estate-for-sale?city=${encodeURIComponent(city)}`}
                   className="group inline-flex items-center gap-4 font-luxury-body text-[var(--color-charcoal)] text-[13px] uppercase tracking-[0.25em] font-normal transition-all duration-500"
                 >
                   <span className="border-b border-[var(--color-charcoal)]/30 pb-1 group-hover:border-[var(--color-gold)] transition-colors duration-500">
@@ -287,7 +287,7 @@ export default function CommunityMarketStats({
                 </Link>
               ) : (
                 <Link
-                  href={`/listings?city=${encodeURIComponent(city)}`}
+                  href={`/real-estate-for-sale?city=${encodeURIComponent(city)}`}
                   className="klug-hero-btn sir-btn sir-btn--light inline-flex items-center gap-2.5 text-[11px] uppercase tracking-[0.2em] font-light transition-all duration-300 bg-transparent text-white px-8 py-4 border border-white hover:bg-white hover:text-[#0a275d]"
                 >
                   <span>View All {city} Listings</span>

@@ -366,7 +366,7 @@ export default function KlugListingContent({
                 </li>
                 <li className="text-white/30">/</li>
                 <li>
-                  <Link href="/listings" className="text-white/50 hover:text-white/80 transition-colors">Listings</Link>
+                  <Link href="/real-estate-for-sale" className="text-white/50 hover:text-white/80 transition-colors">Listings</Link>
                 </li>
                 <li className="text-white/30">/</li>
                 <li className="text-white/80">{listing.address?.split(',')[0] || listing.mls_number}</li>

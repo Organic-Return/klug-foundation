@@ -99,7 +99,7 @@ export default async function VideoDetailPage({ params }: Props) {
         <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
           <div className="mb-8 text-sm font-light">
             <Link
-              href="/videos"
+              href="/media/videos"
               className="inline-flex items-center gap-2 text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

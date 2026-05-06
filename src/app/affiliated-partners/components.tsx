@@ -183,9 +183,8 @@ export async function enrichPartnerWithAgentData(partner: Partner): Promise<Enri
 
 // Helper to get partner detail URL
 export function getPartnerUrl(partner: Partner | EnrichedPartner): string {
-  const typeSlug = partner.partnerType === 'ski_town' ? 'ski-town' : 'market-leaders';
   const nameSlug = partner.slug?.current || `${partner.firstName}-${partner.lastName}`.toLowerCase().replace(/\s+/g, '-');
-  return `/affiliated-partners/${typeSlug}/${nameSlug}`;
+  return `/real-estate-agent/${nameSlug}`;
 }
 
 // Partner Card Component

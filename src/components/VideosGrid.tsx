@@ -77,7 +77,7 @@ export default function VideosGrid({ videos }: VideosGridProps) {
 
             {/* Title + description — links to the detail page */}
             <Link
-              href={`/videos/${video.videoId}`}
+              href={`/media/videos/${video.videoId}`}
               className="group block p-4"
             >
               <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-[var(--color-gold)] transition-colors">

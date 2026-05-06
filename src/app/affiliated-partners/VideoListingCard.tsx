@@ -84,7 +84,7 @@ export default function VideoListingCard({
           </p>
           {listingId && (
             <Link
-              href={`/listings/${listingId}`}
+              href={`/real-estate-for-sale/${listingId}`}
               className="klug-nav-link text-[10px] uppercase tracking-[0.15em] text-[var(--color-sothebys-blue)] hover:text-[#c9ac77] transition-colors font-medium"
             >
               View Property →
@@ -130,7 +130,7 @@ export default function VideoListingCard({
               </div>
               {listingId && (
                 <Link
-                  href={`/listings/${listingId}`}
+                  href={`/real-estate-for-sale/${listingId}`}
                   className="klug-nav-link text-[11px] uppercase tracking-wider text-[#c9ac77] hover:text-white transition-colors"
                   onClick={() => setShowModal(false)}
                 >

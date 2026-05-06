@@ -174,7 +174,7 @@ export default function RCSothebysHero({
     if (priceMin) params.append('minPrice', priceMin);
     if (priceMax) params.append('maxPrice', priceMax);
     if (keyword.trim()) params.append('q', keyword.trim());
-    router.push(`/listings?${params.toString()}`);
+    router.push(`/real-estate-for-sale?${params.toString()}`);
   };
 
   const searchBar = (

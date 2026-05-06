@@ -6,9 +6,9 @@ const isRCSothebys = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custo
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // RC Sotheby's: redirect /team → /agents (preserve subpaths and query params)
-  if (isRCSothebys && pathname.startsWith('/team')) {
-    const newPath = pathname.replace(/^\/team/, '/agents');
+  // RC Sotheby's: redirect /about/our-team → /agents (preserve subpaths and query params)
+  if (isRCSothebys && pathname.startsWith('/about/our-team')) {
+    const newPath = pathname.replace(/^\/about\/our-team/, '/agents');
     const url = request.nextUrl.clone();
     url.pathname = newPath;
     return NextResponse.redirect(url, 301);
@@ -18,5 +18,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/team', '/team/:path*'],
+  matcher: ['/about/our-team', '/about/our-team/:path*'],
 };

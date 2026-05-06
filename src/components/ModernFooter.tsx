@@ -81,9 +81,9 @@ export default function ModernFooter({
 
   const defaultLinks: FooterLink[] = [
     { label: 'Home', url: '/' },
-    { label: 'Properties', url: '/listings' },
+    { label: 'Properties', url: '/real-estate-for-sale' },
     { label: 'About', url: '/about' },
-    { label: 'Market Reports', url: '/market-reports' },
+    { label: 'Market Reports', url: '/aspen-snowmass-market-reports' },
     { label: 'Communities', url: '/communities' },
     { label: 'Contact', url: '/contact' },
   ];

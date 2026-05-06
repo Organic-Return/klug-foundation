@@ -198,7 +198,7 @@ export default function PropertyTypeHub({
               </Link>
             ))}
             <Link
-              href="/listings"
+              href="/real-estate-for-sale"
               className="block p-6 bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-colors"
             >
               <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.25em] font-light mb-2">

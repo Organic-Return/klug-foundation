@@ -31,16 +31,16 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   const hasTransparentHero =
     pathname === '/exclusive-and-new' ||
     pathname === '/sold-by-klug-properties' ||
-    pathname === '/market-reports' ||
-    pathname === '/living-aspen' ||
-    pathname === '/blog' ||
+    pathname === '/aspen-snowmass-market-reports' ||
+    pathname === '/media/living-aspen-magazine' ||
+    pathname === '/about/blog' ||
     pathname === '/in-the-news' ||
-    pathname === '/why-klug-properties' ||
-    pathname === '/testimonials' ||
-    pathname === '/affiliated-partners' ||
-    pathname === '/affiliated-partners/ski-town' ||
+    pathname === '/about/why-klug-properties' ||
+    pathname === '/about/testimonials' ||
+    pathname === '/about/partners' ||
+    pathname === '/about/ski-town-partners' ||
     pathname === '/affiliated-partners/market-leaders' ||
-    pathname === '/team' ||
+    pathname === '/about/our-team' ||
     pathname === '/rentals' ||
     pathname === '/commercial' ||
     pathname === '/land' ||
@@ -53,7 +53,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname?.startsWith('/affiliated-partners/market-leaders/listings/') === true;
 
   // Check if we're on the listings page (no footer, fixed height layout)
-  const isListingsPage = pathname === '/listings';
+  const isListingsPage = pathname === '/real-estate-for-sale';
 
   // RC Sotheby's header is static (not fixed), so no forceBackground needed
   const isRCSothebys = template === 'rcsothebys-custom';
@@ -87,7 +87,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   }
 
   // Custom-one property pages handle their own padding
-  const isPropertyPage = pathname?.startsWith('/listings/');
+  const isPropertyPage = pathname?.startsWith('/real-estate-for-sale/');
   const isCustomOnePropertyPage = template === 'custom-one' && isPropertyPage;
 
   // Regular pages: include header/footer with padding (except homepage, community pages, custom-one property pages, and rcsothebys-custom)

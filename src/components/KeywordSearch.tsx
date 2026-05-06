@@ -39,7 +39,7 @@ export default function KeywordSearch({ defaultValue = '' }: KeywordSearchProps)
       // Reset to page 1 when search changes
       params.delete('page');
 
-      router.push(`/listings?${params.toString()}`);
+      router.push(`/real-estate-for-sale?${params.toString()}`);
     }, 300);
   };
 

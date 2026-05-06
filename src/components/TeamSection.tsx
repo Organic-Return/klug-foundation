@@ -46,7 +46,7 @@ export default function TeamSection({
   }
 
   const isImageLeft = imagePosition === 'left';
-  const teamMemberUrl = teamMember.slug?.current ? `/team/${teamMember.slug.current}` : null;
+  const teamMemberUrl = teamMember.slug?.current ? `/real-estate-agent/${teamMember.slug.current}` : null;
 
   return (
     <section className="w-full py-12 md:py-16 lg:py-20" itemScope itemType="https://schema.org/Person">

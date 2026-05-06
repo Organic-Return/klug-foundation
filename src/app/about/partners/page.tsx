@@ -3,9 +3,9 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
-import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "./components";
-import CTASection from "./CTASection";
-import PartnersMapSection from "./PartnersMapSection";
+import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "@/app/affiliated-partners/components";
+import CTASection from "@/app/affiliated-partners/CTASection";
+import PartnersMapSection from "@/app/affiliated-partners/PartnersMapSection";
 import { isRealogyConfigured, getRealogySupabase } from "@/lib/realogySupabase";
 import { formatPrice, toAddressSlug } from "@/lib/listings";
 
@@ -226,7 +226,7 @@ export default async function AffiliatedPartnersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
             {/* Ski Town Partners Card */}
             <Link
-              href="/affiliated-partners/ski-town"
+              href="/about/ski-town-partners"
               className="group relative overflow-hidden bg-[#f8f7f5] dark:bg-[#141414] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)]/50 transition-all duration-300"
             >
               {skiTownCardImageUrl && (

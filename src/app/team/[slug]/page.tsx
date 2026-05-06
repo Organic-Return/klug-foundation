@@ -83,8 +83,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
-  const isRCTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
-  const canonicalUrl = `${baseUrl}/${isRCTemplate ? 'agents' : 'team'}/${slug}`;
+  const canonicalUrl = `${baseUrl}/real-estate-agent/${slug}`;
   const description = member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at ${siteName}.`;
   const displayTitle = member.title?.replace(/\bResidential\b/g, 'Real Estate Broker');
 
@@ -291,7 +290,7 @@ export default async function TeamMemberPage({ params }: Props) {
               Home
             </Link>
             <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>
-            <Link href="/team" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
+            <Link href="/about/our-team" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Team
             </Link>
             <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>

@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
-  const canonicalUrl = `${baseUrl}/affiliated-partners/ski-town/${slug}`;
+  const canonicalUrl = `${baseUrl}/real-estate-agent/${slug}`;
 
   return {
     title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | ${siteName}`,
@@ -87,11 +87,11 @@ export default async function SkiTownPartnerPage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           {/* Breadcrumb */}
           <div className="mb-8 md:mb-12 text-sm font-light">
-            <Link href="/affiliated-partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
+            <Link href="/about/partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Affiliated Partners
             </Link>
             <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>
-            <Link href="/affiliated-partners/ski-town" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
+            <Link href="/about/ski-town-partners" className="text-[#6a6a6a] dark:text-gray-400 hover:text-[var(--color-gold)] transition-colors">
               Ski Town
             </Link>
             <span className="text-[#aaa] dark:text-gray-600 mx-2">/</span>
@@ -344,7 +344,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
       <section className="py-12 bg-[#f8f7f5] dark:bg-[#141414] border-t border-[#e8e6e3] dark:border-gray-800">
         <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16 text-center">
           <Link
-            href="/affiliated-partners/ski-town"
+            href="/about/ski-town-partners"
             className="inline-flex items-center gap-3 text-[#1a1a1a] dark:text-white hover:text-[var(--color-gold)] transition-colors text-sm font-light"
           >
             <svg className="w-4 h-4 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">

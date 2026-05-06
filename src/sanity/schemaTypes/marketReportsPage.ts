@@ -9,7 +9,7 @@ export const marketReportsPage = defineType({
       name: 'heroTitle',
       title: 'Hero Title',
       type: 'string',
-      description: 'Main h1 at the top of /market-reports',
+      description: 'Main h1 at the top of /aspen-snowmass-market-reports',
       initialValue: 'Market Reports',
     }),
     defineField({

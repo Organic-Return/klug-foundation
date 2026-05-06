@@ -234,8 +234,8 @@ export default function RCSothebysPropertyCarousel({
   if (!properties || properties.length === 0) return null;
 
   const listingsHref = resolvedCities.length === 1
-    ? `/listings?city=${encodeURIComponent(resolvedCities[0])}`
-    : '/listings';
+    ? `/real-estate-for-sale?city=${encodeURIComponent(resolvedCities[0])}`
+    : '/real-estate-for-sale';
 
   return (
     <section className="py-16 md:py-24 bg-[var(--rc-cream)] overflow-hidden">

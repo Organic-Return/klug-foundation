@@ -306,7 +306,7 @@ export default function CityStats({
             {/* View Market Reports Link */}
             <div className="text-center mt-10">
               <Link
-                href="/listings"
+                href="/real-estate-for-sale"
                 className="sir-btn sir-btn--gold-light"
               >
                 <span>View All Listings</span>

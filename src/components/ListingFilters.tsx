@@ -191,7 +191,7 @@ export default function ListingFilters({
       onFilterChange(params);
     } else {
       const queryString = params.toString();
-      router.push(queryString ? `/listings?${queryString}` : '/listings');
+      router.push(queryString ? `/real-estate-for-sale?${queryString}` : '/real-estate-for-sale');
     }
   }, [keyword, status, propertyType, propertySubType, selectedCitiesKey, selectedNeighborhood, minPrice, maxPrice, beds, baths, ourTeam, router, onFilterChange]);
 
@@ -283,7 +283,7 @@ export default function ListingFilters({
     if (onFilterChange) {
       onFilterChange(new URLSearchParams());
     } else {
-      router.push('/listings');
+      router.push('/real-estate-for-sale');
     }
   };
 

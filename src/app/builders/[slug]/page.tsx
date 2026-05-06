@@ -256,7 +256,7 @@ export default async function BuilderDetailPage({ params }: Props) {
                 const agentImageUrl = agent.image
                   ? urlFor(agent.image)?.width(300).height(375).url()
                   : null;
-                const agentHref = isRC ? `/agents/${agent.slug.current}` : `/team/${agent.slug.current}`;
+                const agentHref = `/real-estate-agent/${agent.slug.current}`;
 
                 return (
                   <Link

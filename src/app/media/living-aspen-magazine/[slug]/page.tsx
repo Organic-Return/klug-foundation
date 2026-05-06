@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
 
-const MARKET_REPORT_QUERY = `*[_type == "publication" && publicationType == "market-report" && slug.current == $slug][0]{
+const MAGAZINE_QUERY = `*[_type == "publication" && publicationType == "magazine" && slug.current == $slug][0]{
   ...,
   pdfFile {
     asset-> {
@@ -38,34 +38,34 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const report = await client.fetch<SanityDocument>(MARKET_REPORT_QUERY, { slug }, options);
+  const magazine = await client.fetch<SanityDocument>(MAGAZINE_QUERY, { slug }, options);
 
-  if (!report) {
+  if (!magazine) {
     return {
-      title: 'Report Not Found',
+      title: 'Issue Not Found',
     };
   }
 
-  const seoImageUrl = report.seo?.ogImage
-    ? urlFor(report.seo.ogImage)?.width(1200).height(630).url()
-    : report.headerImage
-    ? urlFor(report.headerImage)?.width(1200).height(630).url()
+  const seoImageUrl = magazine.seo?.ogImage
+    ? urlFor(magazine.seo.ogImage)?.width(1200).height(630).url()
+    : magazine.headerImage
+    ? urlFor(magazine.headerImage)?.width(1200).height(630).url()
     : null;
 
-  const metaTitle = report.seo?.metaTitle || report.title;
-  const metaDescription = report.seo?.metaDescription || report.excerpt || report.title;
+  const metaTitle = magazine.seo?.metaTitle || `${magazine.title} | Living Aspen`;
+  const metaDescription = magazine.seo?.metaDescription || magazine.excerpt || magazine.title;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const canonicalUrl = `${baseUrl}/market-reports/${slug}`;
+  const canonicalUrl = `${baseUrl}/living-aspen/${slug}`;
 
-  const robotsConfig = report.seo?.noIndex
+  const robotsConfig = magazine.seo?.noIndex
     ? { index: false, follow: false }
     : undefined;
 
   return {
     title: metaTitle,
     description: metaDescription,
-    keywords: report.seo?.keywords?.join(', '),
+    keywords: magazine.seo?.keywords?.join(', '),
     robots: robotsConfig,
     alternates: {
       canonical: canonicalUrl,
@@ -74,7 +74,7 @@ export async function generateMetadata({
       title: metaTitle,
       description: metaDescription,
       type: 'article',
-      publishedTime: report.publishedAt,
+      publishedTime: magazine.publishedAt,
       url: canonicalUrl,
       images: seoImageUrl
         ? [{ url: seoImageUrl, width: 1200, height: 630, alt: metaTitle }]
@@ -89,7 +89,7 @@ export async function generateMetadata({
   };
 }
 
-// PortableText components with elegant styling
+// PortableText components with elegant magazine styling
 const components: PortableTextComponents = {
   block: {
     normal: ({ children }: { children?: ReactNode }) => (
@@ -166,181 +166,110 @@ const components: PortableTextComponents = {
   },
 };
 
-export default async function MarketReportPage({
+export default async function MagazinePage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [report, defaultHeroUrl] = await Promise.all([
-    client.fetch<SanityDocument>(MARKET_REPORT_QUERY, { slug }, options),
+  const [magazine, defaultHeroUrl] = await Promise.all([
+    client.fetch<SanityDocument>(MAGAZINE_QUERY, { slug }, options),
     getDefaultHeroImageUrl(),
   ]);
 
-  if (!report) {
+  if (!magazine) {
     return (
       <main className="min-h-screen pt-32">
         <div className="max-w-3xl mx-auto px-6 md:px-12">
-          <Link href="/market-reports" className="inline-flex items-center gap-2 text-[var(--color-gold)] hover:gap-4 transition-all duration-300 mb-8">
+          <Link href="/media/living-aspen-magazine" className="inline-flex items-center gap-2 text-[var(--color-gold)] hover:gap-4 transition-all duration-300 mb-8">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
             </svg>
-            Back to Reports
+            Back to Living Aspen
           </Link>
-          <h1 className="font-serif text-[#1a1a1a] dark:text-white mb-4">Report Not Found</h1>
-          <p className="text-[#6a6a6a] dark:text-gray-400 font-light">The market report you&apos;re looking for doesn&apos;t exist.</p>
+          <h1 className="font-serif text-[#1a1a1a] dark:text-white mb-4">Issue Not Found</h1>
+          <p className="text-[#6a6a6a] dark:text-gray-400 font-light">The magazine issue you&apos;re looking for doesn&apos;t exist.</p>
         </div>
       </main>
     );
   }
 
-  const heroImageUrl = report.headerImage
-    ? urlFor(report.headerImage)?.width(1920).height(800).url()
+  const heroImageUrl = magazine.headerImage
+    ? urlFor(magazine.headerImage)?.width(1920).height(1200).url()
     : defaultHeroUrl;
 
-  const pdfUrl = report.pdfFile?.asset?.url;
+  const pdfUrl = magazine.pdfFile?.asset?.url;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const reportUrl = `${baseUrl}/market-reports/${slug}`;
-
-  // Article/Report schema with enhanced details
-  const articleSchema = {
+  // JSON-LD structured data
+  const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Report',
-    '@id': reportUrl,
-    headline: report.title,
-    name: report.title,
-    description: report.excerpt || report.title,
-    url: reportUrl,
+    '@type': 'Article',
+    name: magazine.title,
+    description: magazine.excerpt || magazine.title,
     image: heroImageUrl || undefined,
-    datePublished: report.publishedAt,
-    dateModified: report._updatedAt || report.publishedAt,
-    author: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}#organization`,
-      name: 'Real Estate',
-    },
+    datePublished: magazine.publishedAt,
     publisher: {
       '@type': 'Organization',
-      '@id': `${baseUrl}#organization`,
-      name: 'Real Estate',
+      name: 'Living Aspen',
     },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': reportUrl,
-    },
-    ...(pdfUrl && {
-      associatedMedia: {
-        '@type': 'MediaObject',
-        contentUrl: pdfUrl,
-        encodingFormat: 'application/pdf',
-      },
-    }),
-  };
-
-  // BreadcrumbList schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Market Reports',
-        item: `${baseUrl}/market-reports`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: report.title,
-        item: reportUrl,
-      },
-    ],
-  };
-
-  // WebPage schema
-  const webPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${reportUrl}#webpage`,
-    url: reportUrl,
-    name: report.title,
-    description: report.excerpt || report.title,
-    isPartOf: {
-      '@id': `${baseUrl}#website`,
-    },
-    primaryImageOfPage: heroImageUrl ? {
-      '@type': 'ImageObject',
-      url: heroImageUrl,
-    } : undefined,
-    datePublished: report.publishedAt,
-    dateModified: report._updatedAt || report.publishedAt,
   };
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <main className="min-h-screen">
-        {/* Hero Section */}
-        <section className="relative h-[45vh] md:h-[52vh] min-h-[375px]">
+        {/* Hero Section - Magazine Cover Style */}
+        <section className="relative min-h-[75vh] flex items-end">
           {heroImageUrl ? (
             <>
               <Image
                 src={heroImageUrl}
-                alt={report.title}
+                alt={magazine.title}
                 fill
                 className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
             </>
           ) : (
-            <div className="absolute inset-0 bg-[var(--color-sothebys-blue)]" />
+            <div className="absolute inset-0 bg-[var(--color-navy)]" />
           )}
 
           {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-end">
-            <div className="max-w-7xl mx-auto w-full px-6 md:px-12 lg:px-16 pb-16 md:pb-20">
+          <div className="relative w-full pb-16 md:pb-24 pt-32">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
               {/* Back Link */}
               <Link
-                href="/market-reports"
+                href="/media/living-aspen-magazine"
                 className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors duration-300 mb-8"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                 </svg>
-                All Market Reports
+                All Issues
               </Link>
+
+              {/* Magazine Label */}
+              <div className="mb-6">
+                <span className="text-[var(--color-gold)] text-sm font-medium tracking-[0.3em] uppercase">
+                  Living Aspen
+                </span>
+              </div>
 
               {/* Title */}
               <h1 className="font-serif text-white mb-6 max-w-4xl">
-                {report.title}
+                {magazine.title}
               </h1>
 
               {/* Meta */}
               <div className="flex flex-wrap items-center gap-6 text-white/70">
                 <span className="text-sm font-light">
-                  Published {new Date(report.publishedAt).toLocaleDateString('en-US', {
+                  {new Date(magazine.publishedAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
-                    day: 'numeric',
                   })}
                 </span>
                 {pdfUrl && (
@@ -365,18 +294,18 @@ export default async function MarketReportPage({
         <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
           <div className="max-w-4xl mx-auto px-6 md:px-12 lg:px-16">
             {/* Excerpt/Introduction */}
-            {report.excerpt && (
+            {magazine.excerpt && (
               <div className="mb-12 pb-12 border-b border-[#e8e6e3] dark:border-gray-800">
                 <p className="text-xl md:text-2xl text-[#4a4a4a] dark:text-gray-300 font-light leading-relaxed font-serif italic">
-                  {report.excerpt}
+                  {magazine.excerpt}
                 </p>
               </div>
             )}
 
             {/* Main Content */}
-            {Array.isArray(report.content) && report.content.length > 0 && (
+            {Array.isArray(magazine.content) && magazine.content.length > 0 && (
               <div className="prose prose-lg max-w-none">
-                <PortableText value={report.content} components={components} />
+                <PortableText value={magazine.content} components={components} />
               </div>
             )}
 
@@ -385,10 +314,10 @@ export default async function MarketReportPage({
               <div className="mt-16 pt-12 border-t border-[#e8e6e3] dark:border-gray-800">
                 <div className="bg-[#f8f7f5] dark:bg-[#141414] p-8 md:p-12 text-center">
                   <h3 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4">
-                    Download Full Report
+                    Download Full Issue
                   </h3>
                   <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-6">
-                    Get the complete market report in PDF format for offline reading.
+                    Get the complete magazine in PDF format for offline reading.
                   </p>
                   <a
                     href={pdfUrl}
@@ -407,7 +336,7 @@ export default async function MarketReportPage({
           </div>
         </section>
 
-        {/* Contact CTA */}
+        {/* Subscribe CTA */}
         <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
           {heroImageUrl && (
             <>
@@ -422,19 +351,20 @@ export default async function MarketReportPage({
               />
             </>
           )}
+
           <div className="relative max-w-4xl mx-auto px-6 md:px-12 text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
-              Questions About the Market?
+              Never Miss an Issue
             </h2>
             <p className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed">
-              Our team is ready to provide personalized insights and guidance for your real estate decisions.
+              Subscribe to Living Aspen and be the first to receive our latest stories and insights.
             </p>
 
             <Link
               href="/contact-us"
-              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-sothebys-blue)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
+              className="inline-flex items-center gap-3 px-10 py-4 bg-transparent border border-[var(--color-gold)] text-white hover:bg-[var(--color-gold)] hover:text-[var(--color-navy)] transition-all duration-300 text-sm uppercase tracking-[0.2em] font-light"
             >
-              Contact Us
+              Subscribe
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>

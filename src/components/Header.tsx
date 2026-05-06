@@ -136,7 +136,7 @@ export default function Header({
   const pathname = usePathname();
 
   // Check if on certain pages to force blue background
-  const isPartnersPage = pathname?.startsWith('/affiliated-partners');
+  const isPartnersPage = pathname?.startsWith('/about/partners');
 
   useEffect(() => {
     setIsMounted(true);
@@ -193,7 +193,7 @@ export default function Header({
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/listings?q=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/real-estate-for-sale?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery('');
     }
@@ -207,7 +207,7 @@ export default function Header({
     if (priceMin) params.append('minPrice', priceMin);
     if (priceMax) params.append('maxPrice', priceMax);
     if (keyword.trim()) params.append('q', keyword.trim());
-    router.push(`/listings?${params.toString()}`);
+    router.push(`/real-estate-for-sale?${params.toString()}`);
     setSearchOpen(false);
   };
 

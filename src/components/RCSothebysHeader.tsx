@@ -103,7 +103,7 @@ export default function RCSothebysHeader({
     if (!q) return;
     setSearchOpen(false);
     setSearchQuery('');
-    router.push(`/listings?q=${encodeURIComponent(q)}`);
+    router.push(`/real-estate-for-sale?q=${encodeURIComponent(q)}`);
   };
 
   // Auto-focus search input when opened
@@ -385,7 +385,7 @@ export default function RCSothebysHeader({
                 if (!q) return;
                 setMobileMenuOpen(false);
                 setSearchQuery('');
-                router.push(`/listings?q=${encodeURIComponent(q)}`);
+                router.push(`/real-estate-for-sale?q=${encodeURIComponent(q)}`);
               }}
               className="pt-3 mt-3 border-t border-[var(--rc-navy)]/10"
             >

@@ -29,9 +29,9 @@ export default function LuxuryHero({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/listings?keyword=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/real-estate-for-sale?keyword=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      router.push('/listings');
+      router.push('/real-estate-for-sale');
     }
   };
 

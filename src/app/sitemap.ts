@@ -129,7 +129,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${baseUrl}/listings`,
+      url: `${baseUrl}/real-estate-for-sale`,
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.9,
@@ -319,7 +319,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Blog/Post pages
   const postPages: MetadataRoute.Sitemap = (posts || []).map((post) => ({
-    url: `${baseUrl}/${post.slug}`,
+    url: `${baseUrl}/blog/${post.slug}`,
     lastModified: new Date(post._updatedAt || post.publishedAt),
     changeFrequency: 'monthly' as const,
     priority: 0.6,
@@ -328,9 +328,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Partner pages
   const partnerPages: MetadataRoute.Sitemap = (partners || []).map((partner) => {
     const slug = partner.slug || `${partner.firstName}-${partner.lastName}`.toLowerCase();
-    const pathPrefix = partner.partnerType === 'market_leader' ? 'market-leaders' : 'ski-town';
     return {
-      url: `${baseUrl}/affiliated-partners/${pathPrefix}/${slug}`,
+      url: `${baseUrl}/real-estate-agent/${slug}`,
       lastModified: new Date(partner._updatedAt),
       changeFrequency: 'monthly' as const,
       priority: 0.5,
@@ -339,7 +338,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Team member detail pages
   const teamMemberPages: MetadataRoute.Sitemap = (teamMembers || []).map((member) => ({
-    url: `${baseUrl}/team/${member.slug}`,
+    url: `${baseUrl}/real-estate-agent/${member.slug}`,
     lastModified: new Date(member._updatedAt),
     changeFrequency: 'monthly' as const,
     priority: 0.6,

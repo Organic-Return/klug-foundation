@@ -351,7 +351,7 @@ export default function ListingsContent({
         params.set('sort', newSort);
       }
       params.delete('page');
-      router.push(`/listings?${params.toString()}`);
+      router.push(`/real-estate-for-sale?${params.toString()}`);
     }
   };
 
