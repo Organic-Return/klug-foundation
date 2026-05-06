@@ -26,28 +26,6 @@ interface RCSothebysListingContentProps {
   googleMapsApiKey?: string;
 }
 
-// Left arrow — triangle points left, internal arrows point left
-function PrevArrow() {
-  return (
-    <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <path fillRule="evenodd" clipRule="evenodd" d="M86.0014 0.407227L2.98023e-06 86.4086L86.0014 172.41V0.407227Z" fill="#FFFFF8" fillOpacity="0.7"/>
-      <path d="M0 86.4086L-0.707107 85.7015L-1.41421 86.4086L-0.707107 87.1157L0 86.4086ZM86.0014 0.407227H87.0014V-2.00699L85.2943 -0.29988L86.0014 0.407227ZM86.0014 172.41L85.2943 173.117L87.0014 174.824V172.41H86.0014ZM0.707107 87.1157L86.7085 1.11433L85.2943 -0.29988L-0.707107 85.7015L0.707107 87.1157ZM86.7085 171.703L0.707107 85.7015L-0.707107 87.1157L85.2943 173.117L86.7085 171.703ZM87.0014 172.41V0.407227H85.0014V172.41H87.0014Z" fill="#C19B5F"/>
-      <path fillRule="evenodd" clipRule="evenodd" d="M57.7344 85.6572L65.7344 85.6572L65.7344 87.1572L57.7344 87.1572L23.6069 87.1572L36.7919 100.35L35.7344 101.407L21.4844 87.1572L15.6069 87.1572L28.7919 100.35L27.7344 101.407L12.7344 86.4072L27.7344 71.4072L28.7994 72.4647L15.6069 85.6572L21.4844 85.6572L35.7344 71.4072L36.7994 72.4647L23.6069 85.6572L57.7344 85.6572Z" fill="#002349"/>
-    </svg>
-  );
-}
-
-// Right arrow — triangle points right, internal arrows point right
-function NextArrow() {
-  return (
-    <svg viewBox="0 0 86 173" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-      <path fillRule="evenodd" clipRule="evenodd" d="M-0.00140381 172.407L86 86.4058L-0.00141885 0.404426L-0.00140381 172.407Z" fill="#FFFFF8" fillOpacity="0.7"/>
-      <path d="M86 86.4058L86.7071 87.1129L87.4142 86.4058L86.7071 85.6987L86 86.4058ZM-0.00140381 172.407L-1.0014 172.407L-1.0014 174.821L0.705704 173.114L-0.00140381 172.407ZM-0.00141885 0.404426L0.705689 -0.302681L-1.00142 -2.00979L-1.00142 0.404427L-0.00141885 0.404426ZM85.2929 85.6987L-0.708511 171.7L0.705704 173.114L86.7071 87.1129L85.2929 85.6987ZM-0.708526 1.11153L85.2929 87.1129L86.7071 85.6987L0.705689 -0.302681L-0.708526 1.11153ZM-1.00142 0.404427L-1.0014 172.407L0.998596 172.407L0.998581 0.404426L-1.00142 0.404427Z" fill="#C19B5F"/>
-      <path fillRule="evenodd" clipRule="evenodd" d="M28.2656 87.1572H20.2656L20.2656 85.6572H28.2656L62.3931 85.6572L49.2081 72.4647L50.2656 71.4072L64.5156 85.6572H70.3931L57.2081 72.4647L58.2656 71.4072L73.2656 86.4072L58.2656 101.407L57.2006 100.35L70.3931 87.1572H64.5156L50.2656 101.407L49.2006 100.35L62.3931 87.1572L28.2656 87.1572Z" fill="#002349"/>
-    </svg>
-  );
-}
-
 function formatPrice(price: number | null): string {
   if (!price) return 'Price Upon Request';
   return new Intl.NumberFormat('en-US', {
@@ -257,21 +235,21 @@ export default function KlugListingContent({
                 <>
                   <button
                     onClick={handlePrevPhoto}
-                    className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20"
+                    className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-20"
                     aria-label="Previous photo"
                   >
-                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
-                      <PrevArrow />
-                    </div>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                    </svg>
                   </button>
                   <button
                     onClick={handleNextPhoto}
-                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20"
+                    className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-20"
                     aria-label="Next photo"
                   >
-                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
-                      <NextArrow />
-                    </div>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
 
                   {/* Photo counter + fullscreen */}
@@ -460,21 +438,21 @@ export default function KlugListingContent({
                       <>
                         <button
                           onClick={handlePrevPhoto}
-                          className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-20"
+                          className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-20"
                           aria-label="Previous photo"
                         >
-                          <div className="w-[30px] h-[60px] md:w-[36px] md:h-[72px]">
-                            <PrevArrow />
-                          </div>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                          </svg>
                         </button>
                         <button
                           onClick={handleNextPhoto}
-                          className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-20"
+                          className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-20"
                           aria-label="Next photo"
                         >
-                          <div className="w-[30px] h-[60px] md:w-[36px] md:h-[72px]">
-                            <NextArrow />
-                          </div>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                          </svg>
                         </button>
 
                         <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
@@ -1307,12 +1285,12 @@ export default function KlugListingContent({
             {/* Prev */}
             <button
               onClick={handlePrevPhoto}
-              className="absolute left-2 md:left-4 z-10 text-white/50 hover:text-white transition-colors"
+              className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-10"
               aria-label="Previous photo"
             >
-              <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px]">
-                <PrevArrow />
-              </div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+              </svg>
             </button>
 
             <div className="relative w-full h-full max-w-6xl mx-auto">
@@ -1341,12 +1319,12 @@ export default function KlugListingContent({
             {/* Next */}
             <button
               onClick={handleNextPhoto}
-              className="absolute right-2 md:right-4 z-10 text-white/50 hover:text-white transition-colors"
+              className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-10"
               aria-label="Next photo"
             >
-              <div className="w-[36px] h-[72px] md:w-[48px] md:h-[96px]">
-                <NextArrow />
-              </div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
 
@@ -1485,21 +1463,21 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
                 <>
                   <button
                     onClick={() => setGalleryIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1))}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 hover:scale-105 transition-transform duration-200"
+                    className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-10"
                     aria-label="Previous photo"
                   >
-                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
-                      <PrevArrow />
-                    </div>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
+                    </svg>
                   </button>
                   <button
                     onClick={() => setGalleryIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1))}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 hover:scale-105 transition-transform duration-200"
+                    className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center bg-black/30 backdrop-blur-sm border border-white/20 text-white hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300 z-10"
                     aria-label="Next photo"
                   >
-                    <div className="w-[30px] h-[60px] md:w-[43px] md:h-[86px] lg:w-[52px] lg:h-[104px]">
-                      <NextArrow />
-                    </div>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                    </svg>
                   </button>
                   <div className="absolute top-4 right-4 z-10 bg-black/50 text-white text-xs px-3 py-1.5 tracking-wider">
                     {galleryIndex + 1} / {photos.length}
