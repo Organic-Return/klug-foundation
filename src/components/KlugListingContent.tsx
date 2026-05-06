@@ -1245,13 +1245,16 @@ export default function KlugListingContent({
             </span>
           </div>
 
-          {/* Listing attribution — agent + office when available */}
+          {/* Listing attribution — agent + office, with optional contact phone */}
           {!agent && (listing.list_agent_full_name || listing.list_office_name) && (
             <p className="text-[var(--rc-brown)] text-xs mb-3">
               {listing.list_agent_full_name && listing.list_office_name
                 ? <>Listed by {listing.list_agent_full_name} with {listing.list_office_name}</>
                 : <>Listed with {listing.list_agent_full_name || listing.list_office_name}</>
               }
+              {listing.list_office_phone && (
+                <>, Listing Contact: {listing.list_office_phone}</>
+              )}
             </p>
           )}
 

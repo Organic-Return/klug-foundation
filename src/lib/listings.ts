@@ -133,6 +133,7 @@ export interface MLSProperty {
   buyer_agent_mls_id: string | null;
   co_buyer_agent_mls_id: string | null;
   list_office_name: string | null;
+  list_office_phone: string | null;
   open_house_date: string | null;
   open_house_start_time: string | null;
   open_house_end_time: string | null;
@@ -404,6 +405,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     buyer_agent_mls_id: row.buyer_agent_mls_id,
     co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
     list_office_name: row.list_office_name || null,
+    list_office_phone: null,
     open_house_date: row.open_house_date,
     open_house_start_time: row.open_house_start_time,
     open_house_end_time: row.open_house_end_time,
@@ -1494,6 +1496,24 @@ export async function getMlsNumbersWithSIRMedia(mlsNumbers: string[]): Promise<{
 }
 
 // Transform a Realogy/SIR listing to the MLSProperty format
+// Pretty-print a phone number from the Realogy `agents[0].office.phoneNumber`
+// field. Inputs vary: "+19709258810", "+919810823600", "9709258810",
+// "(970) 925-8810". US numbers normalize to "(NNN) NNN-NNNN"; non-US fall
+// back to the raw string with whitespace trimmed.
+function formatRealogyPhone(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = String(raw).trim();
+  if (!trimmed) return null;
+  const digits = trimmed.replace(/\D/g, '');
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  }
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+  }
+  return trimmed;
+}
+
 function transformRealogyListing(row: any): MLSProperty {
   const sir = extractSIRMedia(row);
 
@@ -1559,7 +1579,8 @@ function transformRealogyListing(row: any): MLSProperty {
     co_list_agent_mls_id: null,
     buyer_agent_mls_id: null,
     co_buyer_agent_mls_id: null,
-    list_office_name: null,
+    list_office_name: row.primary_office_name || null,
+    list_office_phone: formatRealogyPhone(row.agents?.[0]?.office?.phoneNumber) || null,
     open_house_date: null,
     open_house_start_time: null,
     open_house_end_time: null,
