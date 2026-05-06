@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -21,6 +21,7 @@ interface ListingsContentProps {
   listingsPerRow?: 2 | 3;
   onSortChange?: (sort: SortOption) => void;
   onLoadMore?: () => void;
+  isLoadingMore?: boolean;
   googleMapsApiKey?: string;
   mlsWithVideos?: string[];
   mlsWithMatterport?: string[];
@@ -313,6 +314,7 @@ export default function ListingsContent({
   listingsPerRow,
   onSortChange,
   onLoadMore,
+  isLoadingMore = false,
   googleMapsApiKey,
   mlsWithVideos = [],
   mlsWithMatterport = [],
@@ -321,6 +323,37 @@ export default function ListingsContent({
   const router = useRouter();
   const [viewMode, setViewMode] = useState<'map' | 'list'>('list');
   const [areaFilteredListings, setAreaFilteredListings] = useState<MLSProperty[] | null>(null);
+
+  // Infinite-scroll sentinel: one ref per render branch (grid vs split-map).
+  // The observer's root differs by branch — grid = viewport, map = the
+  // inner scrollable container — so we can't share a single ref.
+  const gridSentinelRef = useRef<HTMLDivElement | null>(null);
+  const mapSentinelRef = useRef<HTMLDivElement | null>(null);
+  const lastTriggeredPage = useRef(0);
+
+  const canLoadMore = areaFilteredListings === null && currentPage < totalPages && !!onLoadMore;
+
+  useEffect(() => {
+    if (!canLoadMore || isLoadingMore) return;
+    const sentinel = viewMode === 'map' ? mapSentinelRef.current : gridSentinelRef.current;
+    if (!sentinel) return;
+
+    const root = viewMode === 'map'
+      ? (typeof document !== 'undefined' ? document.getElementById('listings-scroll-container') : null)
+      : null;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return;
+        if (lastTriggeredPage.current === currentPage) return;
+        lastTriggeredPage.current = currentPage;
+        onLoadMore?.();
+      },
+      { root, rootMargin: '600px' }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [canLoadMore, isLoadingMore, currentPage, viewMode, onLoadMore]);
 
   // Default to map view on desktop (lg breakpoint = 1024px)
   useEffect(() => {
@@ -479,14 +512,16 @@ export default function ListingsContent({
                     ))}
                   </div>
 
-                  {areaFilteredListings === null && currentPage < totalPages && onLoadMore && (
-                    <div className="flex justify-center mt-10">
-                      <button
-                        onClick={onLoadMore}
-                        className="px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] border border-[var(--rc-navy,#002349)] text-[var(--rc-navy,#002349)] hover:bg-[var(--rc-navy,#002349)] hover:text-white transition-colors duration-200"
-                      >
-                        Load More
-                      </button>
+                  {canLoadMore && (
+                    <div ref={gridSentinelRef} aria-hidden className="h-1 w-full" />
+                  )}
+                  {canLoadMore && isLoadingMore && (
+                    <div className="flex justify-center items-center gap-2 mt-10 text-[var(--rc-navy,#002349)] text-xs uppercase tracking-[0.15em]">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Loading more
                     </div>
                   )}
                 </>
@@ -524,14 +559,16 @@ export default function ListingsContent({
                     ))}
                   </div>
 
-                  {areaFilteredListings === null && currentPage < totalPages && onLoadMore && (
-                    <div className="flex justify-center mt-10">
-                      <button
-                        onClick={onLoadMore}
-                        className="px-8 py-3 text-xs font-bold uppercase tracking-[0.15em] border border-[var(--rc-navy,#002349)] text-[var(--rc-navy,#002349)] hover:bg-[var(--rc-navy,#002349)] hover:text-white transition-colors duration-200"
-                      >
-                        Load More
-                      </button>
+                  {canLoadMore && (
+                    <div ref={mapSentinelRef} aria-hidden className="h-1 w-full" />
+                  )}
+                  {canLoadMore && isLoadingMore && (
+                    <div className="flex justify-center items-center gap-2 mt-10 text-[var(--rc-navy,#002349)] text-xs uppercase tracking-[0.15em]">
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Loading more
                     </div>
                   )}
                 </>

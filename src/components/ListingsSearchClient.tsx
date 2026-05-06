@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useTransition } from 'react';
+import { useState, useCallback } from 'react';
 import ListingFilters from './ListingFilters';
 import ListingsContent from './ListingsContent';
 import type { MLSProperty, SortOption } from '@/lib/listings';
@@ -80,6 +80,7 @@ export default function ListingsSearchClient({
   const [currentSort, setCurrentSort] = useState(initialSort);
   const [searchParams, setSearchParams] = useState(initialSearchParams);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [locationFilter, setLocationFilter] = useState(hasLocationFilter);
   const [mlsWithVideos, setMlsWithVideos] = useState<string[]>(initialMlsWithVideos || []);
   const [mlsWithMatterport, setMlsWithMatterport] = useState<string[]>(initialMlsWithMatterport || []);
@@ -123,11 +124,12 @@ export default function ListingsSearchClient({
   }, [fetchListings]);
 
   const handleLoadMore = useCallback(async () => {
+    if (loadingMore) return;
     const nextPage = currentPage + 1;
     const params = new URLSearchParams(searchParams);
     params.set('page', nextPage.toString());
 
-    setLoading(true);
+    setLoadingMore(true);
     try {
       const res = await fetch(`/api/listings/search?${params.toString()}`);
       if (!res.ok) throw new Error('Search failed');
@@ -143,9 +145,9 @@ export default function ListingsSearchClient({
     } catch (err) {
       console.error('Error loading more listings:', err);
     } finally {
-      setLoading(false);
+      setLoadingMore(false);
     }
-  }, [currentPage, searchParams]);
+  }, [currentPage, searchParams, loadingMore]);
 
   const handleSortChange = useCallback((newSort: SortOption) => {
     const params = new URLSearchParams(searchParams);
@@ -211,6 +213,7 @@ export default function ListingsSearchClient({
           listingsPerRow={listingsPerRow}
           onSortChange={handleSortChange}
           onLoadMore={handleLoadMore}
+          isLoadingMore={loadingMore}
           googleMapsApiKey={googleMapsApiKey}
           mlsWithVideos={mlsWithVideos}
           mlsWithMatterport={mlsWithMatterport}
