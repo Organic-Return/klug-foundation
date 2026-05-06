@@ -389,6 +389,7 @@ export default function KlugListingContent({
                     {formatPrice(listing.list_price)}
                   </p>
                 </div>
+                <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
               </div>
             </div>
           </div>
