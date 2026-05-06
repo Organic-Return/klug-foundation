@@ -65,34 +65,62 @@ async function getMarketLeaderListingSlugs(): Promise<string[]> {
   return Array.from(slugs);
 }
 
-async function getYouTubeVideoIds(): Promise<Array<{ videoId: string; publishedAt?: string }>> {
+async function getYouTubeVideoIds(baseUrl: string): Promise<Array<{ videoId: string; publishedAt?: string }>> {
+  const seen = new Map<string, { videoId: string; publishedAt?: string }>();
+
+  // Source 1: YouTube uploads playlist (canonical, fresh data with
+  // publishedAt timestamps, but capped at whatever the API exposes
+  // right now — sometimes a subset of the channel's history).
   const { apiKey, channelId } = await getYouTubeCredentials();
-  if (!apiKey || !channelId || !channelId.startsWith('UC')) return [];
-  const uploadsPlaylistId = 'UU' + channelId.slice(2);
-  const out: Array<{ videoId: string; publishedAt?: string }> = [];
-  let pageToken: string | undefined;
-  for (let page = 0; page < 10; page++) {
-    const params = new URLSearchParams({
-      key: apiKey,
-      playlistId: uploadsPlaylistId,
-      part: 'snippet',
-      maxResults: '50',
-    });
-    if (pageToken) params.set('pageToken', pageToken);
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) break;
-    const data = (await res.json()) as { items?: YouTubeUploadItem[]; nextPageToken?: string };
-    for (const item of data.items || []) {
-      const vid = item.snippet?.resourceId?.videoId;
-      if (vid) out.push({ videoId: vid, publishedAt: item.snippet?.publishedAt });
+  if (apiKey && channelId && channelId.startsWith('UC')) {
+    const uploadsPlaylistId = 'UU' + channelId.slice(2);
+    let pageToken: string | undefined;
+    for (let page = 0; page < 10; page++) {
+      const params = new URLSearchParams({
+        key: apiKey,
+        playlistId: uploadsPlaylistId,
+        part: 'snippet',
+        maxResults: '50',
+      });
+      if (pageToken) params.set('pageToken', pageToken);
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/playlistItems?${params}`,
+        { next: { revalidate: 3600 } }
+      );
+      if (!res.ok) break;
+      const data = (await res.json()) as { items?: YouTubeUploadItem[]; nextPageToken?: string };
+      for (const item of data.items || []) {
+        const vid = item.snippet?.resourceId?.videoId;
+        if (vid && !seen.has(vid)) {
+          seen.set(vid, { videoId: vid, publishedAt: item.snippet?.publishedAt });
+        }
+      }
+      if (!data.nextPageToken) break;
+      pageToken = data.nextPageToken;
     }
-    if (!data.nextPageToken) break;
-    pageToken = data.nextPageToken;
   }
-  return out;
+
+  // Source 2: scrape the deployed /videos page for any IDs the
+  // page is actually rendering. The /videos page caches API results
+  // in Vercel's persistent fetch cache, so its current view of the
+  // channel can be richer than a fresh API call. Whatever it shows,
+  // the sitemap should mirror — every visible card needs a sitemap
+  // entry. Falls through silently if the fetch fails.
+  try {
+    const res = await fetch(`${baseUrl}/videos`, { next: { revalidate: 3600 } });
+    if (res.ok) {
+      const html = await res.text();
+      const matches = html.matchAll(/href="\/videos\/([a-zA-Z0-9_-]{6,})"/g);
+      for (const m of matches) {
+        const vid = m[1];
+        if (!seen.has(vid)) seen.set(vid, { videoId: vid });
+      }
+    }
+  } catch {
+    // ignore — API source above still fills the map
+  }
+
+  return Array.from(seen.values());
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -229,7 +257,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "sellPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "aboutPage"][0]{ _updatedAt }`),
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`),
-    getYouTubeVideoIds().catch(() => [] as Array<{ videoId: string; publishedAt?: string }>),
+    getYouTubeVideoIds(baseUrl).catch(() => [] as Array<{ videoId: string; publishedAt?: string }>),
     getMarketLeaderListingSlugs().catch(() => [] as string[]),
   ]);
 
