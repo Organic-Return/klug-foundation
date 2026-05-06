@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import {
   getListingBySlug,
   getListingHref,
+  buildListingSlug,
   formatPrice,
   type MLSProperty,
 } from '@/lib/listings';
@@ -71,6 +72,14 @@ async function getListingAgents(listing: MLSProperty): Promise<ListingAgent[]> {
 
 interface ListingPageProps {
   params: Promise<{ id: string }>;
+  /**
+   * When true (default), if the visitor's URL slug doesn't match the
+   * canonical address-based slug, 301-redirect to the canonical one.
+   * The /affiliated-partners/.../listings/[slug] wrapper re-uses this
+   * page component but should NOT redirect away from its namespaced
+   * URL — partner listing pages live at their own paths.
+   */
+  canonicalize?: boolean;
 }
 
 // Helper to get the base URL (sync version for non-async contexts)
@@ -301,7 +310,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   };
 }
 
-export default async function ListingPage({ params }: ListingPageProps) {
+export default async function ListingPage({ params, canonicalize = true }: ListingPageProps) {
   const { id } = await params;
 
   const [listing, settings, googleMapsApiKey] = await Promise.all([
@@ -312,6 +321,19 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
   if (!listing) {
     notFound();
+  }
+
+  // Canonicalize the URL: if the visitor arrived at a legacy
+  // bare-MLS-number / id slug, 301 them to the address-based slug.
+  // Keeps Google's link equity consolidated on the keyword-rich URL
+  // and avoids duplicate-content treatment. Disabled when invoked
+  // via the partner-listing wrapper, whose URLs live at their own
+  // namespace (/affiliated-partners/.../listings/<slug>).
+  if (canonicalize) {
+    const canonicalSlug = buildListingSlug(listing);
+    if (canonicalSlug && id !== canonicalSlug) {
+      redirect(`/listings/${canonicalSlug}`);
+    }
   }
 
 

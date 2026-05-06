@@ -142,13 +142,74 @@ export interface MLSProperty {
 }
 
 // Build listing URL — uses MLS number when available, falls back to database ID
-export function getListingHref(listing: { id: string; mls_number?: string }): string {
-  return `/listings/${listing.mls_number || listing.id}`;
+/**
+ * Build an SEO-friendly listing slug from address components plus the
+ * MLS number. Format:
+ *   address-city-state-zip-MLSNUMBER
+ * e.g. "525-s-original-street-unit-d-aspen-co-81611-167338"
+ *
+ * The MLS number is always the trailing segment so the resolver can
+ * extract it back out reliably regardless of how messy the address is.
+ * Falls back to bare MLS number / database id when address fields are
+ * missing — never produces an empty slug.
+ */
+export function buildListingSlug(listing: {
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+  mls_number?: string | null;
+  id?: string | null;
+}): string {
+  const id = listing.mls_number || listing.id || '';
+  const parts: string[] = [];
+  if (listing.address) parts.push(toAddressSlug(listing.address));
+  if (listing.city) parts.push(toAddressSlug(listing.city));
+  if (listing.state) parts.push(listing.state);
+  if (listing.zip_code) parts.push(String(listing.zip_code));
+  if (id) parts.push(String(id));
+  return parts
+    .filter(Boolean)
+    .join('-')
+    .toLowerCase()
+    // Collapse any double hyphens introduced by empty trim results
+    .replace(/-+/g, '-');
 }
 
-// Resolve listing by slug — tries MLS number first, then database ID, then Realogy listing, then address slug
+export function getListingHref(listing: {
+  id: string;
+  mls_number?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip_code?: string | null;
+}): string {
+  return `/listings/${buildListingSlug(listing)}`;
+}
+
+// Resolve listing by slug — handles both the new address-based format
+// (address-city-state-zip-MLSNUMBER) and any legacy URL still
+// floating around (bare MLS number, database id, Realogy slug,
+// Realogy address slug).
 export async function getListingBySlug(slug: string): Promise<MLSProperty | null> {
-  return await getListingByMlsNumber(slug) || await getListingById(slug) || await getRealogyListingBySlug(slug) || await getRealogyListingByAddressSlug(slug);
+  // 1. Try the slug verbatim as an MLS number / database id. Handles
+  //    legacy /listings/167338 URLs and the rare case of a slug that's
+  //    just an id with no address prefix.
+  const direct = await getListingByMlsNumber(slug) || await getListingById(slug);
+  if (direct) return direct;
+
+  // 2. New address-based format: extract the trailing alphanumeric
+  //    segment as the MLS number / id and look it up.
+  const trailing = slug.match(/-([A-Za-z0-9]+)$/);
+  if (trailing) {
+    const trailingId = trailing[1];
+    const byTrailing = await getListingByMlsNumber(trailingId) || await getListingById(trailingId);
+    if (byTrailing) return byTrailing;
+  }
+
+  // 3. Fall through to Realogy resolvers (entity_id slugs +
+  //    address-only slugs used by the partner-listing template).
+  return await getRealogyListingBySlug(slug) || await getRealogyListingByAddressSlug(slug);
 }
 
 // Deduplicate listings by mls_number, preferring rows with more complete data
