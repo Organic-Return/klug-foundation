@@ -1144,36 +1144,6 @@ export default function KlugListingContent({
         </section>
       )}
 
-      {/* MLS Disclaimer + PACMLS Attribution */}
-      <div className="bg-[var(--rc-cream)] py-8">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-8">
-          {/* PACMLS Source */}
-          <div className="flex items-center gap-3 mb-3">
-            <Image
-              src="/pacmls-logo.svg"
-              alt="PACMLS - Pacific Regional Multiple Listing Service"
-              width={100}
-              height={43}
-              className="flex-shrink-0"
-            />
-            <span className="text-[var(--rc-brown)] text-xs font-medium uppercase tracking-[0.1em]">
-              Source: PACMLS
-            </span>
-          </div>
-
-          {/* Listing Courtesy — non-exclusive only */}
-          {!agent && listing.list_office_name && (
-            <p className="text-[var(--rc-brown)] text-xs mb-3">
-              Listing Courtesy of {listing.list_office_name}
-            </p>
-          )}
-
-          <p className="text-[var(--rc-brown)]/40 text-xs leading-relaxed">
-            MLS# {listing.mls_number} — Listing information is deemed reliable but not guaranteed. All measurements and square footage are approximate.
-          </p>
-        </div>
-      </div>
-
       {/* Bottom Contact Form */}
       <section className="bg-[var(--rc-navy)] py-16 md:py-24">
         <div className="max-w-3xl mx-auto px-6 md:px-8">
@@ -1257,6 +1227,39 @@ export default function KlugListingContent({
           )}
         </div>
       </section>
+
+      {/* MLS Disclaimer + PACMLS Attribution — sits below the inquire form */}
+      <div className="bg-[var(--rc-cream)] py-8">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-8">
+          {/* PACMLS Source */}
+          <div className="flex items-center gap-3 mb-3">
+            <Image
+              src="/pacmls-logo.svg"
+              alt="PACMLS - Pacific Regional Multiple Listing Service"
+              width={100}
+              height={43}
+              className="flex-shrink-0"
+            />
+            <span className="text-[var(--rc-brown)] text-xs font-medium uppercase tracking-[0.1em]">
+              Source: PACMLS
+            </span>
+          </div>
+
+          {/* Listing attribution — agent + office when available */}
+          {!agent && (listing.list_agent_full_name || listing.list_office_name) && (
+            <p className="text-[var(--rc-brown)] text-xs mb-3">
+              {listing.list_agent_full_name && listing.list_office_name
+                ? <>Listed by {listing.list_agent_full_name} with {listing.list_office_name}</>
+                : <>Listed with {listing.list_agent_full_name || listing.list_office_name}</>
+              }
+            </p>
+          )}
+
+          <p className="text-[var(--rc-brown)]/40 text-xs leading-relaxed">
+            MLS# {listing.mls_number} — Listing information is deemed reliable but not guaranteed. All measurements and square footage are approximate.
+          </p>
+        </div>
+      </div>
 
       {/* Fullscreen Lightbox */}
       {lightboxOpen && photos.length > 0 && (
