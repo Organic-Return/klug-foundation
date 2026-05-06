@@ -1228,23 +1228,9 @@ export default function KlugListingContent({
         </div>
       </section>
 
-      {/* MLS Disclaimer + PACMLS Attribution — sits below the inquire form */}
+      {/* Listing attribution + MLS disclaimer — sits below the inquire form */}
       <div className="bg-[var(--rc-cream)] py-8">
         <div className="max-w-[1400px] mx-auto px-6 md:px-8">
-          {/* PACMLS Source */}
-          <div className="flex items-center gap-3 mb-3">
-            <Image
-              src="/pacmls-logo.svg"
-              alt="PACMLS - Pacific Regional Multiple Listing Service"
-              width={100}
-              height={43}
-              className="flex-shrink-0"
-            />
-            <span className="text-[var(--rc-brown)] text-xs font-medium uppercase tracking-[0.1em]">
-              Source: PACMLS
-            </span>
-          </div>
-
           {/* Listing attribution — agent + office, with optional contact phone */}
           {!agent && (listing.list_agent_full_name || listing.list_office_name) && (
             <p className="text-[var(--rc-brown)] text-xs mb-3">
