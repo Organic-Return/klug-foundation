@@ -16,15 +16,14 @@ export const revalidate = 3600;
 
 // Cap any single slow data source so one outage / runaway query
 // can't push total sitemap generation over the runtime timeout.
-const PER_SOURCE_TIMEOUT_MS = 25_000;
-function withTimeout<T>(p: Promise<T>, fallback: T, label: string): Promise<T> {
+function withTimeout<T>(p: Promise<T>, fallback: T, label: string, timeoutMs = 45_000): Promise<T> {
   return Promise.race<T>([
     p,
     new Promise<T>((resolve) =>
       setTimeout(() => {
-        console.warn(`[sitemap] ${label} timed out after ${PER_SOURCE_TIMEOUT_MS}ms`);
+        console.warn(`[sitemap] ${label} timed out after ${timeoutMs}ms`);
         resolve(fallback);
-      }, PER_SOURCE_TIMEOUT_MS)
+      }, timeoutMs)
     ),
   ]);
 }
@@ -419,7 +418,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
     return out;
   };
-  const listingPages = await withTimeout(fetchListingPages(), [] as MetadataRoute.Sitemap, 'mls-listings');
+  // MLS pagination is the heaviest source — give it a longer budget
+  // (90s) since this is the bulk of the sitemap's value.
+  const listingPages = await withTimeout(fetchListingPages(), [] as MetadataRoute.Sitemap, 'mls-listings', 90_000);
 
   // Fetch off-market listings
   let offMarketPages: MetadataRoute.Sitemap = [];
