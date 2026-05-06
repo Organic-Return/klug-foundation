@@ -894,6 +894,43 @@ export default async function CommunityPage({
             </div>
           )}
 
+          {/* Property Type cross-links — internal-link block that
+              passes equity from each community page to the rental,
+              commercial, and land hubs (and back). */}
+          {community.marketInsightsCity && (() => {
+            const slug = community.marketInsightsCity.toLowerCase().replace(/\s+/g, '-');
+            const cells = [
+              { href: `/rentals/${slug}`, eyebrow: 'For Rent', label: `Rentals in ${community.title}` },
+              { href: `/commercial/${slug}`, eyebrow: 'Commercial', label: `Commercial in ${community.title}` },
+              { href: `/land/${slug}`, eyebrow: 'Land', label: `Land for sale in ${community.title}` },
+            ];
+            return (
+              <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414]">
+                <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+                  <h2 className="text-xl md:text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-6">
+                    Browse by property type
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {cells.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        className="block p-6 bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-colors"
+                      >
+                        <p className="text-[var(--color-gold)] text-[11px] uppercase tracking-[0.25em] font-light mb-2">
+                          {c.eyebrow}
+                        </p>
+                        <p className="text-base font-serif text-[#1a1a1a] dark:text-white">
+                          {c.label}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            );
+          })()}
+
           {/* Schools & Attractions Combined Section */}
           {((community.nearbySchools && community.nearbySchools.length > 0) ||
             (community.nearbyAttractions && community.nearbyAttractions.length > 0)) && (

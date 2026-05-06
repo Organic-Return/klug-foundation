@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { client } from '@/sanity/client';
-import { getListings, getListingHref, toAddressSlug } from '@/lib/listings';
+import { getListings, getListingHref, toAddressSlug, getDistinctCities } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
 import { getSettings, getYouTubeCredentials } from '@/lib/settings';
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
@@ -243,10 +243,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly',
       priority: 0.2,
     },
+    // Property-type hubs (rentals, commercial, land). City-filtered
+    // sub-hubs are added below from the live cities list.
+    {
+      url: `${baseUrl}/rentals`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/commercial`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/land`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
   ];
 
   // Fetch dynamic content from Sanity + YouTube
-  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos, marketLeaderListingSlugs] = await Promise.all([
+  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos, marketLeaderListingSlugs, distinctCities] = await Promise.all([
     client.fetch<Array<{ slug: string; _updatedAt: string }>>(COMMUNITIES_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MARKET_REPORTS_QUERY),
     client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MAGAZINES_QUERY),
@@ -259,6 +279,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`),
     getYouTubeVideoIds(baseUrl).catch(() => [] as Array<{ videoId: string; publishedAt?: string }>),
     getMarketLeaderListingSlugs().catch(() => [] as string[]),
+    getDistinctCities().catch(() => [] as string[]),
   ]);
 
   // Conditionally add singleton content pages (only if they exist in this project's Sanity dataset)
@@ -339,6 +360,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  // Property-type city sub-hubs — /rentals/<city>, /commercial/<city>,
+  // /land/<city>. One entry per (type × city) combination so the
+  // search graph maps every (Aspen rentals, Snowmass commercial, etc).
+  const propertyTypeCityPages: MetadataRoute.Sitemap = [];
+  const citySlug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
+  for (const c of distinctCities || []) {
+    const slug = citySlug(c);
+    if (!slug) continue;
+    for (const t of ['rentals', 'commercial', 'land'] as const) {
+      propertyTypeCityPages.push({
+        url: `${baseUrl}/${t}/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.6,
+      });
+    }
+  }
+
   // Market Leader listing detail pages
   // (/affiliated-partners/market-leaders/listings/[slug])
   const marketLeaderListingsIndex: MetadataRoute.Sitemap = [{
@@ -406,6 +445,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...partnerPages,
     ...teamMemberPages,
     ...videoPages,
+    ...propertyTypeCityPages,
     ...marketLeaderListingsIndex,
     ...marketLeaderListingPages,
     ...listingPages,

@@ -41,6 +41,12 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname === '/affiliated-partners/ski-town' ||
     pathname === '/affiliated-partners/market-leaders' ||
     pathname === '/team' ||
+    pathname === '/rentals' ||
+    pathname === '/commercial' ||
+    pathname === '/land' ||
+    pathname?.startsWith('/rentals/') === true ||
+    pathname?.startsWith('/commercial/') === true ||
+    pathname?.startsWith('/land/') === true ||
     // Market Leader listing detail pages share the full-screen
     // property template, which has its own image hero — let the
     // header sit transparently on top of it.

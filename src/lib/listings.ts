@@ -580,6 +580,68 @@ export async function getListings(
   };
 }
 
+/**
+ * Property-type-specific listing fetchers. These bypass the default
+ * lease-exclusion filter applied by getListings() and instead query
+ * directly for the type the hub page wants. Used by /rentals,
+ * /commercial, and /land.
+ */
+async function getListingsByPropertyTypes(opts: {
+  propertyTypes?: string[];
+  propertySubTypes?: string[];
+  city?: string | null;
+  pageSize?: number;
+  excludedStatuses?: string[];
+}): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured()) return [];
+  const pageSize = opts.pageSize ?? 500;
+  let query = supabase
+    .from('graphql_listings')
+    .select('*')
+    .limit(pageSize);
+  if (opts.propertyTypes && opts.propertyTypes.length > 0) {
+    query = query.in('property_type', opts.propertyTypes);
+  }
+  if (opts.propertySubTypes && opts.propertySubTypes.length > 0) {
+    query = query.in('property_sub_type', opts.propertySubTypes);
+  }
+  if (opts.city) {
+    query = query.ilike('city', opts.city);
+  }
+  if (opts.excludedStatuses && opts.excludedStatuses.length > 0) {
+    query = query.not('status', 'in', `(${opts.excludedStatuses.join(',')})`);
+  }
+  query = query.order('list_price', { ascending: false, nullsFirst: false });
+  const { data, error } = await query;
+  if (error) {
+    console.error('Error fetching listings by property type:', error);
+    return [];
+  }
+  const rows = (data || []).map(transformListing);
+  return deduplicateListings(rows);
+}
+
+export async function getRentals(city?: string | null): Promise<MLSProperty[]> {
+  return getListingsByPropertyTypes({
+    propertyTypes: EXCLUDED_LEASE_TYPES, // 'Residential Lease', 'Commercial Lease'
+    city,
+  });
+}
+
+export async function getLandListings(city?: string | null): Promise<MLSProperty[]> {
+  return getListingsByPropertyTypes({
+    propertyTypes: ['Land', 'Farm'],
+    city,
+  });
+}
+
+export async function getCommercialListings(city?: string | null): Promise<MLSProperty[]> {
+  return getListingsByPropertyTypes({
+    propertySubTypes: ['Commercial', 'Apartment', 'Multi Family', 'Duplex', 'Triplex'],
+    city,
+  });
+}
+
 // Look up SIR media for a listing by its MLS number
 async function getSIRMediaForListing(mlsNumber: string): Promise<SIRMediaAssets | null> {
   if (!isRealogyConfigured()) return null;

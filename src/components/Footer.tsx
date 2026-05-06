@@ -305,6 +305,41 @@ export default function Footer({
             </div>
           </div>
         </div>
+
+        {/* Property Types — internal-link block for SEO depth.
+            Surfaces hubs that aren't in primary nav so search engines
+            (and visitors) can find rentals, commercial, and land. */}
+        <div className="w-full max-w-screen-xl px-4 pb-12">
+          <h3 className="text-xs uppercase tracking-[0.25em] text-gray-500 mb-4 font-light">
+            Property Types
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm">
+            <Link href="/listings" className="hover:text-[var(--color-gold)] transition-colors">
+              Homes for Sale
+            </Link>
+            <Link href="/rentals" className="hover:text-[var(--color-gold)] transition-colors">
+              Rentals
+            </Link>
+            <Link href="/commercial" className="hover:text-[var(--color-gold)] transition-colors">
+              Commercial
+            </Link>
+            <Link href="/land" className="hover:text-[var(--color-gold)] transition-colors">
+              Land
+            </Link>
+            <Link href="/exclusive-and-new" className="hover:text-[var(--color-gold)] transition-colors">
+              Exclusive &amp; New
+            </Link>
+            <Link href="/sold-by-klug-properties" className="hover:text-[var(--color-gold)] transition-colors">
+              Sold by Klug Properties
+            </Link>
+            <Link href="/off-market" className="hover:text-[var(--color-gold)] transition-colors">
+              Off-Market Listings
+            </Link>
+            <Link href="/open-houses" className="hover:text-[var(--color-gold)] transition-colors">
+              Open Houses
+            </Link>
+          </div>
+        </div>
       </div>
 
       {/* Divider */}
