@@ -33,6 +33,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname === '/sold-by-klug-properties' ||
     pathname === '/aspen-snowmass-market-reports' ||
     pathname === '/media/living-aspen-magazine' ||
+    pathname === '/media/videos' ||
     pathname === '/about/blog' ||
     pathname === '/in-the-news' ||
     pathname === '/about/why-klug-properties' ||

@@ -1,21 +1,63 @@
-import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
-import { getYouTubeCredentials } from "@/lib/settings";
+import { getYouTubeCredentials, getBaseUrl, getSiteName, getDefaultHeroImageUrl } from "@/lib/settings";
+import { client } from "@/sanity/client";
 import VideosGrid from "@/components/VideosGrid";
 
+interface VideosPageDoc {
+  heroTitle?: string;
+  heroDescription?: string;
+  heroImage?: { asset?: { url?: string } };
+  sectionTitle?: string;
+  sectionDescription?: string;
+  emptyTitle?: string;
+  emptyText?: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: { asset?: { url?: string } };
+  };
+}
+
+const PAGE_QUERY = `*[_type == "videosPage" && _id == "videosPage"][0]{
+  heroTitle,
+  heroDescription,
+  heroImage { asset->{ url } },
+  sectionTitle,
+  sectionDescription,
+  emptyTitle,
+  emptyText,
+  seo {
+    metaTitle,
+    metaDescription,
+    ogImage { asset->{ url } }
+  }
+}`;
+
+const pageOptions = { next: { revalidate: 30 } };
+
+async function getPageData(): Promise<VideosPageDoc | null> {
+  return client.fetch<VideosPageDoc | null>(PAGE_QUERY, {}, pageOptions);
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const [baseUrl, siteName, page] = await Promise.all([getBaseUrl(), getSiteName(), getPageData()]);
+  const heroTitle = page?.heroTitle || 'Videos';
+  const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
+  const description = page?.seo?.metaDescription
+    || page?.heroDescription
+    || 'Watch our latest real estate videos and virtual tours.';
 
   return {
-    title: 'Videos | Real Estate Tours & Content',
-    description: 'Watch our latest real estate videos and virtual tours.',
+    title,
+    description,
     alternates: {
-      canonical: `${baseUrl}/videos`,
+      canonical: `${baseUrl}/media/videos`,
     },
     openGraph: {
-      title: 'Videos | Real Estate Tours & Content',
-      description: 'Watch our latest real estate videos and virtual tours.',
-      url: `${baseUrl}/videos`,
+      title,
+      description,
+      url: `${baseUrl}/media/videos`,
     },
   };
 }
@@ -165,52 +207,95 @@ async function getYouTubeVideos(): Promise<YouTubeVideo[]> {
 }
 
 export default async function VideosPage() {
-  const videos = await getYouTubeVideos();
+  const [videos, page, defaultHeroUrl] = await Promise.all([
+    getYouTubeVideos(),
+    getPageData(),
+    getDefaultHeroImageUrl(),
+  ]);
+
+  const heroTitle = page?.heroTitle || 'Videos';
+  const heroDescription = page?.heroDescription
+    || 'Watch our latest real estate videos, property tours, and lifestyle content from Aspen Snowmass and the Roaring Fork Valley.';
+  const sectionTitle = page?.sectionTitle || 'Latest Videos';
+  const sectionDescription = page?.sectionDescription;
+  const emptyTitle = page?.emptyTitle || 'No Videos Yet';
+  const emptyText = page?.emptyText
+    || 'New videos and virtual property tours will appear here. Check back soon.';
+
+  const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
   return (
-    <main className="container mx-auto min-h-screen max-w-7xl p-8">
-      <div className="mb-8">
-        <Link href="/" className="text-blue-600 hover:underline mb-4 inline-block">
-          ← Back to home
-        </Link>
-        <h1 className="text-[var(--color-sothebys-blue)] mb-2">Videos</h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Watch our latest real estate videos and virtual tours
-        </p>
-      </div>
-
-      {videos.length === 0 ? (
-        <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-12 text-center">
-          <div className="text-6xl mb-4">🎥</div>
-          <h2 className="text-2xl font-semibold text-[var(--color-sothebys-blue)] mb-2">No videos available</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Configure your YouTube API credentials to display videos.
+    <main className="min-h-screen">
+      {/* Hero Section — transparent header sits on top, so add extra top padding */}
+      <section
+        className={`relative pt-36 pb-2 md:pt-44 md:pb-2 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+      >
+        {heroImageRaw && (
+          <>
+            <Image
+              src={heroImageRaw}
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div
+              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
+              aria-hidden="true"
+            />
+          </>
+        )}
+        <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+          <h1 className="font-serif text-white mb-6">
+            {heroTitle}
+          </h1>
+          <p className="text-lg md:text-xl text-white/70 font-light max-w-2xl leading-relaxed">
+            {heroDescription}
           </p>
-          <div className="text-sm text-left max-w-2xl mx-auto bg-white dark:bg-gray-800 p-4 rounded-lg">
-            <p className="font-semibold mb-2">Setup instructions:</p>
-            <ol className="list-decimal list-inside space-y-1 text-gray-700 dark:text-gray-300">
-              <li>Get a YouTube API key from the Google Cloud Console</li>
-              <li>Find your YouTube Channel ID</li>
-              <li>Add credentials in Sanity Studio (Site Settings) or in your .env.local file:</li>
-            </ol>
-            <pre className="bg-gray-100 dark:bg-gray-900 p-2 rounded mt-2 text-xs overflow-x-auto">
-              {`YOUTUBE_API_KEY=your_api_key_here
-YOUTUBE_CHANNEL_ID=your_channel_id_here`}
-            </pre>
-          </div>
         </div>
-      ) : (
-        <VideosGrid
-          videos={videos.map((v) => ({
-            videoId: v.id.videoId,
-            title: v.snippet.title,
-            description: v.snippet.description,
-            thumbnailUrl: v.snippet.thumbnails.high.url,
-            publishedAt: v.snippet.publishedAt,
-            channelTitle: v.snippet.channelTitle,
-          }))}
-        />
-      )}
+      </section>
+
+      {/* Above-grid intro */}
+      <section className="pt-12 md:pt-16 pb-6 bg-white dark:bg-[#1a1a1a]">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+          <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide my-[0.5em]">
+            {sectionTitle}
+          </h2>
+          {sectionDescription && (
+            <p className="text-[#4a4a4a] dark:text-gray-300 font-light max-w-3xl leading-relaxed">
+              {sectionDescription}
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Videos grid (or empty state) */}
+      <section className="pb-16 md:pb-24 bg-white dark:bg-[#1a1a1a]">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+          {videos.length === 0 ? (
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white tracking-wide mb-3">
+                {emptyTitle}
+              </h2>
+              <p className="text-[#6a6a6a] dark:text-gray-400 font-light">
+                {emptyText}
+              </p>
+            </div>
+          ) : (
+            <VideosGrid
+              videos={videos.map((v) => ({
+                videoId: v.id.videoId,
+                title: v.snippet.title,
+                description: v.snippet.description,
+                thumbnailUrl: v.snippet.thumbnails.high.url,
+                publishedAt: v.snippet.publishedAt,
+                channelTitle: v.snippet.channelTitle,
+              }))}
+            />
+          )}
+        </div>
+      </section>
     </main>
   );
 }
