@@ -181,7 +181,7 @@ export default async function ExclusiveAndNewPage() {
       <section className="py-16 md:py-24 bg-white dark:bg-[#1a1a1a]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
-            <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+            <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide my-[0.5em]">
               {exclusiveSectionTitle}
             </h2>
             <div className="w-16 h-px bg-[var(--color-gold)] mx-auto" />
@@ -206,7 +206,7 @@ export default async function ExclusiveAndNewPage() {
       <section className="py-16 md:py-24 bg-[#f8f7f5] dark:bg-[#141414]">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
           <div className="text-center mb-10 md:mb-14">
-            <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+            <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide my-[0.5em]">
               {newestSectionTitle}
             </h2>
             <div className="w-16 h-px bg-[var(--color-gold)] mx-auto mb-6" />

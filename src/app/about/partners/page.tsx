@@ -345,7 +345,7 @@ export default async function AffiliatedPartnersPage() {
               <p className="text-[var(--color-gold)] text-xs tracking-[0.3em] uppercase mb-3">
                 Just Listed
               </p>
-              <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide mb-4">
+              <h2 className="font-serif text-[#1a1a1a] dark:text-white tracking-wide my-[0.5em]">
                 Latest Partner Listings
               </h2>
               <div className="w-16 h-px bg-[var(--color-gold)] mx-auto mb-6" />
