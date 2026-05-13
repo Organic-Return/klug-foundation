@@ -133,7 +133,7 @@ export default async function BlogPage({
     <main className="min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
-        className={`relative pt-36 pb-20 md:pt-44 md:pb-28 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
+        className={`relative pt-36 pb-6 md:pt-44 md:pb-8 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
       >
         {heroImageRaw && (
           <>
