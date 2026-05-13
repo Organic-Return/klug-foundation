@@ -204,7 +204,7 @@ export default async function MarketLeadersPage() {
   return (
     <main className="min-h-screen">
       {/* Hero Section - Combined — transparent header sits on top, so add extra top padding */}
-      <section className="relative bg-[var(--color-sothebys-blue)] pt-36 pb-2 md:pt-44 md:pb-2">
+      <section className="relative bg-[var(--color-sothebys-blue)] pt-28 pb-2 md:pt-36 md:pb-2">
         {heroImageUrl && (
           <div className="absolute inset-0">
             <Image
