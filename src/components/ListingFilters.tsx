@@ -594,7 +594,7 @@ export default function ListingFilters({
               <FilterTag key={city} label={city} onRemove={() => setSelectedCities(prev => prev.filter(c => c !== city))} />
             ))}
             {status && <FilterTag label={status} onRemove={() => setStatus('')} />}
-            {propertyType && <FilterTag label={propertyType} onRemove={() => setPropertyType('')} />}
+            {propertyType && <FilterTag label={propertyType === 'Residential' ? 'Single Family' : propertyType} onRemove={() => setPropertyType('')} />}
             {propertySubType && <FilterTag label={propertySubType} onRemove={() => setPropertySubType('')} />}
             {selectedNeighborhood && <FilterTag label={selectedNeighborhood} onRemove={() => setSelectedNeighborhood('')} />}
             {minPrice && <FilterTag label={`Min $${Number(minPrice).toLocaleString()}`} onRemove={() => setMinPrice('')} />}
@@ -657,7 +657,7 @@ export default function ListingFilters({
                 >
                   <option value="">All Types</option>
                   {propertyTypes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
+                    <option key={t} value={t}>{t === 'Residential' ? 'Single Family' : t}</option>
                   ))}
                 </select>
               </div>
