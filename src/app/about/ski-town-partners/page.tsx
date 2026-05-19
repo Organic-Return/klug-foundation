@@ -100,6 +100,8 @@ export default async function SkiTownPartnersPage() {
               fill
               className="object-cover"
               priority
+              sizes="100vw"
+              quality={95}
             />
           </div>
         )}

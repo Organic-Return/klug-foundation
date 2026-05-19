@@ -146,7 +146,8 @@ export default async function SoldByKlugPropertiesPage() {
               priority
               sizes="100vw"
               className="object-cover"
-            />
+            quality={95}
+              />
           </>
         )}
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">

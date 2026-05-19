@@ -211,8 +211,10 @@ export default async function MarketLeadersPage() {
               src={heroImageUrl}
               alt=""
               fill
-              className="object-cover opacity-20"
+              className="object-cover"
               priority
+              sizes="100vw"
+              quality={95}
             />
           </div>
         )}

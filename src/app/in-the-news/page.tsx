@@ -150,7 +150,8 @@ export default async function InTheNewsPage() {
               priority
               sizes="100vw"
               className="object-cover"
-            />
+            quality={95}
+              />
           </>
         )}
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">

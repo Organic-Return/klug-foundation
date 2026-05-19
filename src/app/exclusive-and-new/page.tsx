@@ -158,7 +158,8 @@ export default async function ExclusiveAndNewPage() {
               priority
               sizes="100vw"
               className="object-cover"
-            />
+            quality={95}
+              />
             {/* Dark overlay so the headline stays legible regardless of the image */}
           </>
         )}

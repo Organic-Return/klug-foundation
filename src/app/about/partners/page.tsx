@@ -194,6 +194,8 @@ export default async function AffiliatedPartnersPage() {
               fill
               className="object-cover"
               priority
+              sizes="100vw"
+              quality={95}
             />
           </div>
         )}

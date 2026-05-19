@@ -207,6 +207,7 @@ export default async function TeamPage() {
               priority
               sizes="100vw"
               className="object-cover"
+              quality={95}
             />
             <div
               className="absolute inset-0 bg-[var(--color-sothebys-blue)]/70"
