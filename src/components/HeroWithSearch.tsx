@@ -42,7 +42,7 @@ const LOCATIONS = [
 
 // Property types
 const PROPERTY_TYPES = [
-  { value: 'Residential', label: 'Residential' },
+  { value: 'Residential', label: 'Single Family' },
   { value: 'Condominium', label: 'Condo' },
   { value: 'Townhouse', label: 'Townhouse' },
   { value: 'RES Vacant Land', label: 'Land' },
