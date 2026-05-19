@@ -235,10 +235,6 @@ export default async function WhyKlugPropertiesPage() {
               sizes="100vw"
               className="object-cover"
             />
-            <div
-              className="absolute inset-0 bg-[var(--color-navy)]/65"
-              aria-hidden="true"
-            />
           </>
         )}
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">

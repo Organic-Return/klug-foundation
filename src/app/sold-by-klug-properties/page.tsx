@@ -147,10 +147,6 @@ export default async function SoldByKlugPropertiesPage() {
               sizes="100vw"
               className="object-cover"
             />
-            <div
-              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
-              aria-hidden="true"
-            />
           </>
         )}
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">

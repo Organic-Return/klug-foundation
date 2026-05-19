@@ -160,10 +160,6 @@ export default async function ExclusiveAndNewPage() {
               className="object-cover"
             />
             {/* Dark overlay so the headline stays legible regardless of the image */}
-            <div
-              className="absolute inset-0 bg-[var(--color-sothebys-blue)]/65"
-              aria-hidden="true"
-            />
           </>
         )}
         <div className="relative max-w-5xl mx-auto px-6 md:px-12 lg:px-16 text-center">

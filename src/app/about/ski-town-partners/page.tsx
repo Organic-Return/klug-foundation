@@ -98,7 +98,7 @@ export default async function SkiTownPartnersPage() {
               src={heroImageUrl}
               alt=""
               fill
-              className="object-cover opacity-30"
+              className="object-cover"
               priority
             />
           </div>
