@@ -172,9 +172,16 @@ export default async function MarketReportPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [report, defaultHeroUrl] = await Promise.all([
+  const [report, defaultHeroUrl, otherReports] = await Promise.all([
     client.fetch<SanityDocument>(MARKET_REPORT_QUERY, { slug }, options),
     getDefaultHeroImageUrl(),
+    client.fetch<Array<{ _id: string; title: string; slug: { current: string }; publishedAt: string; headerImage?: any }>>(
+      `*[_type == "publication" && publicationType == "market-report" && slug.current != $slug] | order(publishedAt desc) [0...6] {
+        _id, title, slug, publishedAt, headerImage
+      }`,
+      { slug },
+      options
+    ),
   ]);
 
   if (!report) {
@@ -441,6 +448,54 @@ export default async function MarketReportPage({
             </Link>
           </div>
         </section>
+
+        {/* More Market Reports — cross-link block */}
+        {otherReports && otherReports.length > 0 && (
+          <section className="py-16 md:py-20 bg-[#f8f7f5] dark:bg-[#141414]">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
+              <div className="text-center mb-10">
+                <h2 className="font-serif text-2xl md:text-3xl text-[#1a1a1a] dark:text-white tracking-wide">
+                  More Market Reports
+                </h2>
+                <div className="w-12 h-px bg-[var(--color-gold)] mx-auto mt-4" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {otherReports.map((r) => {
+                  const img = r.headerImage ? urlFor(r.headerImage)?.width(600).height(450).url() : null;
+                  return (
+                    <Link
+                      key={r._id}
+                      href={`/aspen-snowmass-market-reports/${r.slug?.current}`}
+                      className="group block bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-colors"
+                    >
+                      <div className="relative aspect-[4/3] bg-[#f0ede8] dark:bg-[#2a2a2a]">
+                        {img && (
+                          <Image src={img} alt={r.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                        )}
+                      </div>
+                      <div className="p-5">
+                        <div className="text-[10px] uppercase tracking-[0.2em] text-[var(--color-gold)] mb-2">
+                          {r.publishedAt ? new Date(r.publishedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : ''}
+                        </div>
+                        <h3 className="font-serif text-lg text-[#1a1a1a] dark:text-white line-clamp-2 group-hover:text-[var(--color-gold)] transition-colors">
+                          {r.title}
+                        </h3>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+              <div className="text-center mt-10">
+                <Link
+                  href="/aspen-snowmass-market-reports"
+                  className="inline-block text-xs tracking-[0.15em] uppercase text-[var(--color-sothebys-blue)] dark:text-white hover:text-[var(--color-gold)] dark:hover:text-[var(--color-gold)] border-b border-[var(--color-sothebys-blue)] dark:border-white hover:border-[var(--color-gold)] dark:hover:border-[var(--color-gold)] pb-1 transition-colors"
+                >
+                  All Market Reports
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
     </>
   );

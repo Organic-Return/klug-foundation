@@ -5,6 +5,7 @@ import {
   getListingHref,
   buildListingSlug,
   formatPrice,
+  getRelatedListings,
   type MLSProperty,
 } from '@/lib/listings';
 import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
@@ -12,6 +13,7 @@ import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import CustomOneListingContent from '@/components/CustomOneListingContent';
 import KlugListingContent from '@/components/KlugListingContent';
+import RelatedListings from '@/components/RelatedListings';
 import { findPartnerByAgentName, enrichPartnerWithAgentData, getPartnerUrl } from '@/app/affiliated-partners/components';
 
 export const revalidate = 60;
@@ -323,6 +325,19 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
     notFound();
   }
 
+  // Fetch 6 related listings (same city, active) for the bottom cross-link
+  // section. Wrap in try/catch so a Supabase hiccup can't take down the
+  // page — empty array just hides the section.
+  let related: MLSProperty[] = [];
+  try {
+    related = await getRelatedListings(
+      { mls_number: listing.mls_number, city: listing.city, state: listing.state },
+      6
+    );
+  } catch (err) {
+    console.error('related listings fetch failed:', err);
+  }
+
   // Canonicalize the URL: if the visitor arrived at a legacy
   // bare-MLS-number / id slug, 301 them to the address-based slug.
   // Keeps Google's link equity consolidated on the keyword-rich URL
@@ -423,6 +438,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
           documents={propertyEnhancement?.documents}
           videos={propertyEnhancement?.videos}
         />
+        <RelatedListings listings={related} city={listing.city} />
       </>
     );
   }
@@ -479,6 +495,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
           documents={propertyEnhancement?.documents}
           videos={propertyEnhancement?.videos}
         />
+        <RelatedListings listings={related} city={listing.city} />
       </>
     );
   }
@@ -543,6 +560,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
         defaultAgent={defaultAgent}
         googleMapsApiKey={googleMapsApiKey}
       />
+      <RelatedListings listings={related} city={listing.city} />
     </>
   );
 }

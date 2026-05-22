@@ -1970,3 +1970,47 @@ export async function getSoldListingsByAgentIds(agentIds: string[]): Promise<MLS
 
   return Array.from(byListingId.values()).map(transformListing);
 }
+
+/**
+ * Fetch a small set of other active listings related to the current one —
+ * used for the "More Properties Nearby" section on listing detail pages.
+ * Scoped to the same city when possible, falling back to same state.
+ * Excludes the current listing's MLS number.
+ */
+export async function getRelatedListings(
+  current: { mls_number?: string | null; city?: string | null; state?: string | null },
+  limit: number = 6
+): Promise<MLSProperty[]> {
+  if (!isSupabaseConfigured()) return [];
+  const exclude = current.mls_number || '';
+
+  // 1) Same city, Active
+  if (current.city) {
+    const { data } = await supabase
+      .from('graphql_listings')
+      .select('*')
+      .eq('status', 'Active')
+      .ilike('city', current.city)
+      .not('listing_id', 'is', null)
+      .neq('listing_id', exclude)
+      .order('list_price', { ascending: false, nullsFirst: false })
+      .limit(limit);
+    if (data && data.length > 0) return data.map(transformListing);
+  }
+
+  // 2) Same state fallback
+  if (current.state) {
+    const { data } = await supabase
+      .from('graphql_listings')
+      .select('*')
+      .eq('status', 'Active')
+      .eq('state', current.state)
+      .not('listing_id', 'is', null)
+      .neq('listing_id', exclude)
+      .order('list_price', { ascending: false, nullsFirst: false })
+      .limit(limit);
+    if (data && data.length > 0) return data.map(transformListing);
+  }
+
+  return [];
+}
