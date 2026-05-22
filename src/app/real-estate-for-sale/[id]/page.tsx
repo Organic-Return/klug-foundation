@@ -440,19 +440,25 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
   } | null = null;
 
   if (listing.agent_name) {
-    const partner = await findPartnerByAgentName(listing.agent_name);
-    if (partner) {
-      const enriched = await enrichPartnerWithAgentData(partner);
-      const partnerUrl = getPartnerUrl(enriched);
-      const partnerSlug = partnerUrl.split('/').pop() || 'partner';
-      partnerAgent = {
-        name: `${enriched.firstName} ${enriched.lastName}`.trim(),
-        slug: { current: partnerSlug },
-        title: enriched.title,
-        imageUrl: enriched.photoUrl,
-        email: enriched.email,
-        phone: enriched.phone,
-      };
+    try {
+      const partner = await findPartnerByAgentName(listing.agent_name);
+      if (partner) {
+        const enriched = await enrichPartnerWithAgentData(partner);
+        const partnerUrl = getPartnerUrl(enriched);
+        const partnerSlug = partnerUrl.split('/').pop() || 'partner';
+        partnerAgent = {
+          name: `${enriched.firstName} ${enriched.lastName}`.trim(),
+          slug: { current: partnerSlug },
+          title: enriched.title,
+          imageUrl: enriched.photoUrl,
+          email: enriched.email,
+          phone: enriched.phone,
+        };
+      }
+    } catch (err) {
+      // A miss on the partner roster shouldn't take down the listing
+      // page — fall through to the default-agent branch.
+      console.error('partner lookup failed:', err);
     }
   }
 
@@ -479,16 +485,33 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
 
   // Fallback: no agent match — surface Chris Klug as the brokerage contact
   // on the non-exclusive sidebar, matching what the exclusive template does.
-  const defaultTeamMember = await client.fetch<ListingAgent | null>(
-    `*[_type == "teamMember" && slug.current == "chris-klug" && inactive != true][0]{
-      name, slug, title, image, email, phone, mobile
-    }`,
-    {},
-    { next: { revalidate: 60 } }
-  );
+  // Defensive: a Sanity hiccup here used to bubble up and 500 the entire
+  // listing page even though the listing itself rendered fine.
+  let defaultTeamMember: ListingAgent | null = null;
+  try {
+    defaultTeamMember = await client.fetch<ListingAgent | null>(
+      `*[_type == "teamMember" && slug.current == "chris-klug" && inactive != true][0]{
+        name, slug, title, image, email, phone, mobile
+      }`,
+      {},
+      { next: { revalidate: 60 } }
+    );
+  } catch (err) {
+    console.error('default agent fetch failed:', err);
+  }
 
-  const defaultAgent = defaultTeamMember
-    ? {
+  let defaultAgent: {
+    name: string;
+    slug: { current: string };
+    title?: string;
+    imageUrl?: string | null;
+    email?: string;
+    phone?: string;
+    mobile?: string;
+  } | null = null;
+  if (defaultTeamMember) {
+    try {
+      defaultAgent = {
         name: defaultTeamMember.name,
         slug: defaultTeamMember.slug,
         title: defaultTeamMember.title?.replace(/\bResidential\b/g, 'Real Estate Broker'),
@@ -498,8 +521,11 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
         email: defaultTeamMember.email,
         phone: defaultTeamMember.phone,
         mobile: defaultTeamMember.mobile,
-      }
-    : null;
+      };
+    } catch (err) {
+      console.error('default agent build failed:', err);
+    }
+  }
 
   return (
     <>
