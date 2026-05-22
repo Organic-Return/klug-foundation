@@ -42,6 +42,8 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname === '/about/ski-town-partners' ||
     pathname === '/affiliated-partners/market-leaders' ||
     pathname === '/about/our-team' ||
+    pathname === '/contact-us' ||
+    pathname === '/terms-of-service' ||
     pathname === '/rentals' ||
     pathname === '/commercial' ||
     pathname === '/land' ||

@@ -16,7 +16,7 @@ interface VideoListing {
 }
 
 function toAddressSlug(street: string): string {
-  return street.trim().replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '-');
+  return street.trim().toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
 }
 
 export default function FeaturedVideoGrid({ listings }: { listings: VideoListing[] }) {
