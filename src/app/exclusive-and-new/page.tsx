@@ -160,6 +160,8 @@ export default async function ExclusiveAndNewPage() {
               className="object-cover"
             quality={95}
               />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#1a1a1a]/50 via-transparent to-[#1a1a1a]/80" aria-hidden="true" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#1a1a1a]/30 via-transparent to-[#1a1a1a]/30" aria-hidden="true" />
             {/* Dark overlay so the headline stays legible regardless of the image */}
           </>
         )}
