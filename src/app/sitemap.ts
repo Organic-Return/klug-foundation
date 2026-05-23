@@ -1,21 +1,40 @@
 import { MetadataRoute } from 'next';
+import { unstable_cache } from 'next/cache';
 import { client } from '@/sanity/client';
 import { getListings, getListingHref, toAddressSlug, getDistinctCities } from '@/lib/listings';
 import { getOffMarketListings } from '@/lib/offMarketListings';
 import { getSettings, getYouTubeCredentials } from '@/lib/settings';
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 
-// Generate the sitemap on demand (and cache for 1h) instead of at
-// build time. The full sweep (MLS pagination + per-partner Realogy
-// listing harvest + YouTube + Sanity) routinely exceeds Vercel's
-// 60s build-export timeout × 3 retries, which then fails the whole
-// deploy. ISR-style runtime generation has a much higher timeout
-// budget and never blocks deployment.
+// A single sitemap.xml that fans out to Sanity + Realogy + MLS + YouTube
+// in one request was returning in ~23s on cold start, past the 15s
+// patience of most crawlers. We now split into a sitemap index with
+// four sub-sitemaps via Next.js `generateSitemaps()`, and cache the
+// data fetches with `unstable_cache` so only the first request per
+// hour pays the cost. `force-dynamic` is retained so a slow data
+// source never blocks a deploy.
 export const dynamic = 'force-dynamic';
-export const revalidate = 3600;
+
+// Sub-sitemap identifiers. Next.js requires numeric ids; the named
+// constants are just for readability inside this file.
+const SITEMAP_STATIC = 0;
+const SITEMAP_CONTENT = 1;
+const SITEMAP_LISTINGS = 2;
+const SITEMAP_PARTNERS = 3;
+
+const SITEMAP_REVALIDATE_SECONDS = 3600;
+
+export async function generateSitemaps() {
+  return [
+    { id: SITEMAP_STATIC },
+    { id: SITEMAP_CONTENT },
+    { id: SITEMAP_LISTINGS },
+    { id: SITEMAP_PARTNERS },
+  ];
+}
 
 // Cap any single slow data source so one outage / runaway query
-// can't push total sitemap generation over the runtime timeout.
+// can't poison a sub-sitemap on cache miss.
 function withTimeout<T>(p: Promise<T>, fallback: T, label: string, timeoutMs = 45_000): Promise<T> {
   return Promise.race<T>([
     p,
@@ -57,10 +76,9 @@ async function getMarketLeaderListingSlugs(): Promise<string[]> {
   const partners = await client.fetch<Array<{ firstName: string; lastName: string }>>(
     `*[_type == "affiliatedPartner" && active == true]{ firstName, lastName }`
   );
-  // Single bulk query against an OR pattern on the agent name
-  // — N partners × paginated lookup was the slowest part of the
-  // sitemap. One query with 1000 rows covers the typical inventory
-  // for the partner network and runs in a couple seconds.
+  // Single bulk query against an OR pattern on the agent name —
+  // N partners × paginated lookup was the slowest part of the
+  // sitemap. One query with 2000 rows covers the typical inventory.
   const namePatterns = partners
     .map((p) => `${p.firstName ?? ''} ${p.lastName ?? ''}`.trim())
     .filter((n) => n.length >= 3)
@@ -116,339 +134,288 @@ async function getYouTubeVideoIds(): Promise<Array<{ videoId: string; publishedA
   return Array.from(seen.values());
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const settings = await getSettings();
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+// ---- Sub-sitemap builders ---------------------------------------------------
 
-  // Static pages
-  const staticPages: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
-    },
-    {
-      url: `${baseUrl}/real-estate-for-sale`,
-      lastModified: new Date(),
-      changeFrequency: 'hourly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/off-market`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/market-reports`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/living-aspen`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/testimonials`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/why-klug-properties`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/affiliated-partners`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/affiliated-partners/market-leaders`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/affiliated-partners/ski-town`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/videos`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/team`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/in-the-news`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/exclusive-and-new`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/sold-by-klug-properties`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/open-houses`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/buy/first-time-buyers`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/buy/relocation`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/privacy-policy`,
-      lastModified: new Date(),
-      changeFrequency: 'yearly',
-      priority: 0.2,
-    },
-    // Property-type hubs (rentals, commercial, land). City-filtered
-    // sub-hubs are added below from the live cities list.
-    {
-      url: `${baseUrl}/rentals`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/commercial`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/land`,
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
+// Static pages: hardcoded, no remote fetches, no cache needed.
+function buildStaticSitemap(baseUrl: string): MetadataRoute.Sitemap {
+  const now = new Date();
+  return [
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1 },
+    { url: `${baseUrl}/real-estate-for-sale`, lastModified: now, changeFrequency: 'hourly', priority: 0.9 },
+    { url: `${baseUrl}/off-market`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/market-reports`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/living-aspen`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/testimonials`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/why-klug-properties`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/affiliated-partners`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${baseUrl}/affiliated-partners/market-leaders`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/affiliated-partners/ski-town`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/videos`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
+    { url: `${baseUrl}/team`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/in-the-news`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/exclusive-and-new`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${baseUrl}/sold-by-klug-properties`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/open-houses`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/buy/first-time-buyers`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/buy/relocation`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/privacy-policy`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
+    { url: `${baseUrl}/rentals`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/commercial`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${baseUrl}/land`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
   ];
+}
 
-  // Fetch dynamic content from Sanity + YouTube
-  const [communities, marketReports, magazines, posts, partners, teamMembers, buyPage, sellPage, aboutPage, resourcesPage, youtubeVideos, marketLeaderListingSlugs, distinctCities] = await Promise.all([
-    client.fetch<Array<{ slug: string; _updatedAt: string }>>(COMMUNITIES_QUERY),
-    client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MARKET_REPORTS_QUERY),
-    client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MAGAZINES_QUERY),
-    client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(POSTS_QUERY),
-    client.fetch<Array<{ slug: string; partnerType: string; firstName: string; lastName: string; _updatedAt: string }>>(PARTNERS_QUERY),
-    client.fetch<Array<{ slug: string; _updatedAt: string }>>(TEAM_MEMBERS_QUERY),
-    client.fetch<{ _updatedAt: string } | null>(`*[_type == "buyPage"][0]{ _updatedAt }`),
-    client.fetch<{ _updatedAt: string } | null>(`*[_type == "sellPage"][0]{ _updatedAt }`),
-    client.fetch<{ _updatedAt: string } | null>(`*[_type == "aboutPage"][0]{ _updatedAt }`),
-    client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`),
-    withTimeout(getYouTubeVideoIds(), [] as Array<{ videoId: string; publishedAt?: string }>, 'youtube'),
-    withTimeout(getMarketLeaderListingSlugs(), [] as string[], 'partner-listings'),
-    withTimeout(getDistinctCities(), [] as string[], 'cities'),
-  ]);
+// Content sub-sitemap: Sanity-driven content + YouTube + off-market.
+const buildContentSitemap = unstable_cache(
+  async (baseUrl: string): Promise<MetadataRoute.Sitemap> => {
+    const [
+      communities,
+      marketReports,
+      magazines,
+      posts,
+      partners,
+      teamMembers,
+      buyPage,
+      sellPage,
+      aboutPage,
+      resourcesPage,
+      youtubeVideos,
+      offMarketListings,
+    ] = await Promise.all([
+      withTimeout(
+        client.fetch<Array<{ slug: string; _updatedAt: string }>>(COMMUNITIES_QUERY),
+        [] as Array<{ slug: string; _updatedAt: string }>,
+        'sanity-communities'
+      ),
+      withTimeout(
+        client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MARKET_REPORTS_QUERY),
+        [] as Array<{ slug: string; _updatedAt: string; publishedAt: string }>,
+        'sanity-market-reports'
+      ),
+      withTimeout(
+        client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(MAGAZINES_QUERY),
+        [] as Array<{ slug: string; _updatedAt: string; publishedAt: string }>,
+        'sanity-magazines'
+      ),
+      withTimeout(
+        client.fetch<Array<{ slug: string; _updatedAt: string; publishedAt: string }>>(POSTS_QUERY),
+        [] as Array<{ slug: string; _updatedAt: string; publishedAt: string }>,
+        'sanity-posts'
+      ),
+      withTimeout(
+        client.fetch<Array<{ slug: string; partnerType: string; firstName: string; lastName: string; _updatedAt: string }>>(PARTNERS_QUERY),
+        [] as Array<{ slug: string; partnerType: string; firstName: string; lastName: string; _updatedAt: string }>,
+        'sanity-partners'
+      ),
+      withTimeout(
+        client.fetch<Array<{ slug: string; _updatedAt: string }>>(TEAM_MEMBERS_QUERY),
+        [] as Array<{ slug: string; _updatedAt: string }>,
+        'sanity-team-members'
+      ),
+      withTimeout(client.fetch<{ _updatedAt: string } | null>(`*[_type == "buyPage"][0]{ _updatedAt }`), null, 'sanity-buy-page'),
+      withTimeout(client.fetch<{ _updatedAt: string } | null>(`*[_type == "sellPage"][0]{ _updatedAt }`), null, 'sanity-sell-page'),
+      withTimeout(client.fetch<{ _updatedAt: string } | null>(`*[_type == "aboutPage"][0]{ _updatedAt }`), null, 'sanity-about-page'),
+      withTimeout(client.fetch<{ _updatedAt: string } | null>(`*[_type == "resourcesPage"][0]{ _updatedAt }`), null, 'sanity-resources-page'),
+      withTimeout(getYouTubeVideoIds(), [] as Array<{ videoId: string; publishedAt?: string }>, 'youtube'),
+      withTimeout(getOffMarketListings(), [] as Awaited<ReturnType<typeof getOffMarketListings>>, 'off-market'),
+    ]);
 
-  // Conditionally add singleton content pages (only if they exist in this project's Sanity dataset)
-  const singletonPages: MetadataRoute.Sitemap = [];
-  if (buyPage) {
-    singletonPages.push({ url: `${baseUrl}/buy`, lastModified: new Date(buyPage._updatedAt), changeFrequency: 'monthly', priority: 0.8 });
-  }
-  if (sellPage) {
-    singletonPages.push({ url: `${baseUrl}/sell`, lastModified: new Date(sellPage._updatedAt), changeFrequency: 'monthly', priority: 0.8 });
-  }
-  if (aboutPage) {
-    singletonPages.push({ url: `${baseUrl}/about`, lastModified: new Date(aboutPage._updatedAt), changeFrequency: 'monthly', priority: 0.7 });
-  }
-  if (resourcesPage) {
-    singletonPages.push({ url: `${baseUrl}/resources`, lastModified: new Date(resourcesPage._updatedAt), changeFrequency: 'monthly', priority: 0.6 });
-  }
-  if (posts && posts.length > 0) {
-    singletonPages.push({ url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 });
-  }
+    const out: MetadataRoute.Sitemap = [];
 
-  // Community pages
-  const communityPages: MetadataRoute.Sitemap = (communities || []).map((community) => ({
-    url: `${baseUrl}/communities/${community.slug}`,
-    lastModified: new Date(community._updatedAt),
-    changeFrequency: 'weekly' as const,
-    priority: 0.8,
-  }));
+    // Singleton content pages (only if present in this dataset)
+    if (buyPage) {
+      out.push({ url: `${baseUrl}/buy`, lastModified: new Date(buyPage._updatedAt), changeFrequency: 'monthly', priority: 0.8 });
+    }
+    if (sellPage) {
+      out.push({ url: `${baseUrl}/sell`, lastModified: new Date(sellPage._updatedAt), changeFrequency: 'monthly', priority: 0.8 });
+    }
+    if (aboutPage) {
+      out.push({ url: `${baseUrl}/about`, lastModified: new Date(aboutPage._updatedAt), changeFrequency: 'monthly', priority: 0.7 });
+    }
+    if (resourcesPage) {
+      out.push({ url: `${baseUrl}/resources`, lastModified: new Date(resourcesPage._updatedAt), changeFrequency: 'monthly', priority: 0.6 });
+    }
+    if (posts.length > 0) {
+      out.push({ url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 });
+    }
 
-  // Market report pages
-  const marketReportPages: MetadataRoute.Sitemap = (marketReports || []).map((report) => ({
-    url: `${baseUrl}/market-reports/${report.slug}`,
-    lastModified: new Date(report._updatedAt || report.publishedAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.7,
-  }));
-
-  // Magazine/Living Aspen pages
-  const magazinePages: MetadataRoute.Sitemap = (magazines || []).map((magazine) => ({
-    url: `${baseUrl}/living-aspen/${magazine.slug}`,
-    lastModified: new Date(magazine._updatedAt || magazine.publishedAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
-
-  // Blog/Post pages
-  const postPages: MetadataRoute.Sitemap = (posts || []).map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post._updatedAt || post.publishedAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
-
-  // Partner pages
-  const partnerPages: MetadataRoute.Sitemap = (partners || []).map((partner) => {
-    const slug = partner.slug || `${partner.firstName}-${partner.lastName}`.toLowerCase();
-    return {
-      url: `${baseUrl}/real-estate-agent/${slug}`,
-      lastModified: new Date(partner._updatedAt),
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    };
-  });
-
-  // Team member detail pages
-  const teamMemberPages: MetadataRoute.Sitemap = (teamMembers || []).map((member) => ({
-    url: `${baseUrl}/real-estate-agent/${member.slug}`,
-    lastModified: new Date(member._updatedAt),
-    changeFrequency: 'monthly' as const,
-    priority: 0.6,
-  }));
-
-  // Video detail pages
-  const videoPages: MetadataRoute.Sitemap = (youtubeVideos || []).map((video) => ({
-    url: `${baseUrl}/videos/${video.videoId}`,
-    lastModified: video.publishedAt ? new Date(video.publishedAt) : new Date(),
-    changeFrequency: 'monthly' as const,
-    priority: 0.5,
-  }));
-
-  // Property-type city sub-hubs — /rentals/<city>, /commercial/<city>,
-  // /land/<city>. One entry per (type × city) combination so the
-  // search graph maps every (Aspen rentals, Snowmass commercial, etc).
-  const propertyTypeCityPages: MetadataRoute.Sitemap = [];
-  const citySlug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
-  for (const c of distinctCities || []) {
-    const slug = citySlug(c);
-    if (!slug) continue;
-    for (const t of ['rentals', 'commercial', 'land'] as const) {
-      propertyTypeCityPages.push({
-        url: `${baseUrl}/${t}/${slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
+    for (const community of communities) {
+      out.push({
+        url: `${baseUrl}/communities/${community.slug}`,
+        lastModified: new Date(community._updatedAt),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      });
+    }
+    for (const report of marketReports) {
+      out.push({
+        url: `${baseUrl}/market-reports/${report.slug}`,
+        lastModified: new Date(report._updatedAt || report.publishedAt),
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      });
+    }
+    for (const magazine of magazines) {
+      out.push({
+        url: `${baseUrl}/living-aspen/${magazine.slug}`,
+        lastModified: new Date(magazine._updatedAt || magazine.publishedAt),
+        changeFrequency: 'monthly',
         priority: 0.6,
       });
     }
-  }
+    for (const post of posts) {
+      out.push({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post._updatedAt || post.publishedAt),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
+    for (const partner of partners) {
+      const slug = partner.slug || `${partner.firstName}-${partner.lastName}`.toLowerCase();
+      out.push({
+        url: `${baseUrl}/real-estate-agent/${slug}`,
+        lastModified: new Date(partner._updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      });
+    }
+    for (const member of teamMembers) {
+      out.push({
+        url: `${baseUrl}/real-estate-agent/${member.slug}`,
+        lastModified: new Date(member._updatedAt),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      });
+    }
+    for (const video of youtubeVideos) {
+      out.push({
+        url: `${baseUrl}/videos/${video.videoId}`,
+        lastModified: video.publishedAt ? new Date(video.publishedAt) : new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.5,
+      });
+    }
+    for (const listing of offMarketListings) {
+      out.push({
+        url: `${baseUrl}/off-market/${listing.slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      });
+    }
 
-  // Market Leader listing detail pages
-  // (/affiliated-partners/market-leaders/listings/[slug])
-  const marketLeaderListingsIndex: MetadataRoute.Sitemap = [{
-    url: `${baseUrl}/affiliated-partners/market-leaders/listings`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.6,
-  }];
-  const marketLeaderListingPages: MetadataRoute.Sitemap = (marketLeaderListingSlugs || []).map((slug) => ({
-    url: `${baseUrl}/affiliated-partners/market-leaders/listings/${slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'daily' as const,
-    priority: 0.6,
-  }));
+    return out;
+  },
+  ['sitemap-content-v1'],
+  { revalidate: SITEMAP_REVALIDATE_SECONDS, tags: ['sitemap', 'sitemap-content'] }
+);
 
-  // Fetch every MLS listing — active and closed/sold — paginating through
-  // the dataset so the sitemap exposes the full inventory the /listings page
-  // shows visitors. Sold listings are valuable SEO surfaces (track record,
-  // historical pricing) so we no longer exclude them. Capped at 5 pages of
-  // 1000 = up to 5k listings to keep total sitemap generation under the
-  // runtime timeout; raise if /listings ever exceeds this volume.
-  const fetchListingPages = async (): Promise<MetadataRoute.Sitemap> => {
-    const out: MetadataRoute.Sitemap = [];
-    try {
-      const PAGE_SIZE = 1000;
-      const seen = new Set<string>();
-      for (let page = 1; page <= 5; page++) {
-        const { listings, totalPages } = await getListings(page, PAGE_SIZE);
-        if (!listings || listings.length === 0) break;
-        for (const listing of listings) {
-          const href = getListingHref(listing);
-          if (seen.has(href)) continue;
-          seen.add(href);
-          out.push({
-            url: `${baseUrl}${href}`,
-            lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
-            changeFrequency: 'daily' as const,
-            priority: 0.8,
-          });
+// Listings sub-sitemap: MLS detail pages + property-type city sub-hubs.
+// This is the heaviest source — up to 5 pages × 1000 rows = 5k entries.
+const buildListingsSitemap = unstable_cache(
+  async (baseUrl: string): Promise<MetadataRoute.Sitemap> => {
+    const fetchListingPages = async (): Promise<MetadataRoute.Sitemap> => {
+      const out: MetadataRoute.Sitemap = [];
+      try {
+        const PAGE_SIZE = 1000;
+        const seen = new Set<string>();
+        for (let page = 1; page <= 5; page++) {
+          const { listings, totalPages } = await getListings(page, PAGE_SIZE);
+          if (!listings || listings.length === 0) break;
+          for (const listing of listings) {
+            const href = getListingHref(listing);
+            if (seen.has(href)) continue;
+            seen.add(href);
+            out.push({
+              url: `${baseUrl}${href}`,
+              lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
+              changeFrequency: 'daily',
+              priority: 0.8,
+            });
+          }
+          if (page >= totalPages) break;
         }
-        if (page >= totalPages) break;
+      } catch (error) {
+        console.error('[sitemap] error fetching MLS listings:', error);
       }
-    } catch (error) {
-      console.error('Error fetching listings for sitemap:', error);
+      return out;
+    };
+
+    const [listingPages, distinctCities] = await Promise.all([
+      withTimeout(fetchListingPages(), [] as MetadataRoute.Sitemap, 'mls-listings', 90_000),
+      withTimeout(getDistinctCities(), [] as string[], 'cities'),
+    ]);
+
+    // Property-type × city sub-hubs (rentals/commercial/land by city)
+    const citySlug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
+    const propertyTypeCityPages: MetadataRoute.Sitemap = [];
+    for (const c of distinctCities) {
+      const slug = citySlug(c);
+      if (!slug) continue;
+      for (const t of ['rentals', 'commercial', 'land'] as const) {
+        propertyTypeCityPages.push({
+          url: `${baseUrl}/${t}/${slug}`,
+          lastModified: new Date(),
+          changeFrequency: 'daily',
+          priority: 0.6,
+        });
+      }
+    }
+
+    return [...listingPages, ...propertyTypeCityPages];
+  },
+  ['sitemap-listings-v1'],
+  { revalidate: SITEMAP_REVALIDATE_SECONDS, tags: ['sitemap', 'sitemap-listings'] }
+);
+
+// Partners sub-sitemap: Realogy-backed market-leader listing detail pages.
+const buildPartnersSitemap = unstable_cache(
+  async (baseUrl: string): Promise<MetadataRoute.Sitemap> => {
+    const marketLeaderListingSlugs = await withTimeout(
+      getMarketLeaderListingSlugs(),
+      [] as string[],
+      'partner-listings'
+    );
+
+    const out: MetadataRoute.Sitemap = [
+      {
+        url: `${baseUrl}/affiliated-partners/market-leaders/listings`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.6,
+      },
+    ];
+    for (const slug of marketLeaderListingSlugs) {
+      out.push({
+        url: `${baseUrl}/affiliated-partners/market-leaders/listings/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily',
+        priority: 0.6,
+      });
     }
     return out;
-  };
-  // MLS pagination is the heaviest source — give it a longer budget
-  // (90s) since this is the bulk of the sitemap's value.
-  const listingPages = await withTimeout(fetchListingPages(), [] as MetadataRoute.Sitemap, 'mls-listings', 90_000);
+  },
+  ['sitemap-partners-v1'],
+  { revalidate: SITEMAP_REVALIDATE_SECONDS, tags: ['sitemap', 'sitemap-partners'] }
+);
 
-  // Fetch off-market listings
-  let offMarketPages: MetadataRoute.Sitemap = [];
-  try {
-    const offMarketListings = await getOffMarketListings();
-    offMarketPages = offMarketListings.map((listing) => ({
-      url: `${baseUrl}/off-market/${listing.slug}`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }));
-  } catch (error) {
-    console.error('Error fetching off-market listings for sitemap:', error);
+// ---- Entry point ------------------------------------------------------------
+
+export default async function sitemap({ id }: { id: number }): Promise<MetadataRoute.Sitemap> {
+  const settings = await getSettings();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+
+  switch (id) {
+    case SITEMAP_STATIC:
+      return buildStaticSitemap(baseUrl);
+    case SITEMAP_CONTENT:
+      return buildContentSitemap(baseUrl);
+    case SITEMAP_LISTINGS:
+      return buildListingsSitemap(baseUrl);
+    case SITEMAP_PARTNERS:
+      return buildPartnersSitemap(baseUrl);
+    default:
+      return [];
   }
-
-  return [
-    ...staticPages,
-    ...singletonPages,
-    ...communityPages,
-    ...marketReportPages,
-    ...magazinePages,
-    ...postPages,
-    ...partnerPages,
-    ...teamMemberPages,
-    ...videoPages,
-    ...propertyTypeCityPages,
-    ...marketLeaderListingsIndex,
-    ...marketLeaderListingPages,
-    ...listingPages,
-    ...offMarketPages,
-  ];
 }
