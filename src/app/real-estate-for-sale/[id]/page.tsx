@@ -192,36 +192,41 @@ function generateRealEstateSchema(listing: MLSProperty) {
     }),
   };
 
-  const productSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': `${listingUrl}#product`,
-    name: `${listing.address || 'Property'} - ${listing.city}, ${listing.state}`,
-    description: listing.description || `${listing.bedrooms || 0} bed, ${listing.bathrooms || 0} bath ${listing.property_type || 'property'} in ${listing.city}, ${listing.state}`,
-    ...(listing.photos && listing.photos.length > 0 && {
-      image: listing.photos,
-    }),
-    sku: listing.mls_number,
-    category: listing.property_type || 'Real Estate',
-    ...(listing.list_price && {
-      offers: {
-        '@type': 'Offer',
-        price: listing.list_price,
-        priceCurrency: 'USD',
-        availability: listing.status === 'Active'
-          ? 'https://schema.org/InStock'
-          : listing.status === 'Pending'
-          ? 'https://schema.org/LimitedAvailability'
-          : 'https://schema.org/SoldOut',
-        url: listingUrl,
-        seller: {
-          '@type': 'RealEstateAgent',
-          name: listing.agent_name || 'Listing Agent',
-          ...(listing.agent_email && { email: listing.agent_email }),
-        },
-      },
-    }),
-  };
+  // Google's Merchant listing rich result requires `image` on Product.
+  // For photoless listings (sold-before-MLS, FSBO entries with no
+  // media) we omit the Product schema entirely rather than emit it
+  // invalid — RealEstateListing already covers the property.
+  const hasPhotos = !!(listing.photos && listing.photos.length > 0);
+  const productSchema = hasPhotos
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        '@id': `${listingUrl}#product`,
+        name: `${listing.address || 'Property'} - ${listing.city}, ${listing.state}`,
+        description: listing.description || `${listing.bedrooms || 0} bed, ${listing.bathrooms || 0} bath ${listing.property_type || 'property'} in ${listing.city}, ${listing.state}`,
+        image: listing.photos,
+        sku: listing.mls_number,
+        category: listing.property_type || 'Real Estate',
+        ...(listing.list_price && {
+          offers: {
+            '@type': 'Offer',
+            price: listing.list_price,
+            priceCurrency: 'USD',
+            availability: listing.status === 'Active'
+              ? 'https://schema.org/InStock'
+              : listing.status === 'Pending'
+              ? 'https://schema.org/LimitedAvailability'
+              : 'https://schema.org/SoldOut',
+            url: listingUrl,
+            seller: {
+              '@type': 'RealEstateAgent',
+              name: listing.agent_name || 'Listing Agent',
+              ...(listing.agent_email && { email: listing.agent_email }),
+            },
+          },
+        }),
+      }
+    : null;
 
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -233,7 +238,7 @@ function generateRealEstateSchema(listing: MLSProperty) {
     ],
   };
 
-  return [realEstateSchema, propertySchema, productSchema, breadcrumbSchema];
+  return [realEstateSchema, propertySchema, productSchema, breadcrumbSchema].filter(Boolean);
 }
 
 export async function generateMetadata({ params }: ListingPageProps): Promise<Metadata> {

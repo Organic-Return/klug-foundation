@@ -60,6 +60,16 @@ const DEFAULT_PORTRAIT = 'https://drupal-storage.s3.amazonaws.com/klug/public/20
 const DEFAULT_TAGLINE = 'https://drupal-storage.s3.amazonaws.com/klug/public/2024-11/footer-tagline%402x_20220524164420_0.png';
 const DEFAULT_BROKERAGE_LOGO = 'https://drupal-storage.s3.amazonaws.com/klug/public/2024-11/assir-logo%402x.png';
 
+// Office address fallback. Used when contactInfo.address is empty in
+// Sanity settings. Google's LocalBusiness validator (which classifies
+// this footer's RealEstateAgent microdata) reports the `address`
+// property as invalid when streetAddress is missing, so we always
+// emit a complete PostalAddress.
+const DEFAULT_OFFICE_STREET_ADDRESS = '415 East Hyman Avenue';
+const OFFICE_LOCALITY = 'Aspen';
+const OFFICE_REGION = 'CO';
+const OFFICE_POSTAL_CODE = '81611';
+
 export default function Footer({
   logo,
   logoAlt = 'Logo',
@@ -119,9 +129,10 @@ export default function Footer({
       {contactInfo?.phone && <meta itemProp="telephone" content={contactInfo.phone} />}
       {contactInfo?.email && <meta itemProp="email" content={contactInfo.email} />}
       <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-        {contactInfo?.address && <meta itemProp="streetAddress" content={contactInfo.address} />}
-        <meta itemProp="addressLocality" content="Aspen" />
-        <meta itemProp="addressRegion" content="CO" />
+        <meta itemProp="streetAddress" content={contactInfo?.address || DEFAULT_OFFICE_STREET_ADDRESS} />
+        <meta itemProp="addressLocality" content={OFFICE_LOCALITY} />
+        <meta itemProp="addressRegion" content={OFFICE_REGION} />
+        <meta itemProp="postalCode" content={OFFICE_POSTAL_CODE} />
         <meta itemProp="addressCountry" content="US" />
       </div>
       {socialMedia?.facebook && <link itemProp="sameAs" href={socialMedia.facebook} />}
