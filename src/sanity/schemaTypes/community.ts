@@ -426,47 +426,14 @@ export const community = defineType({
       name: 'neighborhoods',
       title: 'Neighborhoods',
       type: 'array',
-      description: 'Add neighborhoods within this community that visitors can explore',
+      description:
+        'Pick neighborhood-type community documents that belong to this community (e.g., Aspen → Red Mountain, West End). Each entry is a reference to a separate Community document with Community Type set to "Neighborhood".',
       of: [
         {
-          type: 'object',
-          fields: [
-            {
-              name: 'name',
-              title: 'Neighborhood Name',
-              type: 'string',
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'slug',
-              title: 'Slug',
-              type: 'slug',
-              options: {
-                source: 'name',
-                maxLength: 96,
-              },
-              validation: (Rule) => Rule.required(),
-            },
-            {
-              name: 'description',
-              title: 'Short Description',
-              type: 'text',
-              rows: 2,
-            },
-            {
-              name: 'image',
-              title: 'Neighborhood Image',
-              type: 'image',
-              options: {
-                hotspot: true,
-              },
-            },
-          ],
-          preview: {
-            select: {
-              title: 'name',
-              media: 'image',
-            },
+          type: 'reference',
+          to: [{ type: 'community' }],
+          options: {
+            filter: 'communityType == "neighborhood"',
           },
         },
       ],

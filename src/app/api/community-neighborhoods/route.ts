@@ -14,14 +14,18 @@ interface Neighborhood {
   communityTitle: string;
 }
 
+// `neighborhoods` was converted from inline objects to references to
+// other Community documents (filtered to communityType == "neighborhood").
+// Dereference and alias title→name / featuredImage→image so consumers
+// of this endpoint keep their existing field contract.
 const NEIGHBORHOODS_QUERY = `*[_type == "community" && defined(neighborhoods) && count(neighborhoods) > 0]{
   "communitySlug": slug.current,
   "communityTitle": title,
-  neighborhoods[]{
-    name,
+  "neighborhoods": neighborhoods[]-> {
+    "name": title,
     slug,
     description,
-    image {
+    "image": featuredImage {
       asset-> {
         url
       }

@@ -33,9 +33,12 @@ const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
       metadata { dimensions }
     }
   },
-  neighborhoods[] {
-    ...,
-    image {
+  neighborhoods[]-> {
+    _id,
+    "name": title,
+    slug,
+    description,
+    "image": featuredImage {
       asset-> {
         url
       }

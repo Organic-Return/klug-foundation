@@ -74,7 +74,7 @@ function GalleryLayout({ neighborhoods, communitySlug, communityTitle }: { neigh
 
   const renderCard = (neighborhood: Neighborhood) => (
     <Link
-      href={`/communities/${communitySlug}#${neighborhood.slug.current}`}
+      href={`/communities/${neighborhood.slug.current}`}
       className="group block"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
@@ -127,7 +127,7 @@ function GalleryLayout({ neighborhoods, communitySlug, communityTitle }: { neigh
             </h2>
           </div>
 
-          <Link href={`/communities/${communitySlug}#${neighborhoods[0].slug.current}`} className="group block mb-6 md:mb-8">
+          <Link href={`/communities/${neighborhoods[0].slug.current}`} className="group block mb-6 md:mb-8">
             <div className="relative aspect-[21/9] md:aspect-[2.5/1] overflow-hidden">
               {neighborhoods[0].image?.asset?.url ? (
                 <Image src={neighborhoods[0].image.asset.url} alt={neighborhoods[0].name} fill className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]" sizes="100vw" />
@@ -174,7 +174,7 @@ function GalleryLayout({ neighborhoods, communitySlug, communityTitle }: { neigh
 
         {/* Hero — updates as the carousel slides */}
         <Link
-          href={`/communities/${communitySlug}#${heroNeighborhood.slug.current}`}
+          href={`/communities/${heroNeighborhood.slug.current}`}
           className="group block mb-6 md:mb-8"
         >
           <div className="relative aspect-[21/9] md:aspect-[2.5/1] overflow-hidden">
@@ -333,7 +333,7 @@ export default function CommunityNeighborhoods({
             {neighborhoods.map((neighborhood) => (
               <Link
                 key={neighborhood.slug.current}
-                href={`/communities/${communitySlug}#${neighborhood.slug.current}`}
+                href={`/communities/${neighborhood.slug.current}`}
                 className="group block"
               >
                 <div className="relative aspect-[3/4] overflow-hidden">
@@ -413,7 +413,7 @@ export default function CommunityNeighborhoods({
           {neighborhoods.map((neighborhood, index) => (
             <Link
               key={neighborhood.slug.current}
-              href={`/communities/${communitySlug}#${neighborhood.slug.current}`}
+              href={`/communities/${neighborhood.slug.current}`}
               className="group relative block overflow-hidden"
               style={{ animationDelay: `${index * 100}ms` }}
             >
