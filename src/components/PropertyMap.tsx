@@ -38,7 +38,15 @@ const mapContainerStyle = {
 export default function PropertyMap({ latitude, longitude, address, price, googleMapsApiKey }: PropertyMapProps) {
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const apiKey = googleMapsApiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  // The prop is preserved for backwards compatibility but ignored at
+  // load time — every Map component MUST resolve apiKey the same way
+  // (env var only) so the @react-google-maps/api loader singleton sees
+  // identical options across SPA navigations. Mixing prop-fallback and
+  // env-only callers triggered the "Loader must not be called again
+  // with different options" client crash, which bubbled up and aborted
+  // sibling component renders (including the image gallery).
+  void googleMapsApiKey;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,

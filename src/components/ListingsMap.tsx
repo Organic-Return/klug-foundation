@@ -146,7 +146,10 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
   const [completedPolygon, setCompletedPolygon] = useState<google.maps.LatLngLiteral[] | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const apiKey = googleMapsApiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  // Prop preserved for backwards compatibility but ignored — see
+  // PropertyMap for why all callers must resolve apiKey identically.
+  void googleMapsApiKey;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
