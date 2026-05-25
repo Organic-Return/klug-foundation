@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { GoogleMap, OverlayViewF, OverlayView } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, OverlayViewF, OverlayView } from '@react-google-maps/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { EnrichedPartner } from './components';
 import { getPartnerUrl } from './components';
 import { grayscaleMapStyles } from '@/lib/mapStyles';
-import { useSharedGoogleMapsLoader } from '@/lib/googleMapsLoader';
 
 interface PartnersMapSectionProps {
   partners: EnrichedPartner[];
@@ -173,7 +172,9 @@ export default function PartnersMapSection({ partners, title = 'Our Partner Netw
   const [searchQuery, setSearchQuery] = useState('');
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  const { isLoaded, loadError } = useSharedGoogleMapsLoader();
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+  });
 
   // Filter partners with valid coordinates
   const partnersWithCoords = partners.filter(

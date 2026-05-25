@@ -1,9 +1,8 @@
 'use client';
 
 import { useCallback, useRef, useMemo } from 'react';
-import { GoogleMap, OverlayViewF, OverlayView } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, OverlayViewF, OverlayView } from '@react-google-maps/api';
 import { grayscaleMapStyles } from '@/lib/mapStyles';
-import { useSharedGoogleMapsLoader } from '@/lib/googleMapsLoader';
 
 interface PropertyMapProps {
   latitude: number;
@@ -39,13 +38,11 @@ const mapContainerStyle = {
 export default function PropertyMap({ latitude, longitude, address, price, googleMapsApiKey }: PropertyMapProps) {
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  // The `googleMapsApiKey` prop is preserved for backwards compatibility
-  // but is no longer consulted at load time — see useSharedGoogleMapsLoader
-  // for why all Map components must share identical loader options.
-  void googleMapsApiKey;
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  const apiKey = googleMapsApiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
-  const { isLoaded, loadError } = useSharedGoogleMapsLoader();
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: apiKey,
+  });
 
   const center = useMemo(() => ({ lat: latitude, lng: longitude }), [latitude, longitude]);
 

@@ -1,10 +1,9 @@
 'use client';
 
 import { useCallback, useState, useRef, useEffect } from 'react';
-import { GoogleMap, MarkerF, InfoWindowF, PolygonF, OverlayViewF, OverlayView } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, PolygonF, OverlayViewF, OverlayView } from '@react-google-maps/api';
 import { getListingHref, type MLSProperty } from '@/lib/listings';
 import { grayscaleMapStyles } from '@/lib/mapStyles';
-import { useSharedGoogleMapsLoader } from '@/lib/googleMapsLoader';
 
 interface ListingsMapProps {
   listings: MLSProperty[];
@@ -147,13 +146,11 @@ export default function ListingsMap({ listings, onDrawComplete, onDrawClear, has
   const [completedPolygon, setCompletedPolygon] = useState<google.maps.LatLngLiteral[] | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
 
-  // Prop preserved for backwards compatibility; not consulted at load
-  // time — all Map components share useSharedGoogleMapsLoader to avoid
-  // the "Loader must not be called again with different options" error.
-  void googleMapsApiKey;
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+  const apiKey = googleMapsApiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
 
-  const { isLoaded, loadError } = useSharedGoogleMapsLoader();
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: apiKey,
+  });
 
   // Filter listings with valid finite coordinates
   const listingsWithCoords = listings.filter(
