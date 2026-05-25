@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache';
-import { getListings, getListingHref, getDistinctCities } from '@/lib/listings';
+import { getListingsForSitemap, getListingHref, getDistinctCities } from '@/lib/listings';
 import {
   getSiteBaseUrl,
   renderUrlset,
@@ -8,8 +8,10 @@ import {
   type SitemapEntry,
 } from '@/lib/sitemapXml';
 
-// MLS listing detail pages + per-city property-type hubs. Heaviest
-// source — up to 5 × 1000 = 5k listings paginated from the MLS feed.
+// MLS listing detail pages + per-city property-type hubs. Uses a
+// sitemap-specific query that only fetches what getListingHref() needs
+// (~6 columns instead of full row) — cuts cold-start from 17–30s down
+// to a couple seconds, well within crawler timeout windows.
 export const dynamic = 'force-dynamic';
 
 const buildEntries = unstable_cache(
@@ -17,23 +19,18 @@ const buildEntries = unstable_cache(
     const fetchListingEntries = async (): Promise<SitemapEntry[]> => {
       const out: SitemapEntry[] = [];
       try {
-        const PAGE_SIZE = 1000;
+        const rows = await getListingsForSitemap();
         const seen = new Set<string>();
-        for (let page = 1; page <= 5; page++) {
-          const { listings, totalPages } = await getListings(page, PAGE_SIZE);
-          if (!listings || listings.length === 0) break;
-          for (const listing of listings) {
-            const href = getListingHref(listing);
-            if (seen.has(href)) continue;
-            seen.add(href);
-            out.push({
-              url: `${baseUrl}${href}`,
-              lastModified: listing.updated_at ? new Date(listing.updated_at) : new Date(),
-              changeFrequency: 'daily',
-              priority: 0.8,
-            });
-          }
-          if (page >= totalPages) break;
+        for (const row of rows) {
+          const href = getListingHref(row);
+          if (seen.has(href)) continue;
+          seen.add(href);
+          out.push({
+            url: `${baseUrl}${href}`,
+            lastModified: row.updated_at ? new Date(row.updated_at) : new Date(),
+            changeFrequency: 'daily',
+            priority: 0.8,
+          });
         }
       } catch (error) {
         console.error('[sitemap] error fetching MLS listings:', error);
@@ -64,7 +61,7 @@ const buildEntries = unstable_cache(
 
     return [...listingEntries, ...cityHubs];
   },
-  ['sitemap-listings-v2'],
+  ['sitemap-listings-v3'],
   { revalidate: 3600, tags: ['sitemap', 'sitemap-listings'] }
 );
 

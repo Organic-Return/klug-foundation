@@ -684,6 +684,49 @@ async function getListingsByPropertyTypes(opts: {
   return deduplicateListings(rows);
 }
 
+// Lightweight listing shape with just the fields the sitemap needs.
+// Returning the full row from getListings() (photos arrays, descriptions,
+// agent details, etc.) for all ~5k MLS records makes /sitemap-listings.xml
+// regenerate in 17-30s, which exceeds Vercel-edge regeneration windows AND
+// crawler timeouts. Selecting only what getListingHref() needs cuts the
+// transfer + parsing by ~95%.
+export interface SitemapListingRow {
+  id: string;
+  mls_number: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  updated_at: string | null;
+}
+
+export async function getListingsForSitemap(): Promise<SitemapListingRow[]> {
+  if (!isSupabaseConfigured()) return [];
+
+  const out: SitemapListingRow[] = [];
+  const PAGE_SIZE = 1000;
+  // Paginate with a tiny projection. Each page is just IDs + address fields,
+  // so the response is a few hundred KB instead of ~10MB and Supabase returns
+  // it in well under a second per page.
+  for (let page = 0; page < 6; page++) {
+    const from = page * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+    const { data, error } = await supabase
+      .from('graphql_listings')
+      .select('id, mls_number, address, city, state, zip_code, updated_at')
+      .not('listing_id', 'is', null)
+      .range(from, to);
+    if (error) {
+      console.error('[getListingsForSitemap] page', page, 'error:', error);
+      break;
+    }
+    if (!data || data.length === 0) break;
+    out.push(...(data as SitemapListingRow[]));
+    if (data.length < PAGE_SIZE) break;
+  }
+  return out;
+}
+
 export async function getRentals(city?: string | null): Promise<MLSProperty[]> {
   return getListingsByPropertyTypes({
     propertyTypes: EXCLUDED_LEASE_TYPES, // 'Residential Lease', 'Commercial Lease'
