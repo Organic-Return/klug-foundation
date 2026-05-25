@@ -55,6 +55,12 @@ const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
       ...,
       asset->
     }
+  },
+  parentCommunity-> {
+    _id,
+    title,
+    "slug": slug.current,
+    demographics
   }
 }`;
 
@@ -366,15 +372,27 @@ export default async function CommunityPage({
     );
   }
 
-  // Fetch demographic data if coordinates are available and demographics are missing or outdated
-  let demographics = community.demographics;
+  // Neighborhood communities (Red Mountain, etc.) inherit demographics
+  // and headline from their parent city (Aspen). The Sanity reference
+  // `parentCommunity` opts in to this on a per-document basis.
+  const parent = community.parentCommunity;
+  const inheritsFromParent = !!(parent && parent.title);
+  const headlineTitle: string = inheritsFromParent ? parent.title : community.title;
+
+  // Fetch demographic data if coordinates are available and demographics are missing or outdated.
+  // When inheriting from a parent, we use the parent's demographics directly and skip the Census
+  // auto-fetch — the parent page is the source of truth for that data.
+  let demographics = inheritsFromParent ? parent.demographics : community.demographics;
   console.log('🏘️  Community coordinates:', community.coordinates);
   console.log('📊 Existing demographics:', demographics);
+  if (inheritsFromParent) {
+    console.log(`↗️  Inheriting demographics from parent: ${parent.title}`);
+  }
 
   // Check if demographics data is complete (has population data, not just lastUpdated)
   const hasCompleteData = demographics && demographics.population;
 
-  if (community.coordinates && (!hasCompleteData)) {
+  if (!inheritsFromParent && community.coordinates && (!hasCompleteData)) {
     console.log('🔄 Fetching demographic data from Census API...');
     const fetchedDemographics = await fetchDemographicData({
       lat: community.coordinates.lat,
@@ -405,6 +423,7 @@ export default async function CommunityPage({
     }
   } else {
     console.log('ℹ️  Skipping demographic fetch:',
+      inheritsFromParent ? `Inheriting from parent ${parent.title}` :
       !community.coordinates ? 'No coordinates' :
       hasCompleteData ? `Already has complete data (population: ${demographics.population})` :
       'Unknown reason');
@@ -536,7 +555,7 @@ export default async function CommunityPage({
         {/* Hero Section */}
         {heroImageUrl ? (
           <CommunityHero
-            title={community.title}
+            title={headlineTitle}
             description={community.description}
             imageUrl={heroImageUrl}
             priceRange={priceRange || undefined}
@@ -547,7 +566,7 @@ export default async function CommunityPage({
           <div className={isLuxury ? 'bg-[var(--color-charcoal)] pt-24 pb-12 px-6' : 'bg-[var(--color-navy)] pt-24 pb-12 px-6'}>
             <div className="max-w-7xl mx-auto">
               <h1 className={isLuxury ? 'font-luxury text-white font-light tracking-wide' : 'text-white'}>
-                {community.title}
+                {headlineTitle}
               </h1>
               {community.description && (
                 <p className={isLuxury ? 'text-lg text-white/70 mt-6 max-w-2xl font-luxury-body font-light line-clamp-2' : 'text-lg text-white/80 mt-6 max-w-2xl line-clamp-2'}>

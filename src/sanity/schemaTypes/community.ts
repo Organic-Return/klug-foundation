@@ -37,6 +37,18 @@ export const community = defineType({
       initialValue: 'city',
     }),
     defineField({
+      name: 'parentCommunity',
+      title: 'Parent City',
+      type: 'reference',
+      description:
+        'The city this neighborhood belongs to. When set, the neighborhood page inherits the city\'s demographic data and displays the city\'s name as the headline (e.g., Red Mountain → Aspen).',
+      to: [{ type: 'community' }],
+      options: {
+        filter: 'communityType == "city"',
+      },
+      hidden: ({ parent }) => parent?.communityType !== 'neighborhood',
+    }),
+    defineField({
       name: 'mlsAreaMinor',
       title: 'MLS Neighborhood',
       type: 'string',
@@ -45,8 +57,13 @@ export const community = defineType({
         // @ts-expect-error - Sanity supports async list but types don't reflect it
         list: async () => {
           try {
-            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-            const response = await fetch(`${baseUrl}/api/listing-options`);
+            // Relative URL so it resolves to whatever origin Studio is
+            // served from (prod, preview, or localhost). The old absolute
+            // path read process.env.NEXT_PUBLIC_SITE_URL, which is bundled
+            // into the Studio browser only when explicitly set at build
+            // time — when missing it fell back to http://localhost:3000
+            // and the dropdown silently failed in production.
+            const response = await fetch('/api/listing-options');
             if (!response.ok) return [];
             const data = await response.json();
             return (data.neighborhoods || []).map((name: string) => ({
@@ -70,8 +87,7 @@ export const community = defineType({
         // @ts-expect-error - Sanity supports async list but types don't reflect it
         list: async () => {
           try {
-            const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-            const response = await fetch(`${baseUrl}/api/listing-options`);
+            const response = await fetch('/api/listing-options');
             if (!response.ok) return [];
             const data = await response.json();
             return (data.complexes || []).map((name: string) => ({
