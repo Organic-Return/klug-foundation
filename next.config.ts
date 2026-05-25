@@ -4,6 +4,14 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 
+  // Tie every client request to the current deployment. When Vercel
+  // ships a new build, any browser tab still running the previous
+  // client bundle will see the deploymentId mismatch on its next
+  // RSC fetch and trigger a full page reload, picking up the new
+  // bundle automatically. Prevents "client-side exception" errors
+  // when an old client tries to consume a new server's response.
+  deploymentId: process.env.VERCEL_DEPLOYMENT_ID,
+
   // Lighthouse Best Practices flags missing source maps for large
   // first-party JS bundles. Marketing site code is fine to expose.
   productionBrowserSourceMaps: true,
