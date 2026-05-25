@@ -361,6 +361,15 @@ export const offMarketListing = defineType({
 
     // Settings
     defineField({
+      name: 'hiddenFromPublic',
+      title: 'Hide from public site',
+      type: 'boolean',
+      description:
+        'Safe way to hide a listing from the public site without unpublishing or deleting the document. Toggle this and click Publish; the listing stays in Sanity but stops appearing on klugproperties.com. Always prefer this over the Unpublish action.',
+      initialValue: false,
+      group: 'settings',
+    }),
+    defineField({
       name: 'requiresRegistration',
       title: 'Requires Registration to View',
       type: 'boolean',

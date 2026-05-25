@@ -153,8 +153,14 @@ function transformListing(data: any): OffMarketListing {
   };
 }
 
+// All public queries exclude documents flagged hiddenFromPublic == true.
+// This gives editors a safe way to hide listings (toggle the field, hit
+// Publish) without ever needing the Unpublish or Delete actions — both
+// of which previously led to documents disappearing from Sanity entirely.
+const PUBLIC_FILTER = 'hiddenFromPublic != true';
+
 export async function getOffMarketListings(): Promise<OffMarketListing[]> {
-  const query = `*[_type == "offMarketListing"] | order(listingDate desc) {
+  const query = `*[_type == "offMarketListing" && ${PUBLIC_FILTER}] | order(listingDate desc) {
     ${offMarketListingFields}
   }`;
 
@@ -163,7 +169,7 @@ export async function getOffMarketListings(): Promise<OffMarketListing[]> {
 }
 
 export async function getFeaturedOffMarketListings(): Promise<OffMarketListing[]> {
-  const query = `*[_type == "offMarketListing" && featured == true] | order(listingDate desc) {
+  const query = `*[_type == "offMarketListing" && featured == true && ${PUBLIC_FILTER}] | order(listingDate desc) {
     ${offMarketListingFields}
   }`;
 
@@ -172,7 +178,7 @@ export async function getFeaturedOffMarketListings(): Promise<OffMarketListing[]
 }
 
 export async function getOffMarketListingBySlug(slug: string): Promise<OffMarketListing | null> {
-  const query = `*[_type == "offMarketListing" && slug.current == $slug][0] {
+  const query = `*[_type == "offMarketListing" && slug.current == $slug && ${PUBLIC_FILTER}][0] {
     ${offMarketListingFields}
   }`;
 

@@ -24,5 +24,12 @@ export const dynamic = 'force-dynamic';
 export default async function OffMarketPage() {
   const listings = await getOffMarketListings();
 
-  return <OffMarketListingsContent listings={listings} />;
+  // Sort by list price descending; listings without a price sink to the end.
+  const sorted = [...listings].sort((a, b) => {
+    const ap = a.listPrice ?? -Infinity;
+    const bp = b.listPrice ?? -Infinity;
+    return bp - ap;
+  });
+
+  return <OffMarketListingsContent listings={sorted} />;
 }
