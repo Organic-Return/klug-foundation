@@ -73,8 +73,11 @@ export default async function Home() {
   const featuredProperty = homepage?.featuredProperty;
   const featuredCommunitiesConfig = homepage?.featuredCommunities;
 
-  // Auto-pull all of Chris Klug's active listings for the featured property
-  // rotator. Falls back to the CMS-set mlsId if the lookup fails.
+  // Auto-pull Chris Klug's strictly-Active MLS listings for the featured
+  // property rotator. `getListingsByAgentId().activeListings` returns a
+  // broader bucket (Pending, Contingent, Active Under Contract, etc.) —
+  // those statuses don't belong on the homepage marketing rotator. Filter
+  // here so only listings whose status is literally 'Active' surface.
   let autoFeaturedMlsIds: string[] = [];
   try {
     const chris = await client.fetch<{ mlsAgentId?: string; name?: string } | null>(
@@ -85,6 +88,7 @@ export default async function Home() {
     const chrisMlsId = chris?.mlsAgentId || '3837';
     const chrisListings = await getListingsByAgentId(chrisMlsId, undefined, chris?.name || 'Chris Klug');
     autoFeaturedMlsIds = chrisListings.activeListings
+      .filter((l) => l.status === 'Active')
       .map((l) => l.mls_number)
       .filter((id): id is string => Boolean(id));
   } catch (err) {

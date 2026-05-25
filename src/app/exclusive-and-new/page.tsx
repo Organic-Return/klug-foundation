@@ -114,10 +114,23 @@ export default async function ExclusiveAndNewPage() {
   const newestLimit = page?.newestLimit ?? 10;
 
   // Section 1: agent's active listings
-  const agentListings = await getListingsByAgentId(agentMlsId, agent?.mlsAgentIdSold, agentName);
+  const agentListingsRaw = await getListingsByAgentId(agentMlsId, agent?.mlsAgentIdSold, agentName);
 
   // Section 2: newest single-family active listings in newestCity
-  const newestListings = await getNewestSingleFamilyByCity(newestCity, newestLimit);
+  const newestListingsRaw = await getNewestSingleFamilyByCity(newestCity, newestLimit);
+
+  // Filter out listings with no photos in either section. Real estate
+  // grids look broken when half the cards are placeholder house-icons,
+  // and the MLS feed occasionally returns listings before media has
+  // been attached. Better to hide those cards than to ship them.
+  const hasPhotos = (l: { photos?: string[] | null }) =>
+    Array.isArray(l.photos) && l.photos.some((p) => typeof p === 'string' && p.trim().length > 0);
+
+  const agentListings = {
+    ...agentListingsRaw,
+    activeListings: agentListingsRaw.activeListings.filter(hasPhotos),
+  };
+  const newestListings = newestListingsRaw.filter(hasPhotos);
 
   // SIR media enrichment for both sets
   const allMlsNumbers = [
