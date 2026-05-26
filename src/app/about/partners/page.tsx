@@ -2,7 +2,7 @@ import { client } from "@/sanity/client";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl, getGoogleMapsApiKey } from "@/lib/settings";
 import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor } from "@/app/affiliated-partners/components";
 import CTASection from "@/app/affiliated-partners/CTASection";
 import PartnersMapSection from "@/app/affiliated-partners/PartnersMapSection";
@@ -142,10 +142,11 @@ async function getLatestPartnerListings(partners: Partner[], limit = 10): Promis
 }
 
 export default async function AffiliatedPartnersPage() {
-  const [partners, pageContent, defaultHeroUrl] = await Promise.all([
+  const [partners, pageContent, defaultHeroUrl, googleMapsApiKey] = await Promise.all([
     client.fetch<Partner[]>(PARTNERS_QUERY, {}, options),
     client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
     getDefaultHeroImageUrl(),
+    getGoogleMapsApiKey(),
   ]);
 
   // Count partners by type
@@ -343,6 +344,7 @@ export default async function AffiliatedPartnersPage() {
       <PartnersMapSection
         partners={enrichedPartners}
         title="Our Partner Network"
+        googleMapsApiKey={googleMapsApiKey}
       />
 
       {/* Latest Partner Listings */}
