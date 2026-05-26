@@ -328,6 +328,30 @@ class SanityClient:
         response.raise_for_status()
         return response.json()
 
+    def existing_post_slugs(self) -> set:
+        """Return every post slug already in Sanity, lowercased."""
+        url = f"{self.base_url}/data/query/{self.dataset}"
+        params = {"query": '*[_type == "post"].slug.current'}
+        r = requests.get(url, headers=self._headers(), params=params, timeout=30)
+        r.raise_for_status()
+        return {s.lower() for s in (r.json().get("result") or []) if s}
+
+    def existing_post_title_keys(self) -> set:
+        """Return a normalized-title set so we can dedupe across slug variants
+        (e.g. unicode/punctuation differences between Drupal and Sanity)."""
+        import re as _re
+        url = f"{self.base_url}/data/query/{self.dataset}"
+        params = {"query": '*[_type == "post"].title'}
+        r = requests.get(url, headers=self._headers(), params=params, timeout=30)
+        r.raise_for_status()
+        keys = set()
+        for t in (r.json().get("result") or []):
+            if not t:
+                continue
+            k = _re.sub(r"[^a-z0-9]+", "", t.lower())
+            keys.add(k)
+        return keys
+
     def upload_image(self, image_url):
         """Download an image from URL and upload to Sanity."""
         try:
@@ -402,15 +426,18 @@ def convert_drupal_post_to_sanity(post, sanity_client):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 scripts/migrate-drupal-to-sanity.py <SANITY_WRITE_TOKEN>")
-        print("\nGet a token from: https://www.sanity.io/manage")
-        print(f"  Project: {SANITY_PROJECT_ID}")
-        print(f"  Dataset: {SANITY_DATASET}")
-        print("  Required permissions: Editor or higher")
+    argv = [a for a in sys.argv[1:] if not a.startswith("--")]
+    flags = {a for a in sys.argv[1:] if a.startswith("--")}
+    missing_only = "--missing-only" in flags
+    dry_run = "--dry-run" in flags
+
+    if len(argv) < 1:
+        print("Usage: python3 scripts/migrate-drupal-to-sanity.py <SANITY_WRITE_TOKEN> [--missing-only] [--dry-run]")
+        print("\n  --missing-only  Skip Drupal posts whose slug already exists in Sanity")
+        print("  --dry-run       Print what would happen; don't write to Sanity")
         sys.exit(1)
 
-    sanity_token = sys.argv[1]
+    sanity_token = argv[0]
 
     print("=" * 60)
     print("Drupal -> Sanity Blog Post Migration")
@@ -431,6 +458,42 @@ def main():
     # Step 2: Initialize Sanity client
     print("[2/3] Connecting to Sanity...")
     sanity = SanityClient(SANITY_PROJECT_ID, SANITY_DATASET, sanity_token)
+
+    # Optionally filter to posts whose slug AND title are not already in Sanity
+    skip_count = 0
+    if missing_only:
+        existing_slugs = sanity.existing_post_slugs()
+        existing_titles = sanity.existing_post_title_keys()
+        print(f"  Sanity already has {len(existing_slugs)} post(s); filtering Drupal list")
+        from re import sub
+        kept = []
+        for p in drupal_posts:
+            attrs = p.get("attributes", {})
+            slug_obj = attrs.get("path") or {}
+            alias = (slug_obj.get("alias") or "").lower().strip("/")
+            title = (attrs.get("title") or "").lower()
+            simple = sub(r"[^a-z0-9]+", "-", title).strip("-")
+            slug_candidates = {alias, simple, alias.rsplit("/", 1)[-1] if alias else ""}
+            title_key = sub(r"[^a-z0-9]+", "", title)
+            if (slug_candidates & existing_slugs) or (title_key and title_key in existing_titles):
+                skip_count += 1
+                continue
+            kept.append(p)
+            # add to the existing-title set so subsequent Drupal posts with
+            # the same title (yes, Drupal has duplicates of its own) are skipped
+            existing_titles.add(title_key)
+        drupal_posts = kept
+        print(f"  After filter: {len(drupal_posts)} new post(s) to import (skipped {skip_count} already in Sanity)\n")
+
+    if dry_run:
+        print("DRY-RUN — listing what would be imported:")
+        for i, post in enumerate(drupal_posts, 1):
+            a = post.get("attributes", {})
+            t = a.get("title") or "Untitled"
+            d = a.get("created", "")[:10]
+            print(f"  [{i}] {d} | {t[:80]}")
+        print(f"\n  Total: {len(drupal_posts)} post(s) would be imported.")
+        sys.exit(0)
 
     # Step 3: Convert and push each post
     print(f"[3/3] Migrating {len(drupal_posts)} posts...\n")

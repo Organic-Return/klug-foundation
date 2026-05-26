@@ -332,6 +332,13 @@ export const offMarketListing = defineType({
       description: 'Matterport or other virtual tour link',
       group: 'media',
     }),
+    defineField({
+      name: 'videoUrl',
+      title: 'Property Video URL',
+      type: 'url',
+      description: 'Brightcove/YouTube/Vimeo player URL for a property video',
+      group: 'media',
+    }),
 
     // Agent Info
     defineField({

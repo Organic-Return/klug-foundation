@@ -312,6 +312,7 @@ def build_doc(node: dict, image_asset_ids: list[str]) -> dict:
         "parkingFeatures": to_list(a.get("field_parking_features")),
         "associationAmenities": inclusions_list,
         "virtualTourUrl": a.get("field_virtual_tour_link"),
+        "videoUrl": a.get("field_property_video_link"),
         "requiresRegistration": True,
         "featured": False,
         "publishedAt": listing_date,

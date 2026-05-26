@@ -46,6 +46,7 @@ export interface OffMarketListing {
   featuredImageUrl: string | null;
   photos: string[];
   virtualTourUrl: string | null;
+  videoUrl: string | null;
   agentName: string | null;
   agentEmail: string | null;
   agentPhone: string | null;
@@ -94,6 +95,7 @@ const offMarketListingFields = `
   "featuredImageUrl": featuredImage.asset->url,
   "photos": photos[].asset->url,
   virtualTourUrl,
+  videoUrl,
   agentName,
   agentEmail,
   agentPhone,
@@ -143,6 +145,7 @@ function transformListing(data: any): OffMarketListing {
     featuredImageUrl: data.featuredImageUrl,
     photos: data.photos || [],
     virtualTourUrl: data.virtualTourUrl,
+    videoUrl: data.videoUrl,
     agentName: data.agentName,
     agentEmail: data.agentEmail,
     agentPhone: data.agentPhone,
@@ -243,7 +246,7 @@ export function offMarketToMLSProperty(listing: OffMarketListing): any {
     agent_name: listing.agentName,
     agent_email: listing.agentEmail,
     photos: allPhotos,
-    video_urls: [],
+    video_urls: listing.videoUrl ? [listing.videoUrl] : [],
     latitude: listing.latitude,
     longitude: listing.longitude,
     subdivision_name: listing.subdivisionName,
