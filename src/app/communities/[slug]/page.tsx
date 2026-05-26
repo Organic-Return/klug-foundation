@@ -903,18 +903,35 @@ export default async function CommunityPage({
             )
           )}
 
-          {/* Recent Listings Section */}
-          {community.marketInsightsCity && (
-            <div className={isCustomOne ? 'bg-white' : isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
-              <RecentListings
-                city={community.marketInsightsCity}
-                limit={isCustomOne ? 3 : 10}
-                title={`Recent Listings in ${community.title}`}
-                subtitle={`The most recently listed properties in ${community.marketInsightsCity}`}
-                variant={variant}
-              />
-            </div>
-          )}
+          {/* Recent Listings Section. Prefer mls_area_minor filter when
+              the editor has configured one or more MLS Neighborhoods on
+              the community; otherwise fall back to filtering by city. */}
+          {(() => {
+            const mlsAreas: string[] = Array.isArray(community.mlsAreaMinors)
+              ? community.mlsAreaMinors.filter((s: unknown): s is string => typeof s === 'string' && s.length > 0)
+              : [];
+            const hasAreas = mlsAreas.length > 0;
+            const cityForFetch = community.marketInsightsCity || '';
+
+            if (!hasAreas && !cityForFetch) return null;
+
+            const subtitle = hasAreas
+              ? `Currently listed in ${mlsAreas.join(', ')}`
+              : `The most recently listed properties in ${cityForFetch}`;
+
+            return (
+              <div className={isCustomOne ? 'bg-white' : isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
+                <RecentListings
+                  city={cityForFetch}
+                  limit={isCustomOne ? 3 : 10}
+                  title={`Recent Listings in ${community.title}`}
+                  subtitle={subtitle}
+                  variant={variant}
+                  mlsAreas={hasAreas ? mlsAreas : undefined}
+                />
+              </div>
+            );
+          })()}
 
           {/* Property Type cross-links — internal-link block that
               passes equity from each community page to the rental,

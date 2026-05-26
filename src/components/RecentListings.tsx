@@ -28,6 +28,13 @@ interface RecentListingsProps {
   title?: string;
   subtitle?: string;
   variant?: 'classic' | 'luxury';
+  /**
+   * Optional list of MLS area-minor values (e.g., "01-Red Mountain").
+   * When provided, listings are filtered by mls_area_minor IN (...) instead
+   * of by city, giving editors finer-grained control over which properties
+   * appear on a community page.
+   */
+  mlsAreas?: string[];
 }
 
 function formatPrice(price: number | null): string {
@@ -223,19 +230,26 @@ export default function RecentListings({
   title = 'Recent Listings',
   subtitle,
   variant = 'classic',
+  mlsAreas,
 }: RecentListingsProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Stable key for the effect dep — joining is cheaper than holding the
+  // array reference identity across renders.
+  const mlsAreasKey = mlsAreas && mlsAreas.length > 0 ? mlsAreas.slice().sort().join(',') : '';
+
   useEffect(() => {
     async function fetchListings() {
-      if (!city) return;
+      if (!city && !mlsAreasKey) return;
 
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `/api/recent-listings?city=${encodeURIComponent(city)}&limit=${limit}`
-        );
+        const params = new URLSearchParams();
+        if (city) params.set('city', city);
+        params.set('limit', String(limit));
+        if (mlsAreasKey) params.set('mlsAreas', mlsAreasKey);
+        const response = await fetch(`/api/recent-listings?${params.toString()}`);
         const data = await response.json();
         setListings(data.listings || []);
       } catch (error) {
@@ -247,9 +261,9 @@ export default function RecentListings({
     }
 
     fetchListings();
-  }, [city, limit]);
+  }, [city, limit, mlsAreasKey]);
 
-  if (!city) {
+  if (!city && !mlsAreasKey) {
     return null;
   }
 

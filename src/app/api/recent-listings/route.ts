@@ -22,17 +22,19 @@ interface Listing {
   photos: string[];
 }
 
-async function fetchRecentListings(city: string, limit: number): Promise<Listing[]> {
-  // Get MLS configuration to filter by allowed cities
-  const mlsConfig = await getMLSConfiguration();
-  const allowedCities = getAllowedCities(mlsConfig);
-
-  // If allowedCities is configured, only serve listed cities
-  if (allowedCities.length > 0 && !allowedCities.includes(city)) {
-    return [];
+async function fetchRecentListings(city: string, limit: number, mlsAreas?: string[]): Promise<Listing[]> {
+  // Get MLS configuration to filter by allowed cities. Skipped when the
+  // caller passes explicit mlsAreas — those listings might span multiple
+  // cities and the area-minor signal is more specific than the city gate.
+  if (!mlsAreas || mlsAreas.length === 0) {
+    const mlsConfig = await getMLSConfiguration();
+    const allowedCities = getAllowedCities(mlsConfig);
+    if (allowedCities.length > 0 && !allowedCities.includes(city)) {
+      return [];
+    }
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from('mls_properties')
     .select(`
       id,
@@ -50,7 +52,6 @@ async function fetchRecentListings(city: string, limit: number): Promise<Listing
       preferred_photo,
       media
     `)
-    .eq('city', city)
     .eq('status', 'Active')
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
@@ -58,6 +59,17 @@ async function fetchRecentListings(city: string, limit: number): Promise<Listing
     .not('property_type', 'eq', 'Res Vacant Land')
     .order('listing_date', { ascending: false })
     .limit(limit);
+
+  // Prefer mls_area_minor filter when provided — it's the more specific
+  // signal a Sanity editor configured for this community. Otherwise
+  // fall back to filtering by city.
+  if (mlsAreas && mlsAreas.length > 0) {
+    query = query.in('mls_area_minor', mlsAreas);
+  } else {
+    query = query.eq('city', city);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching recent listings:', error);
@@ -117,10 +129,13 @@ async function fetchRecentListings(city: string, limit: number): Promise<Listing
 }
 
 // Create cached version of the fetch function
-const getCachedRecentListings = (city: string, limit: number) => {
+const getCachedRecentListings = (city: string, limit: number, mlsAreas?: string[]) => {
+  const areasKey = mlsAreas && mlsAreas.length > 0
+    ? mlsAreas.slice().sort().join('|')
+    : 'none';
   return unstable_cache(
-    async () => fetchRecentListings(city, limit),
-    [`recent-listings-${city}-${limit}`],
+    async () => fetchRecentListings(city, limit, mlsAreas),
+    [`recent-listings-${city}-${limit}-${areasKey}`],
     {
       revalidate: CACHE_DURATION,
       tags: [`recent-listings`, `recent-listings-${city}`],
@@ -137,16 +152,22 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const city = searchParams.get('city');
     const limit = parseInt(searchParams.get('limit') || '10', 10);
+    // mlsAreas: comma-separated list of mls_area_minor values to filter by.
+    // When provided, takes precedence over the city filter.
+    const mlsAreasParam = searchParams.get('mlsAreas');
+    const mlsAreas = mlsAreasParam
+      ? mlsAreasParam.split(',').map((s) => s.trim()).filter(Boolean)
+      : undefined;
 
-    if (!city) {
-      return NextResponse.json({ error: 'City parameter is required' }, { status: 400 });
+    if (!city && (!mlsAreas || mlsAreas.length === 0)) {
+      return NextResponse.json({ error: 'city or mlsAreas parameter is required' }, { status: 400 });
     }
 
     // Validate limit
     const validLimit = Math.min(Math.max(1, limit), 50);
 
     // Use cached function to get listings
-    const cachedFn = getCachedRecentListings(city, validLimit);
+    const cachedFn = getCachedRecentListings(city || '', validLimit, mlsAreas);
     const listings = await cachedFn();
 
     return NextResponse.json({ listings });

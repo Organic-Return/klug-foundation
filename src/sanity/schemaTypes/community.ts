@@ -49,34 +49,36 @@ export const community = defineType({
       hidden: ({ parent }) => parent?.communityType !== 'neighborhood',
     }),
     defineField({
-      name: 'mlsAreaMinor',
-      title: 'MLS Neighborhood',
-      type: 'string',
-      description: 'Select the MLS area minor (neighborhood) to filter listings for this community. The dropdown options are loaded from your MLS listings database.',
-      options: {
-        // @ts-expect-error - Sanity supports async list but types don't reflect it
-        list: async () => {
-          try {
-            // Relative URL so it resolves to whatever origin Studio is
-            // served from (prod, preview, or localhost). The old absolute
-            // path read process.env.NEXT_PUBLIC_SITE_URL, which is bundled
-            // into the Studio browser only when explicitly set at build
-            // time — when missing it fell back to http://localhost:3000
-            // and the dropdown silently failed in production.
-            const response = await fetch('/api/listing-options');
-            if (!response.ok) return [];
-            const data = await response.json();
-            return (data.neighborhoods || []).map((name: string) => ({
-              title: name,
-              value: name,
-            }));
-          } catch (error) {
-            console.error('Error fetching neighborhoods:', error);
-            return [];
-          }
+      name: 'mlsAreaMinors',
+      title: 'MLS Neighborhoods',
+      type: 'array',
+      description:
+        'Select one or more MLS area-minor values (neighborhoods) that map to this community. Currently-listed properties whose mls_area_minor matches any of the selected values will appear in the Recent Listings section. Options are loaded live from /api/listing-options.',
+      of: [
+        {
+          type: 'string',
+          options: {
+            list: async () => {
+              try {
+                const response = await fetch('/api/listing-options');
+                if (!response.ok) return [];
+                const data = await response.json();
+                return (data.neighborhoods || []).map((name: string) => ({
+                  title: name,
+                  value: name,
+                }));
+              } catch (error) {
+                console.error('Error fetching neighborhoods:', error);
+                return [];
+              }
+            },
+          },
         },
-      },
-      hidden: ({ parent }) => parent?.communityType !== 'neighborhood',
+      ],
+      // Visible for both city- and neighborhood-typed communities. A
+      // city might map to several MLS area-minors ("01-Central Core",
+      // "01-Red Mountain", etc.); a neighborhood usually maps to one.
+      hidden: ({ parent }) => parent?.communityType === 'complex',
     }),
     defineField({
       name: 'subdivisionName',
