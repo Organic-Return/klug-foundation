@@ -54,27 +54,25 @@ export const community = defineType({
       type: 'array',
       description:
         'Select one or more MLS area-minor values (neighborhoods) that map to this community. Currently-listed properties whose mls_area_minor matches any of the selected values will appear in the Recent Listings section. Options are loaded live from /api/listing-options.',
-      of: [
-        {
-          type: 'string',
-          options: {
-            list: async () => {
-              try {
-                const response = await fetch('/api/listing-options');
-                if (!response.ok) return [];
-                const data = await response.json();
-                return (data.neighborhoods || []).map((name: string) => ({
-                  title: name,
-                  value: name,
-                }));
-              } catch (error) {
-                console.error('Error fetching neighborhoods:', error);
-                return [];
-              }
-            },
-          },
+      of: [{ type: 'string' }],
+      options: {
+        layout: 'tags',
+        // @ts-expect-error - Sanity supports async list at array level but the type doesn't reflect it
+        list: async () => {
+          try {
+            const response = await fetch('/api/listing-options');
+            if (!response.ok) return [];
+            const data = await response.json();
+            return (data.neighborhoods || []).map((name: string) => ({
+              title: name,
+              value: name,
+            }));
+          } catch (error) {
+            console.error('Error fetching neighborhoods:', error);
+            return [];
+          }
         },
-      ],
+      },
       // Visible for both city- and neighborhood-typed communities. A
       // city might map to several MLS area-minors ("01-Central Core",
       // "01-Red Mountain", etc.); a neighborhood usually maps to one.
