@@ -17,10 +17,9 @@ function getCached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promise
   });
 }
 
-// Raw data from the MLS table. Originally backed by `graphql_listings`;
-// switched to `mls_properties` which uses `mls_number` instead of
-// `listing_id`. Both field names are kept for backward compatibility
-// during the transition — the code reads `row.mls_number || row.listing_id`.
+// Raw data from the mls_properties table (RESO-compliant schema).
+// `listing_id` is kept as an optional alias for `mls_number` so any
+// legacy callers reading row.listing_id still work.
 interface GraphQLListing {
   id: string;
   listing_id?: string;
@@ -28,6 +27,7 @@ interface GraphQLListing {
   status: string;
   list_price: number | null;
   sold_price: number | null;
+  sold_date?: string | null;
   address: string | null;
   street_number: string | null;
   street_name: string | null;
@@ -38,12 +38,14 @@ interface GraphQLListing {
   county: string | null;
   zip_code: string | null;
   bedrooms: number | null;
+  bathrooms: number | null;
   bathrooms_total: number | null;
   bathrooms_full: number | null;
   bathrooms_half: number | null;
   bathrooms_three_quarter: number | null;
   square_feet: number | null;
   living_area: number | null;
+  lot_size: number | null;
   lot_size_square_feet: number | null;
   lot_size_acres: number | null;
   year_built: string | null;
@@ -56,31 +58,45 @@ interface GraphQLListing {
   subdivision_name: string | null;
   mls_area_major: string | null;
   mls_area_minor: string | null;
-  preferred_photo: string | null;
+  neighborhood?: string | null;
+  preferred_photo?: string | null;
+  photos?: string[] | null;
   media: string[] | null;
   latitude: number | null;
   longitude: number | null;
+  agent_name?: string | null;
+  agent_email?: string | null;
   list_office_name: string | null;
+  list_office_mls_id?: string | null;
   list_agent_mls_id: string | null;
   list_agent_full_name: string | null;
+  list_agent_first_name?: string | null;
+  list_agent_last_name?: string | null;
+  list_agent_cell_phone?: string | null;
+  list_agent_direct_phone?: string | null;
+  list_agent_url?: string | null;
   co_list_agent_mls_id: string | null;
+  co_list_agent_full_name?: string | null;
   buyer_agent_mls_id: string | null;
+  buyer_agent_full_name?: string | null;
   co_buyer_agent_mls_id: string | null;
   virtual_tour_url: string | null;
+  video_urls?: string[] | null;
   furnished: string | null;
   fireplace_yn: boolean | null;
   fireplace_features: string[] | null;
-  fireplace_total: number | null;
+  fireplaces_total?: number | null;
+  fireplace_total?: number | null;
   cooling: string[] | null;
   heating: string[] | null;
   laundry_features: string[] | null;
   attached_garage_yn: boolean | null;
   parking_features: string[] | null;
   association_amenities: string[] | null;
-  open_house_date: string | null;
-  open_house_start_time: string | null;
-  open_house_end_time: string | null;
-  open_house_remarks: string | null;
+  open_house_date?: string | null;
+  open_house_start_time?: string | null;
+  open_house_end_time?: string | null;
+  open_house_remarks?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -368,25 +384,27 @@ function transformListing(row: GraphQLListing): MLSProperty {
     city: row.city,
     state: row.state,
     zip_code: row.zip_code,
-    neighborhood: row.subdivision_name || row.mls_area_minor || null,
+    neighborhood: row.neighborhood || row.subdivision_name || row.mls_area_minor || null,
     bedrooms: row.bedrooms,
-    bathrooms: row.bathrooms_total,
+    bathrooms: row.bathrooms_total ?? row.bathrooms,
     bathrooms_full: row.bathrooms_full,
     bathrooms_half: row.bathrooms_half,
     bathrooms_three_quarter: row.bathrooms_three_quarter,
     square_feet: row.square_feet || row.living_area,
-    lot_size: row.lot_size_acres,
+    lot_size: row.lot_size_acres ?? row.lot_size,
     year_built: row.year_built ? parseInt(row.year_built, 10) : null,
     property_type: row.property_sub_type || row.property_type,
     listing_date: row.listing_date,
-    sold_date: row.close_date,
+    sold_date: row.sold_date || row.close_date,
     days_on_market: daysOnMarket,
     description: row.description,
     features: {},
-    agent_name: row.list_office_name,
-    agent_email: null,
+    // Agent contact info: prefer the canonical list_agent_full_name from
+    // RESO, fall back to the legacy `agent_name` free-text field.
+    agent_name: row.list_agent_full_name || row.agent_name || null,
+    agent_email: row.agent_email || null,
     photos,
-    video_urls: [],
+    video_urls: row.video_urls || [],
     latitude: row.latitude != null ? Number(row.latitude) || null : null,
     longitude: row.longitude != null ? Number(row.longitude) || null : null,
     // Additional property details
@@ -395,7 +413,9 @@ function transformListing(row: GraphQLListing): MLSProperty {
     furnished: row.furnished,
     fireplace_yn: row.fireplace_yn,
     fireplace_features: row.fireplace_features,
-    fireplace_total: row.fireplace_total,
+    // RESO column is `fireplaces_total` (plural). Older mirrors used
+    // `fireplace_total`; read either for safety.
+    fireplace_total: row.fireplaces_total ?? row.fireplace_total ?? null,
     cooling: row.cooling,
     heating: row.heating,
     laundry_features: row.laundry_features,
@@ -410,10 +430,12 @@ function transformListing(row: GraphQLListing): MLSProperty {
     co_buyer_agent_mls_id: row.co_buyer_agent_mls_id,
     list_office_name: row.list_office_name || null,
     list_office_phone: null,
-    open_house_date: row.open_house_date,
-    open_house_start_time: row.open_house_start_time,
-    open_house_end_time: row.open_house_end_time,
-    open_house_remarks: row.open_house_remarks,
+    // open_house_* columns aren't present in mls_properties yet — coalesce
+    // to null so the MLSProperty type (string | null) stays satisfied.
+    open_house_date: row.open_house_date ?? null,
+    open_house_start_time: row.open_house_start_time ?? null,
+    open_house_end_time: row.open_house_end_time ?? null,
+    open_house_remarks: row.open_house_remarks ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };
@@ -542,20 +564,16 @@ export async function getListings(
 
   // Filter by team agent MLS IDs, names, and/or office names (Our Listings Only)
   if ((filters.agentMlsIds && filters.agentMlsIds.length > 0) || (filters.agentNames && filters.agentNames.length > 0) || (filters.officeNames && filters.officeNames.length > 0)) {
-    // mls_properties uses different column names than the old graphql_listings
-    // view: list_agent_key (nullable, often unset) instead of list_agent_mls_id,
-    // agent_name instead of list_agent_full_name, list_office_key (also often
-    // unset) instead of list_office_name. The MLS-ID filter falls through to
-    // nothing for now since list_agent_key is mostly null in mls_properties;
-    // agent-name ILIKE matching is the only reliable signal.
+    // mls_properties now exposes the full RESO column set, so use the
+    // canonical *_mls_id / *_full_name / *_office_name fields directly.
     const idConditions = (filters.agentMlsIds || [])
-      .map((id) => `list_agent_key.eq.${id},co_list_agent_key.eq.${id},buyer_agent_key.eq.${id}`)
+      .map((id) => `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id}`)
       .join(',');
     const nameConditions = (filters.agentNames || [])
-      .map((name) => `agent_name.ilike.%${name}%`)
+      .map((name) => `list_agent_full_name.ilike.%${name}%`)
       .join(',');
     const officeConditions = (filters.officeNames || [])
-      .map((name) => `list_office_key.ilike.%${name}%`)
+      .map((name) => `list_office_name.ilike.%${name}%`)
       .join(',');
     const allConditions = [idConditions, nameConditions, officeConditions].filter(Boolean).join(',');
     query = query.or(allConditions);
@@ -1764,14 +1782,15 @@ export async function getListingsByAgentId(
 
           if (agentMlsId) {
             // Query by MLS ID — matches listing and co-listing agent roles
-            // mls_properties uses list_agent_key etc. (and has no
-            // co_buyer_agent_key). list_agent_key is frequently null in
-            // mls_properties, which is fine — the agent-name fallback
-            // below (`activeData.length === 0 ...`) picks up the slack.
+            // Canonical RESO column names now that mls_properties has
+            // the full schema. Note: mls_properties does NOT have a
+            // co_buyer_agent_mls_id column (only buyer_agent_mls_id),
+            // so the old all-roles filter is one role shorter than the
+            // graphql_listings version was.
             const buildListingFilter = (id: string) =>
-              `list_agent_key.eq.${id},co_list_agent_key.eq.${id}`;
+              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
             const buildAllRolesFilter = (id: string) =>
-              `list_agent_key.eq.${id},co_list_agent_key.eq.${id},buyer_agent_key.eq.${id}`;
+              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id}`;
 
             const activeFilter = buildListingFilter(agentMlsId);
             const soldId = soldAgentMlsId || agentMlsId;
@@ -1811,7 +1830,7 @@ export async function getListingsByAgentId(
             // a non-numeric ID like a username instead of the real MLS ID)
             if (activeData.length === 0 && soldData.length === 0 && agentName) {
               console.log(`No listings found for MLS ID "${agentMlsId}", falling back to name "${agentName}"`);
-              const nameFilter = `agent_name.ilike.%${agentName}%`;
+              const nameFilter = `list_agent_full_name.ilike.%${agentName}%`;
               const [activeByName, soldByName] = await Promise.all([
                 supabase
                   .from('mls_properties')
@@ -1842,7 +1861,7 @@ export async function getListingsByAgentId(
             };
           } else {
             // No MLS ID — fall back to name-based query on list_agent_full_name
-            const nameFilter = `agent_name.ilike.%${agentName}%`;
+            const nameFilter = `list_agent_full_name.ilike.%${agentName}%`;
 
             const activeStatusesName = ['Active', 'Coming Soon', 'Active Under Contract', 'Contingent', 'Pending', 'Pending Inspect/Feasib', 'Active U/C W/ Bump', 'To Be Built'];
 
