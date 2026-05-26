@@ -53,24 +53,64 @@ export const community = defineType({
       title: 'MLS Neighborhoods',
       type: 'array',
       description:
-        'Select one or more MLS area-minor values (neighborhoods) that map to this community. Currently-listed properties whose mls_area_minor matches any of the selected values will appear in the Recent Listings section. Options are loaded live from /api/listing-options.',
+        'Select one or more MLS area-minor values that map to this community. Listings whose mls_area_minor matches any of the selected values appear in the Recent Listings section on the community page.',
+      // Static list — Sanity's checkbox-style multi-select renders synchronously
+      // and threw "n.map is not a function" when fed an async list, because it
+      // tried to map the unresolved Promise. Pulled from /api/listing-options
+      // on 2026-05-26; refresh by running the snippet in the source comment.
       of: [{ type: 'string' }],
       options: {
-        // @ts-expect-error - Sanity supports async list at array level
-        list: async () => {
-          try {
-            const response = await fetch('/api/listing-options');
-            if (!response.ok) return [];
-            const data = await response.json();
-            return (data.neighborhoods || []).map((name: string) => ({
-              title: name,
-              value: name,
-            }));
-          } catch (error) {
-            console.error('Error fetching neighborhoods:', error);
-            return [];
-          }
-        },
+        list: [
+          '01-Central Core',
+          '01-East Aspen',
+          '01-McLain Flats',
+          '01-Red Mountain',
+          '01-Smuggler',
+          '01-West Aspen',
+          '01-West End',
+          '02-Snowmass Village',
+          '03-Brush Creek Village',
+          '03-Woody Creek',
+          '04-Old Snowmass',
+          '05-Basalt Proper',
+          '05-El Jebel',
+          '05-Emma/Sopris Creek',
+          '05-Frying Pan/Ruedi',
+          '06-Missouri Heights',
+          '07-Carbondale Proper',
+          '07-Carbondale Rural',
+          '08-Crystal Valley',
+          '08-Marble',
+          '08-Redstone',
+          '09-Glenwood Proper',
+          '09-South of Glenwood',
+          '09-West of Glenwood',
+          '10-New Castle Proper',
+          '10-North of New Castle',
+          '10-South of New Castle',
+          '10-West of New Castle',
+          '11-East of Silt',
+          '11-North of Silt',
+          '11-Silt Proper',
+          '11-South of Silt',
+          '12-East of Rifle',
+          '12-North of Rifle',
+          '12-Rifle Proper',
+          '12-South of Rifle',
+          '12-West of Rifle',
+          '13-Parachute Proper',
+          '13-Parachute Rural',
+          '13-West of Parachute',
+          '14-Battlement Mesa',
+          '15-DeBeque',
+          '16-Hayden',
+          '17-Craig',
+          '18-Meeker',
+          '19-Steamboat',
+          '20-Rangely',
+          'Out of Area',
+          'Within Colorado',
+        ],
       },
       // Visible for both city- and neighborhood-typed communities. A
       // city might map to several MLS area-minors ("01-Central Core",
