@@ -98,9 +98,10 @@ export default async function SoldByKlugPropertiesPage() {
   );
 
   const fetchedSold = await getSoldListingsByAgentIds(agentIds);
-  // Sort sold listings by list price, highest first.
+  // Sort sold listings by sale price, highest first. Prefer sold_price
+  // (what the deal actually closed at); fall back to list_price.
   const soldListings = [...fetchedSold].sort(
-    (a, b) => (b.list_price ?? 0) - (a.list_price ?? 0)
+    (a, b) => (b.sold_price ?? b.list_price ?? 0) - (a.sold_price ?? a.list_price ?? 0)
   );
 
   // Calculate stats
