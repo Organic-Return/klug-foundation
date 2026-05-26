@@ -16,9 +16,9 @@ export async function GET(
 
   // 1. Check the view (graphql_listings) - works even with RLS
   const { data: viewData, error: viewError } = await supabase
-    .from('graphql_listings')
+    .from('mls_properties')
     .select('*')
-    .or(`id.eq.${id},listing_id.eq.${id}`)
+    .or(`id.eq.${id},mls_number.eq.${id}`)
     .limit(1);
 
   if (viewError) {
@@ -79,7 +79,7 @@ export async function GET(
   const { data: lookupData, error: lookupError } = await supabase
     .from('media_lookup')
     .select('listing_id, media')
-    .eq('listing_id', listingId)
+    .eq('mls_number', listingId)
     .limit(1);
 
   if (lookupError) {

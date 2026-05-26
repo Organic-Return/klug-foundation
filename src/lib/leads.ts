@@ -89,7 +89,7 @@ export async function determineLeadRouting(
   try {
     // Look up listing to get agent MLS IDs
     const { data: listing } = await supabase
-      .from('graphql_listings')
+      .from('mls_properties')
       .select('list_agent_mls_id, co_list_agent_mls_id')
       .eq('listing_id', propertyMlsId)
       .limit(1)

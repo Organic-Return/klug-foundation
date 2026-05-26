@@ -82,7 +82,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
 
   // Build all three queries using graphql_listings table
   let activeQuery = supabase
-    .from('graphql_listings')
+    .from('mls_properties')
     .select('city, list_price, square_feet, lot_size_acres')
     .eq('status', 'Active')
     .in('city', allowedCities)
@@ -92,7 +92,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .not('property_type', 'eq', 'Fractional');
 
   let pendingQuery = supabase
-    .from('graphql_listings')
+    .from('mls_properties')
     .select('city')
     .or('status.eq.Pending,status.eq.Under Contract,status.eq.Active Under Contract,status.ilike.Pending%,status.ilike.Active U/C%')
     .in('city', allowedCities)
@@ -101,7 +101,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
     .not('property_type', 'eq', 'Fractional');
 
   let closedQuery = supabase
-    .from('graphql_listings')
+    .from('mls_properties')
     .select('city, sold_price, list_price, square_feet, lot_size_acres, listing_date, close_date')
     .in('status', ['Closed', 'Sold'])
     .in('city', allowedCities)

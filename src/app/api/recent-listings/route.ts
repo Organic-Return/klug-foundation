@@ -33,7 +33,7 @@ async function fetchRecentListings(city: string, limit: number): Promise<Listing
   }
 
   const { data, error } = await supabase
-    .from('graphql_listings')
+    .from('mls_properties')
     .select(`
       id,
       address,

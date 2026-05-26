@@ -9,7 +9,7 @@ export async function GET() {
   try {
     // Fetch distinct mls_area_minor values (neighborhoods)
     const { data: neighborhoodData, error: neighborhoodError } = await supabase
-      .from('graphql_listings')
+      .from('mls_properties')
       .select('mls_area_minor')
       .not('mls_area_minor', 'is', null)
       .not('mls_area_minor', 'eq', '');
@@ -21,7 +21,7 @@ export async function GET() {
 
     // Fetch distinct subdivision_name values (complexes)
     const { data: complexData, error: complexError } = await supabase
-      .from('graphql_listings')
+      .from('mls_properties')
       .select('subdivision_name')
       .not('subdivision_name', 'is', null)
       .not('subdivision_name', 'eq', '');

@@ -655,7 +655,7 @@ export default async function CommunityPage({
                 <div className="text-center mb-16 md:mb-20">
                   <div className="w-16 h-[1px] bg-[var(--modern-gold)] mx-auto mb-8" />
                   <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-white tracking-wide">
-                    Community Profile
+                    {inheritsFromParent ? `${parent.title} Community Profile` : 'Community Profile'}
                   </h2>
                 </div>
 
