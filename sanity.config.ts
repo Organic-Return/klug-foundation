@@ -110,6 +110,15 @@ export default defineConfig({
                   .schemaType('livingAspenPage')
                   .documentId('livingAspenPage')
               ),
+            // Videos Page singleton
+            S.listItem()
+              .title('Videos Page')
+              .icon(() => '🎬')
+              .child(
+                S.document()
+                  .schemaType('videosPage')
+                  .documentId('videosPage')
+              ),
             // Blog Page singleton
             S.listItem()
               .title('Blog Page')
@@ -167,7 +176,7 @@ export default defineConfig({
             S.divider(),
             // All other document types
             ...S.documentTypeListItems().filter(
-              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'blogPage', 'inTheNewsPage', 'affiliatedPartnersPage', 'teamPage'].includes(listItem.getId() || '')
+              (listItem) => !['settings', 'homepage', 'buyPage', 'relocationPage', 'firstTimeBuyersPage', 'buildersPage', 'exclusiveAndNewPage', 'soldByKlugPage', 'marketReportsPage', 'livingAspenPage', 'videosPage', 'blogPage', 'inTheNewsPage', 'affiliatedPartnersPage', 'teamPage'].includes(listItem.getId() || '')
             ),
           ]),
     }),
