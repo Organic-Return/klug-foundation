@@ -2004,13 +2004,14 @@ export async function getSoldListingsByAgentIds(agentIds: string[]): Promise<MLS
   const ids = Array.from(new Set(agentIds.filter(Boolean)));
   if (ids.length === 0) return [];
 
-  // Build OR filter: any of the IDs matching any role
+  // Build OR filter: any of the IDs matching any role. mls_properties
+  // has no co_buyer_agent_mls_id column, so we only check the three that
+  // actually exist on the table.
   const orParts: string[] = [];
   for (const id of ids) {
     orParts.push(`list_agent_mls_id.eq.${id}`);
     orParts.push(`co_list_agent_mls_id.eq.${id}`);
     orParts.push(`buyer_agent_mls_id.eq.${id}`);
-    orParts.push(`co_buyer_agent_mls_id.eq.${id}`);
   }
   const filter = orParts.join(',');
 
@@ -2020,7 +2021,7 @@ export async function getSoldListingsByAgentIds(agentIds: string[]): Promise<MLS
     .not('mls_number', 'is', null)
     .or(filter)
     .in('status', ['Closed', 'Sold'])
-    .order('close_date', { ascending: false, nullsFirst: false })
+    .order('sold_date', { ascending: false, nullsFirst: false })
     .limit(1000);
 
   if (error) {
