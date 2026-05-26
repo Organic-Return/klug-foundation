@@ -56,8 +56,7 @@ export const community = defineType({
         'Select one or more MLS area-minor values (neighborhoods) that map to this community. Currently-listed properties whose mls_area_minor matches any of the selected values will appear in the Recent Listings section. Options are loaded live from /api/listing-options.',
       of: [{ type: 'string' }],
       options: {
-        layout: 'tags',
-        // @ts-expect-error - Sanity supports async list at array level but the type doesn't reflect it
+        // @ts-expect-error - Sanity supports async list at array level
         list: async () => {
           try {
             const response = await fetch('/api/listing-options');
