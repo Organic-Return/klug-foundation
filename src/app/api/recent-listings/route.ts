@@ -49,7 +49,7 @@ async function fetchRecentListings(city: string, limit: number, mlsAreas?: strin
       status,
       property_type,
       listing_date,
-      preferred_photo,
+      photos,
       media
     `)
     .eq('status', 'Active')
@@ -78,35 +78,40 @@ async function fetchRecentListings(city: string, limit: number, mlsAreas?: strin
 
   // Transform the data to match the Listing interface
   return (data || []).map((listing) => {
-    // Build photos array from preferred_photo and media
+    // Build photos array. `photos` (text[]) is the primary source on
+    // mls_properties; fall back to `media` (jsonb of RESO Media objects).
     const photos: string[] = [];
-    if (listing.preferred_photo) {
-      let pp = listing.preferred_photo;
-      if (pp.startsWith('//')) pp = `https:${pp}`;
-      photos.push(pp);
-    }
-    // Parse media — may be a JSON string, array of URL strings, or array of objects
-    let mediaItems: any[] = [];
-    const rawMedia: any = listing.media;
-    if (rawMedia) {
-      let parsed = rawMedia;
-      if (typeof parsed === 'string') {
-        try { parsed = JSON.parse(parsed); } catch { /* not JSON */ }
-      }
-      if (Array.isArray(parsed)) {
-        mediaItems = parsed;
-      }
-    }
-    for (const item of mediaItems) {
-      let url: string | undefined;
-      if (typeof item === 'string') {
-        url = item;
-      } else if (item && typeof item === 'object') {
-        url = item.MediaURL || item.MediaUrl || item.mediaUrl || item.mediaURL || item.url;
-      }
-      if (url && typeof url === 'string') {
+    const rawPhotos: any = listing.photos;
+    if (Array.isArray(rawPhotos)) {
+      for (let url of rawPhotos) {
+        if (typeof url !== 'string') continue;
         if (url.startsWith('//')) url = `https:${url}`;
         if (!photos.includes(url)) photos.push(url);
+      }
+    }
+    if (photos.length === 0) {
+      let mediaItems: any[] = [];
+      const rawMedia: any = listing.media;
+      if (rawMedia) {
+        let parsed = rawMedia;
+        if (typeof parsed === 'string') {
+          try { parsed = JSON.parse(parsed); } catch { /* not JSON */ }
+        }
+        if (Array.isArray(parsed)) {
+          mediaItems = parsed;
+        }
+      }
+      for (const item of mediaItems) {
+        let url: string | undefined;
+        if (typeof item === 'string') {
+          url = item;
+        } else if (item && typeof item === 'object') {
+          url = item.MediaURL || item.MediaUrl || item.mediaUrl || item.mediaURL || item.url;
+        }
+        if (url && typeof url === 'string') {
+          if (url.startsWith('//')) url = `https:${url}`;
+          if (!photos.includes(url)) photos.push(url);
+        }
       }
     }
 
