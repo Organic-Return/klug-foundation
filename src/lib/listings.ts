@@ -183,8 +183,15 @@ export function buildListingSlug(listing: {
   id?: string | null;
 }): string {
   const id = listing.mls_number || listing.id || '';
+  // mls_properties.address is the full "123 Main St, Aspen, CO 81611"
+  // string. Strip city/state/zip out of it so we don't end up with
+  // duplicates like "9888-castle-creek-road-aspen-co-81611-aspen-co-81611-185713"
+  // when the slug builder re-appends them below.
+  const street = listing.address
+    ? listing.address.split(',')[0].trim()
+    : '';
   const parts: string[] = [];
-  if (listing.address) parts.push(toAddressSlug(listing.address));
+  if (street) parts.push(toAddressSlug(street));
   if (listing.city) parts.push(toAddressSlug(listing.city));
   if (listing.state) parts.push(listing.state);
   if (listing.zip_code) parts.push(String(listing.zip_code));

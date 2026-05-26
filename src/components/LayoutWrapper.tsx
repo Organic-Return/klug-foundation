@@ -53,7 +53,13 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     // Market Leader listing detail pages share the full-screen
     // property template, which has its own image hero — let the
     // header sit transparently on top of it.
-    pathname?.startsWith('/affiliated-partners/market-leaders/listings/') === true;
+    pathname?.startsWith('/affiliated-partners/market-leaders/listings/') === true ||
+    // Off-market listing detail pages have their own photo hero
+    // (or a blurred registration gate); header sits on top transparently.
+    pathname?.startsWith('/off-market/') === true ||
+    // MLS listing detail pages always lead with a property image hero;
+    // /real-estate-for-sale (the index) keeps its solid header.
+    (pathname?.startsWith('/real-estate-for-sale/') === true && pathname !== '/real-estate-for-sale');
 
   // Check if we're on the listings page (no footer, fixed height layout)
   const isListingsPage = pathname === '/real-estate-for-sale';

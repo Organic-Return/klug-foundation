@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import ContactModal from './ContactModal';
@@ -133,10 +133,6 @@ export default function Header({
   const [priceMax, setPriceMax] = useState('');
   const [keyword, setKeyword] = useState('');
   const router = useRouter();
-  const pathname = usePathname();
-
-  // Check if on certain pages to force blue background
-  const isPartnersPage = pathname?.startsWith('/about/partners');
 
   useEffect(() => {
     setIsMounted(true);
@@ -222,7 +218,7 @@ export default function Header({
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isMounted && (isScrolled || forceBackground || isPartnersPage)
+        isMounted && (isScrolled || forceBackground)
           ? 'bg-[var(--color-sothebys-blue)] shadow-md'
           : 'bg-transparent'
       }`}
