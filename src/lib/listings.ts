@@ -542,14 +542,20 @@ export async function getListings(
 
   // Filter by team agent MLS IDs, names, and/or office names (Our Listings Only)
   if ((filters.agentMlsIds && filters.agentMlsIds.length > 0) || (filters.agentNames && filters.agentNames.length > 0) || (filters.officeNames && filters.officeNames.length > 0)) {
+    // mls_properties uses different column names than the old graphql_listings
+    // view: list_agent_key (nullable, often unset) instead of list_agent_mls_id,
+    // agent_name instead of list_agent_full_name, list_office_key (also often
+    // unset) instead of list_office_name. The MLS-ID filter falls through to
+    // nothing for now since list_agent_key is mostly null in mls_properties;
+    // agent-name ILIKE matching is the only reliable signal.
     const idConditions = (filters.agentMlsIds || [])
-      .map((id) => `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`)
+      .map((id) => `list_agent_key.eq.${id},co_list_agent_key.eq.${id},buyer_agent_key.eq.${id}`)
       .join(',');
     const nameConditions = (filters.agentNames || [])
-      .map((name) => `list_agent_full_name.ilike.${name}`)
+      .map((name) => `agent_name.ilike.%${name}%`)
       .join(',');
     const officeConditions = (filters.officeNames || [])
-      .map((name) => `list_office_name.ilike.%${name}%`)
+      .map((name) => `list_office_key.ilike.%${name}%`)
       .join(',');
     const allConditions = [idConditions, nameConditions, officeConditions].filter(Boolean).join(',');
     query = query.or(allConditions);
@@ -1758,10 +1764,14 @@ export async function getListingsByAgentId(
 
           if (agentMlsId) {
             // Query by MLS ID — matches listing and co-listing agent roles
+            // mls_properties uses list_agent_key etc. (and has no
+            // co_buyer_agent_key). list_agent_key is frequently null in
+            // mls_properties, which is fine — the agent-name fallback
+            // below (`activeData.length === 0 ...`) picks up the slack.
             const buildListingFilter = (id: string) =>
-              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id}`;
+              `list_agent_key.eq.${id},co_list_agent_key.eq.${id}`;
             const buildAllRolesFilter = (id: string) =>
-              `list_agent_mls_id.eq.${id},co_list_agent_mls_id.eq.${id},buyer_agent_mls_id.eq.${id},co_buyer_agent_mls_id.eq.${id}`;
+              `list_agent_key.eq.${id},co_list_agent_key.eq.${id},buyer_agent_key.eq.${id}`;
 
             const activeFilter = buildListingFilter(agentMlsId);
             const soldId = soldAgentMlsId || agentMlsId;
@@ -1801,7 +1811,7 @@ export async function getListingsByAgentId(
             // a non-numeric ID like a username instead of the real MLS ID)
             if (activeData.length === 0 && soldData.length === 0 && agentName) {
               console.log(`No listings found for MLS ID "${agentMlsId}", falling back to name "${agentName}"`);
-              const nameFilter = `list_agent_full_name.eq.${agentName}`;
+              const nameFilter = `agent_name.ilike.%${agentName}%`;
               const [activeByName, soldByName] = await Promise.all([
                 supabase
                   .from('mls_properties')
@@ -1832,7 +1842,7 @@ export async function getListingsByAgentId(
             };
           } else {
             // No MLS ID — fall back to name-based query on list_agent_full_name
-            const nameFilter = `list_agent_full_name.eq.${agentName}`;
+            const nameFilter = `agent_name.ilike.%${agentName}%`;
 
             const activeStatusesName = ['Active', 'Coming Soon', 'Active Under Contract', 'Contingent', 'Pending', 'Pending Inspect/Feasib', 'Active U/C W/ Bump', 'To Be Built'];
 
