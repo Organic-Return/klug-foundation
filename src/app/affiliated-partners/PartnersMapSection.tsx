@@ -11,6 +11,13 @@ import { grayscaleMapStyles } from '@/lib/mapStyles';
 interface PartnersMapSectionProps {
   partners: EnrichedPartner[];
   title?: string;
+  /**
+   * Server-resolved Google Maps API key (Sanity settings or env var).
+   * Required so this component's loader call matches PropertyMap /
+   * ListingsMap exactly — @react-google-maps/api uses a process-level
+   * singleton and crashes if successive calls pass different options.
+   */
+  googleMapsApiKey?: string;
 }
 
 const mapContainerStyle = {
@@ -166,14 +173,15 @@ function PartnerListCard({
   );
 }
 
-export default function PartnersMapSection({ partners, title = 'Our Partner Network' }: PartnersMapSectionProps) {
+export default function PartnersMapSection({ partners, title = 'Our Partner Network', googleMapsApiKey }: PartnersMapSectionProps) {
   const [selectedPartner, setSelectedPartner] = useState<string | null>(null);
   const [hoveredPartner, setHoveredPartner] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const mapRef = useRef<google.maps.Map | null>(null);
 
+  const apiKey = googleMapsApiKey || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+    googleMapsApiKey: apiKey,
   });
 
   // Filter partners with valid coordinates

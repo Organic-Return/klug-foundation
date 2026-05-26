@@ -6,7 +6,7 @@ import { Partner, enrichPartnerWithAgentData, PartnerCard, PageContent, urlFor }
 import CTASection from "../CTASection";
 import PartnersMapSection from "../PartnersMapSection";
 import FeaturedVideoGrid from "../FeaturedVideoGrid";
-import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl, getGoogleMapsApiKey } from "@/lib/settings";
 import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 import { formatPrice } from '@/lib/listings';
 
@@ -172,10 +172,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MarketLeadersPage() {
-  const [partners, pageContent, defaultHeroUrl] = await Promise.all([
+  const [partners, pageContent, defaultHeroUrl, googleMapsApiKey] = await Promise.all([
     client.fetch<Partner[]>(MARKET_LEADERS_QUERY, {}, options),
     client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
     getDefaultHeroImageUrl(),
+    getGoogleMapsApiKey(),
   ]);
 
   // Enrich all partners with agent data from the database
@@ -336,6 +337,7 @@ export default async function MarketLeadersPage() {
       <PartnersMapSection
         partners={enrichedPartners}
         title="Find Our Market Leaders"
+        googleMapsApiKey={googleMapsApiKey}
       />
 
       {/* Featured Partners */}
