@@ -148,5 +148,18 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
       }
     : null;
 
-  return <CustomOneListingContent listing={mlsProperty} agent={agent} />;
+  // If the editor uploaded a video to Mux, surface it through the existing
+  // `videos` prop on CustomOneListingContent (same shape MLS listings use).
+  const videos = listing.videoMuxPlaybackId
+    ? [
+        {
+          _key: 'off-market-mux',
+          title: 'Property Video',
+          videoType: 'mux' as const,
+          muxPlaybackId: listing.videoMuxPlaybackId,
+        },
+      ]
+    : undefined;
+
+  return <CustomOneListingContent listing={mlsProperty} agent={agent} videos={videos} />;
 }

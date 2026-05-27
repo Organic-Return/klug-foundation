@@ -333,10 +333,19 @@ export const offMarketListing = defineType({
       group: 'media',
     }),
     defineField({
+      name: 'videoFile',
+      title: 'Upload Property Video',
+      type: 'mux.video',
+      description:
+        'Upload a video file directly — Mux transcodes it for adaptive streaming. Preferred over the Video URL field below.',
+      group: 'media',
+    }),
+    defineField({
       name: 'videoUrl',
-      title: 'Property Video URL',
+      title: 'Property Video URL (fallback)',
       type: 'url',
-      description: 'Brightcove/YouTube/Vimeo player URL for a property video',
+      description:
+        'Use only when you cannot upload — e.g. a Brightcove / YouTube / Vimeo player URL. The uploaded video above takes precedence when both are set.',
       group: 'media',
     }),
 

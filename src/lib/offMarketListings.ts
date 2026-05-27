@@ -47,6 +47,7 @@ export interface OffMarketListing {
   photos: string[];
   virtualTourUrl: string | null;
   videoUrl: string | null;
+  videoMuxPlaybackId: string | null;
   agentName: string | null;
   agentEmail: string | null;
   agentPhone: string | null;
@@ -96,6 +97,7 @@ const offMarketListingFields = `
   "photos": photos[].asset->url,
   virtualTourUrl,
   videoUrl,
+  "videoMuxPlaybackId": videoFile.asset->playbackId,
   agentName,
   agentEmail,
   agentPhone,
@@ -146,6 +148,7 @@ function transformListing(data: any): OffMarketListing {
     photos: data.photos || [],
     virtualTourUrl: data.virtualTourUrl,
     videoUrl: data.videoUrl,
+    videoMuxPlaybackId: data.videoMuxPlaybackId || null,
     agentName: data.agentName,
     agentEmail: data.agentEmail,
     agentPhone: data.agentPhone,
@@ -246,7 +249,11 @@ export function offMarketToMLSProperty(listing: OffMarketListing): any {
     agent_name: listing.agentName,
     agent_email: listing.agentEmail,
     photos: allPhotos,
-    video_urls: listing.videoUrl ? [listing.videoUrl] : [],
+    // Mux-uploaded videos take precedence — they get passed through the
+    // `videos` prop on CustomOneListingContent instead. Fall back to the
+    // legacy videoUrl string (Brightcove / YouTube / Vimeo) only when no
+    // upload exists.
+    video_urls: !listing.videoMuxPlaybackId && listing.videoUrl ? [listing.videoUrl] : [],
     latitude: listing.latitude,
     longitude: listing.longitude,
     subdivision_name: listing.subdivisionName,
