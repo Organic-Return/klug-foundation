@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { ReactNode, cloneElement, isValidElement } from 'react';
+import { ReactNode, cloneElement, isValidElement, useDeferredValue } from 'react';
 
 interface LayoutWrapperProps {
   header: ReactNode;
@@ -11,7 +11,15 @@ interface LayoutWrapperProps {
 }
 
 export default function LayoutWrapper({ header, footer, children, template }: LayoutWrapperProps) {
-  const pathname = usePathname();
+  // usePathname updates the moment the URL changes, but server-rendered
+  // page children can take a beat to stream in. If we let the layout's
+  // padding / forceBackground flip ahead of the new page, the user sees
+  // the layout's empty <main> (body bg = white) under a transparent nav
+  // before the new hero arrives. Defer the pathname so the layout stays
+  // on the previous configuration until React has the new children ready,
+  // then both flip together — same atomic feel as a hard reload.
+  const rawPathname = usePathname();
+  const pathname = useDeferredValue(rawPathname);
 
   // Check if we're on any Sanity Studio route or its sub-routes
   const isSanityRoute =
