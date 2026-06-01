@@ -108,6 +108,7 @@ interface HomepageData {
     articles?: Array<{
       _id: string;
       title: string;
+      slug?: string;
       sourceName: string;
       sourceLogo?: any;
       url: string;
@@ -265,9 +266,12 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
     enabled,
     title,
     subtitle,
-    articles[]-> {
+    // Filter dangling weak refs (article was deleted but the reference
+    // still sits in the homepage list) before dereferencing.
+    articles[defined(@->_id)]-> {
       _id,
       title,
+      "slug": slug.current,
       sourceName,
       sourceLogo {
         asset-> {

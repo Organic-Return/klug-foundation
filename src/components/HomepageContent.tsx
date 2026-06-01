@@ -148,6 +148,7 @@ interface HomepageContentProps {
     articles?: Array<{
       _id: string;
       title: string;
+      slug?: string;
       sourceName: string;
       sourceLogo?: any;
       url: string;

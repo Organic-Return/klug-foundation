@@ -12,6 +12,7 @@ function urlFor(source: any) {
 interface PressArticle {
   _id: string;
   title: string;
+  slug?: string;
   sourceName: string;
   sourceLogo?: any;
   url: string;
@@ -74,9 +75,8 @@ export default function InTheNews({
             {articles.map((article) => (
               <a
                 key={article._id}
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={article.slug ? `/in-the-news/${article.slug}` : article.url}
+                {...(article.slug ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                 className="group bg-white dark:bg-[#1a1a1a] border border-[#e5e5e5] dark:border-gray-800 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-[var(--color-gold)]/30"
               >
                 {/* Article Image */}

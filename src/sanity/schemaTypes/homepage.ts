@@ -650,6 +650,10 @@ export const homepage = defineType({
             {
               type: 'reference',
               to: [{ type: 'pressArticle' }],
+              // Weak ref so deleting a press article doesn't blow up with
+              // "Document cannot be deleted as there are references to it
+              // from homepage". The homepage just skips dangling refs.
+              weak: true,
             },
           ],
           validation: (Rule) => Rule.max(6),
