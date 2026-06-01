@@ -160,14 +160,16 @@ export default async function LivingAspenPage() {
               className="group block"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                {/* Image */}
+                {/* Image — scale slightly to hide any white margin baked into
+                    the source PDF cover. The container is overflow-hidden so
+                    the overscan never reaches the user. */}
                 <div className="relative aspect-[3/4] overflow-hidden">
                   {featuredMagazine.headerImage && (
                     <Image
                       src={urlFor(featuredMagazine.headerImage)?.width(800).height(1067).url() || ''}
                       alt={featuredMagazine.title}
                       fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                      className="object-cover scale-[1.04] transition-transform duration-700 group-hover:scale-[1.09]"
                     />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -230,14 +232,16 @@ export default async function LivingAspenPage() {
                   href={`/media/living-aspen-magazine/${magazine.slug?.current}`}
                   className="group"
                 >
-                  {/* Image */}
+                  {/* Image — slight permanent overscan clips any white margin
+                      around the source cover image (some uploads bring a
+                      1-2% bleed of the PDF page edge into the JPG). */}
                   <div className="relative aspect-[3/4] overflow-hidden mb-4">
                     {magazine.headerImage && (
                       <Image
                         src={urlFor(magazine.headerImage)?.width(500).height(667).url() || ''}
                         alt={magazine.title}
                         fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover scale-[1.04] transition-transform duration-700 group-hover:scale-[1.09]"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
