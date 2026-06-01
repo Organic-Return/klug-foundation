@@ -48,6 +48,14 @@ export interface OffMarketListing {
   virtualTourUrl: string | null;
   videoUrl: string | null;
   videoMuxPlaybackId: string | null;
+  documents: Array<{
+    _key: string;
+    title: string;
+    documentType?: string;
+    description?: string;
+    fileUrl: string;
+    originalFilename?: string;
+  }>;
   agentName: string | null;
   agentEmail: string | null;
   agentPhone: string | null;
@@ -98,6 +106,14 @@ const offMarketListingFields = `
   virtualTourUrl,
   videoUrl,
   "videoMuxPlaybackId": videoFile.asset->playbackId,
+  documents[]{
+    _key,
+    title,
+    documentType,
+    description,
+    "fileUrl": file.asset->url,
+    "originalFilename": file.asset->originalFilename
+  },
   agentName,
   agentEmail,
   agentPhone,
@@ -149,6 +165,9 @@ function transformListing(data: any): OffMarketListing {
     virtualTourUrl: data.virtualTourUrl,
     videoUrl: data.videoUrl,
     videoMuxPlaybackId: data.videoMuxPlaybackId || null,
+    documents: Array.isArray(data.documents)
+      ? data.documents.filter((d: any) => d && d.fileUrl)
+      : [],
     agentName: data.agentName,
     agentEmail: data.agentEmail,
     agentPhone: data.agentPhone,

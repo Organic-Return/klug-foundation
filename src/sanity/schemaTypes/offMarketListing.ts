@@ -348,6 +348,79 @@ export const offMarketListing = defineType({
         'Use only when you cannot upload — e.g. a Brightcove / YouTube / Vimeo player URL. The uploaded video above takes precedence when both are set.',
       group: 'media',
     }),
+    defineField({
+      name: 'documents',
+      title: 'Property Documents',
+      type: 'array',
+      description:
+        'PDFs / floor plans / surveys / disclosures attached to this listing. Renders as a "Documents" section on the property page with a matching button in the hero.',
+      group: 'media',
+      of: [
+        {
+          type: 'object',
+          name: 'propertyDocument',
+          title: 'Document',
+          fields: [
+            {
+              name: 'title',
+              title: 'Document Title',
+              type: 'string',
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'documentType',
+              title: 'Document Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Floor Plan', value: 'floor_plan' },
+                  { title: 'Brochure', value: 'brochure' },
+                  { title: 'Survey', value: 'survey' },
+                  { title: 'Disclosures', value: 'disclosures' },
+                  { title: 'HOA Documents', value: 'hoa' },
+                  { title: 'Inspection Report', value: 'inspection' },
+                  { title: 'Other', value: 'other' },
+                ],
+              },
+              initialValue: 'other',
+            },
+            {
+              name: 'file',
+              title: 'File',
+              type: 'file',
+              options: {
+                accept: '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg',
+              },
+              validation: (Rule) => Rule.required(),
+            },
+            {
+              name: 'description',
+              title: 'Description',
+              type: 'text',
+              rows: 2,
+            },
+          ],
+          preview: {
+            select: { title: 'title', documentType: 'documentType' },
+            prepare({ title, documentType }) {
+              const labels: Record<string, string> = {
+                floor_plan: 'Floor Plan',
+                brochure: 'Brochure',
+                survey: 'Survey',
+                disclosures: 'Disclosures',
+                hoa: 'HOA Documents',
+                inspection: 'Inspection Report',
+                other: 'Document',
+              }
+              return {
+                title: title || 'Untitled Document',
+                subtitle: labels[documentType] || 'Document',
+              }
+            },
+          },
+        },
+      ],
+    }),
 
     // Agent Info
     defineField({

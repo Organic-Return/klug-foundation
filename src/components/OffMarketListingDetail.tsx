@@ -161,5 +161,28 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
       ]
     : undefined;
 
-  return <CustomOneListingContent listing={mlsProperty} agent={agent} videos={videos} />;
+  // Same shape CustomOneListingContent already accepts for MLS docs.
+  const documents = listing.documents.length > 0
+    ? listing.documents.map((d) => ({
+        _key: d._key,
+        title: d.title,
+        documentType: d.documentType || 'other',
+        file: {
+          asset: {
+            url: d.fileUrl,
+            originalFilename: d.originalFilename,
+          },
+        },
+        description: d.description,
+      }))
+    : undefined;
+
+  return (
+    <CustomOneListingContent
+      listing={mlsProperty}
+      agent={agent}
+      videos={videos}
+      documents={documents}
+    />
+  );
 }

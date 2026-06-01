@@ -107,7 +107,7 @@ export default function CustomOneListingContent({
   const [videoModalOpen, setVideoModalOpen] = useState(false);
 
   // Media tabs
-  type MediaTab = 'gallery' | 'videos' | 'tours' | 'documents';
+  type MediaTab = 'gallery' | 'videos' | 'tours';
   const [activeTab, setActiveTab] = useState<MediaTab>('gallery');
 
   // Contact form state
@@ -277,7 +277,6 @@ export default function CustomOneListingContent({
   if (hasPhotos) mediaTabs.push({ id: 'gallery', label: 'Gallery' });
   if (hasVideos) mediaTabs.push({ id: 'videos', label: 'Videos' });
   if (hasVirtualTour) mediaTabs.push({ id: 'tours', label: 'Virtual Tour' });
-  if (hasDocuments) mediaTabs.push({ id: 'documents', label: 'Documents' });
 
   // Stats for the property details grid
   const stats: Array<{ label: string; value: string }> = [];
@@ -400,6 +399,19 @@ export default function CustomOneListingContent({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
                   </svg>
                   Virtual Tour
+                </button>
+              )}
+              {hasDocuments && (
+                <button
+                  onClick={() =>
+                    document.getElementById('documents-section')?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Documents
                 </button>
               )}
               <button
@@ -701,42 +713,48 @@ export default function CustomOneListingContent({
                   </div>
                 )}
 
-                {/* Documents Tab */}
-                {activeTab === 'documents' && hasDocuments && (
-                  <div className="space-y-3">
-                    {documents!.map((doc) => (
-                      <a
-                        key={doc._key}
-                        href={doc.file.asset.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-4 p-4 bg-white border border-[var(--rc-brown)]/10 hover:border-[var(--rc-gold)]/50 transition-all duration-300"
-                      >
-                        <div className="flex-shrink-0 w-10 h-10 bg-[var(--rc-gold)]/10 flex items-center justify-center group-hover:bg-[var(--rc-gold)]/20 transition-colors">
-                          <svg className="w-5 h-5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <div className="flex-grow min-w-0">
-                          <h3 className="text-sm font-medium text-[var(--rc-navy)] group-hover:text-[var(--rc-gold)] transition-colors">
-                            {doc.title}
-                          </h3>
-                          {doc.description && (
-                            <p className="text-xs text-[var(--rc-brown)]/50 mt-0.5 line-clamp-1">{doc.description}</p>
-                          )}
-                        </div>
-                        <div className="flex-shrink-0 flex items-center gap-2">
-                          <span className="text-[9px] tracking-[0.1em] uppercase text-[var(--rc-brown)]/40 bg-[var(--rc-brown)]/5 px-2 py-0.5">
-                            {doc.documentType || 'PDF'}
-                          </span>
-                          <svg className="w-4 h-4 text-[var(--rc-brown)]/30 group-hover:text-[var(--rc-gold)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                )}
+              </div>
+            )}
+
+            {/* ─── Documents Section (its own band below the media tabs) ─── */}
+            {hasDocuments && (
+              <div id="documents-section" className={mediaTabs.length > 0 ? 'mt-12' : ''}>
+                <h2 className="text-xl md:text-2xl font-medium text-[var(--rc-navy)] mb-6 tracking-wide">
+                  Documents
+                </h2>
+                <div className="space-y-3">
+                  {documents!.map((doc) => (
+                    <a
+                      key={doc._key}
+                      href={doc.file.asset.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-center gap-4 p-4 bg-white border border-[var(--rc-brown)]/10 hover:border-[var(--rc-gold)]/50 transition-all duration-300"
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 bg-[var(--rc-gold)]/10 flex items-center justify-center group-hover:bg-[var(--rc-gold)]/20 transition-colors">
+                        <svg className="w-5 h-5 text-[var(--rc-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <h3 className="text-sm font-medium text-[var(--rc-navy)] group-hover:text-[var(--rc-gold)] transition-colors">
+                          {doc.title}
+                        </h3>
+                        {doc.description && (
+                          <p className="text-xs text-[var(--rc-brown)]/50 mt-0.5 line-clamp-1">{doc.description}</p>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0 flex items-center gap-2">
+                        <span className="text-[9px] tracking-[0.1em] uppercase text-[var(--rc-brown)]/40 bg-[var(--rc-brown)]/5 px-2 py-0.5">
+                          {doc.documentType || 'PDF'}
+                        </span>
+                        <svg className="w-4 h-4 text-[var(--rc-brown)]/30 group-hover:text-[var(--rc-gold)] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
               </div>
             )}
 
