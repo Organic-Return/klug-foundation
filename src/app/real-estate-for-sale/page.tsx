@@ -171,7 +171,14 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       {},
       { next: { revalidate: 3600 } }
     ).catch((e) => { console.error('[listings] teamMembers fetch failed:', e); return []; }),
-    getGoogleMapsApiKey().catch((e) => { console.error('[listings] gmaps key fetch failed:', e); return ''; }),
+    // Fall back to the public env var (not '') so we never hand the
+    // Google Maps loader an empty key — that would race with other
+    // components that DID get the real key and throw "Loader must not
+    // be called again with different options".
+    getGoogleMapsApiKey().catch((e) => {
+      console.error('[listings] gmaps key fetch failed:', e);
+      return process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+    }),
   ]);
 
   // Compute filters from MLS configuration (instant, no async)

@@ -152,8 +152,15 @@ export default async function AffiliatedPartnersPage() {
       .catch((e) => { console.error('[partners] pageContent fetch failed:', e); return null; }),
     getDefaultHeroImageUrl()
       .catch((e) => { console.error('[partners] defaultHero fetch failed:', e); return null; }),
+    // Fall back to env var (not '') so the Google Maps loader singleton
+    // stays consistent — '' would clash with components that get the
+    // real key and throw "Loader must not be called again with different
+    // options".
     getGoogleMapsApiKey()
-      .catch((e) => { console.error('[partners] gmaps key fetch failed:', e); return ''; }),
+      .catch((e) => {
+        console.error('[partners] gmaps key fetch failed:', e);
+        return process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
+      }),
   ]);
 
   // Count partners by type
