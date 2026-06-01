@@ -306,6 +306,10 @@ function transformListing(row: GraphQLListing): MLSProperty {
       }
     }
   }
+  // Collect video URLs in the same media[] pass so the listing-detail
+  // video tab can render any RESO Video-category items (Brightcove etc.)
+  const videoUrlsFromMedia: string[] = [];
+
   for (const mediaItem of mediaItems) {
     try {
       let parsed: any = mediaItem;
@@ -317,6 +321,19 @@ function transformListing(row: GraphQLListing): MLSProperty {
           parsed = JSON.parse(mediaItem);
         }
       }
+
+      // Video-category items use MediaHTML (a player embed URL) and
+      // typically leave MediaURL null — route them to video_urls.
+      if (parsed && typeof parsed === 'object' && /video/i.test(parsed.MediaCategory || '')) {
+        let vurl: string | undefined =
+          parsed.MediaHTML || parsed.mediaHtml || parsed.MediaURL || parsed.url;
+        if (vurl && typeof vurl === 'string') {
+          if (vurl.startsWith('//')) vurl = `https:${vurl}`;
+          if (!videoUrlsFromMedia.includes(vurl)) videoUrlsFromMedia.push(vurl);
+        }
+        continue;
+      }
+
       let url: string | undefined;
       if (typeof parsed === 'string') {
         // Direct URL string
@@ -411,7 +428,12 @@ function transformListing(row: GraphQLListing): MLSProperty {
     agent_name: row.list_agent_full_name || row.agent_name || null,
     agent_email: row.agent_email || null,
     photos,
-    video_urls: row.video_urls || [],
+    // Merge any video URLs the dedicated column has with the ones we
+    // pulled out of the media[] array's Video-category items.
+    video_urls: [
+      ...(Array.isArray(row.video_urls) ? row.video_urls : []),
+      ...videoUrlsFromMedia.filter((u) => !(row.video_urls || []).includes(u)),
+    ],
     latitude: row.latitude != null ? Number(row.latitude) || null : null,
     longitude: row.longitude != null ? Number(row.longitude) || null : null,
     // Additional property details
