@@ -9,6 +9,7 @@ import { getDefaultHeroImageUrl } from "@/lib/settings";
 const PRESS_ARTICLES_QUERY = `*[_type == "pressArticle"] | order(publishedAt desc) {
   _id,
   title,
+  "slug": slug.current,
   sourceName,
   sourceLogo {
     asset-> {
@@ -176,9 +177,8 @@ export default async function InTheNewsPage() {
               </span>
             </div>
             <a
-              href={featuredArticle.url}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={featuredArticle.slug ? `/in-the-news/${featuredArticle.slug}` : featuredArticle.url}
+              {...(featuredArticle.slug ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
               className="group block"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
@@ -291,9 +291,8 @@ export default async function InTheNewsPage() {
               {regularArticles.map((article) => (
                 <a
                   key={article._id}
-                  href={article.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={article.slug ? `/in-the-news/${article.slug}` : article.url}
+                  {...(article.slug ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                   className="group bg-white dark:bg-[#1a1a1a] border border-[#e8e6e3] dark:border-gray-800 hover:border-[var(--color-gold)] transition-all duration-300"
                 >
                   {/* Image */}

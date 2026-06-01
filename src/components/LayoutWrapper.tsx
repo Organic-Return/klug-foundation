@@ -36,6 +36,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
     pathname === '/media/videos' ||
     pathname === '/about/blog' ||
     pathname === '/in-the-news' ||
+    pathname?.startsWith('/in-the-news/') === true ||
     pathname === '/about/why-klug-properties' ||
     pathname === '/about/testimonials' ||
     pathname === '/about/partners' ||

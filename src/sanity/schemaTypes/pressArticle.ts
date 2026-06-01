@@ -13,6 +13,17 @@ export const pressArticle = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      description:
+        'Page URL on klugproperties.com. When set, the card links to an internal summary page (with a CTA to the original article). When empty, the card links straight to the external URL.',
+      options: {
+        source: 'title',
+        maxLength: 96,
+      },
+    }),
+    defineField({
       name: 'sourceName',
       title: 'Publication Name',
       type: 'string',
@@ -49,7 +60,25 @@ export const pressArticle = defineType({
       title: 'Excerpt',
       type: 'text',
       rows: 3,
-      description: 'Brief description or pull quote from the article',
+      description: 'Brief description or pull quote — shown on the card and at the top of the summary page.',
+    }),
+    defineField({
+      name: 'body',
+      title: 'Summary Content',
+      type: 'array',
+      description:
+        'Optional long-form summary of the article. Renders as the main content on the internal summary page; the external article URL still appears as a "Read the full story" CTA.',
+      of: [
+        { type: 'block' },
+        {
+          type: 'image',
+          options: { hotspot: true },
+          fields: [
+            { name: 'alt', type: 'string', title: 'Alt text' },
+            { name: 'caption', type: 'string', title: 'Caption' },
+          ],
+        },
+      ],
     }),
     defineField({
       name: 'publishedAt',
