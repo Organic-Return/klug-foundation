@@ -142,24 +142,38 @@ async function getLatestPartnerListings(partners: Partner[], limit = 10): Promis
 }
 
 export default async function AffiliatedPartnersPage() {
+  // Each fetch falls back to a safe default on transient failure (Sanity 502,
+  // Supabase timeout) so a single hiccup degrades the affected section rather
+  // than tripping the page-level error boundary.
   const [partners, pageContent, defaultHeroUrl, googleMapsApiKey] = await Promise.all([
-    client.fetch<Partner[]>(PARTNERS_QUERY, {}, options),
-    client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options),
-    getDefaultHeroImageUrl(),
-    getGoogleMapsApiKey(),
+    client.fetch<Partner[]>(PARTNERS_QUERY, {}, options)
+      .catch((e) => { console.error('[partners] partners fetch failed:', e); return [] as Partner[]; }),
+    client.fetch<PageContent | null>(PAGE_CONTENT_QUERY, {}, options)
+      .catch((e) => { console.error('[partners] pageContent fetch failed:', e); return null; }),
+    getDefaultHeroImageUrl()
+      .catch((e) => { console.error('[partners] defaultHero fetch failed:', e); return null; }),
+    getGoogleMapsApiKey()
+      .catch((e) => { console.error('[partners] gmaps key fetch failed:', e); return ''; }),
   ]);
 
   // Count partners by type
   const skiTownCount = partners.filter(p => p.partnerType === 'ski_town').length;
   const marketLeaderCount = partners.filter(p => p.partnerType === 'market_leader').length;
 
-  // Enrich all partners with agent data for the map
-  const enrichedPartners = await Promise.all(
-    partners.map(partner => enrichPartnerWithAgentData(partner))
+  // Enrich all partners with agent data for the map. allSettled so a single
+  // partner row failing to enrich doesn't blow up the whole map.
+  const enrichedSettled = await Promise.allSettled(
+    partners.map((partner) => enrichPartnerWithAgentData(partner))
+  );
+  const enrichedPartners = enrichedSettled.map((r, i) =>
+    r.status === 'fulfilled'
+      ? r.value
+      : { ...partners[i], photoUrl: null, bio: '' }
   );
 
   // Fetch the 10 most recent active listings from any partner
-  const latestPartnerListings = await getLatestPartnerListings(partners, 10);
+  const latestPartnerListings = await getLatestPartnerListings(partners, 10)
+    .catch((e) => { console.error('[partners] latestPartnerListings failed:', e); return []; });
 
   // Get featured partners for preview
   const enrichedFeaturedPartners = enrichedPartners.filter(p => p.featured).slice(0, 4);

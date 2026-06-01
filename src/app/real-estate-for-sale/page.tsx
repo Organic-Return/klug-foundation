@@ -159,16 +159,19 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   // Only show active-type statuses in results and dropdown
   const allowedStatusList = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending', 'Pending Inspect/Feasib', 'To Be Built'];
 
-  // Phase 1: Fast Sanity queries (CDN-cached, ~50-100ms) to get filter config
+  // Phase 1: Fast Sanity queries (CDN-cached, ~50-100ms) to get filter config.
+  // Each call is wrapped in a per-call catch so a single transient Sanity 502 /
+  // Supabase timeout doesn't reject the whole Promise.all and surface the
+  // error boundary. Non-critical lookups degrade to safe defaults instead.
   const [mlsConfig, settings, teamMembers, googleMapsApiKey] = await Promise.all([
-    getMLSConfiguration(),
-    getSettings(),
+    getMLSConfiguration().catch((e) => { console.error('[listings] mlsConfig fetch failed:', e); return null; }),
+    getSettings().catch((e) => { console.error('[listings] settings fetch failed:', e); return null; }),
     client.fetch<{ name: string; mlsAgentId?: string; mlsAgentIdSold?: string }[]>(
       `*[_type == "teamMember" && inactive != true && defined(mlsAgentId)]{ name, mlsAgentId, mlsAgentIdSold }`,
       {},
       { next: { revalidate: 3600 } }
-    ),
-    getGoogleMapsApiKey(),
+    ).catch((e) => { console.error('[listings] teamMembers fetch failed:', e); return []; }),
+    getGoogleMapsApiKey().catch((e) => { console.error('[listings] gmaps key fetch failed:', e); return ''; }),
   ]);
 
   // Compute filters from MLS configuration (instant, no async)
@@ -187,8 +190,9 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     ? settings.teamSync.offices.map((o) => o.officeName).filter(Boolean)
     : [];
 
-  // Phase 2: Run listings query + dropdown data in parallel
-  // City matching is case-insensitive in getListings, so no normalization needed
+  // Phase 2: Run listings query + dropdown data in parallel. Dropdown
+  // queries fall back to empty arrays on transient failure so a Supabase
+  // hiccup only loses the filter options, not the entire page render.
   const [listingsResult, cities, propertyTypes, propertySubTypes, statuses, neighborhoods] = await Promise.all([
     getListings(page, 24, {
       status,
@@ -209,16 +213,20 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       allowedCities,
       allowedStatuses: allowedStatusList,
       sort,
+    }).catch((e) => {
+      console.error('[listings] primary getListings failed:', e);
+      return { listings: [] as MLSProperty[], total: 0, totalPages: 0 };
     }),
-    getDistinctCities(),
-    getDistinctPropertyTypes(),
-    getDistinctPropertySubTypes(),
-    getDistinctStatuses(),
-    selectedCities.length > 0
+    getDistinctCities().catch((e) => { console.error('[listings] cities failed:', e); return [] as string[]; }),
+    getDistinctPropertyTypes().catch((e) => { console.error('[listings] propertyTypes failed:', e); return [] as string[]; }),
+    getDistinctPropertySubTypes().catch((e) => { console.error('[listings] propertySubTypes failed:', e); return [] as string[]; }),
+    getDistinctStatuses().catch((e) => { console.error('[listings] statuses failed:', e); return [] as string[]; }),
+    (selectedCities.length > 0
       ? (selectedCities.length === 1
           ? getNeighborhoodsByCity(selectedCities[0])
           : getNeighborhoodsByCities(selectedCities))
-      : Promise.resolve([]),
+      : Promise.resolve([])
+    ).catch((e) => { console.error('[listings] neighborhoods failed:', e); return [] as string[]; }),
   ]);
 
   // Filter dropdown options based on MLS configuration
@@ -236,7 +244,10 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     .filter(l => l.mls_number && l.list_agent_mls_id && teamAgentIds.includes(l.list_agent_mls_id))
     .map(l => l.mls_number);
   const sirMedia = teamListingMlsNumbers.length > 0
-    ? await getMlsNumbersWithSIRMedia(teamListingMlsNumbers)
+    ? await getMlsNumbersWithSIRMedia(teamListingMlsNumbers).catch((e) => {
+        console.error('[listings] sirMedia fetch failed:', e);
+        return { videos: new Set<string>(), matterports: new Set<string>() };
+      })
     : { videos: new Set<string>(), matterports: new Set<string>() };
 
   // Generate structured data
