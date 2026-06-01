@@ -198,7 +198,7 @@ export default async function AffiliatedPartnersPage() {
     : null;
 
   return (
-    <main className="min-h-screen">
+    <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section className="relative bg-[var(--color-sothebys-blue)] pt-36 pb-2 md:pt-44 md:pb-2">
         {heroImageUrl && (

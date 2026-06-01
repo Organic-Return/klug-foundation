@@ -24,7 +24,7 @@ export default async function ContactPage() {
   const heroImageRaw = await getDefaultHeroImageUrl();
 
   return (
-    <main className="min-h-screen">
+    <main className="-mt-20 min-h-screen">
       {/* Hero */}
       <section className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]">
         {heroImageRaw && (

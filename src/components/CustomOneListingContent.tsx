@@ -314,7 +314,7 @@ export default function CustomOneListingContent({
     'text-[10px] tracking-[0.15em] text-[var(--rc-brown)]/60 uppercase block mb-1.5';
 
   return (
-    <div className="min-h-screen bg-[var(--rc-cream)]" style={{ fontFamily: 'var(--font-figtree), sans-serif' }}>
+    <div className="-mt-20 min-h-screen bg-[var(--rc-cream)]" style={{ fontFamily: 'var(--font-figtree), sans-serif' }}>
       {/* ═══════════════════════════════════════════
           HERO SLIDESHOW
           ═══════════════════════════════════════════ */}

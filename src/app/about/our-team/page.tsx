@@ -139,7 +139,7 @@ export default async function TeamPage() {
   // RC Sotheby's variant — letter-filtered grid (unchanged)
   if (isRC) {
     return (
-      <main className="min-h-screen">
+      <main className="-mt-20 min-h-screen">
         <section className="rc-inverted bg-[var(--rc-navy)] py-16 md:py-24">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h1

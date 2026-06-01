@@ -95,7 +95,7 @@ export default async function MarketLeaderListingsPage() {
   const soldListings = listings.filter(l => !l.is_active);
 
   return (
-    <main className="min-h-screen">
+    <main className="-mt-20 min-h-screen">
       {/* Hero */}
       <section className="bg-[var(--color-sothebys-blue)] py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 text-center">

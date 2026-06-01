@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TermsOfServicePage() {
   const siteName = await getSiteName();
   return (
-    <main className="min-h-screen">
+    <main className="-mt-20 min-h-screen">
       <section className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]">
         <div className="relative max-w-7xl mx-auto px-6 md:px-12 lg:px-16">
           <h1 className="font-serif text-white mb-6">Terms of Service</h1>

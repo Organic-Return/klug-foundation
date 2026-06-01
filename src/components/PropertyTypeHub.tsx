@@ -52,7 +52,7 @@ export default function PropertyTypeHub({
   const otherTypes = (Object.keys(TYPE_COPY) as Array<PropertyTypeHubProps['type']>).filter((t) => t !== type);
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
+    <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Hero band */}
       <section className="relative bg-[var(--color-sothebys-blue)] pt-36 pb-16 md:pt-44 md:pb-20">
         <div className="relative max-w-4xl mx-auto px-6 md:px-12 lg:px-16 text-center">

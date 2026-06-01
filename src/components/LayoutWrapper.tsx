@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { ReactNode, cloneElement, isValidElement, useDeferredValue } from 'react';
+import { ReactNode, cloneElement, isValidElement } from 'react';
 
 interface LayoutWrapperProps {
   header: ReactNode;
@@ -11,15 +11,7 @@ interface LayoutWrapperProps {
 }
 
 export default function LayoutWrapper({ header, footer, children, template }: LayoutWrapperProps) {
-  // usePathname updates the moment the URL changes, but server-rendered
-  // page children can take a beat to stream in. If we let the layout's
-  // padding / forceBackground flip ahead of the new page, the user sees
-  // the layout's empty <main> (body bg = white) under a transparent nav
-  // before the new hero arrives. Defer the pathname so the layout stays
-  // on the previous configuration until React has the new children ready,
-  // then both flip together — same atomic feel as a hard reload.
-  const rawPathname = usePathname();
-  const pathname = useDeferredValue(rawPathname);
+  const pathname = usePathname();
 
   // Check if we're on any Sanity Studio route or its sub-routes
   const isSanityRoute =
@@ -107,10 +99,16 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   const isPropertyPage = pathname?.startsWith('/real-estate-for-sale/');
   const isCustomOnePropertyPage = template === 'custom-one' && isPropertyPage;
 
-  // Regular pages: include header/footer with padding (except homepage, community pages, custom-one property pages, and rcsothebys-custom)
-  // RC Sotheby's header is static so no padding offset needed
-  // Transparent-hero pages drop the pt-20 so the hero sits behind the header.
-  const needsPadding = !isRCSothebys && !isHomepage && !isCommunityPage && !isCustomOnePropertyPage && !hasTransparentHero;
+  // The <main> padding is intentionally NOT pathname-dependent. Toggling
+  // it on every navigation race-conditions with the new page's children
+  // streaming in — you can end up with a transparent-hero page rendered
+  // under an 80px-tall white band (until a reload re-syncs). Keep main
+  // stable at pt-20 (header-height) on every regular page. Pages that
+  // want a full-bleed image hero behind a transparent nav pull
+  // themselves up with -mt-20 at the top of their root element; that
+  // way the layout class is identical pre- and post-navigation.
+  const skipPadding =
+    isRCSothebys || isHomepage || isCommunityPage || isCustomOnePropertyPage;
 
   return (
     <>
@@ -118,7 +116,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
         Skip to main content
       </a>
       {headerWithProps}
-      <main id="main-content" className={needsPadding ? 'pt-20' : ''}>
+      <main id="main-content" className={skipPadding ? '' : 'pt-20'}>
         {children}
       </main>
       {footer}

@@ -190,11 +190,12 @@ export default function KlugListingContent({
     : description;
 
   return (
-    // Site header is transparent over /real-estate-for-sale/*; the exclusive
-    // branch below renders a full-screen image hero behind it, but the
-    // non-exclusive fallback (no agent) starts straight into content — push
-    // it down by the header height so the nav doesn't overlap.
-    <div className={`min-h-screen bg-[var(--rc-cream)] ${agent ? '' : 'pt-20'}`}>
+    // The layout's <main> always has pt-20 (header clearance). When this
+    // listing has an exclusive image hero, pull the root up with -mt-20
+    // so the hero fills behind the transparent nav. The non-exclusive
+    // fallback (agent === null) has no hero — leave the layout's pt-20
+    // in place so content starts below the nav.
+    <div className={`min-h-screen bg-[var(--rc-cream)] ${agent ? '-mt-20' : ''}`}>
       {/* Hero Image with Navigation — exclusive listings only */}
       {agent && (
         <div className="relative w-full h-screen">

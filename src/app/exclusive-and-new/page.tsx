@@ -144,7 +144,7 @@ export default async function ExclusiveAndNewPage() {
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || null;
 
   return (
-    <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
+    <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Hero — transparent header sits on top, so add extra top padding */}
       <section
         className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]"

@@ -220,7 +220,7 @@ export default async function WhyKlugPropertiesPage() {
     : defaultHeroUrl;
 
   return (
-    <main className="min-h-screen">
+    <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
         className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]"
