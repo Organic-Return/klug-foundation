@@ -69,7 +69,16 @@ export default function CustomOneMarketStats({
           { value: stats.totalActiveListings.toString(), label: 'Active Listings' },
           { value: stats.totalUnderContract.toString(), label: 'Under Contract' },
           { value: `$${stats.avgPricePerSqFt.toLocaleString()}`, label: 'Avg. Price / Sq Ft' },
-          { value: formatPrice(stats.avgListPrice), label: 'Avg. Price' },
+          { value: formatPrice(stats.avgListPrice), label: 'Avg. List Price' },
+          {
+            value: stats.avgSoldPrice != null ? formatPrice(stats.avgSoldPrice) : '—',
+            label: 'Avg. Sold Price (12 mo)',
+          },
+          {
+            value:
+              stats.avgDaysOnMarket != null ? `${stats.avgDaysOnMarket}` : '—',
+            label: 'Avg. Days on Market',
+          },
         ]
       : [];
 
@@ -82,7 +91,7 @@ export default function CustomOneMarketStats({
 
         {isLoading ? (
           <div className="grid grid-cols-2 gap-6 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="text-center py-6">
                 <div className="h-8 bg-white/10 rounded w-20 mx-auto mb-3" />
                 <div className="h-3 bg-white/5 rounded w-28 mx-auto" />

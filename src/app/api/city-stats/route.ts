@@ -102,11 +102,11 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
 
   let closedQuery = supabase
     .from('mls_properties')
-    .select('city, sold_price, list_price, square_feet, lot_size_acres, listing_date, close_date')
+    .select('city, sold_price, list_price, square_feet, lot_size_acres, listing_date, sold_date')
     .in('status', ['Closed', 'Sold'])
     .in('city', allowedCities)
     .not('sold_price', 'is', null)
-    .gte('close_date', twoYearsAgoStr)
+    .gte('sold_date', twoYearsAgoStr)
     .not('property_type', 'eq', 'Residential Lease')
     .not('property_type', 'eq', 'Commercial Lease')
     .not('property_type', 'eq', 'Fractional');
@@ -167,7 +167,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
   const cityData: Record<string, {
     activeListings: Array<{ list_price: number; square_feet: number | null }>;
     pendingCount: number;
-    soldListings: Array<{ sold_price: number; list_price: number | null; square_feet: number | null; listing_date: string | null; close_date: string | null }>;
+    soldListings: Array<{ sold_price: number; list_price: number | null; square_feet: number | null; listing_date: string | null; sold_date: string | null }>;
   }> = {};
 
   // Process active listings
@@ -202,7 +202,7 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
       list_price: listing.list_price as number | null,
       square_feet: listing.square_feet as number | null,
       listing_date: listing.listing_date as string | null,
-      close_date: listing.close_date as string | null,
+      sold_date: listing.sold_date as string | null,
     });
   });
 
@@ -234,14 +234,14 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
       const oneYearAgoDate = new Date(now.getFullYear(), now.getMonth() - 11, 1); // Start of 12-month window
 
       const currentYearSoldListings = soldListings.filter(l => {
-        if (!l.close_date) return false;
-        const closeDate = new Date(l.close_date);
+        if (!l.sold_date) return false;
+        const closeDate = new Date(l.sold_date);
         return closeDate >= oneYearAgoDate;
       });
 
       const priorYearSoldListings = soldListings.filter(l => {
-        if (!l.close_date) return false;
-        const closeDate = new Date(l.close_date);
+        if (!l.sold_date) return false;
+        const closeDate = new Date(l.sold_date);
         const priorYearStart = new Date(oneYearAgoDate.getFullYear() - 1, oneYearAgoDate.getMonth(), 1);
         return closeDate >= priorYearStart && closeDate < oneYearAgoDate;
       });
@@ -281,11 +281,11 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
 
       // Calculate average days on market for the last year
       let avgDaysOnMarket: number | null = null;
-      const soldWithDates = currentYearSoldListings.filter(l => l.listing_date && l.close_date);
+      const soldWithDates = currentYearSoldListings.filter(l => l.listing_date && l.sold_date);
       if (soldWithDates.length > 0) {
         const totalDaysOnMarket = soldWithDates.reduce((sum, l) => {
           const listDate = new Date(l.listing_date as string);
-          const closeDate = new Date(l.close_date as string);
+          const closeDate = new Date(l.sold_date as string);
           const days = Math.floor((closeDate.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24));
           return sum + Math.max(0, days); // Ensure non-negative
         }, 0);
@@ -314,8 +314,8 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
 
         // Current year month data
         const currentMonthSales = soldListings.filter(l => {
-          if (!l.close_date) return false;
-          const closeDate = new Date(l.close_date);
+          if (!l.sold_date) return false;
+          const closeDate = new Date(l.sold_date);
           return closeDate.getFullYear() === currentMonthDate.getFullYear() &&
                  closeDate.getMonth() === currentMonthDate.getMonth();
         });
@@ -346,8 +346,8 @@ async function computeCityStats(propertyFilter: string, requestedCities?: string
 
         // Prior year month data (same month, one year earlier)
         const priorMonthSales = soldListings.filter(l => {
-          if (!l.close_date) return false;
-          const closeDate = new Date(l.close_date);
+          if (!l.sold_date) return false;
+          const closeDate = new Date(l.sold_date);
           return closeDate.getFullYear() === priorMonthDate.getFullYear() &&
                  closeDate.getMonth() === priorMonthDate.getMonth();
         });
