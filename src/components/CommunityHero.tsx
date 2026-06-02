@@ -28,7 +28,9 @@ export default function CommunityHero({
 
   if (isLuxury) {
     return (
-      <section className="relative w-full h-[75vh] min-h-[600px] overflow-hidden">
+      // Dark fallback bg so the transparent site nav never appears over a
+      // bare white page while the hero image is still loading.
+      <section className="relative w-full h-[75vh] min-h-[600px] overflow-hidden bg-[#1a1a1a]">
         {/* Hero Image with Ken Burns */}
         <div
           className={`absolute inset-0 transition-transform duration-[20000ms] ease-linear ${
@@ -134,7 +136,9 @@ export default function CommunityHero({
 
   // Classic variant
   return (
-    <section className="relative w-full h-[52vh] md:h-[56vh] lg:h-[60vh] min-h-[375px]">
+    // Dark fallback bg so the transparent site nav never appears over a
+    // bare white page while the hero image is still loading.
+    <section className="relative w-full h-[52vh] md:h-[56vh] lg:h-[60vh] min-h-[375px] bg-[#1a1a1a]">
       {/* Hero Image Container */}
       <div className="absolute inset-0">
         <Image
