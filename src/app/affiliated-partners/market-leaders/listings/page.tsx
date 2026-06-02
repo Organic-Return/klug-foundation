@@ -1,5 +1,4 @@
 import { client } from "@/sanity/client";
-import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -8,28 +7,6 @@ import { isRealogyConfigured, getRealogySupabase } from '@/lib/realogySupabase';
 import { formatPrice, toAddressSlug } from '@/lib/listings';
 
 export const revalidate = 60;
-
-// Realogy's CDN (openapi.images.anywhere.re) sometimes 404s on a default
-// photo even though the field is populated — the asset was removed
-// upstream but the URL is still in the row. HEAD-check before render so
-// dead-photo cards don't reach the grid. Cached aggressively because
-// these IDs don't churn within an hour.
-const checkPhotoUrlExists = unstable_cache(
-  async (url: string): Promise<boolean> => {
-    if (!url) return false;
-    try {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), 2500);
-      const res = await fetch(url, { method: 'HEAD', signal: controller.signal });
-      clearTimeout(t);
-      return res.ok;
-    } catch {
-      return false;
-    }
-  },
-  ['market-leader-photo-head'],
-  { revalidate: 3600, tags: ['market-leader-photo-head'] }
-);
 
 interface MLListing {
   id: string;
@@ -114,20 +91,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function MarketLeaderListingsPage() {
   const allListings = await getAllMarketLeaderListings();
-  // Hide listings without a usable cover photo. First filter out any
-  // row whose getPhotoUrl returns null (no URL at all), then verify in
-  // parallel that the URL we DO have actually responds — Realogy's CDN
-  // 404s on a chunk of older asset IDs even when the column is set.
-  const candidates = allListings
-    .map((l) => ({ listing: l, photo: getPhotoUrl(l) }))
-    .filter((x): x is { listing: typeof x.listing; photo: string } => !!x.photo);
-  const checked = await Promise.all(
-    candidates.map(async ({ listing, photo }) => ({
-      listing,
-      ok: await checkPhotoUrlExists(photo),
-    }))
-  );
-  const listings = checked.filter((x) => x.ok).map((x) => x.listing);
+  // Hide listings whose row has no usable photo URL anywhere (no
+  // default_photo_url and no media[] Image entry). We don't HEAD-check
+  // the URL — Realogy's CDN refuses requests from some IPs and would
+  // wrongly mark every tile as broken — instead we rely on next/image's
+  // own onError + the upstream sync keeping the column truthful.
+  const listings = allListings.filter((l) => getPhotoUrl(l));
   const activeListings = listings.filter(l => l.is_active);
   const soldListings = listings.filter(l => !l.is_active);
 
