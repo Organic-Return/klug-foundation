@@ -35,6 +35,13 @@ interface RecentListingsProps {
    * appear on a community page.
    */
   mlsAreas?: string[];
+  /**
+   * Optional list of subdivision_name values (e.g., "Aspen Square",
+   * "Cirque Residences"). Most specific filter — listings must sit
+   * inside one of the named subdivisions / complexes. Takes precedence
+   * over mlsAreas and city when set.
+   */
+  subdivisions?: string[];
 }
 
 function formatPrice(price: number | null): string {
@@ -231,17 +238,20 @@ export default function RecentListings({
   subtitle,
   variant = 'classic',
   mlsAreas,
+  subdivisions,
 }: RecentListingsProps) {
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Stable key for the effect dep — joining is cheaper than holding the
+  // Stable keys for the effect dep — joining is cheaper than holding the
   // array reference identity across renders.
   const mlsAreasKey = mlsAreas && mlsAreas.length > 0 ? mlsAreas.slice().sort().join(',') : '';
+  const subdivisionsKey =
+    subdivisions && subdivisions.length > 0 ? subdivisions.slice().sort().join(',') : '';
 
   useEffect(() => {
     async function fetchListings() {
-      if (!city && !mlsAreasKey) return;
+      if (!city && !mlsAreasKey && !subdivisionsKey) return;
 
       setIsLoading(true);
       try {
@@ -249,6 +259,7 @@ export default function RecentListings({
         if (city) params.set('city', city);
         params.set('limit', String(limit));
         if (mlsAreasKey) params.set('mlsAreas', mlsAreasKey);
+        if (subdivisionsKey) params.set('subdivisions', subdivisionsKey);
         const response = await fetch(`/api/recent-listings?${params.toString()}`);
         const data = await response.json();
         setListings(data.listings || []);
@@ -261,9 +272,9 @@ export default function RecentListings({
     }
 
     fetchListings();
-  }, [city, limit, mlsAreasKey]);
+  }, [city, limit, mlsAreasKey, subdivisionsKey]);
 
-  if (!city && !mlsAreasKey) {
+  if (!city && !mlsAreasKey && !subdivisionsKey) {
     return null;
   }
 

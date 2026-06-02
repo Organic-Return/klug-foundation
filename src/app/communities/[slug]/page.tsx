@@ -451,6 +451,16 @@ export default async function CommunityPage({
   const effectiveMlsAreas =
     explicitMlsAreas.length > 0 ? explicitMlsAreas : derivedMlsAreas;
 
+  // For complex / building communities (Cirque, Aspen Square), the listing
+  // filter is the exact subdivision_name on mls_properties rather than an
+  // area-minor; it's the only signal that narrows results to a single
+  // building rather than the surrounding city.
+  const isComplex = community.communityType === 'complex';
+  const subdivisionNames: string[] =
+    isComplex && typeof community.subdivisionName === 'string' && community.subdivisionName.length > 0
+      ? [community.subdivisionName]
+      : [];
+
   // Fetch dynamic price range based on active listings
   let priceRange: string | null = null;
   if (community.marketInsightsCity) {
@@ -916,26 +926,35 @@ export default async function CommunityPage({
             )
           )}
 
-          {/* Recent Listings Section. Prefer the editor's MLS-area picks;
-              fall back to title-derived areas; finally fall back to city. */}
+          {/* Recent Listings Section. Filter preference, most → least
+              specific: subdivisions (complex / building) → mlsAreas
+              (neighborhood) → derived areas → city. */}
           {(() => {
+            const hasSubs = subdivisionNames.length > 0;
             const hasAreas = effectiveMlsAreas.length > 0;
             const cityForFetch = community.marketInsightsCity || '';
 
-            if (!hasAreas && !cityForFetch) return null;
+            if (!hasSubs && !hasAreas && !cityForFetch) return null;
 
-            const subtitle = hasAreas
-              ? `Currently listed in ${effectiveMlsAreas.join(', ')}`
-              : `The most recently listed properties in ${cityForFetch}`;
+            const subtitle = hasSubs
+              ? `Currently listed in ${community.title}`
+              : hasAreas
+                ? `Currently listed in ${effectiveMlsAreas.join(', ')}`
+                : `The most recently listed properties in ${cityForFetch}`;
+
+            const sectionTitle = isComplex
+              ? `Listings at ${community.title}`
+              : `Recent Listings in ${community.title}`;
 
             return (
               <div className={isCustomOne ? 'bg-white' : isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
                 <RecentListings
                   city={cityForFetch}
                   limit={isCustomOne ? 3 : 10}
-                  title={`Recent Listings in ${community.title}`}
+                  title={sectionTitle}
                   subtitle={subtitle}
                   variant={variant}
+                  subdivisions={hasSubs ? subdivisionNames : undefined}
                   mlsAreas={hasAreas ? effectiveMlsAreas : undefined}
                 />
               </div>

@@ -22,11 +22,19 @@ interface Listing {
   photos: string[];
 }
 
-async function fetchRecentListings(city: string, limit: number, mlsAreas?: string[]): Promise<Listing[]> {
+async function fetchRecentListings(
+  city: string,
+  limit: number,
+  mlsAreas?: string[],
+  subdivisions?: string[],
+): Promise<Listing[]> {
   // Get MLS configuration to filter by allowed cities. Skipped when the
-  // caller passes explicit mlsAreas — those listings might span multiple
-  // cities and the area-minor signal is more specific than the city gate.
-  if (!mlsAreas || mlsAreas.length === 0) {
+  // caller passes an mlsAreas or subdivisions filter — those are more
+  // specific than the city gate (a complex's units might sit under any
+  // city, an area-minor spans multiple, etc.).
+  const hasNarrowFilter =
+    (mlsAreas && mlsAreas.length > 0) || (subdivisions && subdivisions.length > 0);
+  if (!hasNarrowFilter) {
     const mlsConfig = await getMLSConfiguration();
     const allowedCities = getAllowedCities(mlsConfig);
     if (allowedCities.length > 0 && !allowedCities.includes(city)) {
@@ -60,10 +68,18 @@ async function fetchRecentListings(city: string, limit: number, mlsAreas?: strin
     .order('listing_date', { ascending: false })
     .limit(limit);
 
-  // Prefer mls_area_minor filter when provided — it's the more specific
-  // signal a Sanity editor configured for this community. Otherwise
-  // fall back to filtering by city.
-  if (mlsAreas && mlsAreas.length > 0) {
+  // Filter preference (most → least specific):
+  //   1. subdivisions  — exact building / complex match (Cirque, Aspen Square)
+  //   2. mlsAreas     — neighborhood-level area_minor (01-Red Mountain)
+  //   3. city          — fallback for city-level community pages
+  if (subdivisions && subdivisions.length > 0) {
+    // Case-insensitive subdivision_name match so editors can enter the
+    // building name in any case ("Aspen Square") without breaking.
+    const orClauses = subdivisions
+      .map((s) => `subdivision_name.ilike.${s.replace(/[,()]/g, '')}`)
+      .join(',');
+    query = query.or(orClauses);
+  } else if (mlsAreas && mlsAreas.length > 0) {
     query = query.in('mls_area_minor', mlsAreas);
   } else {
     query = query.eq('city', city);
@@ -134,13 +150,21 @@ async function fetchRecentListings(city: string, limit: number, mlsAreas?: strin
 }
 
 // Create cached version of the fetch function
-const getCachedRecentListings = (city: string, limit: number, mlsAreas?: string[]) => {
+const getCachedRecentListings = (
+  city: string,
+  limit: number,
+  mlsAreas?: string[],
+  subdivisions?: string[],
+) => {
   const areasKey = mlsAreas && mlsAreas.length > 0
     ? mlsAreas.slice().sort().join('|')
     : 'none';
+  const subsKey = subdivisions && subdivisions.length > 0
+    ? subdivisions.slice().sort().join('|')
+    : 'none';
   return unstable_cache(
-    async () => fetchRecentListings(city, limit, mlsAreas),
-    [`recent-listings-${city}-${limit}-${areasKey}`],
+    async () => fetchRecentListings(city, limit, mlsAreas, subdivisions),
+    [`recent-listings-${city}-${limit}-${areasKey}-${subsKey}`],
     {
       revalidate: CACHE_DURATION,
       tags: [`recent-listings`, `recent-listings-${city}`],
@@ -163,16 +187,26 @@ export async function GET(request: Request) {
     const mlsAreas = mlsAreasParam
       ? mlsAreasParam.split(',').map((s) => s.trim()).filter(Boolean)
       : undefined;
+    // subdivisions: comma-separated list of subdivision_name values to filter
+    // by. Most specific; used for complex/building community pages where every
+    // listing sits inside the same named subdivision (e.g. "Aspen Square").
+    const subdivisionsParam = searchParams.get('subdivisions');
+    const subdivisions = subdivisionsParam
+      ? subdivisionsParam.split(',').map((s) => s.trim()).filter(Boolean)
+      : undefined;
 
-    if (!city && (!mlsAreas || mlsAreas.length === 0)) {
-      return NextResponse.json({ error: 'city or mlsAreas parameter is required' }, { status: 400 });
+    if (!city && (!mlsAreas || mlsAreas.length === 0) && (!subdivisions || subdivisions.length === 0)) {
+      return NextResponse.json(
+        { error: 'city, mlsAreas, or subdivisions parameter is required' },
+        { status: 400 },
+      );
     }
 
     // Validate limit
     const validLimit = Math.min(Math.max(1, limit), 50);
 
     // Use cached function to get listings
-    const cachedFn = getCachedRecentListings(city || '', validLimit, mlsAreas);
+    const cachedFn = getCachedRecentListings(city || '', validLimit, mlsAreas, subdivisions);
     const listings = await cachedFn();
 
     return NextResponse.json({ listings });
