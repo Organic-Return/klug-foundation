@@ -17,7 +17,7 @@ import ModernContactCTA from "@/components/ModernContactCTA";
 import CustomOneMarketStats from "@/components/CustomOneMarketStats";
 import CustomOneLocalHighlights from "@/components/CustomOneLocalHighlights";
 import { fetchDemographicData, formatCurrency, formatNumber } from "@/lib/census";
-import { getCommunityPriceRange } from "@/lib/listings";
+import { getCommunityPriceRange, findMlsAreaMinorsByName } from "@/lib/listings";
 import { getSettings } from "@/lib/settings";
 
 const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
@@ -437,6 +437,19 @@ export default async function CommunityPage({
   // the original (forcing width=1920 here meant retina displays
   // upscaled the 1920px output, causing visible softness).
   const heroImageUrl = community.featuredImage?.asset?.url || null;
+
+  // Resolve which MLS area-minor values to use for the Recent Listings
+  // section. Prefer the editor's explicit picks; if none, try to derive
+  // by matching the community title against the distinct mls_area_minor
+  // values in mls_properties ("Red Mountain" → "01-Red Mountain", etc.)
+  // so neighborhood pages don't go silent when the field is left blank.
+  const explicitMlsAreas: string[] = Array.isArray(community.mlsAreaMinors)
+    ? community.mlsAreaMinors.filter((s: unknown): s is string => typeof s === 'string' && s.length > 0)
+    : [];
+  const derivedMlsAreas =
+    explicitMlsAreas.length === 0 ? await findMlsAreaMinorsByName(community.title || '') : [];
+  const effectiveMlsAreas =
+    explicitMlsAreas.length > 0 ? explicitMlsAreas : derivedMlsAreas;
 
   // Fetch dynamic price range based on active listings
   let priceRange: string | null = null;
@@ -903,20 +916,16 @@ export default async function CommunityPage({
             )
           )}
 
-          {/* Recent Listings Section. Prefer mls_area_minor filter when
-              the editor has configured one or more MLS Neighborhoods on
-              the community; otherwise fall back to filtering by city. */}
+          {/* Recent Listings Section. Prefer the editor's MLS-area picks;
+              fall back to title-derived areas; finally fall back to city. */}
           {(() => {
-            const mlsAreas: string[] = Array.isArray(community.mlsAreaMinors)
-              ? community.mlsAreaMinors.filter((s: unknown): s is string => typeof s === 'string' && s.length > 0)
-              : [];
-            const hasAreas = mlsAreas.length > 0;
+            const hasAreas = effectiveMlsAreas.length > 0;
             const cityForFetch = community.marketInsightsCity || '';
 
             if (!hasAreas && !cityForFetch) return null;
 
             const subtitle = hasAreas
-              ? `Currently listed in ${mlsAreas.join(', ')}`
+              ? `Currently listed in ${effectiveMlsAreas.join(', ')}`
               : `The most recently listed properties in ${cityForFetch}`;
 
             return (
@@ -927,7 +936,7 @@ export default async function CommunityPage({
                   title={`Recent Listings in ${community.title}`}
                   subtitle={subtitle}
                   variant={variant}
-                  mlsAreas={hasAreas ? mlsAreas : undefined}
+                  mlsAreas={hasAreas ? effectiveMlsAreas : undefined}
                 />
               </div>
             );

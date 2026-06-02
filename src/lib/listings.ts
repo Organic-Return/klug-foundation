@@ -1187,6 +1187,35 @@ export async function getDistinctStatuses(): Promise<string[]> {
   return STATUSES;
 }
 
+/**
+ * Find any mls_area_minor values whose name contains the given community
+ * name (case-insensitive). Used as a fallback on community pages when no
+ * mlsAreaMinors are explicitly set in Sanity — "Red Mountain" → ["01-Red Mountain"],
+ * "Snowmass Village" → ["02-Snowmass Village"], etc. Editors can still
+ * override by picking from the explicit dropdown.
+ */
+export function findMlsAreaMinorsByName(name: string): Promise<string[]> {
+  const trimmed = (name || '').trim();
+  if (!trimmed) return Promise.resolve([]);
+  return getCached(`mlsAreaMinorsByName:${trimmed.toLowerCase()}`, 60 * 60 * 1000, async () => {
+    if (!isSupabaseConfigured()) return [];
+    const { data, error } = await supabase
+      .from('mls_properties')
+      .select('mls_area_minor')
+      .not('mls_area_minor', 'is', null)
+      .ilike('mls_area_minor', `%${trimmed}%`)
+      .limit(1000);
+    if (error) {
+      console.error('[findMlsAreaMinorsByName] query failed:', error.message);
+      return [];
+    }
+    const unique = Array.from(
+      new Set((data || []).map((r) => r.mls_area_minor as string).filter(Boolean))
+    );
+    return unique.sort();
+  });
+}
+
 export function getDistinctNeighborhoods(): Promise<string[]> {
   return getCached('distinctNeighborhoods', 5 * 60 * 1000, async () => {
     if (!isSupabaseConfigured()) return [];
