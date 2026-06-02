@@ -117,18 +117,7 @@ export default function LayoutWrapper({ header, footer, children, template }: La
         Skip to main content
       </a>
       {headerWithProps}
-      {/* When pt-20 is on (every regular page), paint the band behind the
-          fixed nav Sotheby's blue. Every page wrapper below is opaque,
-          so this only ever shows in the empty 80px under the nav — same
-          color the forceBackground nav uses. This matters for routes in
-          the transparent-hero list whose actual page template doesn't
-          render an image hero (e.g. non-exclusive MLS listings hitting
-          the KlugListingContent fallback): the nav appears blue instead
-          of revealing the body's white. */}
-      <main
-        id="main-content"
-        className={skipPadding ? '' : 'pt-20 bg-[var(--color-sothebys-blue)]'}
-      >
+      <main id="main-content" className={skipPadding ? '' : 'pt-20'}>
         {children}
       </main>
       {footer}

@@ -190,12 +190,11 @@ export default function KlugListingContent({
     : description;
 
   return (
-    // The layout's <main> always has pt-20 (header clearance). When this
-    // listing has an exclusive image hero, pull the root up with -mt-20
-    // so the hero fills behind the transparent nav. The non-exclusive
-    // fallback (agent === null) has no hero — leave the layout's pt-20
-    // in place so content starts below the nav.
-    <div className={`min-h-screen bg-[var(--rc-cream)] ${agent ? '-mt-20' : ''}`}>
+    // Always pull the root up under the transparent nav. Exclusive listings'
+    // image hero fills the 80px band; the non-exclusive fallback paints its
+    // own solid blue band there so the nav doesn't sit on white.
+    <div className="min-h-screen bg-[var(--rc-cream)] -mt-20">
+      {!agent && <div className="h-20 bg-[var(--color-sothebys-blue)]" />}
       {/* Hero Image with Navigation — exclusive listings only */}
       {agent && (
         <div className="relative w-full h-screen">
