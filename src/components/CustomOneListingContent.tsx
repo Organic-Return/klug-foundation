@@ -570,6 +570,12 @@ export default function CustomOneListingContent({
                   <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Sq Ft</p>
                 </div>
               )}
+              {listing.lot_size != null && listing.lot_size > 0 && (
+                <div className="text-center">
+                  <p className="text-lg font-light text-[var(--rc-navy)]">{listing.lot_size.toFixed(2)}</p>
+                  <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">Acres</p>
+                </div>
+              )}
 
               <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
 
