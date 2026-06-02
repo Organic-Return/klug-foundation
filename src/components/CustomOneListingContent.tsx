@@ -371,7 +371,43 @@ export default function CustomOneListingContent({
 
         {/* Bottom bar: photo count + View Gallery */}
         {photos.length > 0 && (
-          <div className="absolute bottom-6 left-6 md:left-10 right-6 md:right-10 flex items-end justify-between z-10">
+          <div className="absolute bottom-6 left-6 md:left-10 right-6 md:right-10 flex flex-col gap-4 z-10">
+            {/* Quick stats row — sits above the action buttons */}
+            {(listing.bedrooms != null || listing.bathrooms != null || listing.square_feet || listing.lot_size) && (
+              <div className="flex items-end justify-end gap-6 md:gap-10">
+                {listing.bedrooms != null && (
+                  <div className="text-center">
+                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.bedrooms}</p>
+                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Beds</p>
+                  </div>
+                )}
+                {listing.bathrooms != null && (
+                  <div className="text-center">
+                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.bathrooms}</p>
+                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Baths</p>
+                  </div>
+                )}
+                {listing.square_feet && (
+                  <div className="text-center">
+                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.square_feet.toLocaleString()}</p>
+                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Sq Ft</p>
+                  </div>
+                )}
+                {listing.lot_size && (
+                  <div className="text-center">
+                    <p className="text-white text-2xl md:text-3xl font-light leading-none">
+                      {listing.lot_size >= 1
+                        ? listing.lot_size.toFixed(2)
+                        : (listing.lot_size * 43560).toLocaleString()}
+                    </p>
+                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">
+                      {listing.lot_size >= 1 ? 'Acres' : 'SF Lot'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+            <div className="flex items-end justify-between">
             <span className="text-white/80 text-sm tracking-wide">
               {heroIndex + 1} / {photos.length} Photos
             </span>
@@ -426,6 +462,7 @@ export default function CustomOneListingContent({
                 </svg>
                 View Gallery
               </button>
+            </div>
             </div>
           </div>
         )}
