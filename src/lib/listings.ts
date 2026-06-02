@@ -903,7 +903,10 @@ async function getRealogyListingBySlug(slug: string): Promise<MLSProperty | null
       lot_size, year_built, property_type, listed_on, default_photo_url, media,
       primary_agent_name, latitude, longitude, created_at, synced_at
     `)
-    .or(`rfg_mls_number.eq.${slug},entity_id.eq.${slug}`)
+    // Column is rfg_listing_id on realogy_listings (no rfg_mls_number);
+    // the older name was a stale rename that crashed the query with
+    // 42703 every time a Realogy slug came through.
+    .or(`rfg_listing_id.eq.${slug},entity_id.eq.${slug}`)
     .limit(1)
     .maybeSingle();
 
