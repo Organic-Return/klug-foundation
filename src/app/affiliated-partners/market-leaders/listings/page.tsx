@@ -90,7 +90,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function MarketLeaderListingsPage() {
-  const listings = await getAllMarketLeaderListings();
+  const allListings = await getAllMarketLeaderListings();
+  // Hide listings without a usable image — empty placeholder tiles look
+  // broken next to the rest of the grid and are usually upstream sync
+  // gaps rather than intentional content.
+  const listings = allListings.filter((l) => getPhotoUrl(l));
   const activeListings = listings.filter(l => l.is_active);
   const soldListings = listings.filter(l => !l.is_active);
 
