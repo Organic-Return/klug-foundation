@@ -7,8 +7,9 @@ interface CityData {
   city: string;
   stats: {
     medianPrice: number;
+    priceLabel: string;
     activeListings: number;
-    avgDaysOnMarket: number;
+    avgDaysOnMarket: number | null;
     priceChange: number;
   };
 }
@@ -80,12 +81,17 @@ export default function ModernCityStats({
               );
             }
 
+            // Use avg sold price (last 12 mo) when available; fall back to
+            // avg list price for cities with no recent closed comps. The UI
+            // labels the row to match whichever it ended up showing.
+            const hasSoldComps = stat.avgSoldPrice != null && stat.avgSoldPrice > 0;
             return {
               city: stat.city,
               stats: {
-                medianPrice: stat.avgSoldPrice || stat.avgListPrice,
+                medianPrice: hasSoldComps ? (stat.avgSoldPrice as number) : stat.avgListPrice,
+                priceLabel: hasSoldComps ? 'Avg. Sold Price (1 yr)' : 'Avg. List Price',
                 activeListings: stat.totalActiveListings,
-                avgDaysOnMarket: stat.avgDaysOnMarket || 0,
+                avgDaysOnMarket: stat.avgDaysOnMarket ?? null,
                 priceChange,
               },
             };
@@ -195,7 +201,7 @@ export default function ModernCityStats({
               {/* Stats */}
               <div className="space-y-5">
                 <div className="flex justify-between items-center">
-                  <span className={`text-xs uppercase tracking-[0.15em] ${isDark ? 'text-white/50' : 'text-[var(--modern-gray)]'}`}>Median Price</span>
+                  <span className={`text-xs uppercase tracking-[0.15em] ${isDark ? 'text-white/50' : 'text-[var(--modern-gray)]'}`}>{data.stats.priceLabel}</span>
                   <span className={`text-lg font-light ${isDark ? 'text-[var(--modern-gold)]' : 'text-[var(--modern-dark)]'}`}>{formatPrice(data.stats.medianPrice)}</span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -204,7 +210,9 @@ export default function ModernCityStats({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className={`text-xs uppercase tracking-[0.15em] ${isDark ? 'text-white/50' : 'text-[var(--modern-gray)]'}`}>Avg. Days on Market</span>
-                  <span className={`text-lg font-light ${isDark ? 'text-white' : 'text-[var(--modern-dark)]'}`}>{data.stats.avgDaysOnMarket}</span>
+                  <span className={`text-lg font-light ${isDark ? 'text-white' : 'text-[var(--modern-dark)]'}`}>
+                    {data.stats.avgDaysOnMarket != null ? data.stats.avgDaysOnMarket : '—'}
+                  </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className={`text-xs uppercase tracking-[0.15em] ${isDark ? 'text-white/50' : 'text-[var(--modern-gray)]'}`}>YoY Change</span>
