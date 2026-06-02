@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
+import { BedIcon, BathIcon, SqftIcon, AcresIcon } from '@/components/PropertyVitals';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { getUTMData } from './UTMCapture';
 
@@ -369,49 +370,75 @@ export default function CustomOneListingContent({
           </>
         )}
 
-        {/* Bottom bar: photo count + View Gallery */}
+        {/* Bottom bar: address (left) + stats & actions (right) */}
         {photos.length > 0 && (
-          <div className="absolute bottom-6 left-6 md:left-10 right-6 md:right-10 flex flex-col gap-4 z-10">
-            {/* Quick stats row — sits above the action buttons */}
-            {(listing.bedrooms != null || listing.bathrooms != null || listing.square_feet || listing.lot_size) && (
-              <div className="flex items-end justify-end gap-6 md:gap-10">
-                {listing.bedrooms != null && (
-                  <div className="text-center">
-                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.bedrooms}</p>
-                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Beds</p>
-                  </div>
-                )}
-                {listing.bathrooms != null && (
-                  <div className="text-center">
-                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.bathrooms}</p>
-                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Baths</p>
-                  </div>
-                )}
-                {listing.square_feet && (
-                  <div className="text-center">
-                    <p className="text-white text-2xl md:text-3xl font-light leading-none">{listing.square_feet.toLocaleString()}</p>
-                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">Sq Ft</p>
-                  </div>
-                )}
-                {listing.lot_size && (
-                  <div className="text-center">
-                    <p className="text-white text-2xl md:text-3xl font-light leading-none">
-                      {listing.lot_size >= 1
-                        ? listing.lot_size.toFixed(2)
-                        : (listing.lot_size * 43560).toLocaleString()}
-                    </p>
-                    <p className="text-white/70 text-[10px] tracking-[0.2em] uppercase mt-1">
-                      {listing.lot_size >= 1 ? 'Acres' : 'SF Lot'}
-                    </p>
-                  </div>
-                )}
+          <div className="absolute bottom-8 left-6 md:left-10 right-6 md:right-10 z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
+            {/* LEFT — Address */}
+            <div className="text-white max-w-xl">
+              <p className="text-white/60 text-[10px] tracking-[0.3em] uppercase mb-3">
+                {heroIndex + 1} / {photos.length} Photos
+              </p>
+              <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl tracking-wide leading-[1.1] drop-shadow-md">
+                {streetAddress}
+              </h1>
+              <div className="flex items-center gap-3 mt-3">
+                <div className="h-px w-10 bg-[var(--rc-gold)]" />
+                <p className="text-white/80 text-xs md:text-sm tracking-[0.2em] uppercase">
+                  {cityState}{listing.zip_code ? ` ${listing.zip_code}` : ''}
+                </p>
               </div>
-            )}
-            <div className="flex items-end justify-between">
-            <span className="text-white/80 text-sm tracking-wide">
-              {heroIndex + 1} / {photos.length} Photos
-            </span>
-            <div className="flex items-center gap-3">
+            </div>
+
+            {/* RIGHT — Stats row + button cluster */}
+            <div className="flex flex-col items-start md:items-end gap-5">
+              {(listing.bedrooms != null || listing.bathrooms != null || listing.square_feet || listing.lot_size) && (
+                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-white">
+                  {listing.bedrooms != null && (
+                    <span className="inline-flex items-baseline gap-2">
+                      <BedIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
+                      <span className="font-serif text-xl md:text-2xl font-light leading-none">{listing.bedrooms}</span>
+                      <span className="text-white/70 text-[10px] tracking-[0.2em] uppercase">Beds</span>
+                    </span>
+                  )}
+                  {listing.bathrooms != null && (
+                    <>
+                      <span className="hidden md:inline-block w-px h-5 bg-white/25" aria-hidden />
+                      <span className="inline-flex items-baseline gap-2">
+                        <BathIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
+                        <span className="font-serif text-xl md:text-2xl font-light leading-none">{listing.bathrooms}</span>
+                        <span className="text-white/70 text-[10px] tracking-[0.2em] uppercase">Baths</span>
+                      </span>
+                    </>
+                  )}
+                  {listing.square_feet && (
+                    <>
+                      <span className="hidden md:inline-block w-px h-5 bg-white/25" aria-hidden />
+                      <span className="inline-flex items-baseline gap-2">
+                        <SqftIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
+                        <span className="font-serif text-xl md:text-2xl font-light leading-none">{listing.square_feet.toLocaleString()}</span>
+                        <span className="text-white/70 text-[10px] tracking-[0.2em] uppercase">Sq Ft</span>
+                      </span>
+                    </>
+                  )}
+                  {listing.lot_size && (
+                    <>
+                      <span className="hidden md:inline-block w-px h-5 bg-white/25" aria-hidden />
+                      <span className="inline-flex items-baseline gap-2">
+                        <AcresIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
+                        <span className="font-serif text-xl md:text-2xl font-light leading-none">
+                          {listing.lot_size >= 1
+                            ? listing.lot_size.toFixed(2)
+                            : (listing.lot_size * 43560).toLocaleString()}
+                        </span>
+                        <span className="text-white/70 text-[10px] tracking-[0.2em] uppercase">
+                          {listing.lot_size >= 1 ? 'Acres' : 'SF Lot'}
+                        </span>
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+              <div className="flex items-center gap-3">
               {hasVideos && (
                 <button
                   onClick={() => setVideoModalOpen(true)}
