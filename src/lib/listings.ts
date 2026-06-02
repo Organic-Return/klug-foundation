@@ -415,7 +415,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     bathrooms_half: row.bathrooms_half,
     bathrooms_three_quarter: row.bathrooms_three_quarter,
     square_feet: row.square_feet || row.living_area,
-    lot_size: row.lot_size_acres ?? row.lot_size,
+    lot_size: row.lot_size_acres ?? row.lot_size ?? (row.lot_size_square_feet ? row.lot_size_square_feet / 43560 : null),
     year_built: row.year_built ? parseInt(row.year_built, 10) : null,
     property_type: row.property_sub_type || row.property_type,
     listing_date: row.listing_date,

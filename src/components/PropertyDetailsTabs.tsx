@@ -51,10 +51,7 @@ export default function PropertyDetailsTabs({
   ];
 
   const formatSqft = (sqft: number) => `${sqft.toLocaleString()} sq ft`;
-  const formatLotSize = (acres: number) => {
-    if (acres >= 1) return `${acres.toFixed(2)} acres`;
-    return `${Math.round(acres * 43560).toLocaleString()} sq ft`;
-  };
+  const formatLotSize = (acres: number) => `${acres.toFixed(2)} acres`;
 
   return (
     <div className="bg-white">

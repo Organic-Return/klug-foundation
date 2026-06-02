@@ -572,7 +572,7 @@ export default function KlugListingContent({
                   <div className="flex justify-between items-baseline py-2.5 border-b border-[var(--rc-brown)]/10">
                     <span className="text-[var(--rc-brown)]/60 text-sm">Lot Size</span>
                     <span className="text-[var(--rc-navy)] text-sm font-medium">
-                      {listing.lot_size >= 1 ? `${listing.lot_size.toFixed(2)} Acres` : `${(listing.lot_size * 43560).toLocaleString()} Sq Ft`}
+                      {`${listing.lot_size.toFixed(2)} Acres`}
                     </span>
                   </div>
                 )}
@@ -1009,7 +1009,7 @@ export default function KlugListingContent({
                 <div>
                   <div className="text-white/50 text-xs uppercase tracking-[0.1em] mb-1">Lot Size</div>
                   <div className="text-white text-sm">
-                    {listing.lot_size >= 1 ? `${listing.lot_size.toFixed(2)} Acres` : `${(listing.lot_size * 43560).toLocaleString()} Sq Ft`}
+                    {`${listing.lot_size.toFixed(2)} Acres`}
                   </div>
                 </div>
               )}

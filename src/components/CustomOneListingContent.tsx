@@ -293,9 +293,7 @@ export default function CustomOneListingContent({
   if (listing.lot_size) {
     stats.push({
       label: 'Lot Size',
-      value: listing.lot_size >= 1
-        ? `${listing.lot_size.toFixed(2)} Acres`
-        : `${(listing.lot_size * 43560).toLocaleString()} SF`,
+      value: `${listing.lot_size.toFixed(2)} Acres`,
     });
   }
   if (listing.year_built) {
@@ -426,12 +424,10 @@ export default function CustomOneListingContent({
                       <span className="inline-flex items-baseline gap-2">
                         <AcresIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
                         <span className="font-serif text-xl md:text-2xl font-light leading-none">
-                          {listing.lot_size >= 1
-                            ? listing.lot_size.toFixed(2)
-                            : (listing.lot_size * 43560).toLocaleString()}
+                          {listing.lot_size.toFixed(2)}
                         </span>
                         <span className="text-white/70 text-[10px] tracking-[0.2em] uppercase">
-                          {listing.lot_size >= 1 ? 'Acres' : 'SF Lot'}
+                          Acres
                         </span>
                       </span>
                     </>
