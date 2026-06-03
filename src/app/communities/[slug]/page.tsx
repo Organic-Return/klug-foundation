@@ -451,15 +451,20 @@ export default async function CommunityPage({
   const effectiveMlsAreas =
     explicitMlsAreas.length > 0 ? explicitMlsAreas : derivedMlsAreas;
 
-  // For complex / building communities (Cirque, Aspen Square), the listing
-  // filter is the exact subdivision_name on mls_properties rather than an
-  // area-minor; it's the only signal that narrows results to a single
-  // building rather than the surrounding city.
+  // Subdivision filter — tightest available signal. Editors set this when
+  // listings should match a specific MLS subdivision_name (e.g. Ridge Run,
+  // Wood Run, Aspen Square). Falls back to the legacy single-value
+  // subdivisionName field used by the first Cirque / Aspen Square pages.
   const isComplex = community.communityType === 'complex';
-  const subdivisionNames: string[] =
-    isComplex && typeof community.subdivisionName === 'string' && community.subdivisionName.length > 0
+  const explicitSubdivisions: string[] = Array.isArray(community.subdivisionNames)
+    ? community.subdivisionNames.filter((s: unknown): s is string => typeof s === 'string' && s.length > 0)
+    : [];
+  const legacySubdivision: string[] =
+    typeof community.subdivisionName === 'string' && community.subdivisionName.length > 0
       ? [community.subdivisionName]
       : [];
+  const subdivisionNames: string[] =
+    explicitSubdivisions.length > 0 ? explicitSubdivisions : legacySubdivision;
 
   // Fetch dynamic price range based on active listings
   let priceRange: string | null = null;

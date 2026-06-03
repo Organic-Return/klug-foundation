@@ -118,10 +118,30 @@ export const community = defineType({
       hidden: ({ parent }) => parent?.communityType === 'complex',
     }),
     defineField({
+      name: 'subdivisionNames',
+      title: 'MLS Subdivisions',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        // Tag-style input: editor types each subdivision exactly as it
+        // appears in mls_properties.subdivision_name. There are 800+
+        // distinct values, so a static dropdown would be unmanageable
+        // and the checkbox multi-select renderer crashes on async lists.
+        layout: 'tags',
+      },
+      description:
+        'Type each MLS subdivision name (e.g. "Ridge Run", "Wood Run", "Aspen Square"). ' +
+        'Listings whose subdivision_name matches any value in this list appear in the ' +
+        'Recent Listings section. Takes precedence over MLS Neighborhoods + City when set, ' +
+        'so use this for the tightest filter (single building, single subdivision).',
+    }),
+    defineField({
       name: 'subdivisionName',
-      title: 'Complex / Subdivision',
+      title: 'Complex / Subdivision (legacy)',
       type: 'string',
-      description: 'Select the subdivision/complex name to filter listings for this community. The dropdown options are loaded from your MLS listings database.',
+      description:
+        'DEPRECATED — use "MLS Subdivisions" above instead. Old single-value field kept ' +
+        'so existing complex pages keep resolving; new edits should populate the array field.',
       options: {
         // @ts-expect-error - Sanity supports async list but types don't reflect it
         list: async () => {
