@@ -9,10 +9,14 @@ import { useOffMarketAccess } from '@/lib/useOffMarketAccess';
 import CustomOneListingContent from './CustomOneListingContent';
 
 interface OffMarketListingDetailProps {
+  // Threaded into CustomOneListingContent so PropertyMap loads with the
+  // same Google Maps key as ListingsMap / PartnersMapSection — the
+  // @react-google-maps/api singleton throws on key mismatch.
+  googleMapsApiKey?: string;
   listing: OffMarketListing;
 }
 
-export default function OffMarketListingDetail({ listing }: OffMarketListingDetailProps) {
+export default function OffMarketListingDetail({ listing, googleMapsApiKey }: OffMarketListingDetailProps) {
   const { loading, hasAccess, unlockWithPasscode } = useOffMarketAccess();
   const [passcodeInput, setPasscodeInput] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
@@ -183,6 +187,7 @@ export default function OffMarketListingDetail({ listing }: OffMarketListingDeta
       agent={agent}
       videos={videos}
       documents={documents}
+      googleMapsApiKey={googleMapsApiKey}
     />
   );
 }

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getOffMarketListingBySlug, getOffMarketListings, formatPrice, getTotalBathrooms, type OffMarketListing } from '@/lib/offMarketListings';
 import OffMarketListingDetail from '@/components/OffMarketListingDetail';
 import StructuredData from '@/components/StructuredData';
+import { getGoogleMapsApiKey } from '@/lib/settings';
 
 interface OffMarketListingPageProps {
   params: Promise<{ slug: string }>;
@@ -258,7 +259,12 @@ export async function generateStaticParams() {
 
 export default async function OffMarketListingPage({ params }: OffMarketListingPageProps) {
   const { slug } = await params;
-  const listing = await getOffMarketListingBySlug(slug);
+  const [listing, googleMapsApiKey] = await Promise.all([
+    getOffMarketListingBySlug(slug),
+    // Same env-var fallback as the other map-bearing routes, so the loader
+    // singleton's options stay identical across every map on the page.
+    getGoogleMapsApiKey().catch(() => process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''),
+  ]);
 
   if (!listing) {
     notFound();
@@ -271,7 +277,7 @@ export default async function OffMarketListingPage({ params }: OffMarketListingP
       {schemas.map((schema, index) => (
         <StructuredData key={index} data={schema} />
       ))}
-      <OffMarketListingDetail listing={listing} />
+      <OffMarketListingDetail listing={listing} googleMapsApiKey={googleMapsApiKey} />
     </>
   );
 }

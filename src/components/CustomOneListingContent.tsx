@@ -48,6 +48,14 @@ interface CustomOneListingContentProps {
   agent: ListingAgentInfo | null;
   documents?: DocumentInfo[];
   videos?: VideoInfo[];
+  /**
+   * Server-resolved Google Maps API key. Forwarded to PropertyMap so its
+   * useJsApiLoader call uses the same options as ListingsMap /
+   * PartnersMapSection — @react-google-maps/api keeps a process-level
+   * singleton and throws "Loader must not be called again with different
+   * options" if successive calls disagree on the key.
+   */
+  googleMapsApiKey?: string;
 }
 
 // ─────────────────────────────────────────────
@@ -86,6 +94,7 @@ export default function CustomOneListingContent({
   agent,
   documents,
   videos,
+  googleMapsApiKey,
 }: CustomOneListingContentProps) {
   // Parallax scroll offset
   const [scrollY, setScrollY] = useState(0);
@@ -996,6 +1005,7 @@ export default function CustomOneListingContent({
                 longitude={listing.longitude!}
                 address={listing.address || undefined}
                 price={listing.list_price}
+                googleMapsApiKey={googleMapsApiKey}
               />
             </div>
 

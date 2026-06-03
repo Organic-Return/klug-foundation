@@ -442,6 +442,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
           }}
           documents={propertyEnhancement?.documents}
           videos={propertyEnhancement?.videos}
+          googleMapsApiKey={googleMapsApiKey}
         />
         <RelatedListings listings={related} city={listing.city} />
       </>
@@ -499,6 +500,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
           agent={partnerAgent}
           documents={propertyEnhancement?.documents}
           videos={propertyEnhancement?.videos}
+          googleMapsApiKey={googleMapsApiKey}
         />
         <RelatedListings listings={related} city={listing.city} />
       </>
