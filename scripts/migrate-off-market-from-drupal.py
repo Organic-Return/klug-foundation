@@ -342,6 +342,15 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit", type=int, default=0)
+    parser.add_argument(
+        "--only",
+        type=str,
+        default=None,
+        help="Substring match on Drupal title / address (case-insensitive). "
+             "Restricts the run to listings whose title or street_1 contains "
+             "this substring — handy when adding a single new listing without "
+             "re-uploading photos for all 38.",
+    )
     args = parser.parse_args()
 
     token = os.environ.get("SANITY_API_TOKEN")
@@ -357,6 +366,18 @@ def main():
         f"  Found {len(nodes)} listing(s): "
         f"{published_count} published, {unpublished_count} unpublished"
     )
+
+    if args.only:
+        needle = args.only.lower()
+        nodes = [
+            n for n in nodes
+            if needle in (
+                (n.get("attributes", {}).get("title") or "")
+                + " "
+                + (n.get("attributes", {}).get("field_street_1") or "")
+            ).lower()
+        ]
+        print(f"  --only {args.only!r}: narrowed to {len(nodes)} listing(s)")
 
     if args.limit:
         nodes = nodes[: args.limit]
