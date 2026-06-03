@@ -205,7 +205,9 @@ export function PartnerCard({ partner, featured = false }: { partner: EnrichedPa
               src={partner.photoUrl}
               alt={`${partner.firstName} ${partner.lastName}`}
               fill
-              className="object-cover"
+              // Anchor to the top of the source image so the crop drops the
+              // chest/torso (acceptable) instead of the forehead (not).
+              className="object-cover object-top"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">

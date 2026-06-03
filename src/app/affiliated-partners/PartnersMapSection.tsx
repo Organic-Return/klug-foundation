@@ -71,7 +71,7 @@ function PartnerMarker({
             <img
               src={partner.photoUrl}
               alt={`${partner.firstName} ${partner.lastName}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-top"
             />
           ) : (
             <div className="w-full h-full bg-[#f0f0f0] flex items-center justify-center text-[#aaa]">
@@ -133,7 +133,7 @@ function PartnerListCard({
               alt={`${partner.firstName} ${partner.lastName}`}
               width={40}
               height={40}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-top"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#aaa] dark:text-gray-600">
