@@ -582,7 +582,7 @@ export default async function CommunityPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
-      <main className="min-h-screen">
+      <main className="-mt-20 min-h-screen">
         {/* Hero Section */}
         {heroImageUrl ? (
           <CommunityHero

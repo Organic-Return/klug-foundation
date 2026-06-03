@@ -108,8 +108,15 @@ export default function LayoutWrapper({ header, footer, children, template }: La
   // want a full-bleed image hero behind a transparent nav pull
   // themselves up with -mt-20 at the top of their root element; that
   // way the layout class is identical pre- and post-navigation.
+  // Note: community pages were *also* in skipPadding earlier, but that
+  // re-introduced the white-flash during client-side navigation
+  // (layout className flipped from pt-20 → "" the instant the URL
+  // changed, before the community hero streamed in). Treat them like
+  // every other transparent-hero page: layout keeps pt-20 stably, and
+  // the community page applies -mt-20 on its inner <main> so the hero
+  // still pulls behind the transparent nav.
   const skipPadding =
-    isRCSothebys || isHomepage || isCommunityPage || isCustomOnePropertyPage;
+    isRCSothebys || isHomepage || isCustomOnePropertyPage;
 
   return (
     <>
