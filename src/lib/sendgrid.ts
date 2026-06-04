@@ -123,8 +123,11 @@ export async function sendWelcomeEmail(
     return;
   }
 
-  const siteName = options.siteName || 'Klug Properties';
-  const siteUrl = options.siteUrl || 'https://klugproperties.com';
+  // Tenant-neutral fallbacks: read from env so a second deploy of this
+  // codebase (e.g. SKK Foundation) doesn't accidentally email links
+  // pointing at klugproperties.com when no explicit siteUrl is passed in.
+  const siteName = options.siteName || process.env.NEXT_PUBLIC_SITE_NAME || 'Our Site';
+  const siteUrl = options.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';
   const greetingName = options.name?.trim() || 'there';
 
   const html = `
@@ -188,7 +191,7 @@ export async function sendVerificationEmail(
     return;
   }
 
-  const siteName = options.siteName || 'Klug Properties';
+  const siteName = options.siteName || process.env.NEXT_PUBLIC_SITE_NAME || 'Our Site';
   const greetingName = options.name?.trim() || 'there';
 
   const html = `

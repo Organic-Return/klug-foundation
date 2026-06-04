@@ -6,14 +6,20 @@ import {
   getDistinctStatuses,
 } from '@/lib/listings';
 
-// Create a Sanity client with write access
-const sanityWriteClient = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || '1zb39xqr',
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
-  apiVersion: '2024-01-01',
-  useCdn: false,
-  token: process.env.SANITY_API_TOKEN, // Requires a token with write access
-});
+// Create a Sanity client with write access. No hardcoded project-id
+// fallback: a second deploy of this codebase (e.g. SKK Foundation) would
+// otherwise silently write its MLS-config sync into klug's Sanity
+// workspace. Better to fail loud below if the env var isn't set.
+const sanityProjectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const sanityWriteClient = sanityProjectId
+  ? createClient({
+      projectId: sanityProjectId,
+      dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+      apiVersion: '2024-01-01',
+      useCdn: false,
+      token: process.env.SANITY_API_TOKEN, // Requires a token with write access
+    })
+  : null;
 
 export async function POST() {
   try {
@@ -21,6 +27,12 @@ export async function POST() {
     if (!process.env.SANITY_API_TOKEN) {
       return NextResponse.json(
         { error: 'SANITY_API_TOKEN environment variable is required for write access' },
+        { status: 500 }
+      );
+    }
+    if (!sanityWriteClient) {
+      return NextResponse.json(
+        { error: 'NEXT_PUBLIC_SANITY_PROJECT_ID environment variable is required' },
         { status: 500 }
       );
     }
