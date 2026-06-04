@@ -262,9 +262,15 @@ export async function sendLeadNotificationEmail(
     ? to.split(',').map((e) => e.trim()).filter(Boolean)
     : to;
 
+  // Reply-To = the lead's email so the agent can hit "Reply" in their
+  // inbox and respond directly to the prospect.
   await sgMail.send({
     to: recipients,
     from: { email: fromEmail, name: 'Lead Notification' },
+    replyTo: {
+      email: data.email,
+      name: `${data.firstName} ${data.lastName}`.trim(),
+    },
     subject,
     html: buildLeadEmailHtml(data),
   });
