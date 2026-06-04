@@ -354,13 +354,25 @@ function transformListing(row: GraphQLListing): MLSProperty {
         ? (parsed.MediaCategory || parsed.category || '')
         : '';
 
-      // Video items: MediaHTML (legacy) or html (new sync) carries the
-      // player embed; MediaURL/url usually null.
+      // Video items: MediaHTML / html carries the player embed (often a
+      // full <iframe src="..."> string), MediaURL / url is usually null.
+      // Pull the src URL out of any iframe HTML so video_urls only ever
+      // holds clean player URLs — the renderer wraps them in its own
+      // iframe and would break if we passed it nested HTML.
       if (parsed && typeof parsed === 'object' && /video/i.test(category)) {
-        let vurl: string | undefined =
-          parsed.MediaHTML || parsed.mediaHtml || parsed.html
-          || parsed.MediaURL || parsed.url;
-        if (vurl && typeof vurl === 'string') {
+        const embed: string | undefined =
+          parsed.MediaURL || parsed.url
+          || parsed.MediaHTML || parsed.mediaHtml || parsed.html;
+        let vurl: string | undefined;
+        if (typeof embed === 'string' && embed.length > 0) {
+          if (/^<\s*iframe\b/i.test(embed.trim())) {
+            const m = embed.match(/\bsrc\s*=\s*["']([^"']+)["']/i);
+            vurl = m ? m[1] : undefined;
+          } else {
+            vurl = embed;
+          }
+        }
+        if (vurl) {
           if (vurl.startsWith('//')) vurl = `https:${vurl}`;
           if (!videoUrlsFromMedia.includes(vurl)) videoUrlsFromMedia.push(vurl);
         }
