@@ -494,10 +494,24 @@ export default function Header({
                       <div className="ml-4 mt-2 space-y-2">
                         {item.hasMegaMenu && item.megaMenuColumns?.map((column, colIndex) => (
                           <div key={colIndex} className="mb-4">
+                            {/* Column title: render as a Link when titleUrl
+                                is set (matches desktop behavior). Without
+                                this, the Sold Properties column on mobile
+                                had no Link anywhere and taps did nothing. */}
                             {column.title && (
-                              <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                {column.title}
-                              </div>
+                              column.titleUrl ? (
+                                <Link
+                                  href={column.titleUrl}
+                                  className="block px-4 py-2 text-sm font-semibold text-gray-700 uppercase tracking-wider hover:bg-gray-50 rounded-lg"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                >
+                                  {column.title}
+                                </Link>
+                              ) : (
+                                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                  {column.title}
+                                </div>
+                              )
                             )}
                             {column.links?.map((link, linkIndex) => (
                               <Link
