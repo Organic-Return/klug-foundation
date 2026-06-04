@@ -161,13 +161,15 @@ export default function ModernFeaturedProperty({
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}
         >
-          {/* Image */}
-          <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full">
+          {/* Image — taller portrait crop on mobile so the photo fills
+              more of the iPhone screen (was aspect-[4/3] which letter-
+              boxed). Switches to fill the column on lg+ as before. */}
+          <div className="relative aspect-[4/5] sm:aspect-[3/2] lg:aspect-auto lg:h-full">
             <Image
               src={property.photos?.[0] || 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9'}
               alt={property.address || 'Property'}
               fill
-              className="object-cover"
+              className="object-cover object-center"
               sizes="(max-width: 1024px) 100vw, 50vw"
             />
             {/* Gold corner accent */}

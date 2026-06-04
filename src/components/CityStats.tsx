@@ -171,13 +171,14 @@ export default function CityStats({
           </p>
         </div>
 
-        {/* Property Type Tabs */}
-        <div className="flex justify-center gap-6 mb-10">
+        {/* Property Type Tabs — flex-wrap + tighter spacing on mobile so
+            the "Land" tab doesn't fall off the iPhone right edge. */}
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 sm:gap-6 mb-10 px-2">
           {PROPERTY_FILTERS.map((filter) => (
             <button
               key={filter.value}
               onClick={() => handlePropertyFilterChange(filter.value)}
-              className={`klug-stats-tab px-1 pb-2 text-xs uppercase tracking-[0.15em] font-semibold transition-all duration-300 border-b-2 ${
+              className={`klug-stats-tab px-1 pb-2 text-[11px] sm:text-xs uppercase tracking-[0.12em] sm:tracking-[0.15em] font-semibold transition-all duration-300 border-b-2 whitespace-nowrap ${
                 propertyFilter === filter.value
                   ? 'text-[#c9ac77] border-[#c9ac77]'
                   : 'text-white/50 border-transparent hover:text-white hover:border-white/30'
