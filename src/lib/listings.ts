@@ -271,6 +271,32 @@ function transformListing(row: GraphQLListing): MLSProperty {
     if (pp.startsWith('//')) pp = `https:${pp}`;
     photos.push(pp);
   }
+
+  // The dedicated `photos` text[] column is the primary photo source
+  // populated by the current MLS sync. Items may be plain URL strings
+  // (legacy) or `{url, order, caption}` objects (new sync shape). Walk
+  // both forms before falling back to the media[] scrape below.
+  const rawPhotos: any = (row as any).photos;
+  if (Array.isArray(rawPhotos)) {
+    const ordered = [...rawPhotos].sort((a, b) => {
+      const ao = typeof a === 'object' && a !== null ? (a.order ?? a.Order ?? 0) : 0;
+      const bo = typeof b === 'object' && b !== null ? (b.order ?? b.Order ?? 0) : 0;
+      return ao - bo;
+    });
+    for (const p of ordered) {
+      let url: string | undefined;
+      if (typeof p === 'string') {
+        url = p;
+      } else if (p && typeof p === 'object') {
+        url = p.url || p.URL || p.MediaURL || p.MediaUrl || p.photoUrl || p.src;
+      }
+      if (url && typeof url === 'string') {
+        if (url.startsWith('//')) url = `https:${url}`;
+        if (!photos.includes(url)) photos.push(url);
+      }
+    }
+  }
+
   let mediaItems: any[] = [];
   if (row.media) {
     let mediaToParse: any = row.media;
@@ -322,15 +348,28 @@ function transformListing(row: GraphQLListing): MLSProperty {
         }
       }
 
-      // Video-category items use MediaHTML (a player embed URL) and
-      // typically leave MediaURL null — route them to video_urls.
-      if (parsed && typeof parsed === 'object' && /video/i.test(parsed.MediaCategory || '')) {
+      // Category is provided as either the RESO `MediaCategory` or the
+      // newer lowercase `category` (e.g. "Document", "Video", "Photo").
+      const category = (parsed && typeof parsed === 'object')
+        ? (parsed.MediaCategory || parsed.category || '')
+        : '';
+
+      // Video items: MediaHTML (legacy) or html (new sync) carries the
+      // player embed; MediaURL/url usually null.
+      if (parsed && typeof parsed === 'object' && /video/i.test(category)) {
         let vurl: string | undefined =
-          parsed.MediaHTML || parsed.mediaHtml || parsed.MediaURL || parsed.url;
+          parsed.MediaHTML || parsed.mediaHtml || parsed.html
+          || parsed.MediaURL || parsed.url;
         if (vurl && typeof vurl === 'string') {
           if (vurl.startsWith('//')) vurl = `https:${vurl}`;
           if (!videoUrlsFromMedia.includes(vurl)) videoUrlsFromMedia.push(vurl);
         }
+        continue;
+      }
+
+      // Document / non-photo categories: skip, otherwise survey PDFs
+      // and disclosures get hoisted into the photo gallery.
+      if (parsed && typeof parsed === 'object' && /document|brochure|disclosure|floor\s*plan|virtual\s*tour/i.test(category)) {
         continue;
       }
 
@@ -345,6 +384,9 @@ function transformListing(row: GraphQLListing): MLSProperty {
           || parsed.photo_url || parsed.photoUrl || parsed.image_url || parsed.imageUrl;
       }
       if (url && typeof url === 'string') {
+        // Guard against non-image URLs (PDFs etc.) sneaking in when the
+        // upstream sync omitted MediaCategory.
+        if (/\.(pdf|docx?|xlsx?)(\?|$)/i.test(url)) continue;
         // Fix protocol-relative URLs (e.g. "//cdn.example.com/...")
         if (url.startsWith('//')) {
           url = `https:${url}`;
