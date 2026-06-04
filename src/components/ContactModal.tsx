@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 interface AgentInfo {
@@ -79,6 +80,11 @@ export default function ContactModal({ isOpen, onClose, agent }: ContactModalPro
       });
 
       if (response.ok) {
+        trackLeadSubmitted({
+          leadType: 'contact',
+          email: formData.email,
+          phone: formData.phone || undefined,
+        });
         setSubmitStatus('success');
         setFormData({
           name: '',

@@ -7,6 +7,7 @@ import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
 interface ListingAgentInfo {
@@ -122,6 +123,14 @@ export default function RCSothebysListingContent({
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
+      trackLeadSubmitted({
+        leadType: 'property_inquiry',
+        propertyMlsId: listing.mls_number || undefined,
+        propertyAddress: listing.address || `Property ${listing.mls_number}`,
+        propertyPrice: listing.list_price || undefined,
+        email: btmEmail,
+        phone: btmPhone || undefined,
+      });
       setBtmSubmitted(true);
     } catch {
       setBtmError('Something went wrong. Please try again.');
@@ -167,6 +176,14 @@ export default function RCSothebysListingContent({
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
+      trackLeadSubmitted({
+        leadType,
+        propertyMlsId: listing.mls_number || undefined,
+        propertyAddress: listing.address || `Property ${listing.mls_number}`,
+        propertyPrice: listing.list_price || undefined,
+        email: formEmail,
+        phone: formPhone || undefined,
+      });
       setFormSubmitted(true);
     } catch {
       setFormError('Something went wrong. Please try again.');

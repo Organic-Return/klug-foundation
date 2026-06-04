@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 
 export default function ContactPageForm() {
   const [firstName, setFirstName] = useState('');
@@ -41,6 +42,7 @@ export default function ContactPageForm() {
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
+      trackLeadSubmitted({ leadType: 'contact', email, phone: phone || undefined });
       setSubmitted(true);
     } catch {
       setError('Something went wrong. Please try again or email us directly.');

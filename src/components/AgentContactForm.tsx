@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface AgentContactFormProps {
   agentName: string;
@@ -41,6 +42,11 @@ export default function AgentContactForm({ agentName, agentEmail, inverted = fal
       });
 
       if (response.ok) {
+        trackLeadSubmitted({
+          leadType: 'contact',
+          email: formData.email,
+          phone: formData.phone || undefined,
+        });
         setSubmitStatus('success');
         setFormData({ name: '', email: '', phone: '', message: '' });
       } else {

@@ -9,6 +9,7 @@ import SavePropertyButton from '@/components/SavePropertyButton';
 import { BedIcon, BathIcon, SqftIcon, AcresIcon } from '@/components/PropertyVitals';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 
 // ─────────────────────────────────────────────
 // Types
@@ -234,6 +235,14 @@ export default function CustomOneListingContent({
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
+      trackLeadSubmitted({
+        leadType: 'property_inquiry',
+        propertyMlsId: listing.mls_number || undefined,
+        propertyAddress: listing.address || `Property ${listing.mls_number}`,
+        propertyPrice: listing.list_price || undefined,
+        email: formEmail,
+        phone: formPhone || undefined,
+      });
       setFormSubmitted(true);
     } catch {
       setFormError('Something went wrong. Please try again.');
@@ -274,6 +283,14 @@ export default function CustomOneListingContent({
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
+      trackLeadSubmitted({
+        leadType: 'property_inquiry',
+        propertyMlsId: listing.mls_number || undefined,
+        propertyAddress: listing.address || `Property ${listing.mls_number}`,
+        propertyPrice: listing.list_price || undefined,
+        email: btmEmail,
+        phone: btmPhone || undefined,
+      });
       setBtmSubmitted(true);
     } catch {
       setBtmError('Something went wrong. Please try again.');

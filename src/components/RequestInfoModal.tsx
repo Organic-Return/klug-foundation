@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface RequestInfoModalProps {
   isOpen: boolean;
@@ -86,6 +87,15 @@ export default function RequestInfoModal({
         throw new Error(data.error || 'Failed to send request');
       }
 
+      trackLeadSubmitted({
+        leadType: 'property_inquiry',
+        inquiryType,
+        propertyMlsId,
+        propertyAddress,
+        propertyPrice,
+        email,
+        phone: phone || undefined,
+      });
       setSubmitted(true);
       setFirstName('');
       setLastName('');

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getUTMData } from './UTMCapture';
+import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface ListingContactFormProps {
   propertyAddress: string;
@@ -65,6 +66,14 @@ export default function ListingContactForm({
         throw new Error(data.error || 'Failed to send');
       }
 
+      trackLeadSubmitted({
+        leadType: 'property_inquiry',
+        propertyMlsId,
+        propertyAddress,
+        propertyPrice,
+        email,
+        phone: phone || undefined,
+      });
       setSubmitted(true);
       setFirstName('');
       setLastName('');
