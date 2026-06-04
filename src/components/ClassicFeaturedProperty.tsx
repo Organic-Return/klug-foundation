@@ -171,7 +171,10 @@ export default function ClassicFeaturedProperty({
   const mainPhoto = property.photos?.[0];
 
   return (
-    <section ref={sectionRef} className="relative w-full aspect-video overflow-hidden">
+    // Mobile: aspect-[4/5] portrait so the hero fills the iPhone vertically
+    // (16:9 video here letterboxed badly at ~219px tall on a 390px viewport).
+    // sm and up keep the cinematic aspect-video behavior.
+    <section ref={sectionRef} className="relative w-full aspect-[4/5] sm:aspect-video overflow-hidden">
       {/* Background: Videos or Image with parallax */}
       <div className="absolute -top-[25%] -bottom-[25%] left-0 right-0" style={{ transform: `translateY(${parallaxOffset}px)`, willChange: 'transform' }}>
         {hasVideos ? (
