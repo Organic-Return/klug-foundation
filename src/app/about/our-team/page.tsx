@@ -226,7 +226,11 @@ export default async function TeamPage() {
             {heroTitle}
           </h1>
           <div className="w-12 h-px bg-[var(--color-gold)] mx-auto mb-8" />
-          <div className="space-y-4 text-lg md:text-xl text-white/80 font-light leading-relaxed">
+          {/* [&>p]:mx-auto centers each <p> block within the centered
+              container — globals.css caps p at max-width: 75ch, so without
+              auto margins the block sits flush-left even when its parent
+              has text-center. */}
+          <div className="space-y-4 text-lg md:text-xl text-white/80 font-light leading-relaxed [&>p]:mx-auto">
             {splitParagraphs(heroDescription).map((para, i) => (
               <p key={i}>{para}</p>
             ))}
