@@ -363,7 +363,13 @@ export default async function TeamPage() {
                 )}
                 <div className={`${philosophyImageUrl ? '' : 'mx-auto'} w-12 h-px bg-[var(--color-gold)] mb-6`} />
                 {philosophyContent && (
-                  <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[17px] space-y-4">
+                  // [&>p]:mx-auto centers the <p> blocks when this column is
+                  // the no-image, centered variant (globals.css caps p at
+                  // 75ch, so without auto margins the blocks sit flush-left
+                  // even inside a text-center parent). When the philosophy
+                  // image IS set the parent is left-aligned editorial and
+                  // mx-auto has no visible effect there.
+                  <div className="text-[#4a4a4a] dark:text-gray-300 font-light leading-[1.8] text-[17px] space-y-4 [&>p]:mx-auto">
                     {splitParagraphs(philosophyContent).map((para, i) => (
                       <p key={i}>{para}</p>
                     ))}
@@ -405,7 +411,7 @@ export default async function TeamPage() {
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-light text-white tracking-wide mb-6">
             {ctaTitle}
           </h2>
-          <div className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed space-y-3">
+          <div className="text-lg text-white/70 font-light mb-10 max-w-2xl mx-auto leading-relaxed space-y-3 [&>p]:mx-auto">
             {splitParagraphs(ctaDescription).map((para, i) => (
               <p key={i}>{para}</p>
             ))}
