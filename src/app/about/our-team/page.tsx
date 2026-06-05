@@ -193,7 +193,11 @@ export default async function TeamPage() {
   }));
 
   return (
-    <main className="min-h-screen">
+    // -mt-20 pulls the hero up under the transparent header — required for
+    // pages on LayoutWrapper.tsx's hasTransparentHero list, otherwise the
+    // outer <main className="pt-20"> leaves an 80px white band that the
+    // transparent header sits on top of and disappears against.
+    <main className="-mt-20 min-h-screen">
       {/* Hero — transparent header sits on top, so add extra top padding.
           Always paint the dark navy as the base so the white logo + title
           stay readable while the hero image is loading or if it fails. */}
