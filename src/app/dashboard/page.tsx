@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase-browser';
 import type { Lead } from '@/lib/leads';
+import LeadSourcesWidget from '@/components/dashboard/LeadSourcesWidget';
 
 const STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'closed'];
 const LEAD_TYPE_LABELS: Record<string, string> = {
@@ -154,6 +155,9 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Lead Sources rollup */}
+      <LeadSourcesWidget token={token} />
+
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <select
@@ -287,10 +291,32 @@ export default function DashboardPage() {
                               </span>
                             </div>
                           )}
+                          {(lead.gclid || lead.fbclid || lead.msclkid) && (
+                            <div>
+                              <span className="font-medium text-gray-700">Ad Click:</span>{' '}
+                              <span className="text-gray-600 text-xs">
+                                {lead.gclid && <span title="Google Ads click ID">Google: {lead.gclid.slice(0, 16)}…</span>}
+                                {lead.fbclid && <span title="Facebook/Meta click ID" className="ml-2">Meta: {lead.fbclid.slice(0, 16)}…</span>}
+                                {lead.msclkid && <span title="Microsoft/Bing click ID" className="ml-2">Bing: {lead.msclkid.slice(0, 16)}…</span>}
+                              </span>
+                            </div>
+                          )}
                           {lead.source_url && (
                             <div className="md:col-span-2">
                               <span className="font-medium text-gray-700">Page URL:</span>{' '}
                               <span className="text-gray-600 text-xs break-all">{lead.source_url}</span>
+                            </div>
+                          )}
+                          {lead.landing_page && lead.landing_page !== lead.source_url && (
+                            <div className="md:col-span-2">
+                              <span className="font-medium text-gray-700">First Landing:</span>{' '}
+                              <span className="text-gray-600 text-xs break-all">{lead.landing_page}</span>
+                            </div>
+                          )}
+                          {lead.referrer && (
+                            <div className="md:col-span-2">
+                              <span className="font-medium text-gray-700">Referrer:</span>{' '}
+                              <span className="text-gray-600 text-xs break-all">{lead.referrer}</span>
                             </div>
                           )}
                         </div>

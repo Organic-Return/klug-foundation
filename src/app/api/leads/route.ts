@@ -25,6 +25,10 @@ interface LeadFormData {
   utmCampaign?: string;
   utmContent?: string;
   utmTerm?: string;
+  gclid?: string;
+  fbclid?: string;
+  msclkid?: string;
+  landingPage?: string;
 }
 
 export async function POST(request: Request) {
@@ -72,6 +76,10 @@ export async function POST(request: Request) {
       utmCampaign: body.utmCampaign,
       utmContent: body.utmContent,
       utmTerm: body.utmTerm,
+      gclid: body.gclid,
+      fbclid: body.fbclid,
+      msclkid: body.msclkid,
+      landingPage: body.landingPage,
     };
 
     const lead = await createLead(leadInput, routing);

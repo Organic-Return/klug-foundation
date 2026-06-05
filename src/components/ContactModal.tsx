@@ -73,10 +73,24 @@ export default function ContactModal({ isOpen, onClose, agent }: ContactModalPro
     setSubmitStatus('idle');
 
     try {
+      const utm = getUTMData();
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, ...getUTMData() }),
+        body: JSON.stringify({
+          ...formData,
+          sourceUrl: utm.source_url,
+          referrer: utm.referrer,
+          utmSource: utm.utm_source,
+          utmMedium: utm.utm_medium,
+          utmCampaign: utm.utm_campaign,
+          utmContent: utm.utm_content,
+          utmTerm: utm.utm_term,
+          gclid: utm.gclid,
+          fbclid: utm.fbclid,
+          msclkid: utm.msclkid,
+          landingPage: utm.landing_page,
+        }),
       });
 
       if (response.ok) {

@@ -23,6 +23,13 @@ export interface LeadInput {
   utmCampaign?: string;
   utmContent?: string;
   utmTerm?: string;
+  // Paid-click attribution IDs (Google Ads, Meta, Microsoft Ads)
+  gclid?: string;
+  fbclid?: string;
+  msclkid?: string;
+  // First-visit landing page (differs from sourceUrl when the form was
+  // submitted on a deeper page after navigation).
+  landingPage?: string;
 }
 
 export interface Lead {
@@ -49,6 +56,10 @@ export interface Lead {
   utm_campaign: string | null;
   utm_content: string | null;
   utm_term: string | null;
+  gclid: string | null;
+  fbclid: string | null;
+  msclkid: string | null;
+  landing_page: string | null;
   status: string;
   notes: string | null;
   cloze_id: string | null;
@@ -179,6 +190,10 @@ export async function createLead(
       utm_campaign: input.utmCampaign || null,
       utm_content: input.utmContent || null,
       utm_term: input.utmTerm || null,
+      gclid: input.gclid || null,
+      fbclid: input.fbclid || null,
+      msclkid: input.msclkid || null,
+      landing_page: input.landingPage || null,
     })
     .select()
     .single();

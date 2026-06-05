@@ -79,6 +79,10 @@ export default function RequestInfoModal({
           utmCampaign: utm.utm_campaign,
           utmContent: utm.utm_content,
           utmTerm: utm.utm_term,
+          gclid: utm.gclid,
+          fbclid: utm.fbclid,
+          msclkid: utm.msclkid,
+          landingPage: utm.landing_page,
         }),
       });
 

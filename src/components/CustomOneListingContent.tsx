@@ -232,6 +232,10 @@ export default function CustomOneListingContent({
           utmCampaign: utm.utm_campaign,
           utmContent: utm.utm_content,
           utmTerm: utm.utm_term,
+          gclid: utm.gclid,
+          fbclid: utm.fbclid,
+          msclkid: utm.msclkid,
+          landingPage: utm.landing_page,
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
@@ -280,6 +284,10 @@ export default function CustomOneListingContent({
           utmCampaign: utm.utm_campaign,
           utmContent: utm.utm_content,
           utmTerm: utm.utm_term,
+          gclid: utm.gclid,
+          fbclid: utm.fbclid,
+          msclkid: utm.msclkid,
+          landingPage: utm.landing_page,
         }),
       });
       if (!res.ok) throw new Error('Failed to send');
