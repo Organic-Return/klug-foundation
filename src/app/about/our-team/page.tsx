@@ -194,10 +194,10 @@ export default async function TeamPage() {
 
   return (
     <main className="min-h-screen">
-      {/* Hero — transparent header sits on top, so add extra top padding */}
-      <section
-        className={`relative pt-36 pb-2 md:pt-44 md:pb-2 ${heroImageRaw ? '' : 'bg-[var(--color-sothebys-blue)]'}`}
-      >
+      {/* Hero — transparent header sits on top, so add extra top padding.
+          Always paint the dark navy as the base so the white logo + title
+          stay readable while the hero image is loading or if it fails. */}
+      <section className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]">
         {heroImageRaw && (
           <>
             <Image
