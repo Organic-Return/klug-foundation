@@ -80,7 +80,7 @@ function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total:
         '@type': 'ListItem',
         position: 2,
         name: 'Listings',
-        item: `${baseUrl}/listings`,
+        item: `${baseUrl}/real-estate-for-sale`,
       },
     ],
   };

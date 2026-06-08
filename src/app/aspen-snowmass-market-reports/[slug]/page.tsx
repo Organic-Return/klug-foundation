@@ -260,7 +260,7 @@ export default async function MarketReportPage({
         '@type': 'ListItem',
         position: 2,
         name: 'Market Reports',
-        item: `${baseUrl}/market-reports`,
+        item: `${baseUrl}/aspen-snowmass-market-reports`,
       },
       {
         '@type': 'ListItem',

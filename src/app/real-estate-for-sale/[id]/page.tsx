@@ -233,7 +233,7 @@ function generateRealEstateSchema(listing: MLSProperty) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: baseUrl },
-      { '@type': 'ListItem', position: 2, name: 'Listings', item: `${baseUrl}/listings` },
+      { '@type': 'ListItem', position: 2, name: 'Listings', item: `${baseUrl}/real-estate-for-sale` },
       { '@type': 'ListItem', position: 3, name: listing.address || listing.mls_number, item: listingUrl },
     ],
   };

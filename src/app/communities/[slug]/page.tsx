@@ -522,7 +522,12 @@ export default async function CommunityPage({
     }),
   };
 
-  // BreadcrumbList schema
+  // BreadcrumbList schema. No /communities index exists on the site —
+  // community pages live only at /communities/[slug] — so we skip the
+  // intermediate "Communities" entry. Google rejects a BreadcrumbList
+  // when any item URL doesn't resolve to a real page (reports it as
+  // "Missing field itemListElement" in Search Console), so listing
+  // /communities as a breadcrumb step broke the whole schema.
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -536,12 +541,6 @@ export default async function CommunityPage({
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Communities',
-        item: `${baseUrl}/communities`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
         name: community.title,
         item: communityUrl,
       },

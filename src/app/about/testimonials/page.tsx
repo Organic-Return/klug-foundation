@@ -227,7 +227,7 @@ export default async function TestimonialsPage() {
         '@type': 'ListItem',
         position: 2,
         name: 'Testimonials',
-        item: `${baseUrl}/testimonials`,
+        item: `${baseUrl}/about/testimonials`,
       },
     ],
   };
