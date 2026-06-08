@@ -3,11 +3,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import MuxPlayer from '@mux/mux-player-react';
 
 interface HeroVideo {
   videoUrl?: string;
+  muxPlaybackId?: string;
   posterUrl?: string;
 }
+
+// Subset of the HTMLMediaElement controls we touch on each slide change.
+// MuxPlayer's element forwards these, so a single ref type works for
+// both <video> and <MuxPlayer> entries.
+type MediaCtrl = HTMLMediaElement | null;
 
 interface HeroWithSearchProps {
   videoUrl?: string;
@@ -98,7 +105,7 @@ export default function HeroWithSearch({
   // Defer video element/source rendering until after first paint so the
   // poster image can become LCP without competing with the MP4 download.
   const [videosReady, setVideosReady] = useState(false);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const videoRefs = useRef<MediaCtrl[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -135,7 +142,9 @@ export default function HeroWithSearch({
   useEffect(() => {
     if (!hasMultipleSlides) return;
     const current = slides[activeSlide];
-    if (current?.videoUrl) return; // wait for onEnded
+    // Either source kind (Mux or native) emits `onEnded` and drives the
+    // advance itself; only image-only slides need the timer fallback.
+    if (current?.videoUrl || current?.muxPlaybackId) return;
 
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(advanceToNext, 8000);
@@ -187,7 +196,51 @@ export default function HeroWithSearch({
             index === activeSlide && !isTransitioning ? 'opacity-100' : 'opacity-0'
           }`}
         >
-          {slide.videoUrl ? (
+          {slide.muxPlaybackId ? (
+            videosReady ? (
+              // Mux-backed slide. MuxPlayer forwards standard HTMLMediaElement
+              // controls (play/pause/currentTime/onEnded) so the rotating-
+              // hero lifecycle stays identical to the native <video> path.
+              // maxResolution caps streaming bitrate to protect the Mux
+              // bill the way we'd want to protect Sanity's.
+              <MuxPlayer
+                ref={(el) => {
+                  videoRefs.current[index] = (el as unknown as HTMLMediaElement) || null;
+                }}
+                playbackId={slide.muxPlaybackId}
+                streamType="on-demand"
+                autoPlay="muted"
+                {...(slides.length === 1 ? { loop: true } : {})}
+                muted
+                playsInline
+                maxResolution="1080p"
+                poster={slide.posterUrl}
+                className="w-full h-full"
+                style={{
+                  // Hide the built-in player chrome for a background-video
+                  // feel, and fill the hero area like the native <video>.
+                  ['--controls' as any]: 'none',
+                  ['--media-object-fit' as any]: 'cover',
+                  width: '100%',
+                  height: '100%',
+                }}
+                onEnded={() => {
+                  if (slides.length > 1 && index === activeSlide) {
+                    advanceToNext();
+                  }
+                }}
+              />
+            ) : slide.posterUrl ? (
+              <Image
+                src={slide.posterUrl}
+                alt=""
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            ) : null
+          ) : slide.videoUrl ? (
             videosReady ? (
               <video
                 ref={(el) => { videoRefs.current[index] = el; }}

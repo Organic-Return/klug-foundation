@@ -91,27 +91,33 @@ export default async function Home() {
     console.error('Featured property auto-pull failed:', err);
   }
 
-  // Get video URL (either from Mux/uploaded file or external URL)
+  // Resolve hero video sources. Mux is preferred — it offloads streaming
+  // from Sanity (where bandwidth is metered) to Mux's CDN. Legacy
+  // videoFile/videoUrl fields are still honored when Mux isn't set so
+  // editors don't see a broken hero between deploy and the migration
+  // upload step.
+  const playbackId = hero?.muxVideo?.asset?.playbackId;
   const videoUrl = hero?.videoFile?.asset?.url || hero?.videoUrl;
   const fallbackImageUrl = hero?.fallbackImage?.asset?.url
     ? urlFor(hero.fallbackImage).width(1920).url()
     : undefined;
 
   // Build hero videos array (primary + additional)
-  const heroVideos: Array<{ videoUrl?: string; posterUrl?: string }> = [];
-  if (videoUrl || fallbackImageUrl) {
-    heroVideos.push({ videoUrl, posterUrl: fallbackImageUrl });
+  const heroVideos: Array<{ videoUrl?: string; muxPlaybackId?: string; posterUrl?: string }> = [];
+  if (playbackId || videoUrl || fallbackImageUrl) {
+    heroVideos.push({ muxPlaybackId: playbackId, videoUrl, posterUrl: fallbackImageUrl });
   }
   if (hero?.additionalVideos) {
     for (const v of hero.additionalVideos) {
+      const vMux = v.muxVideo?.asset?.playbackId;
       const url = v.videoFile?.asset?.url || v.videoUrl;
       const poster = v.poster?.asset?.url
         ? urlFor(v.poster).width(1920).url()
         : fallbackImageUrl; // Fall back to primary hero image so the
                             // slide has a visible background while the
                             // video element is still loading.
-      if (url || poster) {
-        heroVideos.push({ videoUrl: url, posterUrl: poster });
+      if (vMux || url || poster) {
+        heroVideos.push({ muxPlaybackId: vMux, videoUrl: url, posterUrl: poster });
       }
     }
   }

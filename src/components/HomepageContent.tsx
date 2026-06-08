@@ -44,7 +44,7 @@ interface HomepageContentProps {
   // Hero data
   videoUrl?: string;
   fallbackImageUrl?: string;
-  heroVideos?: Array<{ videoUrl?: string; posterUrl?: string }>;
+  heroVideos?: Array<{ videoUrl?: string; muxPlaybackId?: string; posterUrl?: string }>;
   heroTitle?: string;
   heroSubtitle?: string;
   heroSeoDescription?: string;

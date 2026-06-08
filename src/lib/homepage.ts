@@ -8,10 +8,12 @@ interface HomepageData {
     seoDescription?: string;
     videoUrl?: string;
     videoFile?: any;
+    muxVideo?: { asset?: { playbackId?: string } };
     fallbackImage?: any;
     additionalVideos?: Array<{
       videoUrl?: string;
       videoFile?: any;
+      muxVideo?: { asset?: { playbackId?: string } };
       poster?: any;
     }>;
     showSearch?: boolean;
@@ -138,6 +140,9 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
         url
       }
     },
+    muxVideo {
+      asset-> { playbackId }
+    },
     fallbackImage {
       asset-> {
         _id,
@@ -148,6 +153,9 @@ const HOMEPAGE_QUERY = `*[_type == "homepage" && _id == "homepage"][0]{
       videoUrl,
       videoFile {
         asset-> { url }
+      },
+      muxVideo {
+        asset-> { playbackId }
       },
       poster {
         asset-> { _id, url }
