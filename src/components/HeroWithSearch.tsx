@@ -95,9 +95,22 @@ export default function HeroWithSearch({
     { posterUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=80' },
     { posterUrl: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=2000&q=80' },
   ];
-  const slides: HeroVideo[] = heroVideos && heroVideos.length > 0
+  // Skip video playback in local dev by default — the hero loop on a
+  // developer's machine reloading 100× a day was the bulk of the Sanity
+  // bandwidth bill, and on Mux that traffic would just become a Mux
+  // bandwidth bill. Render the poster image instead. Set
+  // NEXT_PUBLIC_HERO_VIDEOS_IN_DEV=1 in .env.local when you actually
+  // need to QA video playback locally.
+  const skipVideosInDev =
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NEXT_PUBLIC_HERO_VIDEOS_IN_DEV !== '1';
+
+  const rawSlides: HeroVideo[] = heroVideos && heroVideos.length > 0
     ? heroVideos
     : TEST_SLIDES;
+  const slides: HeroVideo[] = skipVideosInDev
+    ? rawSlides.map((s) => ({ posterUrl: s.posterUrl }))
+    : rawSlides;
 
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
