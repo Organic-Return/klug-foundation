@@ -131,9 +131,13 @@ function generateOffMarketSchema(listing: OffMarketListing) {
           ? 'https://schema.org/LimitedAvailability'
           : 'https://schema.org/SoldOut',
         url: listingUrl,
+        // Seller typed as Person (the agent), not RealEstateAgent —
+        // RealEstateAgent extends LocalBusiness and would require a
+        // full address we don't have for individual agents. See the
+        // matching note in /real-estate-for-sale/[id]/page.tsx.
         ...(listing.agentName && {
           seller: {
-            '@type': 'RealEstateAgent',
+            '@type': 'Person',
             name: listing.agentName,
             ...(listing.agentEmail && { email: listing.agentEmail }),
           },

@@ -218,8 +218,16 @@ function generateRealEstateSchema(listing: MLSProperty) {
               ? 'https://schema.org/LimitedAvailability'
               : 'https://schema.org/SoldOut',
             url: listingUrl,
+            // Seller is typed as Person (the agent), not RealEstateAgent.
+            // RealEstateAgent extends LocalBusiness and Google/SEMrush
+            // require LocalBusiness to carry a full address — which we
+            // can't reliably populate for individual listing agents (the
+            // brokerage office address belongs to the brokerage, not the
+            // agent). Person needs only `name` and optionally `email`.
+            // The brokerage-level LocalBusiness data is still emitted by
+            // the homepage Organization schema + Footer microdata.
             seller: {
-              '@type': 'RealEstateAgent',
+              '@type': 'Person',
               name: listing.agent_name || 'Listing Agent',
               ...(listing.agent_email && { email: listing.agent_email }),
             },
