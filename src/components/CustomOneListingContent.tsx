@@ -406,7 +406,7 @@ export default function CustomOneListingContent({
         {photos.length > 0 && (
           <div className="absolute bottom-8 left-6 md:left-10 right-6 md:right-10 z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-10">
             {/* LEFT — Address */}
-            <div className="text-white max-w-xl">
+            <div className="text-white max-w-xl min-w-0">
               <p className="text-white/60 text-[10px] tracking-[0.3em] uppercase mb-3">
                 {heroIndex + 1} / {photos.length} Photos
               </p>
@@ -422,9 +422,9 @@ export default function CustomOneListingContent({
             </div>
 
             {/* RIGHT — Stats row + button cluster */}
-            <div className="flex flex-col items-start md:items-end gap-5">
+            <div className="flex flex-col items-start md:items-end gap-5 min-w-0">
               {(listing.bedrooms != null || listing.bathrooms != null || listing.square_feet || listing.lot_size) && (
-                <div className="flex flex-wrap items-center gap-4 md:gap-6 text-white">
+                <div className="flex flex-wrap items-center md:justify-end gap-4 md:gap-6 max-w-full text-white">
                   {listing.bedrooms != null && (
                     <span className="inline-flex items-baseline gap-2">
                       <BedIcon className="!mr-0 text-[var(--rc-gold)] self-center" />
@@ -468,11 +468,11 @@ export default function CustomOneListingContent({
                   )}
                 </div>
               )}
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center justify-start md:justify-end gap-3 max-w-full">
               {hasVideos && (
                 <button
                   onClick={() => setVideoModalOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
@@ -486,7 +486,7 @@ export default function CustomOneListingContent({
                     setActiveTab('tours');
                     document.getElementById('tours-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
@@ -499,7 +499,7 @@ export default function CustomOneListingContent({
                   onClick={() =>
                     document.getElementById('documents-section')?.scrollIntoView({ behavior: 'smooth' })
                   }
-                  className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
