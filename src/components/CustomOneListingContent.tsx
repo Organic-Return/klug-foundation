@@ -1249,8 +1249,15 @@ export default function CustomOneListingContent({
             </svg>
           </button>
 
-          {/* Image */}
-          <div className="relative w-full max-w-5xl aspect-video mx-16">
+          {/* Image — absolute fill the viewport so the photo scales as
+              large as it can while preserving aspect ratio (object-contain).
+              The old container was max-w-5xl aspect-video mx-16, which
+              capped width at 1024px even on big monitors, forced a 16:9
+              box that letterboxed taller photos, and ate 128px of
+              horizontal width on phones from the mx-16 margins. The
+              prev/next arrow buttons sit at z-10 above this so they
+              still float on top of the image edges. */}
+          <div className="absolute inset-0">
             <Image
               src={photos[lightboxIndex]}
               alt={`${streetAddress} - Photo ${lightboxIndex + 1}`}
