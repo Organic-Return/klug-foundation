@@ -168,11 +168,6 @@ export default function CustomOneListingContent({
   }
   const hasVideos = allVideos.length > 0;
   const hasMap = !!(listing.latitude && listing.longitude);
-  // When all four hero action buttons are present (Video, Virtual Tour,
-  // Documents, View Gallery) they can't fit on one line below xl (e.g. at
-  // 110–150% browser zoom). Force a balanced 2+2 wrap instead of a lopsided
-  // 3+1 by breaking the flex row after the second button.
-  const hasAllFourActions = hasVideos && hasVirtualTour && hasDocuments;
 
   // Hero slideshow navigation
   const goHeroPrev = useCallback(() => {
@@ -474,61 +469,70 @@ export default function CustomOneListingContent({
                   )}
                 </div>
               )}
+              {/*
+                Buttons are grouped into two pairs. On desktop (md+) each pair is
+                an unbreakable flex unit, so the row is always 4-across or a
+                balanced 2+2 when space is tight (at zoom or on narrow windows) —
+                never a lopsided 3+1, at any screen width. On mobile the pair
+                wrappers collapse (display:contents) so buttons wrap individually.
+              */}
               <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 xl:gap-3 max-w-full">
-              {hasVideos && (
-                <button
-                  onClick={() => setVideoModalOpen(true)}
-                  className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
-                >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                  View Video
-                </button>
+              {(hasVideos || hasVirtualTour) && (
+                <div className="contents md:flex md:items-center md:shrink-0 gap-2 xl:gap-3">
+                  {hasVideos && (
+                    <button
+                      onClick={() => setVideoModalOpen(true)}
+                      className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                      View Video
+                    </button>
+                  )}
+                  {hasVirtualTour && (
+                    <button
+                      onClick={() => {
+                        setActiveTab('tours');
+                        document.getElementById('tours-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+                      </svg>
+                      Virtual Tour
+                    </button>
+                  )}
+                </div>
               )}
-              {hasVirtualTour && (
+              <div className="contents md:flex md:items-center md:shrink-0 gap-2 xl:gap-3">
+                {hasDocuments && (
+                  <button
+                    onClick={() =>
+                      document.getElementById('documents-section')?.scrollIntoView({ behavior: 'smooth' })
+                    }
+                    className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Documents
+                  </button>
+                )}
                 <button
                   onClick={() => {
-                    setActiveTab('tours');
-                    document.getElementById('tours-section')?.scrollIntoView({ behavior: 'smooth' });
+                    setLightboxIndex(0);
+                    setLightboxOpen(true);
                   }}
                   className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  Virtual Tour
+                  View Gallery
                 </button>
-              )}
-              {/* Force a 2+2 wrap (not 3+1) when all four buttons show, below xl */}
-              {hasAllFourActions && (
-                <div className="basis-full hidden md:block min-[1360px]:hidden" aria-hidden />
-              )}
-              {hasDocuments && (
-                <button
-                  onClick={() =>
-                    document.getElementById('documents-section')?.scrollIntoView({ behavior: 'smooth' })
-                  }
-                  className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  Documents
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  setLightboxIndex(0);
-                  setLightboxOpen(true);
-                }}
-                className="flex items-center gap-2 px-5 py-2.5 bg-black/40 backdrop-blur-sm border border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                View Gallery
-              </button>
+              </div>
             </div>
             </div>
           </div>
