@@ -469,11 +469,11 @@ export default function CustomOneListingContent({
                   )}
                 </div>
               )}
-              <div className="flex flex-wrap items-center justify-start md:justify-end gap-3 max-w-full">
+              <div className="flex flex-wrap items-center justify-start md:justify-end gap-2 xl:gap-3 max-w-full">
               {hasVideos && (
                 <button
                   onClick={() => setVideoModalOpen(true)}
-                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z" />
@@ -487,7 +487,7 @@ export default function CustomOneListingContent({
                     setActiveTab('tours');
                     document.getElementById('tours-section')?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" />
@@ -500,7 +500,7 @@ export default function CustomOneListingContent({
                   onClick={() =>
                     document.getElementById('documents-section')?.scrollIntoView({ behavior: 'smooth' })
                   }
-                  className="flex shrink-0 whitespace-nowrap items-center gap-2 px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
+                  className="flex shrink-0 whitespace-nowrap items-center gap-1.5 xl:gap-2 px-3.5 xl:px-5 py-2.5 bg-black/70 md:bg-black/40 backdrop-blur-sm border border-white/50 md:border-white/30 text-white text-xs tracking-[0.15em] uppercase hover:bg-[var(--rc-gold)] hover:border-[var(--rc-gold)] transition-all duration-300"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
