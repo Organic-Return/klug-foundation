@@ -168,6 +168,11 @@ export default function CustomOneListingContent({
   }
   const hasVideos = allVideos.length > 0;
   const hasMap = !!(listing.latitude && listing.longitude);
+  // When all four hero action buttons are present (Video, Virtual Tour,
+  // Documents, View Gallery) they can't fit on one line below xl (e.g. at
+  // 110–150% browser zoom). Force a balanced 2+2 wrap instead of a lopsided
+  // 3+1 by breaking the flex row after the second button.
+  const hasAllFourActions = hasVideos && hasVirtualTour && hasDocuments;
 
   // Hero slideshow navigation
   const goHeroPrev = useCallback(() => {
@@ -494,6 +499,10 @@ export default function CustomOneListingContent({
                   </svg>
                   Virtual Tour
                 </button>
+              )}
+              {/* Force a 2+2 wrap (not 3+1) when all four buttons show, below xl */}
+              {hasAllFourActions && (
+                <div className="basis-full hidden md:block xl:hidden" aria-hidden />
               )}
               {hasDocuments && (
                 <button
