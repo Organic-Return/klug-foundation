@@ -502,7 +502,7 @@ export default function CustomOneListingContent({
               )}
               {/* Force a 2+2 wrap (not 3+1) when all four buttons show, below xl */}
               {hasAllFourActions && (
-                <div className="basis-full hidden md:block xl:hidden" aria-hidden />
+                <div className="basis-full hidden md:block min-[1440px]:hidden" aria-hidden />
               )}
               {hasDocuments && (
                 <button
