@@ -411,7 +411,7 @@ export default function CustomOneListingContent({
               <p className="text-white/60 text-[10px] tracking-[0.3em] uppercase mb-3">
                 {heroIndex + 1} / {photos.length} Photos
               </p>
-              <h1 className="font-serif text-lg md:text-4xl lg:text-5xl tracking-wide leading-[1.1] drop-shadow-md">
+              <h1 className="font-serif text-[14.4px] md:text-4xl lg:text-5xl tracking-wide leading-[1.1] drop-shadow-md">
                 {streetAddress}
               </h1>
               <div className="flex items-center gap-3 mt-3">
