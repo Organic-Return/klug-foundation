@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
+import AuthModal from '@/components/AuthModal';
 import { BedIcon, BathIcon, SqftIcon, AcresIcon } from '@/components/PropertyVitals';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { getUTMData } from './UTMCapture';
@@ -116,6 +117,9 @@ export default function CustomOneListingContent({
 
   // Video modal
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+
+  // Auth modal (prompt sign-in when a signed-out visitor taps the heart)
+  const [authModalOpen, setAuthModalOpen] = useState(false);
 
   // Media tabs
   type MediaTab = 'gallery' | 'videos' | 'tours';
@@ -634,7 +638,12 @@ export default function CustomOneListingContent({
               </div>
 
               {/* Save (heart) */}
-              <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
+              <SavePropertyButton
+                listingId={listing.id}
+                listingType="mls"
+                variant="icon"
+                onAuthRequired={() => setAuthModalOpen(true)}
+              />
             </div>
           </div>
         </div>
@@ -1295,6 +1304,29 @@ export default function CustomOneListingContent({
               {lightboxIndex + 1} / {photos.length}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Auth modal — prompts sign-in/register when a signed-out visitor taps the heart */}
+      {authModalOpen && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/60 flex items-center justify-center p-4"
+          onClick={() => setAuthModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div onClick={(e) => e.stopPropagation()}>
+            <AuthModal onClose={() => setAuthModalOpen(false)} />
+          </div>
+          <button
+            onClick={() => setAuthModalOpen(false)}
+            className="absolute top-6 right-6 text-white/80 hover:text-white"
+            aria-label="Close"
+          >
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       )}
     </div>
