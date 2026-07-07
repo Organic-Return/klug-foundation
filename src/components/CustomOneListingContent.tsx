@@ -352,11 +352,6 @@ export default function CustomOneListingContent({
           HERO SLIDESHOW
           ═══════════════════════════════════════════ */}
       <section className="relative w-full h-screen overflow-hidden bg-[var(--rc-navy)]">
-        {/* Save (heart) — top-right corner over the hero */}
-        <div className="absolute top-4 right-4 md:top-6 md:right-6 z-20">
-          <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
-        </div>
-
         {heroPhoto ? (
           <div
             className="absolute inset-0"
@@ -637,6 +632,9 @@ export default function CustomOneListingContent({
                   </p>
                 )}
               </div>
+
+              {/* Save (heart) */}
+              <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
             </div>
           </div>
         </div>
