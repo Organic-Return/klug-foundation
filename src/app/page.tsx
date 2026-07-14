@@ -36,15 +36,24 @@ export async function generateMetadata(): Promise<Metadata> {
     ? [{ url: ogImageUrl, width: 1200, height: 630, alt: siteTitle }]
     : undefined;
 
+  // A bare brand name ranks for nothing. When the CMS has no explicit homepage SEO
+  // title, fall back to a geo-qualified one rather than the site title alone.
+  // An editor-set metaTitle still wins, and we don't double up if the site title
+  // already carries the geo keywords.
+  const defaultTitle = /aspen/i.test(siteTitle)
+    ? siteTitle
+    : `${siteTitle} | Aspen & Snowmass Luxury Real Estate`;
+  const pageTitle = seo?.metaTitle || defaultTitle;
+
   return {
-    title: seo?.metaTitle || siteTitle,
+    title: pageTitle,
     description: seo?.metaDescription || settings?.description,
     keywords: seo?.keywords,
     alternates: {
       canonical: baseUrl,
     },
     openGraph: {
-      title: seo?.metaTitle || siteTitle,
+      title: pageTitle,
       description: seo?.metaDescription || settings?.description,
       url: baseUrl,
       siteName: siteTitle,
@@ -53,7 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     twitter: {
       card: ogImageUrl ? 'summary_large_image' : 'summary',
-      title: seo?.metaTitle || siteTitle,
+      title: pageTitle,
       description: seo?.metaDescription || settings?.description,
       images: ogImageUrl ? [ogImageUrl] : undefined,
     },

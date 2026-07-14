@@ -47,13 +47,15 @@ const LOCATIONS = [
   'Woody Creek',
 ];
 
-// Property types
+// Property types. `param` decides which filter the value belongs to: Condo and
+// Townhouse live in property_sub_type, not property_type, so sending them as
+// `type` matched nothing.
 const PROPERTY_TYPES = [
-  { value: 'Residential', label: 'Single Family' },
-  { value: 'Condominium', label: 'Condo' },
-  { value: 'Townhouse', label: 'Townhouse' },
-  { value: 'RES Vacant Land', label: 'Land' },
-  { value: 'Commercial Sale', label: 'Commercial' },
+  { value: 'Residential', param: 'type', label: 'Single Family' },
+  { value: 'Condominium', param: 'subtype', label: 'Condo' },
+  { value: 'Townhouse', param: 'subtype', label: 'Townhouse' },
+  { value: 'RES Vacant Land', param: 'type', label: 'Land' },
+  { value: 'Commercial Sale', param: 'type', label: 'Commercial' },
 ];
 
 // Price ranges
@@ -191,7 +193,10 @@ export default function HeroWithSearch({
 
     const params = new URLSearchParams();
     if (location) params.append('city', location);
-    if (propertyType) params.append('type', propertyType);
+    if (propertyType) {
+      const option = PROPERTY_TYPES.find((t) => t.value === propertyType);
+      params.append(option?.param === 'subtype' ? 'subtype' : 'type', propertyType);
+    }
     if (priceMin) params.append('minPrice', priceMin);
     if (priceMax) params.append('maxPrice', priceMax);
     if (keyword.trim()) params.append('q', keyword.trim());

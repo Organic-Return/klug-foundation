@@ -587,12 +587,13 @@ export async function getListings(
     query = query.eq('status', filters.status);
   }
   if (filters.propertyType) {
-    // Match against main property_type column
-    query = query.eq('property_type', filters.propertyType);
+    // ilike with no wildcards is an exact match but case-insensitive. The feed is
+    // inconsistent about 'RES Vacant Land' vs 'Res Vacant Land', and .eq() on the
+    // wrong casing silently returns zero rows.
+    query = query.ilike('property_type', filters.propertyType);
   }
   if (filters.propertySubType) {
-    // Match against property_sub_type column
-    query = query.eq('property_sub_type', filters.propertySubType);
+    query = query.ilike('property_sub_type', filters.propertySubType);
   }
   if (filters.cities && filters.cities.length > 0) {
     // Use ilike for single city (case-insensitive), in() for multiple
@@ -669,9 +670,15 @@ export async function getListings(
 
   // Apply filters from MLS Configuration
   // Skip type exclusions for keyword searches — user is looking for a specific listing
-  if (filters.excludedPropertyTypes && filters.excludedPropertyTypes.length > 0 && !filters.keyword) {
+  // A type the visitor explicitly asked for must never also be excluded: the type
+  // filter and the exclusion list would contradict each other and the search would
+  // always come back empty.
+  const excludedPropertyTypes = (filters.excludedPropertyTypes || []).filter(
+    (t) => t.toLowerCase() !== filters.propertyType?.toLowerCase()
+  );
+  if (excludedPropertyTypes.length > 0 && !filters.keyword) {
     // Use or() to also include rows where property_type is NULL
-    query = query.or(`property_type.not.in.(${filters.excludedPropertyTypes.join(',')}),property_type.is.null`);
+    query = query.or(`property_type.not.in.(${excludedPropertyTypes.join(',')}),property_type.is.null`);
   }
   if (filters.excludedPropertySubTypes && filters.excludedPropertySubTypes.length > 0 && !filters.keyword) {
     if (filters.agentMlsIds?.length || filters.agentNames?.length || filters.officeNames?.length) {
@@ -774,7 +781,12 @@ async function getListingsByPropertyTypes(opts: {
     .select('*')
     .limit(pageSize);
   if (opts.propertyTypes && opts.propertyTypes.length > 0) {
-    query = query.in('property_type', opts.propertyTypes);
+    // Case-insensitive exact match per value (see getListings) — the feed mixes
+    // 'RES Vacant Land' and 'Res Vacant Land'. Values are quoted because they
+    // contain spaces.
+    query = query.or(
+      opts.propertyTypes.map((t) => `property_type.ilike."${t}"`).join(',')
+    );
   }
   if (opts.propertySubTypes && opts.propertySubTypes.length > 0) {
     query = query.in('property_sub_type', opts.propertySubTypes);
@@ -847,7 +859,7 @@ export async function getRentals(city?: string | null): Promise<MLSProperty[]> {
 
 export async function getLandListings(city?: string | null): Promise<MLSProperty[]> {
   return getListingsByPropertyTypes({
-    propertyTypes: ['Land', 'Farm'],
+    propertyTypes: ['RES Vacant Land', 'Commercial Land'],
     city,
   });
 }
@@ -1183,33 +1195,37 @@ export function getDistinctCities(): Promise<string[]> {
   });
 }
 
-// Main property types from database (property_type column)
-// Hardcoded to avoid Supabase 1000 row limit issues
+// Main property types from database (property_type column).
+// Hardcoded to avoid Supabase 1000 row limit issues. These must match the Aspen
+// Glenwood MLS vocabulary in sanity/schemaTypes/mlsConfiguration.ts — earlier
+// values here ('Land', 'Farm') were carried over from a different MLS and matched
+// nothing, so selecting them returned an empty result set.
 const PROPERTY_TYPES = [
-  'Farm',
-  'Land',
+  'Commercial Land',
+  'Commercial Sale',
+  'Fractional',
+  'RES Vacant Land',
   'Residential',
-  'Residential Income',
 ];
 
 // Property subtypes from database (property_sub_type column)
 const PROPERTY_SUB_TYPES = [
+  'Agricultural',
   'Agriculture',
-  'Apartment',
+  'Business with Real Estate',
   'Commercial',
+  'Commercial Land',
   'Condominium',
+  'Development',
   'Duplex',
-  'Farm',
-  'Log Home',
-  'Manufactured-Owned Lot',
-  'Manufactured Rented Lot',
-  'Multi Family',
-  'Residential',
-  'Site Built-Owned Lot',
-  'Site Built-Rented Lot',
-  'Stock Cooperative',
+  'Half Duplex',
+  'Mobile Home',
+  'Multi-Family Lot',
+  'Residential Income',
+  'Seasonal & Remote',
+  'Single Family Lot',
+  'Single Family Residence',
   'Townhouse',
-  'Triplex',
 ];
 
 export async function getDistinctPropertyTypes(): Promise<string[]> {
