@@ -107,12 +107,22 @@ export default function HeroWithSearch({
     process.env.NODE_ENV !== 'production' &&
     process.env.NEXT_PUBLIC_HERO_VIDEOS_IN_DEV !== '1';
 
+  // Desktop vs mobile hero. Starts false (SSR-safe: server and first client
+  // render match), then a matchMedia effect flips it on >=768px viewports.
+  const [isDesktop, setIsDesktop] = useState(false);
+
   const rawSlides: HeroVideo[] = heroVideos && heroVideos.length > 0
     ? heroVideos
     : TEST_SLIDES;
-  const slides: HeroVideo[] = skipVideosInDev
+  const desktopSlides: HeroVideo[] = skipVideosInDev
     ? rawSlides.map((s) => ({ posterUrl: s.posterUrl }))
     : rawSlides;
+  // Mobile gets a single static poster image — no autoplay video on the
+  // critical path (heavy on cellular, and iOS commonly blocks autoplay anyway).
+  // Desktop keeps the full rotating video hero and upgrades to it after mount.
+  const slides: HeroVideo[] = isDesktop
+    ? desktopSlides
+    : [{ posterUrl: desktopSlides[0]?.posterUrl || fallbackImageUrl }];
 
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
@@ -145,6 +155,18 @@ export default function HeroWithSearch({
     const cap = window.setTimeout(start, 6000);
     return () => window.clearTimeout(cap);
   }, [heroImageLoaded]);
+
+  // Switch between the mobile (single static image) and desktop (video) hero.
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const update = () => {
+      setIsDesktop(mq.matches);
+      if (!mq.matches) setActiveSlide(0);
+    };
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   const advanceToNext = useCallback(() => {
     setIsTransitioning(true);
