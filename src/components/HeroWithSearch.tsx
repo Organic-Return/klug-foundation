@@ -3,7 +3,16 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import MuxPlayer from '@mux/mux-player-react';
+import dynamic from 'next/dynamic';
+
+// Code-split the Mux player out of the initial homepage bundle. It's only used
+// for the desktop video hero, which mounts after first paint, so shipping its
+// (large) JS on the critical path is pure waste — this is the bulk of the
+// "unused JavaScript" PageSpeed flags on the homepage. ssr:false is safe here
+// because the video only ever renders client-side (gated on videosReady).
+const MuxPlayer = dynamic(() => import('@mux/mux-player-react').then((m) => m.default), {
+  ssr: false,
+});
 
 interface HeroVideo {
   videoUrl?: string;
@@ -249,51 +258,52 @@ export default function HeroWithSearch({
           }`}
         >
           {slide.muxPlaybackId ? (
-            videosReady && index === activeSlide ? (
-              // Mux-backed slide. MuxPlayer forwards standard HTMLMediaElement
-              // controls (play/pause/currentTime/onEnded) so the rotating-
-              // hero lifecycle stays identical to the native <video> path.
-              // maxResolution caps streaming bitrate to protect the Mux
-              // bill the way we'd want to protect Sanity's.
-              <MuxPlayer
-                ref={(el) => {
-                  videoRefs.current[index] = (el as unknown as HTMLMediaElement) || null;
-                }}
-                playbackId={slide.muxPlaybackId}
-                streamType="on-demand"
-                autoPlay="muted"
-                {...(slides.length === 1 ? { loop: true } : {})}
-                muted
-                playsInline
-                maxResolution="1080p"
-                poster={slide.posterUrl}
-                className="w-full h-full"
-                style={{
-                  // Hide the built-in player chrome for a background-video
-                  // feel, and fill the hero area like the native <video>.
-                  ['--controls' as any]: 'none',
-                  ['--media-object-fit' as any]: 'cover',
-                  width: '100%',
-                  height: '100%',
-                }}
-                onEnded={() => {
-                  if (slides.length > 1 && index === activeSlide) {
-                    advanceToNext();
-                  }
-                }}
-              />
-            ) : slide.posterUrl ? (
-              <Image
-                src={slide.posterUrl}
-                alt=""
-                fill
-                priority={index === 0}
-                onLoad={() => { if (index === 0) setHeroImageLoaded(true); }}
-                onError={() => { if (index === 0) setHeroImageLoaded(true); }}
-                sizes="100vw"
-                className="object-cover"
-              />
-            ) : null
+            // Poster is always the background so there's never a blank frame
+            // while the code-split Mux chunk loads; the player layers on top
+            // once ready. Only the active slide mounts a player (one stream at
+            // a time), and it self-advances via onEnded — so the old ref-based
+            // play/pause control is no longer needed, which lets us drop the
+            // ref that next/dynamic can't forward anyway.
+            <>
+              {slide.posterUrl && (
+                <Image
+                  src={slide.posterUrl}
+                  alt=""
+                  fill
+                  priority={index === 0}
+                  onLoad={() => { if (index === 0) setHeroImageLoaded(true); }}
+                  onError={() => { if (index === 0) setHeroImageLoaded(true); }}
+                  sizes="100vw"
+                  className="object-cover"
+                />
+              )}
+              {videosReady && index === activeSlide && (
+                <MuxPlayer
+                  playbackId={slide.muxPlaybackId}
+                  streamType="on-demand"
+                  autoPlay="muted"
+                  {...(slides.length === 1 ? { loop: true } : {})}
+                  muted
+                  playsInline
+                  maxResolution="1080p"
+                  poster={slide.posterUrl}
+                  className="absolute inset-0 w-full h-full"
+                  style={{
+                    // Hide the built-in player chrome for a background-video
+                    // feel, and fill the hero area like the native <video>.
+                    ['--controls' as any]: 'none',
+                    ['--media-object-fit' as any]: 'cover',
+                    width: '100%',
+                    height: '100%',
+                  }}
+                  onEnded={() => {
+                    if (slides.length > 1 && index === activeSlide) {
+                      advanceToNext();
+                    }
+                  }}
+                />
+              )}
+            </>
           ) : slide.videoUrl ? (
             videosReady && index === activeSlide ? (
               <video
