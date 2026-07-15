@@ -29,7 +29,7 @@ export const homepage = defineType({
           type: 'string',
           description: 'Main headline text',
           validation: (Rule) => Rule.required(),
-          initialValue: 'Find Your Dream Home',
+          initialValue: 'Find Your Dream Home in Aspen & Snowmass',
         },
         {
           name: 'subtitle',

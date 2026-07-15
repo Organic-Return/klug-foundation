@@ -78,7 +78,7 @@ export default function HeroWithSearch({
   videoUrl = '/hero-video.mp4',
   fallbackImageUrl = 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2000&q=80',
   heroVideos,
-  title = 'Find Your Dream Home',
+  title = 'Find Your Dream Home in Aspen & Snowmass',
   subtitle = 'Discover the perfect property for you and your family',
   seoDescription,
   showSearch = true,
