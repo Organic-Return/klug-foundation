@@ -194,6 +194,15 @@ export default async function Home() {
     telephone: settings?.contactInfo?.phone,
     email: settings?.contactInfo?.email,
     priceRange: '$$$$',
+    // Founder (Person) identity — helps search engines and LLMs answer
+    // "Chris Klug" person queries and ties the brand to its founder's
+    // on-site profile. Links to his live agent page (/real-estate-agent/…).
+    founder: {
+      '@type': 'Person',
+      name: 'Chris Klug',
+      jobTitle: 'Founder',
+      url: `${baseUrl}/real-estate-agent/chris-klug`,
+    },
     logo: orgLogoUrl,
     image: orgLogoUrl || fallbackImageUrl,
     address: settings?.contactInfo?.address
