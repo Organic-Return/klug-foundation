@@ -120,19 +120,31 @@ export default function HeroWithSearch({
   // Defer video element/source rendering until after first paint so the
   // poster image can become LCP without competing with the MP4 download.
   const [videosReady, setVideosReady] = useState(false);
+  // Gate video playback on the LCP poster having actually painted, so the hero
+  // image wins Largest Contentful Paint before any video stream competes for
+  // bandwidth. On throttled mobile this is the difference between a fast poster
+  // paint and a multi-second LCP.
+  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
   const videoRefs = useRef<MediaCtrl[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const start = () => setVideosReady(true);
-    const ric = (window as any).requestIdleCallback as ((cb: () => void, opts?: { timeout: number }) => number) | undefined;
-    if (ric) {
-      ric(start, { timeout: 1500 });
-    } else {
-      const id = window.setTimeout(start, 800);
+    if (heroImageLoaded) {
+      // Poster painted — pull in video once the main thread is idle.
+      const ric = (window as any).requestIdleCallback as ((cb: () => void, opts?: { timeout: number }) => number) | undefined;
+      if (ric) {
+        ric(start, { timeout: 1000 });
+        return;
+      }
+      const id = window.setTimeout(start, 200);
       return () => window.clearTimeout(id);
     }
-  }, []);
+    // Hard fallback so the hero never stays static if onLoad never fires
+    // (image error, aggressive cache, etc.).
+    const cap = window.setTimeout(start, 6000);
+    return () => window.clearTimeout(cap);
+  }, [heroImageLoaded]);
 
   const advanceToNext = useCallback(() => {
     setIsTransitioning(true);
@@ -215,7 +227,7 @@ export default function HeroWithSearch({
           }`}
         >
           {slide.muxPlaybackId ? (
-            videosReady ? (
+            videosReady && index === activeSlide ? (
               // Mux-backed slide. MuxPlayer forwards standard HTMLMediaElement
               // controls (play/pause/currentTime/onEnded) so the rotating-
               // hero lifecycle stays identical to the native <video> path.
@@ -254,12 +266,14 @@ export default function HeroWithSearch({
                 alt=""
                 fill
                 priority={index === 0}
+                onLoad={() => { if (index === 0) setHeroImageLoaded(true); }}
+                onError={() => { if (index === 0) setHeroImageLoaded(true); }}
                 sizes="100vw"
                 className="object-cover"
               />
             ) : null
           ) : slide.videoUrl ? (
-            videosReady ? (
+            videosReady && index === activeSlide ? (
               <video
                 ref={(el) => { videoRefs.current[index] = el; }}
                 autoPlay
@@ -287,6 +301,8 @@ export default function HeroWithSearch({
                 alt=""
                 fill
                 priority={index === 0}
+                onLoad={() => { if (index === 0) setHeroImageLoaded(true); }}
+                onError={() => { if (index === 0) setHeroImageLoaded(true); }}
                 sizes="100vw"
                 className="object-cover"
               />
@@ -297,6 +313,8 @@ export default function HeroWithSearch({
               alt=""
               fill
               priority={index === 0}
+              onLoad={() => { if (index === 0) setHeroImageLoaded(true); }}
+              onError={() => { if (index === 0) setHeroImageLoaded(true); }}
               sizes="100vw"
               className="object-cover"
             />
