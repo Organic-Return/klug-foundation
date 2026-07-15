@@ -77,6 +77,22 @@ const nextConfig: NextConfig = {
     // Enable AVIF and WebP for better compression and quality
     formats: ['image/avif', 'image/webp'],
   },
+  // Permanent redirects from legacy/renamed paths to their live routes. These
+  // paths 404 today and are still linked from external sites, old crawls, and
+  // some CMS-managed navigation. Sources are EXACT where a sibling subtree is a
+  // real route that must not be caught:
+  //   /affiliated-partners/market-leaders (real), /affiliated-partners/ski-town/[slug]
+  //   (real agent pages), and /team/[slug] (real) must all keep resolving.
+  async redirects() {
+    return [
+      { source: '/market-reports', destination: '/aspen-snowmass-market-reports', permanent: true },
+      { source: '/market-reports/:slug*', destination: '/aspen-snowmass-market-reports/:slug*', permanent: true },
+      { source: '/privacy-policy', destination: '/privacy', permanent: true },
+      { source: '/team', destination: '/about/our-team', permanent: true },
+      { source: '/affiliated-partners', destination: '/about/partners', permanent: true },
+      { source: '/affiliated-partners/ski-town', destination: '/about/ski-town-partners', permanent: true },
+    ];
+  },
   async headers() {
     // Baseline security headers Lighthouse Best Practices checks for.
     // CSP is intentionally omitted: Next.js + Sanity Studio + inline

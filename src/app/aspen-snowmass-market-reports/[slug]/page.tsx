@@ -56,7 +56,7 @@ export async function generateMetadata({
   const metaDescription = report.seo?.metaDescription || report.excerpt || report.title;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const canonicalUrl = `${baseUrl}/market-reports/${slug}`;
+  const canonicalUrl = `${baseUrl}/aspen-snowmass-market-reports/${slug}`;
 
   const robotsConfig = report.seo?.noIndex
     ? { index: false, follow: false }
@@ -208,7 +208,7 @@ export default async function MarketReportPage({
   const pdfUrl = report.pdfFile?.asset?.url;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const reportUrl = `${baseUrl}/market-reports/${slug}`;
+  const reportUrl = `${baseUrl}/aspen-snowmass-market-reports/${slug}`;
 
   // Article/Report schema with enhanced details
   const articleSchema = {

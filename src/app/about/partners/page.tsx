@@ -57,12 +57,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `Affiliated Partners | ${siteName}`,
     description: 'Meet our network of trusted real estate professionals across premier ski towns and market-leading brokerages.',
     alternates: {
-      canonical: `${baseUrl}/affiliated-partners`,
+      canonical: `${baseUrl}/about/partners`,
     },
     openGraph: {
       title: `Affiliated Partners | ${siteName}`,
       description: 'Meet our network of trusted real estate professionals across premier ski towns and market-leading brokerages.',
-      url: `${baseUrl}/affiliated-partners`,
+      url: `${baseUrl}/about/partners`,
     },
   };
 }

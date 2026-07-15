@@ -97,9 +97,9 @@ ${reportLines}
 
 ## Affiliated partners
 
-- [Affiliated partners](${baseUrl}/affiliated-partners): Network of trusted partner agents.
+- [Affiliated partners](${baseUrl}/about/partners): Network of trusted partner agents.
 - [Market leaders](${baseUrl}/affiliated-partners/market-leaders): Partner brokerages and their inventory.
-- [Ski town partners](${baseUrl}/affiliated-partners/ski-town): Sotheby's affiliates in other ski destinations.
+- [Ski town partners](${baseUrl}/about/ski-town-partners): Sotheby's affiliates in other ski destinations.
 
 ## Optional
 

@@ -52,12 +52,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `Ski Town Partners | ${siteName}`,
     description: 'Meet our network of trusted real estate professionals specializing in premier ski resort communities across North America.',
     alternates: {
-      canonical: `${baseUrl}/affiliated-partners/ski-town`,
+      canonical: `${baseUrl}/about/ski-town-partners`,
     },
     openGraph: {
       title: `Ski Town Partners | ${siteName}`,
       description: 'Meet our network of trusted real estate professionals specializing in premier ski resort communities across North America.',
-      url: `${baseUrl}/affiliated-partners/ski-town`,
+      url: `${baseUrl}/about/ski-town-partners`,
     },
   };
 }

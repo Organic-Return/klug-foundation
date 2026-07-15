@@ -160,6 +160,10 @@ export interface MLSProperty {
   open_house_remarks: string | null;
   created_at: string;
   updated_at: string;
+  // True for partner/affiliate rows sourced from realogy_listings. These do NOT
+  // live under /real-estate-for-sale — their canonical page is the market-leaders
+  // partner listing route. See getListingHref.
+  is_realogy?: boolean;
 }
 
 // Build listing URL — uses MLS number when available, falls back to database ID
@@ -211,7 +215,16 @@ export function getListingHref(listing: {
   city?: string | null;
   state?: string | null;
   zip_code?: string | null;
+  is_realogy?: boolean;
 }): string {
+  // Partner/affiliate listings are not served under /real-estate-for-sale (that
+  // route only queries mls_properties). Their canonical page is the market-leaders
+  // partner route, keyed by the same address slug the partner cards/agent tiles
+  // link to (see toAddressSlug + getRealogyListingByAddressSlug).
+  if (listing.is_realogy) {
+    const slug = toAddressSlug(listing.address);
+    if (slug) return `/affiliated-partners/market-leaders/listings/${slug}`;
+  }
   return `/real-estate-for-sale/${buildListingSlug(listing)}`;
 }
 
@@ -988,15 +1001,24 @@ async function getRealogyListingBySlug(slug: string): Promise<MLSProperty | null
 // Look up a listing by address slug (e.g. "3000-Ralston-Avenue")
 async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty | null> {
   if (!isRealogyConfigured()) return null;
-  // Convert slug back to address: "3000-Ralston-Avenue" -> "3000 Ralston Avenue"
-  const address = decodeURIComponent(slug).replace(/-/g, ' ').trim();
-  if (address.length < 3) return null;
+
+  // The slug was produced by toAddressSlug(), which STRIPS punctuation ('#', ',',
+  // '.', apostrophes) and collapses whitespace to single hyphens. The stored
+  // street_address keeps that punctuation (e.g. "33 S Palm Avenue # 1501"), so
+  // simply reversing hyphens to spaces and prefix-matching the raw value misses.
+  // Match token-by-token with '%' between tokens so any stripped characters in the
+  // stored address are tolerated, then confirm the round-trip in JS by slugifying
+  // each candidate the same way the links were built.
+  const tokens = decodeURIComponent(slug)
+    .split('-')
+    .map((t) => t.replace(/[^a-zA-Z0-9]/g, ''))
+    .filter(Boolean);
+  if (tokens.length === 0) return null;
+  const pattern = `${tokens.join('%')}%`;
 
   const realogySupabase = getRealogySupabase();
   if (!realogySupabase) return null;
 
-  // Note: realogy_listings often has trailing whitespace on street_address.
-  // Use a wildcard pattern and verify the match in JS to avoid false positives.
   const { data, error } = await realogySupabase
     .from('realogy_listings')
     .select(`
@@ -1006,15 +1028,18 @@ async function getRealogyListingByAddressSlug(slug: string): Promise<MLSProperty
       lot_size, year_built, property_type, listed_on, default_photo_url, media,
       primary_agent_name, latitude, longitude, created_at, synced_at
     `)
-    .ilike('street_address', `${address}%`)
+    .ilike('street_address', pattern)
     .order('price_amount', { ascending: false })
     .limit(10);
 
   if (error || !data || data.length === 0) return null;
 
-  // Pick the row whose trimmed street_address exactly matches (case-insensitive)
-  const target = address.toLowerCase();
-  const exact = data.find((row: any) => (row.street_address || '').trim().toLowerCase() === target);
+  // Prefer the row whose address slugifies back to exactly this slug (the same
+  // transform the tile/canonical used), so links round-trip 1:1.
+  const target = slug.toLowerCase();
+  const exact = data.find(
+    (row: any) => toAddressSlug(row.street_address).toLowerCase() === target
+  );
   const best = exact || data[0];
 
   return transformRealogyListing(best);
@@ -1790,6 +1815,7 @@ function transformRealogyListing(row: any): MLSProperty {
     open_house_remarks: null,
     created_at: row.created_at || row.synced_at || '',
     updated_at: row.synced_at || '',
+    is_realogy: true,
   };
 }
 

@@ -20,12 +20,12 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: data?.seo?.metaTitle || data?.title || 'Privacy Policy',
     description: data?.seo?.metaDescription || 'Privacy policy',
-    alternates: { canonical: `${baseUrl}/privacy-policy` },
+    alternates: { canonical: `${baseUrl}/privacy` },
     openGraph: {
       title: data?.seo?.metaTitle || data?.title || 'Privacy Policy',
       description: data?.seo?.metaDescription || '',
       type: 'website',
-      url: `${baseUrl}/privacy-policy`,
+      url: `${baseUrl}/privacy`,
     },
   };
 }
