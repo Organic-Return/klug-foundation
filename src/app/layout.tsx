@@ -96,7 +96,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const title = settings?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate';
   const description = settings?.description || process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '';
-  const siteUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || '';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || '';
 
   return {
     title,

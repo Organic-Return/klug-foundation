@@ -103,7 +103,7 @@ function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total:
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
-  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
   return {
     title: 'Property Listings | MLS Listings',

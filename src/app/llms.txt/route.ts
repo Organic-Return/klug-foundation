@@ -46,7 +46,7 @@ function formatReportLink(baseUrl: string, report: MarketReport): string {
 
 export async function GET(): Promise<Response> {
   const settings = await getSettings();
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://klug-foundation.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
   const reports = await getLatestMarketReports();
 
   const reportLines = reports.length > 0

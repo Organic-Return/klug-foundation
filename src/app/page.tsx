@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const seo = homepage?.seo;
   const siteTitle = settings?.title || 'Real Estate';
-  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
   // Pick OG image: explicit SEO meta image > homepage hero fallback > branding logo
   const ogImageUrl = seo?.metaImage?.asset?.url
@@ -161,7 +161,7 @@ export default async function Home() {
     }
   }
 
-  const baseUrl = settings?.siteUrl || process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
   // Logo URL for schema (square preferred for logo, full for image)
   const orgLogoUrl = branding?.logo?.asset?.url
