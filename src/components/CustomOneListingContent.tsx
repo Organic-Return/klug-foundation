@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MLSProperty } from '@/lib/listings';
+import { toDescriptionParagraphs, type MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import AuthModal from '@/components/AuthModal';
@@ -664,7 +664,7 @@ export default function CustomOneListingContent({
               <div className="w-12 h-[2px] bg-[var(--rc-gold)] mb-6" />
               {listing.description ? (
                 <div className="space-y-4 text-[var(--rc-brown)] leading-relaxed text-[15px]">
-                  {listing.description.split('\n').filter(Boolean).map((paragraph, i) => (
+                  {toDescriptionParagraphs(listing.description).map((paragraph, i) => (
                     <p key={i}>{paragraph}</p>
                   ))}
                 </div>

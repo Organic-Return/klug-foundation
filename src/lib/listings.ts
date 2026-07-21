@@ -2249,3 +2249,25 @@ export async function getRelatedListings(
 
   return [];
 }
+
+/**
+ * MLS descriptions frequently arrive hard-wrapped — a line break at the end of
+ * every ~80-90 character line (often CRLF), with blank lines separating the real
+ * paragraphs. Rendering each source line as its own element (or via
+ * whitespace-pre-wrap) makes the text look double-spaced and leaves stray
+ * carriage returns behind. Normalize to clean paragraphs: strip CRs, reflow
+ * soft-wrapped lines into spaces, and split on blank lines.
+ */
+export function toDescriptionParagraphs(raw?: string | null): string[] {
+  if (!raw) return [];
+  return raw
+    .replace(/\r\n?/g, '\n')                // CRLF / lone CR -> LF
+    .split(/\n{2,}/)                         // paragraphs = blank-line separated
+    .map((p) =>
+      p
+        .replace(/\s*\n\s*/g, ' ')          // reflow soft-wrapped lines to spaces
+        .replace(/[ \t]{2,}/g, ' ')         // collapse runs of whitespace
+        .trim()
+    )
+    .filter(Boolean);
+}

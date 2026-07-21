@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { MLSProperty } from '@/lib/listings';
+import { toDescriptionParagraphs, type MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import { getUTMData } from './UTMCapture';
@@ -208,7 +208,9 @@ export default function KlugListingContent({
   }, [lightboxOpen, closeLightbox, handlePrevPhoto, handleNextPhoto]);
 
   // Truncate description for "Read More"
-  const description = listing.description || '';
+  // Normalize hard-wrapped MLS text into clean paragraphs (blank-line separated)
+  // so whitespace-pre-wrap no longer renders every soft-wrap as its own line.
+  const description = toDescriptionParagraphs(listing.description).join('\n\n');
   const shouldTruncate = description.length > 600;
   const displayDescription = shouldTruncate && !showFullDescription
     ? description.slice(0, 600) + '...'
