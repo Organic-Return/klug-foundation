@@ -144,6 +144,9 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const params = await searchParams;
   const page = parseInt(params.page || '1', 10);
   const status = params.status;
+  // Sold listings are hidden by default and only shown when the user explicitly
+  // selects the "Sold" status. Everything else is an active-type status.
+  const wantsSold = status ? /^(sold|closed)$/i.test(status) : false;
   const propertyType = params.type;
   const propertySubType = params.subtype;
   const selectedCities = params.city ? params.city.split(',').map(c => c.trim()).filter(Boolean) : [];
@@ -202,7 +205,11 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   // hiccup only loses the filter options, not the entire page render.
   const [listingsResult, cities, propertyTypes, propertySubTypes, statuses, neighborhoods] = await Promise.all([
     getListings(page, 24, {
-      status,
+      // When the user asks for Sold, hand off to the soldOnly path instead of a
+      // raw status match — sold rows may be stored as Sold, Closed, or an active
+      // status with a past close_date.
+      status: wantsSold ? undefined : status,
+      soldOnly: wantsSold,
       propertyType,
       propertySubType,
       cities: selectedCities.length > 0 ? selectedCities : undefined,
@@ -218,7 +225,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       excludedPropertyTypes,
       excludedPropertySubTypes,
       allowedCities,
-      allowedStatuses: allowedStatusList,
+      allowedStatuses: wantsSold ? undefined : allowedStatusList,
       sort,
     }).catch((e) => {
       console.error('[listings] primary getListings failed:', e);
@@ -240,9 +247,14 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
   const filteredCities = allowedCities.length > 0 ? allowedCities : cities;
   const filteredPropertyTypes = propertyTypes.filter((t) => !excludedPropertyTypes.includes(t));
   const filteredPropertySubTypes = propertySubTypes.filter((t) => !excludedPropertySubTypes.includes(t));
-  const filteredStatuses = statuses.filter(
-    (s) => allowedStatusList.includes(s) && !excludedStatuses.includes(s)
-  );
+  const filteredStatuses = [
+    ...statuses.filter(
+      (s) => allowedStatusList.includes(s) && !excludedStatuses.includes(s)
+    ),
+    // Sold is excluded from the default results but offered explicitly so users
+    // can opt in to seeing sold/closed listings.
+    'Sold',
+  ];
 
   const { listings, total, totalPages } = listingsResult;
 

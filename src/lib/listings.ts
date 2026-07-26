@@ -565,6 +565,11 @@ export interface ListingsFilters {
   allowedCities?: string[];  // If set, only show listings from these cities
   excludedStatuses?: string[];
   allowedStatuses?: string[];   // If set, only show listings with these statuses
+  // When true, show ONLY effectively-sold listings (raw Sold/Closed status or a
+  // past close_date). When false/undefined, effectively-sold listings are
+  // excluded so they never leak into an active search. See transformRow's
+  // display-time auto-close for why close_date matters here.
+  soldOnly?: boolean;
   // Sorting
   sort?: SortOption;
 }
@@ -708,8 +713,24 @@ export async function getListings(
   if (filters.allowedStatuses && filters.allowedStatuses.length > 0 && !filters.keyword) {
     // Only show listings with these specific statuses (excludes NULL status rows)
     query = query.in('status', filters.allowedStatuses);
-  } else if (filters.excludedStatuses && filters.excludedStatuses.length > 0 && !filters.keyword) {
+  } else if (filters.excludedStatuses && filters.excludedStatuses.length > 0 && !filters.keyword && !filters.soldOnly) {
     query = query.not('status', 'in', `(${filters.excludedStatuses.join(',')})`);
+  }
+
+  // "Sold" is a display-time status: transformRow labels a listing Sold when its
+  // raw status is Sold/Closed OR its close_date has already passed. The status
+  // filters above only see the RAW status, so an Active/Pending row with a past
+  // close_date would slip through and render as "Sold". Mirror the auto-close
+  // rule here so default searches never surface effectively-sold listings, and
+  // an explicit Sold filter returns exactly those. Skipped for keyword searches
+  // (the user is looking up a specific listing, sold or not).
+  if (!filters.keyword) {
+    const nowIso = new Date().toISOString();
+    if (filters.soldOnly) {
+      query = query.or(`status.in.(Sold,Closed),close_date.lt.${nowIso}`);
+    } else {
+      query = query.or(`close_date.is.null,close_date.gte.${nowIso}`);
+    }
   }
 
   // Apply sorting
