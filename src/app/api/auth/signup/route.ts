@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseServer } from '@/lib/supabase-server';
 import { sendVerificationEmail, isSendGridConfigured } from '@/lib/sendgrid';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 // Custom signup endpoint. We use the Supabase admin API to generate
 // a sign-up link (which also creates the user as unconfirmed) and
@@ -13,6 +14,16 @@ export async function POST(request: NextRequest) {
     const email = String(body?.email || '').trim().toLowerCase();
     const password = String(body?.password || '');
     const name = body?.name ? String(body.name).trim() : undefined;
+
+    // Spam gate — no-ops until reCAPTCHA env vars are set, then blocks bot signups.
+    const recaptcha = await verifyRecaptcha(body?.recaptchaToken, 'signup');
+    if (!recaptcha.success) {
+      console.warn('[signup] reCAPTCHA rejected:', recaptcha.reason, recaptcha.score);
+      return NextResponse.json(
+        { error: 'Your submission looked automated. Please try again.' },
+        { status: 400 }
+      );
+    }
 
     if (!email || !password) {
       return NextResponse.json(

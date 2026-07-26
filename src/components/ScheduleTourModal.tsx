@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface ScheduleTourModalProps {
@@ -87,10 +88,12 @@ export default function ScheduleTourModal({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const response = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName,
           lastName,
           email,

@@ -7,6 +7,7 @@ import type { MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 import { trackLeadSubmitted } from '@/lib/tracking';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 
@@ -99,10 +100,12 @@ export default function RCSothebysListingContent({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName: btmFirstName,
           lastName: btmLastName,
           email: btmEmail,
@@ -156,10 +159,12 @@ export default function RCSothebysListingContent({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName: formFirstName,
           lastName: formLastName,
           email: formEmail,

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createLeadFromForm, isClozeConfigured } from '@/lib/cloze';
 import { createLead, determineLeadRouting, updateLeadClozeId, type LeadInput } from '@/lib/leads';
 import { sendLeadNotificationEmail, isSendGridConfigured } from '@/lib/sendgrid';
+import { verifyRecaptcha } from '@/lib/recaptcha';
 
 interface LeadFormData {
   firstName: string;
@@ -29,11 +30,22 @@ interface LeadFormData {
   fbclid?: string;
   msclkid?: string;
   landingPage?: string;
+  recaptchaToken?: string;
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json() as LeadFormData;
+
+    // Spam gate — no-ops until reCAPTCHA env vars are set, then blocks bots.
+    const recaptcha = await verifyRecaptcha(body.recaptchaToken, 'submit_lead');
+    if (!recaptcha.success) {
+      console.warn('[leads] reCAPTCHA rejected:', recaptcha.reason, recaptcha.score);
+      return NextResponse.json(
+        { error: 'Your submission looked automated. Please try again.' },
+        { status: 400 }
+      );
+    }
 
     // Validate required fields
     if (!body.firstName || !body.lastName || !body.email) {

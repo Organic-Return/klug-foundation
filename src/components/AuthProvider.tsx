@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase-browser';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 
 interface AuthContextType {
   user: User | null;
@@ -67,10 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // emails a verification link through SendGrid. The user must
     // click the link before they can sign in.
     try {
+      const recaptchaToken = await getRecaptchaToken('signup');
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name: metadata?.name }),
+        body: JSON.stringify({ recaptchaToken, email, password, name: metadata?.name }),
       });
       const json = await res.json().catch(() => ({}));
       if (!res.ok) {

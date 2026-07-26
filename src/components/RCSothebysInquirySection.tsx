@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 
 interface RCSothebysInquirySectionProps {
   title?: string;
@@ -40,10 +41,12 @@ export default function RCSothebysInquirySection({
     setSubmitStatus('idle');
 
     try {
+      const recaptchaToken = await getRecaptchaToken('contact');
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           name: `${formData.firstName} ${formData.lastName}`.trim(),
           email: formData.email,
           phone: formData.phone,

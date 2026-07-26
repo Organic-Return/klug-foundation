@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface AgentContactFormProps {
@@ -32,10 +33,12 @@ export default function AgentContactForm({ agentName, agentEmail, inverted = fal
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('contact');
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           ...formData,
           interest: `Agent inquiry for ${agentName}`,
           sourceUrl: utm.source_url,

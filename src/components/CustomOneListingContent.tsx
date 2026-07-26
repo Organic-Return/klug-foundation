@@ -10,6 +10,7 @@ import AuthModal from '@/components/AuthModal';
 import { BedIcon, BathIcon, SqftIcon, AcresIcon } from '@/components/PropertyVitals';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 import { trackLeadSubmitted } from '@/lib/tracking';
 
 // ─────────────────────────────────────────────
@@ -215,10 +216,12 @@ export default function CustomOneListingContent({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName: formFirstName,
           lastName: formLastName,
           email: formEmail,
@@ -267,10 +270,12 @@ export default function CustomOneListingContent({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName: btmFirstName,
           lastName: btmLastName,
           email: btmEmail,

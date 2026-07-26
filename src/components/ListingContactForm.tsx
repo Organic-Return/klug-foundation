@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { getUTMData } from './UTMCapture';
+import { getRecaptchaToken } from '@/lib/recaptchaClient';
 import { trackLeadSubmitted } from '@/lib/tracking';
 
 interface ListingContactFormProps {
@@ -37,10 +38,12 @@ export default function ListingContactForm({
 
     try {
       const utm = getUTMData();
+      const recaptchaToken = await getRecaptchaToken('submit_lead');
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          recaptchaToken,
           firstName,
           lastName,
           email,
