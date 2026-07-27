@@ -1,12 +1,15 @@
 'use client';
 
-// Client-side reCAPTCHA Enterprise helper.
+// Client-side reCAPTCHA helper.
 //
-// Lazily injects the enterprise.js script (only on pages where a protected form
+// Lazily injects the reCAPTCHA v3 script (only on pages where a protected form
 // is actually submitted — keeps it off the critical path for everyone else) and
 // returns a fresh token for the given action. Returns null when the site key is
 // absent or anything fails; the server verifier decides what to do with a null
 // token, so a script hiccup never hard-blocks a legitimate submission.
+//
+// Uses the legacy api.js render flow, whose tokens verify against the
+// siteverify endpoint with the key's secret key (see src/lib/recaptcha.ts).
 
 const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
@@ -19,22 +22,22 @@ function loadScript(): Promise<void> {
       reject(new Error('no window'));
       return;
     }
-    const w = window as unknown as { grecaptcha?: { enterprise?: unknown } };
-    if (w.grecaptcha?.enterprise) {
+    const w = window as unknown as { grecaptcha?: unknown };
+    if (w.grecaptcha) {
       resolve();
       return;
     }
-    const existing = document.querySelector('script[data-recaptcha-enterprise]');
+    const existing = document.querySelector('script[data-recaptcha-v3]');
     if (existing) {
       existing.addEventListener('load', () => resolve());
       existing.addEventListener('error', () => reject(new Error('recaptcha load error')));
       return;
     }
     const s = document.createElement('script');
-    s.src = `https://www.google.com/recaptcha/enterprise.js?render=${SITE_KEY}`;
+    s.src = `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`;
     s.async = true;
     s.defer = true;
-    s.setAttribute('data-recaptcha-enterprise', '');
+    s.setAttribute('data-recaptcha-v3', '');
     s.onload = () => resolve();
     s.onerror = () => reject(new Error('recaptcha load error'));
     document.head.appendChild(s);
@@ -43,7 +46,7 @@ function loadScript(): Promise<void> {
 }
 
 /**
- * Returns a reCAPTCHA Enterprise token for `action`, or null if reCAPTCHA is not
+ * Returns a reCAPTCHA token for `action`, or null if reCAPTCHA is not
  * configured / unavailable. Callers should send the token to the server as
  * `recaptchaToken` in the form payload.
  */
@@ -53,18 +56,15 @@ export async function getRecaptchaToken(action: string): Promise<string | null> 
     await loadScript();
     const grecaptcha = (window as unknown as {
       grecaptcha?: {
-        enterprise?: {
-          ready: (cb: () => void) => void;
-          execute: (siteKey: string, opts: { action: string }) => Promise<string>;
-        };
+        ready: (cb: () => void) => void;
+        execute: (siteKey: string, opts: { action: string }) => Promise<string>;
       };
     }).grecaptcha;
-    const enterprise = grecaptcha?.enterprise;
-    if (!enterprise) return null;
+    if (!grecaptcha) return null;
     return await new Promise<string | null>((resolve) => {
-      enterprise.ready(async () => {
+      grecaptcha.ready(async () => {
         try {
-          const token = await enterprise.execute(SITE_KEY, { action });
+          const token = await grecaptcha.execute(SITE_KEY, { action });
           resolve(token || null);
         } catch {
           resolve(null);
