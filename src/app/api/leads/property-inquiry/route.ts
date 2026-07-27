@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createContact, addNote, createProject, isClozeConfigured } from '@/lib/cloze';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { checkSpam } from '@/lib/spamFilter';
 
 interface PropertyInquiryData {
   firstName: string;
@@ -42,6 +43,20 @@ export async function POST(request: Request) {
     if (!emailRegex.test(body.email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
+        { status: 400 }
+      );
+    }
+
+    // Content spam filter (complements reCAPTCHA, which scores the visitor).
+    const spam = checkSpam({
+      name: `${body.firstName} ${body.lastName}`,
+      message: body.message,
+      email: body.email,
+    });
+    if (spam.spam) {
+      console.warn('[property-inquiry] spam content rejected:', spam.reason);
+      return NextResponse.json(
+        { error: 'Your submission looked like spam. Please try again.' },
         { status: 400 }
       );
     }

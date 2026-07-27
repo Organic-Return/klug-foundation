@@ -3,6 +3,7 @@ import { createLeadFromForm, isClozeConfigured } from '@/lib/cloze';
 import { createLead, determineLeadRouting, updateLeadClozeId } from '@/lib/leads';
 import { sendLeadNotificationEmail, isSendGridConfigured } from '@/lib/sendgrid';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { checkSpam } from '@/lib/spamFilter';
 
 interface ContactFormData {
   name: string;
@@ -42,6 +43,16 @@ export async function POST(request: Request) {
     if (!body.name || !body.email) {
       return NextResponse.json(
         { error: 'Name and email are required' },
+        { status: 400 }
+      );
+    }
+
+    // Content spam filter (complements reCAPTCHA, which scores the visitor).
+    const spam = checkSpam({ name: body.name, message: body.message, email: body.email });
+    if (spam.spam) {
+      console.warn('[contact] spam content rejected:', spam.reason);
+      return NextResponse.json(
+        { error: 'Your submission looked like spam. Please try again.' },
         { status: 400 }
       );
     }
