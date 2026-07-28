@@ -850,6 +850,7 @@ async function getListingsByPropertyTypes(opts: {
 export interface SitemapListingRow {
   id: string;
   mls_number: string | null;
+  status: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -870,7 +871,7 @@ export async function getListingsForSitemap(): Promise<SitemapListingRow[]> {
     const to = from + PAGE_SIZE - 1;
     const { data, error } = await supabase
       .from('mls_properties')
-      .select('id, mls_number, address, city, state, zip_code, updated_at')
+      .select('id, mls_number, status, address, city, state, zip_code, updated_at')
       .not('mls_number', 'is', null)
       .range(from, to);
     if (error) {
@@ -878,7 +879,9 @@ export async function getListingsForSitemap(): Promise<SitemapListingRow[]> {
       break;
     }
     if (!data || data.length === 0) break;
-    out.push(...(data as SitemapListingRow[]));
+    // Exclude off-market (expired/withdrawn/canceled) listings — their pages
+    // 404, so they must not be advertised to search engines.
+    out.push(...(data as SitemapListingRow[]).filter((r) => !isOffMarketStatus(r.status)));
     if (data.length < PAGE_SIZE) break;
   }
   return out;
@@ -1298,6 +1301,25 @@ const STATUSES = [
   'To Be Built',
   'Withdrawn',
 ];
+
+// Statuses that mean a listing is permanently off the market and should not be
+// browsable anywhere on the site — it was pulled from the MLS and is no longer
+// for sale. This is distinct from Sold/Closed, which intentionally keep a page
+// (the sold gallery). Matched case-insensitively.
+const OFF_MARKET_STATUSES = new Set([
+  'expired',
+  'withdrawn',
+  'canceled',
+  'cancelled',
+  'deleted',
+  'off market',
+  'off-market',
+]);
+
+export function isOffMarketStatus(status: string | null | undefined): boolean {
+  if (!status) return false;
+  return OFF_MARKET_STATUSES.has(status.trim().toLowerCase());
+}
 
 export async function getDistinctStatuses(): Promise<string[]> {
   return STATUSES;

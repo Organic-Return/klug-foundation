@@ -6,6 +6,7 @@ import {
   buildListingSlug,
   formatPrice,
   getRelatedListings,
+  isOffMarketStatus,
   type MLSProperty,
 } from '@/lib/listings';
 import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
@@ -257,6 +258,12 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     return { title: 'Listing Not Found' };
   }
 
+  // Off-market (expired/withdrawn/canceled) listings 404 in the page below;
+  // keep them out of search indexes too.
+  if (isOffMarketStatus(listing.status)) {
+    return { title: 'Listing Not Found', robots: { index: false, follow: false } };
+  }
+
   const baseUrl = getBaseUrl();
   const siteName = await getSiteName();
   const listingUrl = `${baseUrl}${getListingHref(listing)}`;
@@ -335,6 +342,13 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
   ]);
 
   if (!listing) {
+    notFound();
+  }
+
+  // Off-market listings (expired, withdrawn, canceled) are no longer for sale
+  // and were pulled from the MLS — they should not be browsable. 404 them.
+  // Sold/Closed listings are intentionally kept (the sold gallery links to them).
+  if (isOffMarketStatus(listing.status)) {
     notFound();
   }
 
