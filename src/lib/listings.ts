@@ -164,6 +164,27 @@ export interface MLSProperty {
   // live under /real-estate-for-sale — their canonical page is the market-leaders
   // partner listing route. See getListingHref.
   is_realogy?: boolean;
+  // True when the RAW property_type is a lease type. `property_type` above
+  // collapses to property_sub_type when one exists ('Single Family Residence'),
+  // which loses the fact that the listing is a rental — so capture it here at
+  // transform time. Keyword searches deliberately return rentals, so cards need
+  // this to label them.
+  is_rental?: boolean;
+}
+
+// A listing is sold if the feed says Sold/Closed. transformListing normalizes
+// 'Closed' to 'Sold' (and auto-closes past close_dates), but raw rows and the
+// Realogy transform still produce 'Closed' — match either.
+export function isSoldStatus(status: string | null | undefined): boolean {
+  const s = status?.trim().toLowerCase();
+  return s === 'sold' || s === 'closed';
+}
+
+// Rentals/leases are identified by the raw property_type column.
+export function isRentalPropertyType(propertyType: string | null | undefined): boolean {
+  if (!propertyType) return false;
+  const t = propertyType.trim().toLowerCase();
+  return EXCLUDED_LEASE_TYPES.some((lease) => lease.toLowerCase() === t);
 }
 
 // Build listing URL — uses MLS number when available, falls back to database ID
@@ -485,6 +506,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     lot_size: row.lot_size_acres ?? row.lot_size ?? (row.lot_size_square_feet ? row.lot_size_square_feet / 43560 : null),
     year_built: row.year_built ? parseInt(row.year_built, 10) : null,
     property_type: row.property_sub_type || row.property_type,
+    is_rental: isRentalPropertyType(row.property_type),
     listing_date: row.listing_date,
     sold_date: row.sold_date || row.close_date,
     days_on_market: daysOnMarket,
@@ -1821,6 +1843,7 @@ function transformRealogyListing(row: any): MLSProperty {
     lot_size: lotSize,
     year_built: row.year_built,
     property_type: row.property_type,
+    is_rental: isRentalPropertyType(row.property_type),
     listing_date: row.listed_on,
     sold_date: null,
     days_on_market: daysOnMarket,

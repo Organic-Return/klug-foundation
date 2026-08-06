@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ListingsMap from './ListingsMap';
 import SavePropertyButton from './SavePropertyButton';
-import { getListingHref, type MLSProperty, type SortOption } from '@/lib/listings';
+import { getListingHref, isSoldStatus, type MLSProperty, type SortOption } from '@/lib/listings';
 import PropertyVitals from '@/components/PropertyVitals';
 
 interface ListingsContentProps {
@@ -72,6 +72,16 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
   const photos = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const hasMultiplePhotos = photos.length > 1;
   const currentPhoto = photos[currentPhotoIndex] || null;
+
+  // Keyword searches (e.g. "822 Bonita") intentionally return sold listings and
+  // rentals alongside active for-sale inventory, so the photo carries a banner
+  // saying which it is. A closed lease reads "Rented" rather than "Sold".
+  const isSold = isSoldStatus(listing.status);
+  const isRental = !!listing.is_rental;
+  const bannerLabel = isSold && isRental ? 'Rented' : isSold ? 'Sold' : isRental ? 'Rental' : null;
+  const bannerClasses = isSold
+    ? 'bg-[var(--color-charcoal,#2b2b2b)]/95'
+    : 'bg-[var(--rc-navy,#002349)]/95';
 
   const handlePrevPhoto = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -147,8 +157,8 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
                 </svg>
               </button>
 
-              {/* Photo indicator dots */}
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {/* Photo indicator dots — sit above the status banner when there is one */}
+              <div className={`absolute ${bannerLabel ? 'bottom-11' : 'bottom-3'} left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300`}>
                 {photos.slice(0, 5).map((_, idx) => (
                   <div
                     key={idx}
@@ -162,6 +172,13 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
                 )}
               </div>
             </>
+          )}
+
+          {/* Sold / Rental banner across the bottom of the photo */}
+          {bannerLabel && (
+            <div className={`absolute bottom-0 inset-x-0 py-2 text-center text-[11px] uppercase tracking-[0.2em] font-medium text-white ${bannerClasses}`}>
+              {bannerLabel}
+            </div>
           )}
 
           {/* Status badges */}
@@ -233,7 +250,7 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
           }
         >
           {formatPrice(listing.list_price)}
-          {listing.status === 'Closed' && listing.sold_price && (
+          {isSold && listing.sold_price && (
             <span className={`text-xs font-light ml-2 ${template === 'luxury' ? 'text-[var(--color-warm-gray)]' : 'text-gray-500'}`}>
               Sold: {formatPrice(listing.sold_price)}
             </span>
