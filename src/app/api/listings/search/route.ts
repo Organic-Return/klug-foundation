@@ -23,6 +23,12 @@ export async function GET(request: NextRequest) {
 
   const page = parseInt(sp.get('page') || '1', 10);
   const status = sp.get('status') || undefined;
+  // Mirror the server-rendered page: "Sold" is a display-time status, so hand it
+  // to the soldOnly path rather than matching it raw. Passing status=Sold while
+  // allowedStatuses still holds only active statuses asks for rows that are both
+  // Sold and Active, which is why picking Sold from the filter bar came back
+  // empty even though landing on ?status=Sold directly worked.
+  const wantsSold = status ? /^(sold|closed)$/i.test(status) : false;
   const propertyType = sp.get('type') || undefined;
   const propertySubType = sp.get('subtype') || undefined;
   const selectedCities = sp.get('city')
@@ -62,7 +68,8 @@ export async function GET(request: NextRequest) {
     : undefined;
 
   const result = await getListings(page, 24, {
-    status,
+    status: wantsSold ? undefined : status,
+    soldOnly: wantsSold,
     propertyType,
     propertySubType,
     cities: selectedCities.length > 0 ? selectedCities : undefined,
@@ -78,7 +85,7 @@ export async function GET(request: NextRequest) {
     excludedPropertyTypes,
     excludedPropertySubTypes,
     allowedCities,
-    allowedStatuses: allowedStatusList,
+    allowedStatuses: wantsSold ? undefined : allowedStatusList,
     sort,
   });
 
