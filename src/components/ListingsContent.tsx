@@ -78,7 +78,17 @@ function PropertyCard({ listing, template = 'classic', hasVideo = false, hasMatt
   // saying which it is. A closed lease reads "Rented" rather than "Sold".
   const isSold = isSoldStatus(listing.status);
   const isRental = !!listing.is_rental;
-  const bannerLabel = isSold && isRental ? 'Rented' : isSold ? 'Sold' : isRental ? 'Rental' : null;
+  // Year the sale closed, e.g. "Sold 2024". Read off the leading YYYY of the
+  // date string rather than via Date — a bare '2024-01-01' parses as UTC
+  // midnight and rolls back to 2023 in US timezones. Omitted when the feed has
+  // no sold/close date.
+  const soldYear = isSold ? listing.sold_date?.match(/^(\d{4})/)?.[1] : undefined;
+  const soldLabel = isRental ? 'Rented' : 'Sold';
+  const bannerLabel = isSold
+    ? [soldLabel, soldYear].filter(Boolean).join(' ')
+    : isRental
+    ? 'Rental'
+    : null;
   const bannerClasses = isSold
     ? 'bg-[var(--color-charcoal,#2b2b2b)]/95'
     : 'bg-[var(--rc-navy,#002349)]/95';

@@ -180,6 +180,20 @@ export function isSoldStatus(status: string | null | undefined): boolean {
   return s === 'sold' || s === 'closed';
 }
 
+// "March 14, 2024" from a feed date. Splits the YYYY-MM-DD parts by hand and
+// builds a LOCAL date: `new Date('2024-03-14')` is parsed as UTC midnight, which
+// renders as March 13 anywhere west of Greenwich. Locale is pinned to en-US so
+// the server and client render the same string and hydration stays quiet.
+export function formatListingDate(date: string | null | undefined): string | null {
+  if (!date) return null;
+  const parts = date.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  const d = parts
+    ? new Date(Number(parts[1]), Number(parts[2]) - 1, Number(parts[3]))
+    : new Date(date);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
 // Rentals/leases are identified by the raw property_type column.
 export function isRentalPropertyType(propertyType: string | null | undefined): boolean {
   if (!propertyType) return false;

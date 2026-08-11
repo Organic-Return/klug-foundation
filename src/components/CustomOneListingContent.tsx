@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { toDescriptionParagraphs, type MLSProperty } from '@/lib/listings';
+import { toDescriptionParagraphs, isSoldStatus, formatListingDate, type MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import AuthModal from '@/components/AuthModal';
@@ -149,8 +149,13 @@ export default function CustomOneListingContent({
   const streetAddress = listing.address?.split(',')[0] || listing.address || 'Property';
   const cityState = [listing.city, listing.state].filter(Boolean).join(', ');
   const fullAddress = [listing.address, listing.zip_code].filter(Boolean).join(' ');
-  const displayPrice = listing.status === 'Closed'
-    ? formatPrice(listing.sold_price)
+  // transformListing normalizes 'Closed' to 'Sold' (and auto-closes listings
+  // whose close_date has passed), so match on both spellings — testing for
+  // 'Closed' alone meant sold listings kept showing their asking price.
+  const isSold = isSoldStatus(listing.status);
+  const soldDate = isSold ? formatListingDate(listing.sold_date) : null;
+  const displayPrice = isSold
+    ? formatPrice(listing.sold_price ?? listing.list_price)
     : formatPrice(listing.list_price);
 
   // Determine which media tabs to show
@@ -424,6 +429,11 @@ export default function CustomOneListingContent({
                   {cityState}{listing.zip_code ? ` ${listing.zip_code}` : ''}
                 </p>
               </div>
+              {isSold && (
+                <p className="mt-3 text-[var(--rc-gold)] text-xs md:text-sm tracking-[0.2em] uppercase drop-shadow-md">
+                  Sold {displayPrice}{soldDate ? ` · ${soldDate}` : ''}
+                </p>
+              )}
             </div>
 
             {/* RIGHT — Stats row + button cluster */}
@@ -632,12 +642,17 @@ export default function CustomOneListingContent({
               <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
 
               <div>
+                {isSold && (
+                  <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">
+                    Sold Price
+                  </p>
+                )}
                 <p className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">
                   {displayPrice}
                 </p>
-                {listing.status === 'Closed' && listing.sold_date && (
-                  <p className="text-[var(--rc-brown)]/50 text-xs mt-0.5">
-                    Sold {new Date(listing.sold_date).toLocaleDateString()}
+                {soldDate && (
+                  <p className="text-[var(--rc-brown)]/70 text-xs mt-0.5">
+                    Sold {soldDate}
                   </p>
                 )}
               </div>
@@ -728,6 +743,18 @@ export default function CustomOneListingContent({
                     <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
                       <span className="text-[var(--rc-brown)]/50">Listed</span>
                       <span className="text-[var(--rc-navy)]">{new Date(listing.listing_date).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                  {isSold && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Sold Price</span>
+                      <span className="text-[var(--rc-navy)]">{displayPrice}</span>
+                    </div>
+                  )}
+                  {soldDate && (
+                    <div className="flex justify-between py-2 border-b border-[var(--rc-brown)]/10">
+                      <span className="text-[var(--rc-brown)]/50">Sold Date</span>
+                      <span className="text-[var(--rc-navy)]">{soldDate}</span>
                     </div>
                   )}
                 </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { toDescriptionParagraphs, type MLSProperty } from '@/lib/listings';
+import { toDescriptionParagraphs, isSoldStatus, formatListingDate, type MLSProperty } from '@/lib/listings';
 import PropertyMap from '@/components/PropertyMap';
 import SavePropertyButton from '@/components/SavePropertyButton';
 import { getUTMData } from './UTMCapture';
@@ -50,6 +50,14 @@ export default function KlugListingContent({
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const [failedPhotos, setFailedPhotos] = useState<Set<number>>(new Set());
+
+  // Sold listings lead with what the property actually closed at, not the
+  // asking price. transformListing normalizes 'Closed' to 'Sold', so match both.
+  const isSold = isSoldStatus(listing.status);
+  const soldDate = isSold ? formatListingDate(listing.sold_date) : null;
+  const displayPrice = isSold
+    ? formatPrice(listing.sold_price ?? listing.list_price)
+    : formatPrice(listing.list_price);
 
   // Contact form state
   const [formFirstName, setFormFirstName] = useState('');
@@ -324,8 +332,13 @@ export default function KlugListingContent({
                   {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
                 </div>
                 <div className="text-[var(--rc-navy)] text-base md:text-lg font-bold mt-1">
-                  {formatPrice(listing.list_price)}
+                  {isSold ? `Sold ${displayPrice}` : displayPrice}
                 </div>
+                {soldDate && (
+                  <div className="text-[var(--rc-brown)]/70 text-xs mt-0.5">
+                    Sold {soldDate}
+                  </div>
+                )}
               </div>
               <div className="w-[2px] self-stretch bg-[var(--rc-gold)]" />
               <div className="px-5 py-3 md:px-6 md:py-4 grid grid-cols-2 gap-x-5 gap-y-1.5 text-[var(--rc-brown)] text-xs">
@@ -421,9 +434,19 @@ export default function KlugListingContent({
                 )}
                 <div className="h-10 w-px bg-[var(--rc-brown)]/15 hidden md:block" />
                 <div>
+                  {isSold && (
+                    <p className="text-[10px] tracking-[0.15em] uppercase text-[var(--rc-brown)]/50">
+                      Sold Price
+                    </p>
+                  )}
                   <p className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)]">
-                    {formatPrice(listing.list_price)}
+                    {displayPrice}
                   </p>
+                  {soldDate && (
+                    <p className="text-[var(--rc-brown)]/70 text-xs mt-0.5">
+                      Sold {soldDate}
+                    </p>
+                  )}
                 </div>
                 <SavePropertyButton listingId={listing.id} listingType="mls" variant="icon" />
               </div>
@@ -982,6 +1005,18 @@ export default function KlugListingContent({
                 <div className="text-white/50 text-xs uppercase tracking-[0.1em] mb-1">Listing Price</div>
                 <div className="text-white text-sm">{formatPrice(listing.list_price)}</div>
               </div>
+              {isSold && (
+                <div>
+                  <div className="text-white/50 text-xs uppercase tracking-[0.1em] mb-1">Sold Price</div>
+                  <div className="text-white text-sm">{displayPrice}</div>
+                </div>
+              )}
+              {soldDate && (
+                <div>
+                  <div className="text-white/50 text-xs uppercase tracking-[0.1em] mb-1">Sold Date</div>
+                  <div className="text-white text-sm">{soldDate}</div>
+                </div>
+              )}
               <div>
                 <div className="text-white/50 text-xs uppercase tracking-[0.1em] mb-1">MLS #</div>
                 <div className="text-white text-sm">{listing.mls_number}</div>
