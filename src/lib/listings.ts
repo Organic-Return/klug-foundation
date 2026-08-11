@@ -52,7 +52,9 @@ interface GraphQLListing {
   property_type: string | null;
   property_sub_type: string | null;
   listing_date: string | null;
-  close_date: string | null;
+  // NOTE: there is no close_date column on mls_properties — the closing date is
+  // `sold_date`. Two separate outages have come from querying close_date (see
+  // 0517599 and the getListings fix); don't reintroduce it here.
   original_list_price: number | null;
   description: string | null;
   subdivision_name: string | null;
@@ -471,7 +473,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
   let daysOnMarket: number | null = null;
   if (row.listing_date) {
     const listDate = new Date(row.listing_date);
-    const endDate = row.close_date ? new Date(row.close_date) : new Date();
+    const endDate = row.sold_date ? new Date(row.sold_date) : new Date();
     daysOnMarket = Math.floor((endDate.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24));
   }
 
@@ -487,10 +489,10 @@ function transformListing(row: GraphQLListing): MLSProperty {
     if (match) mlsNumber = match[1];
   }
 
-  // Auto-close: if close_date is in the past, mark as Sold
+  // Auto-close: if the closing date is in the past, mark as Sold
   let status = row.status;
-  if (row.close_date) {
-    const closeDate = new Date(row.close_date);
+  if (row.sold_date) {
+    const closeDate = new Date(row.sold_date);
     if (closeDate.getTime() < Date.now()) {
       status = 'Sold';
     }
@@ -522,7 +524,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     property_type: row.property_sub_type || row.property_type,
     is_rental: isRentalPropertyType(row.property_type),
     listing_date: row.listing_date,
-    sold_date: row.sold_date || row.close_date,
+    sold_date: row.sold_date ?? null,
     days_on_market: daysOnMarket,
     description: row.description,
     features: {},
@@ -753,19 +755,23 @@ export async function getListings(
     query = query.not('status', 'in', `(${filters.excludedStatuses.join(',')})`);
   }
 
-  // "Sold" is a display-time status: transformRow labels a listing Sold when its
-  // raw status is Sold/Closed OR its close_date has already passed. The status
-  // filters above only see the RAW status, so an Active/Pending row with a past
-  // close_date would slip through and render as "Sold". Mirror the auto-close
-  // rule here so default searches never surface effectively-sold listings, and
-  // an explicit Sold filter returns exactly those. Skipped for keyword searches
-  // (the user is looking up a specific listing, sold or not).
+  // "Sold" is a display-time status: transformListing labels a listing Sold when
+  // its raw status is Sold/Closed OR its closing date has already passed. The
+  // status filters above only see the RAW status, so an Active/Pending row with
+  // a past closing date would slip through and render as "Sold". Mirror the
+  // auto-close rule here so default searches never surface effectively-sold
+  // listings, and an explicit Sold filter returns exactly those. Skipped for
+  // keyword searches (the user is looking up a specific listing, sold or not).
+  //
+  // The closing date lives in `sold_date`. mls_properties has NO close_date
+  // column — naming it here returned Postgres 42703 and failed the whole query,
+  // so every non-keyword search silently came back empty.
   if (!filters.keyword) {
     const nowIso = new Date().toISOString();
     if (filters.soldOnly) {
-      query = query.or(`status.in.(Sold,Closed),close_date.lt.${nowIso}`);
+      query = query.or(`status.in.(Sold,Closed),sold_date.lt.${nowIso}`);
     } else {
-      query = query.or(`close_date.is.null,close_date.gte.${nowIso}`);
+      query = query.or(`sold_date.is.null,sold_date.gte.${nowIso}`);
     }
   }
 
