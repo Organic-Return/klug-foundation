@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getRentals, getRentalCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -38,7 +38,7 @@ export default async function RentalsHubPage(
   { searchParams }: { searchParams: Promise<{ page?: string }> }
 ) {
   const page = pageFrom((await searchParams).page);
-  const [allListings, cities] = await Promise.all([getRentals(), getRentalCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getRentals(undefined, page), getRentalCities()]);
   return (
     <PropertyTypeHub
       type="rentals"
@@ -47,9 +47,9 @@ export default async function RentalsHubPage(
         'From slope-side condos in Snowmass Village to historic Victorians in the Aspen West End, the Roaring Fork Valley offers some of the most sought-after rental properties in Colorado. Whether you are relocating for a season, evaluating a move to the valley, or planning an extended stay, our continuously updated MLS feed surfaces every available rental from Aspen through Basalt and Carbondale.',
         'Klug Properties represents tenants and landlords across the full spectrum of Aspen Snowmass rentals — luxury furnished homes, ski-in/ski-out condos, downtown lock-offs, multi-bedroom estates, and long-term unfurnished residences. Use the filters below to drill into a specific community, or contact our team directly to discuss off-market opportunities and our network of trusted local property managers.',
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath="/rentals"
       cities={cities}
       emptyText="No rental listings on the MLS right now. Reach out — we frequently know about availability before it hits the open market."

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getCommercialListings, getCommercialCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -38,7 +38,7 @@ export default async function CommercialHubPage(
   { searchParams }: { searchParams: Promise<{ page?: string }> }
 ) {
   const page = pageFrom((await searchParams).page);
-  const [allListings, cities] = await Promise.all([getCommercialListings(), getCommercialCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getCommercialListings(undefined, page), getCommercialCities()]);
   return (
     <PropertyTypeHub
       type="commercial"
@@ -47,9 +47,9 @@ export default async function CommercialHubPage(
         'Aspen Snowmass commercial real estate is among the most valuable on a per-square-foot basis in North America. Limited zoning, scarce buildable land, and persistent demand from a global resort economy support unusually strong fundamentals across retail, office, restaurant, hospitality, and mixed-use product. Klug Properties represents buyers, sellers, and investors evaluating the full spectrum of commercial opportunities across Aspen, Snowmass Village, Basalt, and the surrounding Roaring Fork Valley.',
         'The listings below include multi-family income properties (duplex, triplex, apartment buildings), mixed-use buildings, and dedicated commercial spaces currently surfaced on the Aspen Glenwood MLS. For off-market commercial opportunities, 1031 exchange targets, or development-site evaluations, contact our team — we maintain relationships with valley building owners that often surface inventory long before it lists publicly.',
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath="/commercial"
       cities={cities}
       emptyText="No commercial listings on the MLS right now. Off-market opportunities surface frequently — get in touch."

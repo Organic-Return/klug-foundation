@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCommercialListings, getCommercialCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -52,7 +52,7 @@ export default async function CommercialCityPage(
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [allListings, cities] = await Promise.all([getCommercialListings(city), getCommercialCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getCommercialListings(city, page), getCommercialCities()]);
   return (
     <PropertyTypeHub
       type="commercial"
@@ -61,9 +61,9 @@ export default async function CommercialCityPage(
         `${city} commercial property is shaped by limited zoned inventory, persistent demand from a year-round resort economy, and exceptionally strong fundamentals across retail, hospitality, and mixed-use real estate. Klug Properties represents buyers, sellers, and 1031 investors across the full spectrum of commercial opportunities here.`,
         `The listings below include multi-family income property, mixed-use buildings, and dedicated commercial spaces in ${city} currently visible on the Aspen Glenwood MLS. For off-market opportunities, development-site evaluations, or any deal that needs discretion, our team is the right starting point — we know the building owners and can often surface inventory before it lists.`,
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath={`/commercial/${slug}`}
       cities={cities}
       currentCity={city}

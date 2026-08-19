@@ -14,6 +14,14 @@ const COMMERCIAL_SUB_TYPES = ['Commercial', 'Apartment', 'Multi Family', 'Duplex
 // mixing them would make the condo hub answer neither query cleanly.
 const CONDO_SUB_TYPES = ['Condominium'];
 
+/** Listings per page on the property-type hubs. */
+export const HUB_PAGE_SIZE = 48;
+
+export interface HubListings {
+  listings: MLSProperty[];
+  total: number;
+}
+
 // Simple in-memory cache with TTL for expensive dropdown queries
 const memCache = new Map<string, { data: any; expiry: number }>();
 function getCached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promise<T> {
@@ -881,15 +889,16 @@ async function getListingsByPropertyTypes(opts: {
   propertyTypes?: string[];
   propertySubTypes?: string[];
   city?: string | null;
+  page?: number;
   pageSize?: number;
   excludedStatuses?: string[];
-}): Promise<MLSProperty[]> {
-  if (!isSupabaseConfigured()) return [];
-  const pageSize = opts.pageSize ?? 500;
+}): Promise<HubListings> {
+  if (!isSupabaseConfigured()) return { listings: [], total: 0 };
+  const pageSize = opts.pageSize ?? HUB_PAGE_SIZE;
+  const page = Math.max(1, opts.page ?? 1);
   let query = supabase
     .from('mls_properties')
-    .select('*')
-    .limit(pageSize);
+    .select('*', { count: 'exact' });
   if (opts.propertyTypes && opts.propertyTypes.length > 0) {
     // Case-insensitive exact match per value (see getListings) — the feed mixes
     // 'RES Vacant Land' and 'Res Vacant Land'. Values are quoted because they
@@ -918,13 +927,18 @@ async function getListingsByPropertyTypes(opts: {
   const offMarketList = OFF_MARKET_STATUS_VALUES.map((v) => `"${v}"`).join(',');
   query = query.or(`status.is.null,status.not.in.(${offMarketList})`);
   query = query.order('list_price', { ascending: false, nullsFirst: false });
-  const { data, error } = await query;
+
+  // Fetch only the page being rendered. This used to pull up to 500 rows and
+  // slice in memory, which meant every hub paid for the whole result set to
+  // show 48 cards.
+  const from = (page - 1) * pageSize;
+  const { data, error, count } = await query.range(from, from + pageSize - 1);
   if (error) {
     console.error('Error fetching listings by property type:', error);
-    return [];
+    return { listings: [], total: 0 };
   }
   const rows = (data || []).map(transformListing).filter((l) => !isOffMarketStatus(l.status));
-  return deduplicateListings(rows);
+  return { listings: deduplicateListings(rows), total: count ?? rows.length };
 }
 
 // Lightweight listing shape with just the fields the sitemap needs.
@@ -973,30 +987,34 @@ export async function getListingsForSitemap(): Promise<SitemapListingRow[]> {
   return out;
 }
 
-export async function getRentals(city?: string | null): Promise<MLSProperty[]> {
+export async function getRentals(city?: string | null, page = 1): Promise<HubListings> {
   return getListingsByPropertyTypes({
     propertyTypes: EXCLUDED_LEASE_TYPES, // 'Residential Lease', 'Commercial Lease'
     city,
+    page,
   });
 }
 
-export async function getLandListings(city?: string | null): Promise<MLSProperty[]> {
+export async function getLandListings(city?: string | null, page = 1): Promise<HubListings> {
   return getListingsByPropertyTypes({
     propertyTypes: LAND_PROPERTY_TYPES,
     city,
+    page,
   });
 }
 
-export async function getCondoListings(city?: string | null): Promise<MLSProperty[]> {
+export async function getCondoListings(city?: string | null, page = 1): Promise<HubListings> {
   return getListingsByPropertyTypes({
     propertySubTypes: CONDO_SUB_TYPES,
     city,
+    page,
   });
 }
-export async function getCommercialListings(city?: string | null): Promise<MLSProperty[]> {
+export async function getCommercialListings(city?: string | null, page = 1): Promise<HubListings> {
   return getListingsByPropertyTypes({
     propertySubTypes: COMMERCIAL_SUB_TYPES,
     city,
+    page,
   });
 }
 

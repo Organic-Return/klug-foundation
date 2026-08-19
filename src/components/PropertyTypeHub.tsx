@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { getListingHref, type MLSProperty } from '@/lib/listings';
+import { getListingHref, HUB_PAGE_SIZE, type MLSProperty } from '@/lib/listings';
 
 interface PropertyTypeHubProps {
   /** Slug used in URLs — also used to build city-filter links. */
@@ -25,12 +25,6 @@ interface PropertyTypeHubProps {
   basePath?: string;
 }
 
-/**
- * Listings per page. The hubs used to render every match in one document —
- * /condos was 2.2MB of HTML for 487 cards, /rentals 2.1MB — which is a poor
- * LCP on a page whose job is to rank.
- */
-export const HUB_PAGE_SIZE = 48;
 
 const TYPE_COPY: Record<PropertyTypeHubProps['type'], { plural: string; eyebrow: string }> = {
   rentals: { plural: 'rentals', eyebrow: 'For Rent' },

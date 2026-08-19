@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getLandListings, getLandCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -52,7 +52,7 @@ export default async function LandCityPage(
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [allListings, cities] = await Promise.all([getLandListings(city), getLandCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getLandListings(city, page), getLandCities()]);
   return (
     <PropertyTypeHub
       type="land"
@@ -61,9 +61,9 @@ export default async function LandCityPage(
         `Vacant land in ${city} is scarce, scrutinized, and high-leverage — the parcels that come to market here often shape the next generation of mountain real estate in the Roaring Fork Valley. Whether you are evaluating a buildable lot, a recreational acreage, a ranch, or a long-term legacy hold, Klug Properties has the local context and the historical sales data to help you understand what every parcel is really worth.`,
         `The listings below include every vacant residential lot, agricultural parcel, and acreage property in ${city} currently on the Aspen Glenwood MLS. Reach out for off-market opportunities, easement and water-rights questions, or any specific parcel — we have walked most of the buildable land in this valley.`,
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath={`/land/${slug}`}
       cities={cities}
       currentCity={city}

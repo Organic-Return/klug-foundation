@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getLandListings, getLandCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -38,7 +38,7 @@ export default async function LandHubPage(
   { searchParams }: { searchParams: Promise<{ page?: string }> }
 ) {
   const page = pageFrom((await searchParams).page);
-  const [allListings, cities] = await Promise.all([getLandListings(), getLandCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getLandListings(undefined, page), getLandCities()]);
   return (
     <PropertyTypeHub
       type="land"
@@ -47,9 +47,9 @@ export default async function LandHubPage(
         'Aspen Snowmass remains one of the most prized environments in North America to build — and one of the most constrained. With wilderness on three sides, federally protected land bordering most of the valley, and aggressive growth-management policies in Aspen, Snowmass Village, and Pitkin County, vacant developable land is genuinely scarce. The parcels that do come to market move quickly and are an outsized portion of the value of any portfolio that holds them.',
         'The listings below include every vacant residential lot, ranch, agricultural parcel, and large-acreage property currently on the Aspen Glenwood MLS — from buildable in-town lots in Aspen and Snowmass Village to cattle ranches and recreational land farther down-valley. Klug Properties has represented record-setting land sales across the valley; reach out to discuss building potential, easements, water rights, or any specific parcel.',
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath="/land"
       cities={cities}
       emptyText="No land listings on the MLS right now. Reach out — we frequently know about parcels before they list."

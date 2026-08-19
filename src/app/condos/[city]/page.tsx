@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCondoListings, getCondoCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -56,7 +56,7 @@ export default async function CondosCityPage(
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [allListings, cities] = await Promise.all([getCondoListings(city), getCondoCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getCondoListings(city, page), getCondoCities()]);
   return (
     <PropertyTypeHub
       type="condos"
@@ -65,9 +65,9 @@ export default async function CondosCityPage(
         `Every condominium currently listed in ${city} on the Aspen Glenwood MLS, updated continuously. Condo inventory in ${city} turns over faster than single-family homes, and the best units in the strongest buildings are often under contract within days of hitting the market.`,
         `What separates two units at the same price in ${city} is rarely square footage — it is the building. Short-term rental rules, HOA reserves and assessment history, deeded versus fractional ownership, parking, and storage all move value more than the floor plan does. Klug Properties has sold across these buildings for decades; reach out for the history behind any listing below, or to hear about units before they reach the MLS.`,
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath={`/condos/${slug}`}
       cities={cities}
       currentCity={city}

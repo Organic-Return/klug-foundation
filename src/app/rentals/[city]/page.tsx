@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getRentals, getRentalCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
-import PropertyTypeHub, { HUB_PAGE_SIZE } from '@/components/PropertyTypeHub';
+import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
 
@@ -52,7 +52,7 @@ export default async function RentalsCityPage(
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [allListings, cities] = await Promise.all([getRentals(city), getRentalCities()]);
+  const [{ listings, total }, cities] = await Promise.all([getRentals(city, page), getRentalCities()]);
   return (
     <PropertyTypeHub
       type="rentals"
@@ -61,9 +61,9 @@ export default async function RentalsCityPage(
         `Looking for a rental in ${city}? Klug Properties tracks every available unit on the Aspen Glenwood MLS, plus a network of off-market opportunities our team learns about before they hit the public listings.`,
         `${city} renters typically come for the lifestyle as much as the location — proximity to the slopes, the Roaring Fork River, the John Denver Sanctuary, and the year-round Aspen calendar of festivals, music, and outdoor sport. Whether you need a short-term ski-season rental, a furnished corporate placement, or a long-term unfurnished home for a family relocation, the listings below represent the freshest data the MLS exposes. Filter further or reach out to our team directly to discuss timing and pricing.`,
       ]}
-      listings={allListings.slice((page - 1) * HUB_PAGE_SIZE, page * HUB_PAGE_SIZE)}
+      listings={listings}
       page={page}
-      totalCount={allListings.length}
+      totalCount={total}
       basePath={`/rentals/${slug}`}
       cities={cities}
       currentCity={city}
