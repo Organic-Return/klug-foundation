@@ -755,6 +755,16 @@ export async function getListings(
     query = query.not('status', 'in', `(${filters.excludedStatuses.join(',')})`);
   }
 
+  // Off-market listings (expired, withdrawn, canceled) were pulled from the MLS
+  // and 404 on their detail page, so they must not appear in ANY result set —
+  // including keyword searches, which skip every status filter above so that
+  // someone looking up a specific address still finds it whether it is active
+  // or sold. That blanket skip also let withdrawn listings through, and a
+  // search result linking to a 404 is worse than no result at all. Sold/Closed
+  // is deliberately NOT in this list: those keep a page.
+  const offMarketList = OFF_MARKET_STATUS_VALUES.map((s) => `"${s}"`).join(',');
+  query = query.or(`status.is.null,status.not.in.(${offMarketList})`);
+
   // "Sold" is a display-time status: transformListing labels a listing Sold when
   // its raw status is Sold/Closed OR its closing date has already passed. The
   // status filters above only see the RAW status, so an Active/Pending row with
@@ -824,7 +834,12 @@ export async function getListings(
   }
 
   const total = count || 0;
-  const allListings = (data || []).map(transformListing);
+  // Belt and braces on the query-level exclusion above: the IN list is
+  // case-sensitive, so an oddly-cased 'EXPIRED' from the feed would slip past
+  // it. isOffMarketStatus folds case.
+  const allListings = (data || [])
+    .map(transformListing)
+    .filter((l) => !isOffMarketStatus(l.status));
   const listings = deduplicateListings(allListings);
   const dedupedTotal = total - (allListings.length - listings.length);
 
@@ -873,13 +888,17 @@ async function getListingsByPropertyTypes(opts: {
   if (opts.excludedStatuses && opts.excludedStatuses.length > 0) {
     query = query.not('status', 'in', `(${opts.excludedStatuses.join(',')})`);
   }
+  // Same rule as getListings: a listing pulled from the MLS 404s on its detail
+  // page, so it has no business on the /rentals, /land or /commercial hubs.
+  const offMarketList = OFF_MARKET_STATUS_VALUES.map((v) => `"${v}"`).join(',');
+  query = query.or(`status.is.null,status.not.in.(${offMarketList})`);
   query = query.order('list_price', { ascending: false, nullsFirst: false });
   const { data, error } = await query;
   if (error) {
     console.error('Error fetching listings by property type:', error);
     return [];
   }
-  const rows = (data || []).map(transformListing);
+  const rows = (data || []).map(transformListing).filter((l) => !isOffMarketStatus(l.status));
   return deduplicateListings(rows);
 }
 
@@ -1347,16 +1366,23 @@ const STATUSES = [
 // Statuses that mean a listing is permanently off the market and should not be
 // browsable anywhere on the site — it was pulled from the MLS and is no longer
 // for sale. This is distinct from Sold/Closed, which intentionally keep a page
-// (the sold gallery). Matched case-insensitively.
-const OFF_MARKET_STATUSES = new Set([
-  'expired',
-  'withdrawn',
-  'canceled',
-  'cancelled',
-  'deleted',
-  'off market',
-  'off-market',
-]);
+// (the sold gallery).
+//
+// Spelled as the feed stores them so they can be handed straight to a query;
+// isOffMarketStatus() matches case-insensitively for display-time checks.
+export const OFF_MARKET_STATUS_VALUES = [
+  'Expired',
+  'Withdrawn',
+  'Canceled',
+  'Cancelled',
+  'Deleted',
+  'Off Market',
+  'Off-Market',
+];
+
+const OFF_MARKET_STATUSES = new Set(
+  OFF_MARKET_STATUS_VALUES.map((s) => s.toLowerCase())
+);
 
 export function isOffMarketStatus(status: string | null | undefined): boolean {
   if (!status) return false;
