@@ -105,15 +105,25 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
+  // The old title — "Property Listings | MLS Listings" — named neither the
+  // market nor the brand, so this page competed for nothing. Competitors rank
+  // their equivalent page on geo-qualified titles ("Aspen, CO Real Estate &
+  // Homes for Sale"). Static rather than per-filter, because every filtered
+  // variant canonicalizes back to this URL.
+  const siteName = settings?.title || 'Klug Properties';
+  const title = `Aspen & Snowmass Real Estate & Homes for Sale | ${siteName}`;
+  const description =
+    'Search every Aspen and Snowmass home for sale, updated continuously from the Aspen Glenwood MLS. Filter by price, beds, neighborhood, and property type across Aspen, Snowmass Village, Basalt, Carbondale, and the Roaring Fork Valley.';
+
   return {
-    title: 'Property Listings | MLS Listings',
-    description: 'Browse all available property listings from the MLS database.',
+    title,
+    description,
     alternates: {
       canonical: `${baseUrl}/real-estate-for-sale`,
     },
     openGraph: {
-      title: 'Property Listings | MLS Listings',
-      description: 'Browse all available property listings from the MLS database.',
+      title,
+      description,
       url: `${baseUrl}/real-estate-for-sale`,
     },
   };
@@ -293,6 +303,12 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
       {schemas.map((schema, index) => (
         <StructuredData key={index} data={schema} />
       ))}
+      {/*
+        This page had no h1 at all — the layout is a filter bar over a
+        results/map split with no room for a headline. Screen readers and
+        crawlers both want one, so it is visually hidden rather than absent.
+      */}
+      <h1 className="sr-only">Aspen &amp; Snowmass Real Estate and Homes for Sale</h1>
       <ListingsSearchClient
         initialListings={listings}
         initialTotal={total}

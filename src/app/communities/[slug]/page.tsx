@@ -97,8 +97,18 @@ export async function generateMetadata({
     ? urlFor(community.featuredImage)?.width(1200).height(630).url()
     : null;
 
-  // Use custom meta title or fall back to community title
-  const metaTitle = community.seo?.metaTitle || community.title;
+  // Fall back to a geo-qualified title, not the bare community name. "Red
+  // Mountain" and "Old Snowmass" as page titles compete for nothing and say
+  // nothing in a SERP; competitors rank their neighborhood pages on
+  // "<Place> Real Estate & Homes for Sale". An editor-set metaTitle still
+  // wins, and we don't double up when the name already carries the keyword.
+  const communityName = community.title || '';
+  const needsKeyword = !/real estate|homes for sale/i.test(communityName);
+  const metaTitle =
+    community.seo?.metaTitle ||
+    (needsKeyword
+      ? `${communityName} Real Estate & Homes for Sale | Aspen, CO`
+      : communityName);
 
   // Use custom meta description or extract from body/description
   let metaDescription = community.seo?.metaDescription || community.description || community.title;
