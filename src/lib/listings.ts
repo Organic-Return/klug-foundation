@@ -6,6 +6,11 @@ import { parseListingRemarks } from './realogyHelpers';
 // Property types to always exclude (rentals / leases)
 const EXCLUDED_LEASE_TYPES = ['Residential Lease', 'Commercial Lease'];
 
+// Type lists for the property-type hubs. Shared with the city helpers below so
+// the set of cities a hub links to can't drift from the set it can show.
+const LAND_PROPERTY_TYPES = ['RES Vacant Land', 'Commercial Land'];
+const COMMERCIAL_SUB_TYPES = ['Commercial', 'Apartment', 'Multi Family', 'Duplex', 'Triplex'];
+
 // Simple in-memory cache with TTL for expensive dropdown queries
 const memCache = new Map<string, { data: any; expiry: number }>();
 function getCached<T>(key: string, ttlMs: number, fn: () => Promise<T>): Promise<T> {
@@ -968,14 +973,14 @@ export async function getRentals(city?: string | null): Promise<MLSProperty[]> {
 
 export async function getLandListings(city?: string | null): Promise<MLSProperty[]> {
   return getListingsByPropertyTypes({
-    propertyTypes: ['RES Vacant Land', 'Commercial Land'],
+    propertyTypes: LAND_PROPERTY_TYPES,
     city,
   });
 }
 
 export async function getCommercialListings(city?: string | null): Promise<MLSProperty[]> {
   return getListingsByPropertyTypes({
-    propertySubTypes: ['Commercial', 'Apartment', 'Multi Family', 'Duplex', 'Triplex'],
+    propertySubTypes: COMMERCIAL_SUB_TYPES,
     city,
   });
 }
@@ -1284,36 +1289,92 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
   return results;
 }
 
-export function getDistinctCities(): Promise<string[]> {
-  return getCached('distinctCities', 5 * 60 * 1000, async () => {
+// Cities are derived from the ACTIVE inventory, not from every row in the
+// table. The previous implementation scanned the first 5,000 rows ordered by
+// city, which — with 21k sold listings and thousands in Aspen alone — ran out
+// inside the A's: the list was Alamosa, Antonito, Arvada, Ashland, Aspen, and
+// every downvalley market was missing. That 404'd /land/basalt and
+// /rentals/carbondale while publishing empty hubs for towns 200 miles away.
+//
+// Filtering to active statuses keeps the scan comfortably inside one window
+// AND drops towns that have nothing for sale, so a hub page never exists for a
+// place with no inventory.
+const ACTIVE_CITY_STATUSES = [
+  'Active',
+  'Active Under Contract',
+  'Active U/C W/ Bump',
+  'Pending',
+  'Pending Inspect/Feasib',
+  'To Be Built',
+];
+
+interface ActiveCityRow {
+  city: string;
+  property_type: string | null;
+  property_sub_type: string | null;
+}
+
+// One cached scan feeds every city list below.
+function getActiveCityRows(): Promise<ActiveCityRow[]> {
+  return getCached('activeCityRows', 5 * 60 * 1000, async () => {
     if (!isSupabaseConfigured()) return [];
-
-    // Try RPC function first (much more efficient — single query for distinct values)
-    const { data: rpcData, error: rpcError } = await supabase.rpc('get_distinct_cities');
-    if (!rpcError && rpcData) {
-      return (rpcData as { city: string }[]).map((d) => d.city).filter(Boolean);
-    }
-
-    // Fallback: query graphql_listings materialized view (much smaller, ~3K rows)
     const batchSize = 1000;
-    const numBatches = 5;
-    const batchPromises = Array.from({ length: numBatches }, (_, i) =>
-      supabase
-        .from('mls_properties')
-        .select('city')
-        .not('city', 'is', null)
-        .order('city')
-        .range(i * batchSize, (i + 1) * batchSize - 1)
+    const numBatches = 6;
+    const batches = await Promise.all(
+      Array.from({ length: numBatches }, (_, i) =>
+        supabase
+          .from('mls_properties')
+          .select('city, property_type, property_sub_type')
+          .not('city', 'is', null)
+          .in('status', ACTIVE_CITY_STATUSES)
+          .order('city')
+          .range(i * batchSize, (i + 1) * batchSize - 1)
+      )
     );
-
-    const results = await Promise.all(batchPromises);
-    const allCities = new Set<string>();
-    for (const { data } of results) {
-      data?.forEach((d: { city: string }) => { if (d.city) allCities.add(d.city); });
+    const rows: ActiveCityRow[] = [];
+    for (const { data, error } of batches) {
+      if (error) {
+        console.error('Error fetching active cities:', error.message);
+        continue;
+      }
+      for (const r of (data || []) as ActiveCityRow[]) {
+        if (r.city) rows.push(r);
+      }
     }
-
-    return [...allCities].sort();
+    return rows;
   });
+}
+
+export function getDistinctCities(): Promise<string[]> {
+  return getActiveCityRows().then((rows) =>
+    [...new Set(rows.map((r) => r.city))].sort()
+  );
+}
+
+// Cities that actually hold inventory of a given kind. Hub pages resolve their
+// city segment through these, so /land/<city> only exists where there is land
+// to show — and the city links on a hub never point at a page that 404s.
+function citiesMatching(
+  match: (row: ActiveCityRow) => boolean
+): Promise<string[]> {
+  return getActiveCityRows().then((rows) =>
+    [...new Set(rows.filter(match).map((r) => r.city))].sort()
+  );
+}
+
+const eqAny = (value: string | null, options: string[]) =>
+  !!value && options.some((o) => o.toLowerCase() === value.trim().toLowerCase());
+
+export function getRentalCities(): Promise<string[]> {
+  return citiesMatching((r) => eqAny(r.property_type, EXCLUDED_LEASE_TYPES));
+}
+
+export function getLandCities(): Promise<string[]> {
+  return citiesMatching((r) => eqAny(r.property_type, LAND_PROPERTY_TYPES));
+}
+
+export function getCommercialCities(): Promise<string[]> {
+  return citiesMatching((r) => eqAny(r.property_sub_type, COMMERCIAL_SUB_TYPES));
 }
 
 // Main property types from database (property_type column).

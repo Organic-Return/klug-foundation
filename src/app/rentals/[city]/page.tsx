@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getRentals, getDistinctCities } from '@/lib/listings';
+import { getRentals, getRentalCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
@@ -11,7 +11,7 @@ function citySlug(s: string): string {
 }
 
 async function resolveCity(slug: string): Promise<string | null> {
-  const cities = await getDistinctCities();
+  const cities = await getRentalCities();
   const target = slug.toLowerCase();
   return cities.find((c) => citySlug(c) === target) ?? null;
 }
@@ -36,7 +36,7 @@ export default async function RentalsCityPage({ params }: { params: Promise<{ ci
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [listings, cities] = await Promise.all([getRentals(city), getDistinctCities()]);
+  const [listings, cities] = await Promise.all([getRentals(city), getRentalCities()]);
   return (
     <PropertyTypeHub
       type="rentals"

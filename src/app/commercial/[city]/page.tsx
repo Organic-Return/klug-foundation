@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getCommercialListings, getDistinctCities } from '@/lib/listings';
+import { getCommercialListings, getCommercialCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
@@ -11,7 +11,7 @@ function citySlug(s: string): string {
 }
 
 async function resolveCity(slug: string): Promise<string | null> {
-  const cities = await getDistinctCities();
+  const cities = await getCommercialCities();
   const target = slug.toLowerCase();
   return cities.find((c) => citySlug(c) === target) ?? null;
 }
@@ -36,7 +36,7 @@ export default async function CommercialCityPage({ params }: { params: Promise<{
   const { city: slug } = await params;
   const city = await resolveCity(slug);
   if (!city) notFound();
-  const [listings, cities] = await Promise.all([getCommercialListings(city), getDistinctCities()]);
+  const [listings, cities] = await Promise.all([getCommercialListings(city), getCommercialCities()]);
   return (
     <PropertyTypeHub
       type="commercial"

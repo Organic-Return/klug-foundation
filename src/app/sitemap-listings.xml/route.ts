@@ -1,5 +1,11 @@
 import { unstable_cache } from 'next/cache';
-import { getListingsForSitemap, getListingHref, getDistinctCities } from '@/lib/listings';
+import {
+  getListingsForSitemap,
+  getListingHref,
+  getRentalCities,
+  getLandCities,
+  getCommercialCities,
+} from '@/lib/listings';
 import {
   getSiteBaseUrl,
   renderUrlset,
@@ -38,20 +44,29 @@ const buildEntries = unstable_cache(
       return out;
     };
 
-    const [listingEntries, distinctCities] = await Promise.all([
+    const [listingEntries, rentalCities, landCities, commercialCities] = await Promise.all([
       withTimeout(fetchListingEntries(), [] as SitemapEntry[], 'mls-listings', 90_000),
-      withTimeout(getDistinctCities(), [] as string[], 'cities'),
+      withTimeout(getRentalCities(), [] as string[], 'rental-cities'),
+      withTimeout(getLandCities(), [] as string[], 'land-cities'),
+      withTimeout(getCommercialCities(), [] as string[], 'commercial-cities'),
     ]);
 
-    // Property-type × city sub-hubs: /rentals/<city>, /commercial/<city>, /land/<city>
+    // Property-type × city sub-hubs: /rentals/<city>, /commercial/<city>,
+    // /land/<city>. Each type gets the cities that actually hold that kind of
+    // inventory — the old version crossed every city with every type, so the
+    // sitemap advertised hubs that render empty or 404 outright.
     const citySlug = (s: string) => s.toLowerCase().replace(/\s+/g, '-');
     const cityHubs: SitemapEntry[] = [];
-    for (const c of distinctCities) {
-      const slug = citySlug(c);
-      if (!slug) continue;
-      for (const t of ['rentals', 'commercial', 'land'] as const) {
+    for (const [type, cities] of [
+      ['rentals', rentalCities],
+      ['land', landCities],
+      ['commercial', commercialCities],
+    ] as const) {
+      for (const c of cities) {
+        const slug = citySlug(c);
+        if (!slug) continue;
         cityHubs.push({
-          url: `${baseUrl}/${t}/${slug}`,
+          url: `${baseUrl}/${type}/${slug}`,
           lastModified: new Date(),
           changeFrequency: 'daily',
           priority: 0.6,

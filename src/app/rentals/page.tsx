@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getRentals, getDistinctCities } from '@/lib/listings';
+import { getRentals, getRentalCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
@@ -22,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RentalsHubPage() {
-  const [listings, cities] = await Promise.all([getRentals(), getDistinctCities()]);
+  const [listings, cities] = await Promise.all([getRentals(), getRentalCities()]);
   return (
     <PropertyTypeHub
       type="rentals"
