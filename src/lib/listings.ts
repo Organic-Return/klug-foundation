@@ -785,6 +785,17 @@ export async function getListings(
     }
   }
 
+  // A keyword search returns sold listings alongside active ones on purpose —
+  // someone typing an address should find the property either way — so lead
+  // with what is still on the market. sold_date is NULL for anything unsold,
+  // and nullsFirst floats that whole group to the top. This is the PRIMARY
+  // sort, so the chosen sort below still orders listings within each group:
+  // every active listing ties on NULL and falls back to it, and sold listings
+  // come back most-recent-sale-first.
+  if (filters.keyword) {
+    query = query.order('sold_date', { ascending: false, nullsFirst: true });
+  }
+
   // Apply sorting
   const sort = filters.sort || 'newest';
   switch (sort) {
