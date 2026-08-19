@@ -90,7 +90,10 @@ export async function generateMetadata(): Promise<Metadata> {
     client.fetch<TeamPageDoc | null>(TEAM_PAGE_QUERY, {}, options),
   ]);
   const isRCTemplate = process.env.NEXT_PUBLIC_SITE_TEMPLATE === 'rcsothebys-custom';
-  const path = isRCTemplate ? 'agents' : 'team';
+  // Self-referencing canonical. This used to be 'team', but /team is a
+  // permanent redirect back to /about/our-team (see next.config.ts), so the
+  // page was pointing its canonical at a redirect to itself.
+  const path = isRCTemplate ? 'agents' : 'about/our-team';
   const heroTitle = page?.heroTitle || (isRCTemplate ? 'Our Agents' : 'Our Team');
   const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
   const description = page?.seo?.metaDescription

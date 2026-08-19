@@ -91,6 +91,17 @@ const nextConfig: NextConfig = {
       { source: '/team', destination: '/about/our-team', permanent: true },
       { source: '/affiliated-partners', destination: '/about/partners', permanent: true },
       { source: '/affiliated-partners/ski-town', destination: '/about/ski-town-partners', permanent: true },
+      // Drupal-era paths that the rebuild moved but nothing redirected. Every
+      // one of these 404s today while the live page's canonical tag still
+      // pointed at it, so search engines were told the real version of each
+      // page was a dead URL.
+      { source: '/listings', destination: '/real-estate-for-sale', permanent: true },
+      { source: '/videos/:id', destination: '/media/videos/:id', permanent: true },
+      { source: '/living-aspen', destination: '/media/living-aspen-magazine', permanent: true },
+      { source: '/living-aspen/:slug', destination: '/media/living-aspen-magazine/:slug', permanent: true },
+      { source: '/testimonials', destination: '/about/testimonials', permanent: true },
+      { source: '/blog', destination: '/about/blog', permanent: true },
+      { source: '/why-klug-properties', destination: '/about/why-klug-properties', permanent: true },
     ];
   },
   async headers() {

@@ -79,13 +79,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `${baseUrl}/living-aspen`,
+      canonical: `${baseUrl}/media/living-aspen-magazine`,
     },
     openGraph: {
       title,
       description,
       type: 'website',
-      url: `${baseUrl}/living-aspen`,
+      url: `${baseUrl}/media/living-aspen-magazine`,
     },
   };
 }

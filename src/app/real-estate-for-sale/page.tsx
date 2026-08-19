@@ -89,12 +89,12 @@ function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total:
   const collectionPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    '@id': `${baseUrl}/listings`,
+    '@id': `${baseUrl}/real-estate-for-sale`,
     name: 'Property Listings',
     description: 'Browse all available property listings from the MLS database.',
-    url: `${baseUrl}/listings`,
+    url: `${baseUrl}/real-estate-for-sale`,
     mainEntity: {
-      '@id': `${baseUrl}/listings#itemlist`,
+      '@id': `${baseUrl}/real-estate-for-sale#itemlist`,
     },
   };
 
@@ -109,12 +109,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: 'Property Listings | MLS Listings',
     description: 'Browse all available property listings from the MLS database.',
     alternates: {
-      canonical: `${baseUrl}/listings`,
+      canonical: `${baseUrl}/real-estate-for-sale`,
     },
     openGraph: {
       title: 'Property Listings | MLS Listings',
       description: 'Browse all available property listings from the MLS database.',
-      url: `${baseUrl}/listings`,
+      url: `${baseUrl}/real-estate-for-sale`,
     },
   };
 }

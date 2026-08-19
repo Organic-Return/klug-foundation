@@ -89,13 +89,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title: metaTitle,
     description: metaDescription,
     alternates: {
-      canonical: `${baseUrl}/why-klug-properties`,
+      canonical: `${baseUrl}/about/why-klug-properties`,
     },
     openGraph: {
       title: metaTitle,
       description: metaDescription,
       type: 'website',
-      url: `${baseUrl}/why-klug-properties`,
+      url: `${baseUrl}/about/why-klug-properties`,
       images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
     },
   };

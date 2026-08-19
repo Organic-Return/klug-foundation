@@ -85,13 +85,13 @@ export async function generateMetadata(): Promise<Metadata> {
     title: metaTitle,
     description: metaDescription,
     alternates: {
-      canonical: `${baseUrl}/testimonials`,
+      canonical: `${baseUrl}/about/testimonials`,
     },
     openGraph: {
       title: metaTitle,
       description: metaDescription,
       type: 'website',
-      url: `${baseUrl}/testimonials`,
+      url: `${baseUrl}/about/testimonials`,
       images: ogImageUrl ? [{ url: ogImageUrl, width: 1200, height: 630 }] : [],
     },
   };
@@ -175,7 +175,7 @@ export default async function TestimonialsPage() {
   // Generate Review schema for each testimonial
   const reviewSchemas = allTestimonials.map((testimonial: any, index: number) => ({
     '@type': 'Review',
-    '@id': `${baseUrl}/testimonials#review-${index}`,
+    '@id': `${baseUrl}/about/testimonials#review-${index}`,
     reviewBody: testimonial.quote,
     author: {
       '@type': 'Person',

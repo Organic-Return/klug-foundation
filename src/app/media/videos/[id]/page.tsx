@@ -51,11 +51,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${snippet.title} | ${siteName}`,
     description,
-    alternates: { canonical: `${baseUrl}/videos/${id}` },
+    alternates: { canonical: `${baseUrl}/media/videos/${id}` },
     openGraph: {
       title: snippet.title,
       description,
-      url: `${baseUrl}/videos/${id}`,
+      url: `${baseUrl}/media/videos/${id}`,
       images: ogImage ? [{ url: ogImage }] : undefined,
       type: 'video.other',
     },

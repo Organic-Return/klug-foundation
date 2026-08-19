@@ -56,7 +56,7 @@ export async function generateMetadata({
   const metaDescription = magazine.seo?.metaDescription || magazine.excerpt || magazine.title;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const canonicalUrl = `${baseUrl}/living-aspen/${slug}`;
+  const canonicalUrl = `${baseUrl}/media/living-aspen-magazine/${slug}`;
 
   const robotsConfig = magazine.seo?.noIndex
     ? { index: false, follow: false }
