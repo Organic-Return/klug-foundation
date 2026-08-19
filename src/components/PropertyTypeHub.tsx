@@ -4,7 +4,7 @@ import { getListingHref, type MLSProperty } from '@/lib/listings';
 
 interface PropertyTypeHubProps {
   /** Slug used in URLs — also used to build city-filter links. */
-  type: 'rentals' | 'commercial' | 'land';
+  type: 'rentals' | 'commercial' | 'land' | 'condos';
   /** Hero h1 text. */
   title: string;
   /** Long-form intro paragraph(s). Each paragraph rendered as its own <p>. */
@@ -23,6 +23,7 @@ const TYPE_COPY: Record<PropertyTypeHubProps['type'], { plural: string; eyebrow:
   rentals: { plural: 'rentals', eyebrow: 'For Rent' },
   commercial: { plural: 'commercial properties', eyebrow: 'Commercial' },
   land: { plural: 'land + acreage listings', eyebrow: 'Land for Sale' },
+  condos: { plural: 'condos', eyebrow: 'Condos for Sale' },
 };
 
 function citySlug(city: string): string {

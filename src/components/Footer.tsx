@@ -346,6 +346,9 @@ export default function Footer({
             <Link href="/real-estate-for-sale" className="hover:text-[var(--color-gold)] transition-colors">
               Homes for Sale
             </Link>
+            <Link href="/condos" className="hover:text-[var(--color-gold)] transition-colors">
+              Condos
+            </Link>
             <Link href="/rentals" className="hover:text-[var(--color-gold)] transition-colors">
               Rentals
             </Link>

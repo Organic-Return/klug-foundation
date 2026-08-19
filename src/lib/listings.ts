@@ -10,6 +10,9 @@ const EXCLUDED_LEASE_TYPES = ['Residential Lease', 'Commercial Lease'];
 // the set of cities a hub links to can't drift from the set it can show.
 const LAND_PROPERTY_TYPES = ['RES Vacant Land', 'Commercial Land'];
 const COMMERCIAL_SUB_TYPES = ['Commercial', 'Apartment', 'Multi Family', 'Duplex', 'Triplex'];
+// Condominium only. Townhouse is a distinct sub-type and a distinct search —
+// mixing them would make the condo hub answer neither query cleanly.
+const CONDO_SUB_TYPES = ['Condominium'];
 
 // Simple in-memory cache with TTL for expensive dropdown queries
 const memCache = new Map<string, { data: any; expiry: number }>();
@@ -978,6 +981,12 @@ export async function getLandListings(city?: string | null): Promise<MLSProperty
   });
 }
 
+export async function getCondoListings(city?: string | null): Promise<MLSProperty[]> {
+  return getListingsByPropertyTypes({
+    propertySubTypes: CONDO_SUB_TYPES,
+    city,
+  });
+}
 export async function getCommercialListings(city?: string | null): Promise<MLSProperty[]> {
   return getListingsByPropertyTypes({
     propertySubTypes: COMMERCIAL_SUB_TYPES,
@@ -1375,6 +1384,10 @@ export function getLandCities(): Promise<string[]> {
 
 export function getCommercialCities(): Promise<string[]> {
   return citiesMatching((r) => eqAny(r.property_sub_type, COMMERCIAL_SUB_TYPES));
+}
+
+export function getCondoCities(): Promise<string[]> {
+  return citiesMatching((r) => eqAny(r.property_sub_type, CONDO_SUB_TYPES));
 }
 
 // Main property types from database (property_type column).

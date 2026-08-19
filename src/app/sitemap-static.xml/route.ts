@@ -34,6 +34,7 @@ export async function GET(): Promise<Response> {
     { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${baseUrl}/terms-of-service`, lastModified: now, changeFrequency: 'yearly', priority: 0.2 },
     { url: `${baseUrl}/contact-us`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/condos`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/rentals`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/commercial`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
     { url: `${baseUrl}/land`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },

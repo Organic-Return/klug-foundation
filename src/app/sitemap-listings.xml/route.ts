@@ -5,6 +5,7 @@ import {
   getRentalCities,
   getLandCities,
   getCommercialCities,
+  getCondoCities,
 } from '@/lib/listings';
 import {
   getSiteBaseUrl,
@@ -44,11 +45,12 @@ const buildEntries = unstable_cache(
       return out;
     };
 
-    const [listingEntries, rentalCities, landCities, commercialCities] = await Promise.all([
+    const [listingEntries, rentalCities, landCities, commercialCities, condoCities] = await Promise.all([
       withTimeout(fetchListingEntries(), [] as SitemapEntry[], 'mls-listings', 90_000),
       withTimeout(getRentalCities(), [] as string[], 'rental-cities'),
       withTimeout(getLandCities(), [] as string[], 'land-cities'),
       withTimeout(getCommercialCities(), [] as string[], 'commercial-cities'),
+      withTimeout(getCondoCities(), [] as string[], 'condo-cities'),
     ]);
 
     // Property-type × city sub-hubs: /rentals/<city>, /commercial/<city>,
@@ -61,6 +63,7 @@ const buildEntries = unstable_cache(
       ['rentals', rentalCities],
       ['land', landCities],
       ['commercial', commercialCities],
+      ['condos', condoCities],
     ] as const) {
       for (const c of cities) {
         const slug = citySlug(c);
