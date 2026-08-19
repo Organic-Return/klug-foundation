@@ -907,6 +907,12 @@ async function getListingsByPropertyTypes(opts: {
   if (opts.excludedStatuses && opts.excludedStatuses.length > 0) {
     query = query.not('status', 'in', `(${opts.excludedStatuses.join(',')})`);
   }
+  // On-market only. These hubs are "<type> for sale" pages, but the query had
+  // no status filter, so sold listings padded the grid and the count — /condos
+  // read "500 properties" (the query cap) against 487 actually for sale. It
+  // also disagreed with the city links, which have always been derived from
+  // active inventory.
+  query = query.in('status', ACTIVE_STATUSES);
   // Same rule as getListings: a listing pulled from the MLS 404s on its detail
   // page, so it has no business on the /rentals, /land or /commercial hubs.
   const offMarketList = OFF_MARKET_STATUS_VALUES.map((v) => `"${v}"`).join(',');
@@ -1308,7 +1314,7 @@ export async function getOpenHouseListings(): Promise<MLSProperty[]> {
 // Filtering to active statuses keeps the scan comfortably inside one window
 // AND drops towns that have nothing for sale, so a hub page never exists for a
 // place with no inventory.
-const ACTIVE_CITY_STATUSES = [
+const ACTIVE_STATUSES = [
   'Active',
   'Active Under Contract',
   'Active U/C W/ Bump',
@@ -1335,7 +1341,7 @@ function getActiveCityRows(): Promise<ActiveCityRow[]> {
           .from('mls_properties')
           .select('city, property_type, property_sub_type')
           .not('city', 'is', null)
-          .in('status', ACTIVE_CITY_STATUSES)
+          .in('status', ACTIVE_STATUSES)
           .order('city')
           .range(i * batchSize, (i + 1) * batchSize - 1)
       )
