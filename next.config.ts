@@ -96,7 +96,12 @@ const nextConfig: NextConfig = {
       // pointed at it, so search engines were told the real version of each
       // page was a dead URL.
       { source: '/listings', destination: '/real-estate-for-sale', permanent: true },
-      { source: '/videos/:id', destination: '/media/videos/:id', permanent: true },
+      // Constrained to an 11-char YouTube id, because /media/videos/[id] looks
+      // the video up by YouTube id and nothing else. The Drupal site also had
+      // slug-style video URLs (/videos/chaparral-ranch-lot-6) that can never
+      // resolve there — those keep 404ing honestly instead of taking a hop to
+      // a 404.
+      { source: '/videos/:id([A-Za-z0-9_-]{11})', destination: '/media/videos/:id', permanent: true },
       { source: '/living-aspen', destination: '/media/living-aspen-magazine', permanent: true },
       { source: '/living-aspen/:slug', destination: '/media/living-aspen-magazine/:slug', permanent: true },
       { source: '/testimonials', destination: '/about/testimonials', permanent: true },
