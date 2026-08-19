@@ -892,6 +892,8 @@ async function getListingsByPropertyTypes(opts: {
   page?: number;
   pageSize?: number;
   excludedStatuses?: string[];
+  /** Rentals hub only — keep lease listings in the result. */
+  includeLeases?: boolean;
 }): Promise<HubListings> {
   if (!isSupabaseConfigured()) return { listings: [], total: 0 };
   const pageSize = opts.pageSize ?? HUB_PAGE_SIZE;
@@ -922,12 +924,21 @@ async function getListingsByPropertyTypes(opts: {
   // also disagreed with the city links, which have always been derived from
   // active inventory.
   query = query.in('status', ACTIVE_STATUSES);
-  // ...and mirror the display-time auto-close rule that getListings applies.
-  // A row can still carry an Active status while its sold_date has passed;
-  // transformListing labels those Sold, so counting them here inflated the hub
-  // against the search page — 394 Aspen condos versus the 173 actually for
-  // sale.
+  // Mirror the display-time auto-close rule getListings applies: a row can
+  // carry an Active status while its sold_date has already passed, and
+  // transformListing labels exactly those Sold.
   query = query.or(`sold_date.is.null,sold_date.gte.${new Date().toISOString()}`);
+
+  // A sub-type hub selects on property_sub_type alone, and 'Condominium' or
+  // 'Commercial' describes a lease listing just as well as a sale. Without
+  // this, /condos/aspen carried 222 monthly rentals — $7,500 and $12,000
+  // "condos" — alongside 172 genuine sales. /rentals opts back in, since
+  // selecting lease types is the whole point of that hub.
+  if (!opts.includeLeases) {
+    query = query.or(
+      `property_type.not.in.(${EXCLUDED_LEASE_TYPES.join(',')}),property_type.is.null`
+    );
+  }
   // Same rule as getListings: a listing pulled from the MLS 404s on its detail
   // page, so it has no business on the /rentals, /land or /commercial hubs.
   const offMarketList = OFF_MARKET_STATUS_VALUES.map((v) => `"${v}"`).join(',');
@@ -998,6 +1009,7 @@ export async function getRentals(city?: string | null, page = 1): Promise<HubLis
     propertyTypes: EXCLUDED_LEASE_TYPES, // 'Residential Lease', 'Commercial Lease'
     city,
     page,
+    includeLeases: true,
   });
 }
 
