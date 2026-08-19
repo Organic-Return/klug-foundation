@@ -922,6 +922,12 @@ async function getListingsByPropertyTypes(opts: {
   // also disagreed with the city links, which have always been derived from
   // active inventory.
   query = query.in('status', ACTIVE_STATUSES);
+  // ...and mirror the display-time auto-close rule that getListings applies.
+  // A row can still carry an Active status while its sold_date has passed;
+  // transformListing labels those Sold, so counting them here inflated the hub
+  // against the search page — 394 Aspen condos versus the 173 actually for
+  // sale.
+  query = query.or(`sold_date.is.null,sold_date.gte.${new Date().toISOString()}`);
   // Same rule as getListings: a listing pulled from the MLS 404s on its detail
   // page, so it has no business on the /rentals, /land or /commercial hubs.
   const offMarketList = OFF_MARKET_STATUS_VALUES.map((v) => `"${v}"`).join(',');
