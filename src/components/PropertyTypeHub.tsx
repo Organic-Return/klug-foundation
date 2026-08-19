@@ -17,7 +17,20 @@ interface PropertyTypeHubProps {
   currentCity?: string | null;
   /** Empty-state copy when listings.length === 0. */
   emptyText?: string;
+  /** 1-based page currently being shown. Omit for a single-page hub. */
+  page?: number;
+  /** Total listings across all pages — `listings` holds just this page. */
+  totalCount?: number;
+  /** Path the pager links to, e.g. "/condos" or "/condos/aspen". */
+  basePath?: string;
 }
+
+/**
+ * Listings per page. The hubs used to render every match in one document —
+ * /condos was 2.2MB of HTML for 487 cards, /rentals 2.1MB — which is a poor
+ * LCP on a page whose job is to rank.
+ */
+export const HUB_PAGE_SIZE = 48;
 
 const TYPE_COPY: Record<PropertyTypeHubProps['type'], { plural: string; eyebrow: string }> = {
   rentals: { plural: 'rentals', eyebrow: 'For Rent' },
@@ -48,8 +61,17 @@ export default function PropertyTypeHub({
   cities,
   currentCity,
   emptyText,
+  page = 1,
+  totalCount,
+  basePath,
 }: PropertyTypeHubProps) {
   const typeCopy = TYPE_COPY[type];
+  const total = totalCount ?? listings.length;
+  const totalPages = Math.max(1, Math.ceil(total / HUB_PAGE_SIZE));
+  const pagerBase = basePath ?? `/${type}`;
+  const firstOnPage = total === 0 ? 0 : (page - 1) * HUB_PAGE_SIZE + 1;
+  const lastOnPage = Math.min(page * HUB_PAGE_SIZE, total);
+  const pageHref = (n: number) => (n <= 1 ? pagerBase : `${pagerBase}?page=${n}`);
   const otherTypes = (Object.keys(TYPE_COPY) as Array<PropertyTypeHubProps['type']>).filter((t) => t !== type);
 
   return (
@@ -117,7 +139,9 @@ export default function PropertyTypeHub({
               {currentCity ? `${currentCity} ${typeCopy.plural}` : `All ${typeCopy.plural}`}
             </h2>
             <span className="text-sm text-[#6a6a6a] dark:text-gray-400 font-light">
-              {listings.length} {listings.length === 1 ? 'property' : 'properties'}
+              {totalPages > 1
+                ? `Showing ${firstOnPage}–${lastOnPage} of ${total} properties`
+                : `${total} ${total === 1 ? 'property' : 'properties'}`}
             </span>
           </div>
 
@@ -173,6 +197,53 @@ export default function PropertyTypeHub({
                 );
               })}
             </div>
+          )}
+
+          {totalPages > 1 && (
+            <nav
+              aria-label="Pagination"
+              className="mt-12 flex flex-wrap items-center justify-center gap-2"
+            >
+              {page > 1 && (
+                <Link
+                  href={pageHref(page - 1)}
+                  rel="prev"
+                  className="text-sm px-4 py-2 border border-[#e8e6e3] dark:border-gray-700 text-[#4a4a4a] dark:text-gray-300 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors"
+                >
+                  Previous
+                </Link>
+              )}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                // First, last, and a window around the current page.
+                .filter((n) => n === 1 || n === totalPages || Math.abs(n - page) <= 2)
+                .map((n, i, shown) => (
+                  <span key={n} className="flex items-center gap-2">
+                    {i > 0 && shown[i - 1] !== n - 1 && (
+                      <span className="text-[#aaa] text-sm">…</span>
+                    )}
+                    <Link
+                      href={pageHref(n)}
+                      aria-current={n === page ? 'page' : undefined}
+                      className={`text-sm px-4 py-2 border transition-colors ${
+                        n === page
+                          ? 'bg-[var(--color-sothebys-blue)] text-white border-[var(--color-sothebys-blue)]'
+                          : 'border-[#e8e6e3] dark:border-gray-700 text-[#4a4a4a] dark:text-gray-300 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)]'
+                      }`}
+                    >
+                      {n}
+                    </Link>
+                  </span>
+                ))}
+              {page < totalPages && (
+                <Link
+                  href={pageHref(page + 1)}
+                  rel="next"
+                  className="text-sm px-4 py-2 border border-[#e8e6e3] dark:border-gray-700 text-[#4a4a4a] dark:text-gray-300 hover:border-[var(--color-gold)] hover:text-[var(--color-gold)] transition-colors"
+                >
+                  Next
+                </Link>
+              )}
+            </nav>
           )}
         </div>
       </section>
