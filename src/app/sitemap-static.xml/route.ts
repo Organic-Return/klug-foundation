@@ -19,7 +19,7 @@ export async function GET(): Promise<Response> {
     { url: `${baseUrl}/aspen-snowmass-market-reports`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/media/living-aspen-magazine`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/about/testimonials`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/why-klug-properties`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/about/why-klug-properties`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/about/partners`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${baseUrl}/affiliated-partners/market-leaders`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${baseUrl}/about/ski-town-partners`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
