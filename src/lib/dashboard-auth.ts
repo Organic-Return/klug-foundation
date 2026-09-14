@@ -1,11 +1,13 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getSiteKey } from './site';
 
 export interface AgentProfile {
   id: string;
   email: string;
   name: string;
   role: 'admin' | 'agent';
+  site: string | null;
   sanity_team_member_id: string | null;
   created_at: string;
 }
@@ -34,6 +36,9 @@ export async function getAuthenticatedAgent(request: NextRequest): Promise<Agent
     .from('agent_profiles')
     .select('*')
     .eq('id', user.id)
+    // A login only counts on the site its profile belongs to; the same
+    // Supabase project serves several websites.
+    .eq('site', getSiteKey())
     .single();
 
   return profile as AgentProfile | null;

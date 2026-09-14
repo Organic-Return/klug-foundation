@@ -1,4 +1,5 @@
 import { getSupabaseServer } from './supabase-server';
+import { getSiteKey } from './site';
 import { supabase } from './supabase';
 import { client } from '@/sanity/client';
 
@@ -33,6 +34,7 @@ export interface LeadInput {
 }
 
 export interface Lead {
+  site: string | null;
   id: string;
   created_at: string;
   first_name: string;
@@ -166,9 +168,9 @@ export async function createLead(
     return null;
   }
 
-  const { data, error } = await sb
-    .from('leads')
-    .insert({
+  const site = getSiteKey();
+  const row = {
+      site,
       first_name: input.firstName,
       last_name: input.lastName,
       email: input.email,
@@ -194,9 +196,18 @@ export async function createLead(
       fbclid: input.fbclid || null,
       msclkid: input.msclkid || null,
       landing_page: input.landingPage || null,
-    })
-    .select()
-    .single();
+  };
+
+  let { data, error } = await sb.from('leads').insert(row).select().single();
+
+  // Until the add_site_column_to_leads migration has been run, the `site`
+  // column does not exist and the insert is rejected. Losing the lead would
+  // be worse than storing it untagged, so store it and shout about it.
+  if (error && /\bsite\b/i.test(error.message || '')) {
+    console.error('leads.site column is missing — run supabase/migrations/add_site_column_to_leads.sql. Storing lead without a site tag.');
+    const { site: _omit, ...withoutSite } = row;
+    ({ data, error } = await sb.from('leads').insert(withoutSite).select().single());
+  }
 
   if (error) {
     console.error('Error creating lead:', error);
@@ -213,7 +224,7 @@ export async function updateLeadClozeId(leadId: string, clozeId: string): Promis
   const sb = getSupabaseServer();
   if (!sb) return;
 
-  await sb.from('leads').update({ cloze_id: clozeId }).eq('id', leadId);
+  await sb.from('leads').update({ cloze_id: clozeId }).eq('id', leadId).eq('site', getSiteKey());
 }
 
 /**
@@ -234,6 +245,7 @@ export async function getLeadsForAgent(
   let query = sb
     .from('leads')
     .select('*', { count: 'exact' })
+    .eq('site', getSiteKey())
     .eq('assigned_agent_email', agentEmail)
     .order('created_at', { ascending: false })
     .range(from, to);
@@ -270,6 +282,7 @@ export async function getAllLeads(
   let query = sb
     .from('leads')
     .select('*', { count: 'exact' })
+    .eq('site', getSiteKey())
     .order('created_at', { ascending: false })
     .range(from, to);
 
@@ -302,7 +315,7 @@ export async function updateLeadStatus(
   const update: Record<string, string> = { status };
   if (notes !== undefined) update.notes = notes;
 
-  const { error } = await sb.from('leads').update(update).eq('id', leadId);
+  const { error } = await sb.from('leads').update(update).eq('id', leadId).eq('site', getSiteKey());
 
   if (error) {
     console.error('Error updating lead status:', error);

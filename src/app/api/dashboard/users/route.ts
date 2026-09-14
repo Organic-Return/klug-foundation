@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { requireAdmin } from '@/lib/dashboard-auth';
+import { getSiteKey } from '@/lib/site';
 
 function getAdminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await supabase
     .from('agent_profiles')
     .select('*')
+    .eq('site', getSiteKey())
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -80,6 +82,7 @@ export async function POST(request: NextRequest) {
       email,
       name,
       role: role || 'agent',
+      site: getSiteKey(),
     });
 
   if (profileError) {

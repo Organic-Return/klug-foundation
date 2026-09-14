@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedAgent } from '@/lib/dashboard-auth';
 import { getSupabaseServer } from '@/lib/supabase-server';
+import { getSiteKey } from '@/lib/site';
 
 interface SourceBreakdownRow {
   bucket: string;
@@ -45,6 +46,7 @@ export async function GET(request: NextRequest) {
   let query = sb
     .from('leads')
     .select('utm_source, utm_medium, utm_campaign, gclid, fbclid, msclkid, referrer')
+    .eq('site', getSiteKey())
     .gte('created_at', since);
 
   if (profile.role !== 'admin') {
