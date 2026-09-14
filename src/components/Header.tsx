@@ -290,10 +290,12 @@ export default function Header({
                 )}
 
                 {/* Mega Menu Dropdown */}
-                {item.hasMegaMenu && item.megaMenuColumns && activeDropdown === index && (() => {
+                {/* Menus are rendered whether open or not, so their pages are real
+                    links in the server HTML for crawlers; CSS hides them until opened. */}
+                {item.hasMegaMenu && item.megaMenuColumns && (() => {
                   const isSkiTown = item.label.toLowerCase().includes('ski town') || item.label.toLowerCase().includes('affiliated');
                   return (
-                  <div id={`nav-dropdown-${index}`} role="menu" className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-screen max-w-4xl px-4">
+                  <div id={`nav-dropdown-${index}`} role="menu" className={`fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-screen max-w-4xl px-4 ${activeDropdown === index ? 'block' : 'hidden'}`}>
                     <div className={`shadow-2xl p-8 border relative ${isSkiTown ? 'bg-[#00254a] border-[#00254a]' : 'bg-white border-gray-100'}`}>
                       <button
                         onClick={() => setActiveDropdown(null)}
@@ -372,8 +374,8 @@ export default function Header({
                 })()}
 
                 {/* Simple Dropdown */}
-                {!item.hasMegaMenu && item.simpleDropdown && item.simpleDropdown.length > 0 && activeDropdown === index && (
-                  <div id={`nav-dropdown-${index}`} role="menu" className="fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-64">
+                {!item.hasMegaMenu && item.simpleDropdown && item.simpleDropdown.length > 0 && (
+                  <div id={`nav-dropdown-${index}`} role="menu" className={`fixed left-1/2 -translate-x-1/2 top-20 pt-2 w-64 ${activeDropdown === index ? 'block' : 'hidden'}`}>
                     <div className="bg-white shadow-xl py-4 border border-gray-100 relative">
                       <button
                         onClick={() => setActiveDropdown(null)}

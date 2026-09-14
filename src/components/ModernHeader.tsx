@@ -197,8 +197,8 @@ export default function ModernHeader({
                   )}
 
                   {/* Dropdown Menu */}
-                  {(item.hasMegaMenu || item.simpleDropdown) && activeDropdown === index && (
-                    <div className="absolute top-full left-0 pt-2">
+                  {(item.hasMegaMenu || item.simpleDropdown) && (
+                    <div className={`absolute top-full left-0 pt-2 ${activeDropdown === index ? 'block' : 'hidden'}`}>
                       <div className="bg-white shadow-2xl min-w-[280px]">
                         {item.simpleDropdown && (
                           <div className="py-4">
@@ -317,8 +317,8 @@ export default function ModernHeader({
                     )}
 
                     {/* Dropdown Menu */}
-                    {(item.hasMegaMenu || item.simpleDropdown) && activeDropdown === actualIndex && (
-                      <div className="absolute top-full right-0 pt-2">
+                    {(item.hasMegaMenu || item.simpleDropdown) && (
+                      <div className={`absolute top-full right-0 pt-2 ${activeDropdown === actualIndex ? 'block' : 'hidden'}`}>
                         <div className="bg-white shadow-2xl min-w-[280px]">
                           {item.simpleDropdown && (
                             <div className="py-4">
