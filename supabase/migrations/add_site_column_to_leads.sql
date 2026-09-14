@@ -21,9 +21,24 @@ CREATE INDEX IF NOT EXISTS idx_leads_site_agent ON leads (site, assigned_agent_e
 UPDATE leads SET site = 'unassigned' WHERE site IS NULL;
 UPDATE agent_profiles SET site = 'unassigned' WHERE site IS NULL;
 
+-- Helper functions (SECURITY DEFINER so policies can read agent_profiles
+-- without recursing into its own RLS). The first two are also defined in
+-- create_leads_tables.sql, but that part of it was never applied on this
+-- project, so they are (re)created here to make this file self-contained.
+CREATE OR REPLACE FUNCTION get_my_agent_role()
+RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE
+AS $$ SELECT role FROM agent_profiles WHERE id = auth.uid() $$;
+
+CREATE OR REPLACE FUNCTION get_my_agent_email()
+RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE
+AS $$ SELECT email FROM agent_profiles WHERE id = auth.uid() $$;
+
 CREATE OR REPLACE FUNCTION get_my_agent_site()
 RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE
 AS $$ SELECT site FROM agent_profiles WHERE id = auth.uid() $$;
+
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agent_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Replace the site-blind policies with site-aware ones.
 DROP POLICY IF EXISTS "Agents see own leads" ON leads;
@@ -44,3 +59,14 @@ CREATE POLICY "Agents update own leads" ON leads FOR UPDATE
 CREATE POLICY "Admins update all leads" ON leads FOR UPDATE
   USING (site = get_my_agent_site() AND get_my_agent_role() = 'admin')
   WITH CHECK (site = get_my_agent_site());
+
+-- Inserts come from the server with the service role (which bypasses RLS);
+-- keep the permissive insert policy so nothing else changes.
+DROP POLICY IF EXISTS "Service role inserts leads" ON leads;
+CREATE POLICY "Service role inserts leads" ON leads FOR INSERT
+  WITH CHECK (true);
+
+-- Users may read their own profile (the dashboard login checks it).
+DROP POLICY IF EXISTS "Users see own profile" ON agent_profiles;
+CREATE POLICY "Users see own profile" ON agent_profiles FOR SELECT
+  USING (id = auth.uid());
