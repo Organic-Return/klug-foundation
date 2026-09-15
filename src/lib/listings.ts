@@ -978,26 +978,37 @@ export interface SitemapListingRow {
 export async function getListingsForSitemap(): Promise<SitemapListingRow[]> {
   if (!isSupabaseConfigured()) return [];
 
+  // Exactly the inventory the site shows: the allowed towns and property
+  // types from MLS Configuration, and active-type statuses. The old version
+  // took an unordered 6,000-row slice of the whole 43,000-row feed, which was
+  // 96% closed sales in other counties and missed most live listings.
+  const { getMLSConfiguration, getAllowedCities, getExcludedPropertyTypes } = await import('./mlsConfiguration');
+  const config = await getMLSConfiguration();
+  const allowedCities = getAllowedCities(config);
+  const excludedTypes = getExcludedPropertyTypes(config);
+  const liveStatuses = ['Active', 'Active Under Contract', 'Active U/C W/ Bump', 'Pending', 'Pending Inspect/Feasib', 'To Be Built'];
+
   const out: SitemapListingRow[] = [];
   const PAGE_SIZE = 1000;
-  // Paginate with a tiny projection. Each page is just IDs + address fields,
-  // so the response is a few hundred KB instead of ~10MB and Supabase returns
-  // it in well under a second per page.
-  for (let page = 0; page < 6; page++) {
+  for (let page = 0; page < 20; page++) {
     const from = page * PAGE_SIZE;
     const to = from + PAGE_SIZE - 1;
-    const { data, error } = await supabase
+    let query = supabase
       .from('mls_properties')
       .select('id, mls_number, status, address, city, state, zip_code, updated_at')
+      .eq('is_active', true)
       .not('mls_number', 'is', null)
+      .in('status', liveStatuses)
+      .order('mls_number', { ascending: true })
       .range(from, to);
+    if (allowedCities.length > 0) query = query.in('city', allowedCities);
+    if (excludedTypes.length > 0) query = query.not('property_type', 'in', `(${excludedTypes.map((t) => `"${t}"`).join(',')})`);
+    const { data, error } = await query;
     if (error) {
       console.error('[getListingsForSitemap] page', page, 'error:', error);
       break;
     }
     if (!data || data.length === 0) break;
-    // Exclude off-market (expired/withdrawn/canceled) listings — their pages
-    // 404, so they must not be advertised to search engines.
     out.push(...(data as SitemapListingRow[]).filter((r) => !isOffMarketStatus(r.status)));
     if (data.length < PAGE_SIZE) break;
   }

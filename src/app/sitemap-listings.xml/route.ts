@@ -79,7 +79,7 @@ const buildEntries = unstable_cache(
 
     return [...listingEntries, ...cityHubs];
   },
-  ['sitemap-listings-v3'],
+  ['sitemap-listings-v3-v2'],
   { revalidate: 3600, tags: ['sitemap', 'sitemap-listings'] }
 );
 
