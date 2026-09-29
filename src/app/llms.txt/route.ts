@@ -47,6 +47,30 @@ function formatReportLink(baseUrl: string, report: MarketReport): string {
 export async function GET(): Promise<Response> {
   const settings = await getSettings();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+
+  // Only link pages that exist. The About, Buy, Sell and buyer-guide routes
+  // render from Sanity singletons that may not be created yet; linking them
+  // regardless put 404s in the file.
+  const pages = await client.fetch<{ about: boolean; buy: boolean; sell: boolean; relocation: boolean; firstTime: boolean }>(
+    `{
+      "about": count(*[_type == "aboutPage"]) > 0,
+      "buy": count(*[_type == "buyPage"]) > 0,
+      "sell": count(*[_type == "sellPage"]) > 0,
+      "relocation": count(*[_type == "relocationPage"]) > 0,
+      "firstTime": count(*[_type == "firstTimeBuyersPage"]) > 0
+    }`,
+    {},
+    { next: { revalidate: 3600 } }
+  );
+  const aboutLine = pages.about
+    ? `- [About Klug Properties](${baseUrl}/about): Brokerage background and story.\n`
+    : '';
+  const buyerSellerLines = [
+    pages.buy ? `- [Buying](${baseUrl}/buy): Buyer resources and process overview.` : null,
+    pages.relocation ? `- [Relocation](${baseUrl}/buy/relocation): Moving to the Roaring Fork Valley.` : null,
+    pages.firstTime ? `- [First-time buyers](${baseUrl}/buy/first-time-buyers): Resources for first-time purchasers.` : null,
+    pages.sell ? `- [Selling](${baseUrl}/sell): Seller resources and listing process.` : null,
+  ].filter(Boolean).join('\n');
   const reports = await getLatestMarketReports();
 
   const reportLines = reports.length > 0
@@ -62,9 +86,8 @@ Family-run brokerage with over 25 years of combined experience and $1B+ in caree
 ## Core pages
 
 - [Home](${baseUrl}/): Site overview and featured content.
-- [About Klug Properties](${baseUrl}/about): Brokerage background and story.
-- [Our team](${baseUrl}/about/our-team): Licensed brokers and staff.
-- [Why Klug Properties](${baseUrl}/why-klug-properties): Track record and approach.
+${aboutLine}- [Our team](${baseUrl}/about/our-team): Licensed brokers and staff.
+- [Why Klug Properties](${baseUrl}/about/why-klug-properties): Track record and approach.
 - [Contact us](${baseUrl}/contact-us): Phone, email, and contact form.
 
 ## Listings
@@ -83,10 +106,7 @@ Family-run brokerage with over 25 years of combined experience and $1B+ in caree
 
 ## Buyers and sellers
 
-- [Buying](${baseUrl}/buy): Buyer resources and process overview.
-- [Relocation](${baseUrl}/buy/relocation): Moving to the Roaring Fork Valley.
-- [First-time buyers](${baseUrl}/buy/first-time-buyers): Resources for first-time purchasers.
-- [Selling](${baseUrl}/sell): Seller resources and listing process.
+${buyerSellerLines}
 
 ## Market intelligence
 

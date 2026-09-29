@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
+import RelatedPosts from '@/components/RelatedPosts';
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]{
   ...,
@@ -114,7 +115,8 @@ export async function generateMetadata({
 const components: PortableTextComponents = {
   block: {
     normal: ({ children }: { children?: ReactNode }) => <p className="mb-4">{children}</p>,
-    h1: ({ children }: { children?: ReactNode }) => <h1 className="text-[var(--color-sothebys-blue)] mt-8 mb-4">{children}</h1>,
+    // The page title is the only <h1>; an editor "Heading 1" in the body renders as <h2>.
+    h1: ({ children }: { children?: ReactNode }) => <h2 className="text-[var(--color-sothebys-blue)] mt-8 mb-4">{children}</h2>,
     h2: ({ children }: { children?: ReactNode }) => <h2 className="text-2xl font-bold mt-6 mb-3">{children}</h2>,
     h3: ({ children }: { children?: ReactNode }) => <h3 className="text-xl font-bold mt-4 mb-2">{children}</h3>,
     blockquote: ({ children }: { children?: ReactNode }) => <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">{children}</blockquote>,
@@ -307,6 +309,7 @@ export default async function PostPage({
           </section>
         );
       })()}
+      <RelatedPosts currentSlug={slug} basePath="/about/blog" />
     </main>
     </>
   );

@@ -7,7 +7,7 @@ import { getSiteName, getBaseUrl, getSettings } from '@/lib/settings';
 import AgentListingsGrid from '@/components/AgentListingsGrid';
 import Link from 'next/link';
 import StructuredData from '@/components/StructuredData';
-import { generateBreadcrumbSchema, generateOfficeSchema } from '@/lib/structuredData';
+import { brandName, generateBreadcrumbSchema, generateOfficeSchema } from '@/lib/structuredData';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) { return builder.image(source); }
@@ -62,7 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getPageData(),
   ]);
   const heroTitle = page?.heroTitle || 'Sold by Klug Properties';
-  const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
+  const title = page?.seo?.metaTitle || `${heroTitle} | ${brandName(siteName)}`;
   const description = page?.seo?.metaDescription
     || page?.heroDescription
     || `Browse properties sold by Chris Klug and the Klug Properties team across Aspen, Snowmass Village, and the Roaring Fork Valley.`;

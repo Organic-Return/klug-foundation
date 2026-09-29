@@ -316,15 +316,15 @@ export default function Header({
                                   className="block mb-2 group"
                                   onClick={() => setActiveDropdown(null)}
                                 >
-                                  <h3 className={`relative inline-block !font-black ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', lineHeight: 1.3, letterSpacing: '-0.02em', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
+                                  <p className={`relative inline-block !font-black ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', lineHeight: 1.3, letterSpacing: '-0.02em', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
                                     {column.title}
                                     <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[var(--color-gold)] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-                                  </h3>
+                                  </p>
                                 </Link>
                               ) : (
-                                <h3 className={`mb-2 !font-black ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', lineHeight: 1.3, letterSpacing: '-0.02em', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
+                                <p className={`mb-2 !font-black ${isSkiTown ? 'text-white' : 'text-gray-900'}`} style={{ fontSize: 'clamp(1.5rem, 3vw, 1.5rem)', lineHeight: 1.3, letterSpacing: '-0.02em', fontFamily: 'var(--font-inter), system-ui, sans-serif' }}>
                                   {column.title}
-                                </h3>
+                                </p>
                               )
                             )}
                             {column.subtitle && (

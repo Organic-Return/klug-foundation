@@ -6,6 +6,7 @@ import { getSettings, getBranding } from '@/lib/settings';
 import { getNewestHighPricedByCities, getNewestHighPricedByCity, getListingsByAgentId } from '@/lib/listings';
 import StructuredData from '@/components/StructuredData';
 import HomepageContent from '@/components/HomepageContent';
+import { brandName } from '@/lib/structuredData';
 
 const builder = createImageUrlBuilder(client);
 
@@ -188,7 +189,9 @@ export default async function Home() {
     '@context': 'https://schema.org',
     '@type': ['RealEstateAgent', 'LocalBusiness', 'Organization'],
     '@id': `${baseUrl}#organization`,
-    name: settings?.title || 'Real Estate',
+    // The business is "Chris Klug Properties"; settings.title is the SEO
+    // title tag and stays on the WebSite/WebPage nodes below.
+    name: brandName(settings?.title),
     description: settings?.description,
     url: baseUrl,
     telephone: settings?.contactInfo?.phone,

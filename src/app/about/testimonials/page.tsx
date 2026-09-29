@@ -6,7 +6,8 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import StructuredData from "@/components/StructuredData";
-import { getDefaultHeroImageUrl } from "@/lib/settings";
+import { getDefaultHeroImageUrl, getSettings } from "@/lib/settings";
+import { generateOfficeSchema } from "@/lib/structuredData";
 
 const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
   heroTitle,
@@ -145,6 +146,7 @@ export default async function TestimonialsPage() {
     getDefaultHeroImageUrl(),
   ]);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const settings = await getSettings();
 
   if (!data) {
     return (
@@ -172,45 +174,18 @@ export default async function TestimonialsPage() {
   const regularTestimonials = data.testimonials?.filter((t: any) => !t.featured) || [];
   const allTestimonials = [...(data.testimonials || [])];
 
-  // Generate Review schema for each testimonial
-  const reviewSchemas = allTestimonials.map((testimonial: any, index: number) => ({
-    '@type': 'Review',
-    '@id': `${baseUrl}/about/testimonials#review-${index}`,
-    reviewBody: testimonial.quote,
-    author: {
-      '@type': 'Person',
-      name: testimonial.author,
-      ...(testimonial.role && { jobTitle: testimonial.role }),
-    },
-    ...(testimonial.year && { datePublished: `${testimonial.year}-01-01` }),
-    reviewRating: {
-      '@type': 'Rating',
-      ratingValue: 5,
-      bestRating: 5,
-      worstRating: 1,
-    },
-  }));
-
-  // AggregateRating schema
-  const aggregateRatingSchema = allTestimonials.length > 0 ? {
-    '@type': 'AggregateRating',
-    ratingValue: 5,
-    bestRating: 5,
-    worstRating: 1,
-    ratingCount: allTestimonials.length,
-    reviewCount: allTestimonials.length,
-  } : undefined;
-
-  // Main LocalBusiness/RealEstateAgent schema with reviews
-  const businessWithReviewsSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateAgent',
-    '@id': `${baseUrl}#organization`,
-    name: 'Real Estate Agency',
-    url: baseUrl,
-    ...(aggregateRatingSchema && { aggregateRating: aggregateRatingSchema }),
-    review: reviewSchemas,
-  };
+  // Business entity for this page. Testimonials are shown as content only:
+  // review markup a business hosts about itself is not eligible for rich
+  // results, and the ratings it carried were invented (every quote was 5/5).
+  const businessSchema = generateOfficeSchema({
+    baseUrl,
+    pageUrl: `${baseUrl}/about/testimonials`,
+    name: settings?.title,
+    description: 'Client testimonials for Chris Klug Properties, Aspen and Snowmass Village real estate.',
+    phone: settings?.contactInfo?.phone,
+    email: settings?.contactInfo?.email,
+    address: settings?.contactInfo?.address,
+  });
 
   // BreadcrumbList schema
   const breadcrumbSchema = {
@@ -234,7 +209,7 @@ export default async function TestimonialsPage() {
 
   return (
     <>
-      <StructuredData data={businessWithReviewsSchema} />
+      <StructuredData data={businessSchema} />
       <StructuredData data={breadcrumbSchema} />
       <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}

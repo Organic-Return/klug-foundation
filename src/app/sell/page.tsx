@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { notFound } from 'next/navigation';
 
 const SELL_PAGE_QUERY = `*[_type == "sellPage"][0]{
   heroTitle,
@@ -98,23 +99,9 @@ const portableTextComponents: PortableTextComponents = {
 export default async function SellPage() {
   const data = await client.fetch<SanityDocument>(SELL_PAGE_QUERY, {}, options);
 
-  if (!data) {
-    return (
-      <main className="min-h-screen pt-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className="font-serif text-[#1a1a1a] dark:text-white mb-4">
-            Page Not Found
-          </h1>
-          <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-8">
-            Please add content in Sanity Studio under &quot;Sell Page&quot;.
-          </p>
-          <Link href="/" className="text-[var(--color-gold)] hover:underline">
-            Return Home
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  // No document in Sanity means no page: a 404, not a 200 "Page Not Found"
+  // body that search engines index as a soft 404.
+  if (!data) notFound();
 
   const heroImageUrl = data.heroImage
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
