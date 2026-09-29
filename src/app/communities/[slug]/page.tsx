@@ -76,6 +76,14 @@ const urlFor = (source: any) =>
 const options = { next: { revalidate: 30 } };
 
 // Generate metadata for SEO, Open Graph, and Twitter Cards
+/** Cut to at most `max` characters on a word boundary, with an ellipsis. */
+function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  const atSpace = cut.lastIndexOf(' ');
+  return `${(atSpace > max / 2 ? cut.slice(0, atSpace) : cut).replace(/[,;:\s]+$/, '')}…`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -110,17 +118,22 @@ export async function generateMetadata({
       ? `${communityName} Real Estate & Homes for Sale | Aspen, CO`
       : communityName);
 
-  // Use custom meta description or extract from body/description
-  let metaDescription = community.seo?.metaDescription || community.description || community.title;
-  if (!community.seo?.metaDescription && !community.description && Array.isArray(community.body)) {
-    const firstTextBlock = community.body.find((block: any) => block._type === 'block' && block.children);
-    if (firstTextBlock) {
-      metaDescription = firstTextBlock.children
-        .map((child: any) => child.text)
+  // Editor copy wins; otherwise the first real paragraph of the body; otherwise
+  // a keyword-targeted default. Most Snowmass neighborhood docs open with an
+  // "Overview" heading block, which used to become the whole description.
+  const firstParagraph: string = Array.isArray(community.body)
+    ? community.body
+        .find((block: any) => block._type === 'block' && (block.style ?? 'normal') === 'normal' && Array.isArray(block.children))
+        ?.children.map((child: any) => child.text ?? '')
         .join('')
-        .slice(0, 160);
-    }
-  }
+        .replace(/\s+/g, ' ')
+        .trim() ?? ''
+    : '';
+  const metaDescription =
+    community.seo?.metaDescription?.trim() ||
+    community.description?.trim() ||
+    truncateAtWord(firstParagraph, 160) ||
+    `Explore ${communityName} real estate: homes and condos for sale, neighborhood highlights, and local market insight from Klug Properties in Aspen, Colorado.`;
 
   // Get the base URL from environment or use a default
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
@@ -390,7 +403,10 @@ export default async function CommunityPage({
   // `parentCommunity` opts in to this on a per-document basis.
   const parent = community.parentCommunity;
   const inheritsFromParent = !!(parent && parent.title);
-  const headlineTitle: string = inheritsFromParent ? parent.title : community.title;
+  // Demographics come from the parent, but the H1 stays the page's own name:
+  // fourteen neighborhood pages were headed "Snowmass Village" or "Aspen",
+  // which contradicted their titles and gave the H1 nothing to rank for.
+  const headlineTitle: string = community.title;
 
   // Fetch demographic data if coordinates are available and demographics are missing or outdated.
   // When inheriting from a parent, we use the parent's demographics directly and skip the Census
@@ -616,6 +632,23 @@ export default async function CommunityPage({
             </div>
           </div>
         )}
+
+        {/* Visible breadcrumb trail; mirrors the BreadcrumbList schema above. */}
+        <div className={isLuxury ? 'bg-white' : 'bg-white dark:bg-[#1a1a1a]'}>
+          <div className={isLuxury ? 'max-w-[1440px] mx-auto px-8 lg:px-12 pt-8' : 'max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-6'}>
+            <nav aria-label="Breadcrumb">
+              <ol className="flex flex-wrap items-center gap-x-2 text-sm">
+                <li>
+                  <Link href="/" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">Home</Link>
+                </li>
+                <li className="text-gray-400" aria-hidden="true">/</li>
+                <li className="text-gray-900 dark:text-white font-medium" aria-current="page">
+                  {community.title}
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
 
         {/* Content Sections - Sotheby's Inspired Design */}
         <div className="flex flex-col">

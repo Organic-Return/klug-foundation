@@ -7,6 +7,7 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import AuthModal from './AuthModal';
 import { useAuth } from './AuthProvider';
+import { brandName } from '@/lib/structuredData';
 
 const builder = createImageUrlBuilder(client);
 
@@ -302,8 +303,29 @@ export default function Footer({
           {/* Terms of Service + Account */}
           <div className="w-full lg:w-1/3 max-w-md px-4 lg:pl-7 lg:pr-0">
             <h3 className="text-3xl w-full border-b border-gray-300 mb-9 pb-3 font-light">
-              Terms Of Service
+              Contact
             </h3>
+            {/* Visible name, address and phone: local-search signals were
+                only in hidden microdata and the homepage JSON-LD before. */}
+            <address className="not-italic text-sm leading-relaxed mb-6">
+              <div className="font-medium">{brandName(siteTitle)}</div>
+              <div>{contactInfo?.address || DEFAULT_OFFICE_STREET_ADDRESS}</div>
+              <div>{OFFICE_LOCALITY}, {OFFICE_REGION} {OFFICE_POSTAL_CODE}</div>
+              {contactInfo?.phone && (
+                <div>
+                  <a href={`tel:${contactInfo.phone.replace(/[^0-9+]/g, '')}`} className="hover:text-[var(--color-gold)] transition-colors">
+                    {contactInfo.phone}
+                  </a>
+                </div>
+              )}
+              {contactInfo?.email && (
+                <div>
+                  <a href={`mailto:${contactInfo.email}`} className="hover:text-[var(--color-gold)] transition-colors">
+                    {contactInfo.email}
+                  </a>
+                </div>
+              )}
+            </address>
             <div className="flex flex-row flex-wrap justify-between gap-x-4 lg:mr-14">
               <dl>
                 <dd className="text-sm mb-3">

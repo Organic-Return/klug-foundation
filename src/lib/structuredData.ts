@@ -311,3 +311,62 @@ export function generateHomepageSchemas(
 
   return schemas;
 }
+
+/**
+ * Office address used when Sanity settings carry no street address. Google's
+ * LocalBusiness validator rejects an address without streetAddress, so pages
+ * that emit a RealEstateAgent entity always include the full office address.
+ */
+export const OFFICE_ADDRESS = {
+  street: '415 East Hyman Avenue',
+  locality: 'Aspen',
+  region: 'CO',
+  postalCode: '81611',
+} as const;
+
+/**
+ * The brand as a business name. Sanity's site title is an SEO title such as
+ * "Aspen Real Estate Agent | Chris Klug Properties"; the brand is its last
+ * segment.
+ */
+export function brandName(title?: string | null): string {
+  const parts = (title || '').split('|').map((part) => part.trim()).filter(Boolean);
+  return parts[parts.length - 1] || 'Chris Klug Properties';
+}
+
+/**
+ * RealEstateAgent + LocalBusiness entity for a specific page (contact, sold),
+ * sharing the homepage organization's @id so search engines treat it as the
+ * same business rather than a second one.
+ */
+export function generateOfficeSchema(opts: {
+  baseUrl: string;
+  pageUrl: string;
+  name?: string | null;
+  description?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': ['RealEstateAgent', 'LocalBusiness'],
+    // Same @id as the homepage organization, whichever way the base URL is
+    // configured (Sanity's siteUrl carries a trailing slash, the env var not).
+    '@id': `${opts.baseUrl.replace(/\/+$/, '')}#organization`,
+    name: brandName(opts.name),
+    url: opts.pageUrl,
+    ...(opts.description ? { description: opts.description } : {}),
+    ...(opts.phone ? { telephone: opts.phone } : {}),
+    ...(opts.email ? { email: opts.email } : {}),
+    priceRange: '$$$$',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: opts.address || OFFICE_ADDRESS.street,
+      addressLocality: OFFICE_ADDRESS.locality,
+      addressRegion: OFFICE_ADDRESS.region,
+      postalCode: OFFICE_ADDRESS.postalCode,
+      addressCountry: 'US',
+    },
+  };
+}

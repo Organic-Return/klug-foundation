@@ -2,6 +2,7 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
@@ -214,23 +215,9 @@ export default async function FirstTimeBuyersPage() {
     },
   };
 
-  if (!data) {
-    return (
-      <main className="min-h-screen pt-32">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h1 className={isRC ? 'text-white mb-4' : 'font-serif text-[#1a1a1a] dark:text-white mb-4'}>
-            Page Not Found
-          </h1>
-          <p className={isRC ? 'text-white/60 font-light mb-8' : 'text-[#6a6a6a] dark:text-gray-400 font-light mb-8'}>
-            Please add content in Sanity Studio under &quot;First Time Buyers Page&quot;.
-          </p>
-          <Link href="/" className={isRC ? 'text-[var(--rc-gold)] hover:underline' : 'text-[var(--color-gold)] hover:underline'}>
-            Return Home
-          </Link>
-        </div>
-      </main>
-    );
-  }
+  // No document in Sanity means no page: a 404, not a 200 "Page Not Found"
+  // body that search engines index as a soft 404.
+  if (!data) notFound();
 
   const heroImageUrl = data.heroImage
     ? urlFor(data.heroImage)?.width(1920).height(800).url()

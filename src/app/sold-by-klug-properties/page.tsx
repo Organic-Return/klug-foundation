@@ -3,8 +3,11 @@ import Image from 'next/image';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { getSoldListingsByAgentIds, getMlsNumbersWithSIRMedia } from '@/lib/listings';
-import { getSiteName, getBaseUrl } from '@/lib/settings';
+import { getSiteName, getBaseUrl, getSettings } from '@/lib/settings';
 import AgentListingsGrid from '@/components/AgentListingsGrid';
+import Link from 'next/link';
+import StructuredData from '@/components/StructuredData';
+import { generateBreadcrumbSchema, generateOfficeSchema } from '@/lib/structuredData';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) { return builder.image(source); }
@@ -82,13 +85,28 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SoldByKlugPropertiesPage() {
-  const [page, teamMembers] = await Promise.all([
+  const [page, teamMembers, baseUrl, settings] = await Promise.all([
     getPageData(),
     client.fetch<TeamMemberWithIds[]>(
       `*[_type == "teamMember" && inactive != true]{ _id, name, mlsAgentId, mlsAgentIdSold }`,
       {},
       { next: { revalidate: 300 } }
     ),
+    getBaseUrl(),
+    getSettings(),
+  ]);
+  const officeSchema = generateOfficeSchema({
+    baseUrl,
+    pageUrl: `${baseUrl}/sold-by-klug-properties`,
+    name: settings?.title,
+    description: 'Properties sold by Chris Klug Properties across Aspen, Snowmass Village, and the Roaring Fork Valley.',
+    phone: settings?.contactInfo?.phone,
+    email: settings?.contactInfo?.email,
+    address: settings?.contactInfo?.address,
+  });
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: 'Home', url: baseUrl },
+    { name: 'Sold by Klug Properties', url: `${baseUrl}/sold-by-klug-properties` },
   ]);
 
   const agentIds = Array.from(
@@ -134,6 +152,8 @@ export default async function SoldByKlugPropertiesPage() {
 
   return (
     <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
+      <StructuredData data={officeSchema} />
+      <StructuredData data={breadcrumbs} />
       {/* Hero — transparent header sits on top, so add extra top padding */}
       <section
         className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]"
@@ -163,6 +183,19 @@ export default async function SoldByKlugPropertiesPage() {
           </p>
         </div>
       </section>
+
+      {/* Visible breadcrumb trail; mirrors the BreadcrumbList schema above. */}
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 pt-6">
+        <nav aria-label="Breadcrumb">
+          <ol className="flex flex-wrap items-center gap-x-2 text-sm">
+            <li>
+              <Link href="/" className="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors">Home</Link>
+            </li>
+            <li className="text-gray-400" aria-hidden="true">/</li>
+            <li className="text-gray-900 dark:text-white font-medium" aria-current="page">Sold by Klug Properties</li>
+          </ol>
+        </nav>
+      </div>
 
       {/* Stats */}
       {showStats && totalSold > 0 && (

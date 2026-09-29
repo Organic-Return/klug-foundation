@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from '@/lib/settings';
+import { getSiteName, getBaseUrl, getDefaultHeroImageUrl, getSettings } from '@/lib/settings';
 import ContactPageForm from '@/components/ContactPageForm';
+import StructuredData from '@/components/StructuredData';
+import { generateBreadcrumbSchema, generateOfficeSchema } from '@/lib/structuredData';
 
 export const revalidate = 60;
 
@@ -21,10 +23,32 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
-  const heroImageRaw = await getDefaultHeroImageUrl();
+  const [heroImageRaw, settings, baseUrl] = await Promise.all([
+    getDefaultHeroImageUrl(),
+    getSettings(),
+    getBaseUrl(),
+  ]);
+  const pageUrl = `${baseUrl}/contact-us`;
+  // The contact page is where search engines expect the local-business
+  // entity; it shares the homepage organization's @id.
+  const officeSchema = generateOfficeSchema({
+    baseUrl,
+    pageUrl,
+    name: settings?.title,
+    description: 'Contact Chris Klug Properties about buying or selling real estate in Aspen, Snowmass Village, and the Roaring Fork Valley.',
+    phone: settings?.contactInfo?.phone,
+    email: settings?.contactInfo?.email,
+    address: settings?.contactInfo?.address,
+  });
+  const breadcrumbs = generateBreadcrumbSchema([
+    { name: 'Home', url: baseUrl },
+    { name: 'Contact', url: pageUrl },
+  ]);
 
   return (
     <main className="-mt-20 min-h-screen">
+      <StructuredData data={officeSchema} />
+      <StructuredData data={breadcrumbs} />
       {/* Hero */}
       <section className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]">
         {heroImageRaw && (
