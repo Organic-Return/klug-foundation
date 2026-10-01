@@ -268,10 +268,30 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const baseUrl = getBaseUrl();
   const siteName = await getSiteName();
   const listingUrl = `${baseUrl}${getListingHref(listing)}`;
-  const title = `${listing.address || 'Property'} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
-  const rawDescription = listing.description
-    || `${listing.bedrooms || 0} bed, ${listing.bathrooms || 0} bath ${listing.property_type || 'property'} for ${listing.status === 'Closed' ? 'sale (sold)' : 'sale'} in ${listing.city}, ${listing.state}. ${listing.square_feet ? `${listing.square_feet.toLocaleString()} sq ft.` : ''} MLS# ${listing.mls_number}`;
-  const description = rawDescription.length > 300 ? rawDescription.slice(0, 297) + '...' : rawDescription;
+  // A listing without a street address (lots, some land and commercial
+  // records) would otherwise be labelled "Property" like every other
+  // address-less listing. Describe what it actually is instead.
+  const addressLabel =
+    listing.address?.trim() ||
+    [
+      `${listing.property_type || 'Property'} for Sale`,
+      listing.mls_number ? `MLS ${listing.mls_number}` : null,
+    ]
+      .filter(Boolean)
+      .join(' — ');
+  const title = `${addressLabel} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
+  // Lead with the facts that differ between units before the MLS remarks:
+  // every unit in a building shares the same remarks, so remarks-only
+  // descriptions were identical across dozens of pages.
+  const facts = [
+    listing.bedrooms ? `${listing.bedrooms} bed` : null,
+    listing.bathrooms ? `${listing.bathrooms} bath` : null,
+    listing.square_feet ? `${listing.square_feet.toLocaleString()} sq ft` : null,
+  ].filter(Boolean).join(', ');
+  const lead = `${addressLabel}: ${[facts, listing.property_type].filter(Boolean).join(' ')}${isSoldStatus(listing.status) ? ' sold for ' : ' listed at '}${formatPrice(listing.list_price)}.`;
+  const remarks = (listing.description || '').replace(/\s+/g, ' ').trim();
+  const fullDescription = remarks ? `${lead} ${remarks}` : `${lead} MLS# ${listing.mls_number}.`;
+  const description = fullDescription.length > 300 ? fullDescription.slice(0, 297).replace(/\s+\S*$/, '') + '...' : fullDescription;
   const images = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const primaryImage = images[0] || `${baseUrl}/og-default.jpg`;
 
@@ -301,7 +321,7 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${listing.address || 'Property'} - ${formatPrice(listing.list_price)}`,
+      title: `${addressLabel} - ${formatPrice(listing.list_price)}`,
       description: `${listing.bedrooms || 0} bd | ${listing.bathrooms || 0} ba | ${listing.square_feet?.toLocaleString() || 'N/A'} sqft in ${listing.city}, ${listing.state}`,
       images: [primaryImage],
     },
