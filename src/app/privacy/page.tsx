@@ -1,6 +1,6 @@
 import { client } from "@/sanity/client";
 import type { Metadata } from "next";
-import { getSiteTemplate } from "@/lib/settings";
+import { getSiteTemplate, withBrand } from "@/lib/settings";
 import RCSitePage from "@/components/RCSitePage";
 import Link from "next/link";
 
@@ -16,13 +16,14 @@ const options = { next: { revalidate: 60 } };
 export async function generateMetadata(): Promise<Metadata> {
   const data = await client.fetch(QUERY, {}, options);
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
+  const metaTitle = await withBrand(data?.seo?.metaTitle || data?.title || 'Privacy Policy');
 
   return {
-    title: data?.seo?.metaTitle || data?.title || 'Privacy Policy',
+    title: metaTitle,
     description: data?.seo?.metaDescription || 'Privacy policy',
     alternates: { canonical: `${baseUrl}/privacy` },
     openGraph: {
-      title: data?.seo?.metaTitle || data?.title || 'Privacy Policy',
+      title: metaTitle,
       description: data?.seo?.metaDescription || '',
       type: 'website',
       url: `${baseUrl}/privacy`,

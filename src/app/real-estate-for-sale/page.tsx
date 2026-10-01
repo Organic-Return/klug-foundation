@@ -20,7 +20,7 @@ import {
   getAllowedCities,
   getExcludedStatuses,
 } from '@/lib/mlsConfiguration';
-import { getSettings, getGoogleMapsApiKey } from '@/lib/settings';
+import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
 import { client } from '@/sanity/client';
 import ListingsSearchClient from '@/components/ListingsSearchClient';
 import StructuredData from '@/components/StructuredData';
@@ -110,7 +110,7 @@ export async function generateMetadata(): Promise<Metadata> {
   // their equivalent page on geo-qualified titles ("Aspen, CO Real Estate &
   // Homes for Sale"). Static rather than per-filter, because every filtered
   // variant canonicalizes back to this URL.
-  const siteName = settings?.title || 'Klug Properties';
+  const siteName = await getSiteName();
   const title = `Aspen & Snowmass Real Estate & Homes for Sale | ${siteName}`;
   const description =
     'Search every Aspen and Snowmass home for sale, updated continuously from the Aspen Glenwood MLS. Filter by price, beds, neighborhood, and property type across Aspen, Snowmass Village, Basalt, Carbondale, and the Roaring Fork Valley.';

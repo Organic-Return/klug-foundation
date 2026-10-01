@@ -224,12 +224,25 @@ export async function getTeamSyncConfig(): Promise<TeamSyncConfig> {
 }
 
 /**
- * Gets the site name from Sanity settings or environment variable.
- * Use this instead of hardcoding a site name in metadata.
+ * The brand as a name. Sanity's site title is an SEO title such as
+ * "Aspen Real Estate Agent | Chris Klug Properties"; pages suffix their
+ * titles and write prose with its last segment, never the whole thing.
  */
 export async function getSiteName(): Promise<string> {
   const settings = await getSettings();
-  return settings?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate';
+  const title = settings?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate';
+  const parts = title.split('|').map((part) => part.trim()).filter(Boolean);
+  return parts[parts.length - 1] || title;
+}
+
+/**
+ * Suffix the brand to a page title unless it is already branded or the
+ * result would run past the 70 characters search results display.
+ */
+export async function withBrand(title: string): Promise<string> {
+  const brand = await getSiteName();
+  const alreadyBranded = title.includes('|') || title.includes(brand);
+  return !alreadyBranded && title.length + brand.length + 3 <= 70 ? `${title} | ${brand}` : title;
 }
 
 /**

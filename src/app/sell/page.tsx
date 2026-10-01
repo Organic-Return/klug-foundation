@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from 'next/navigation';
+import { withBrand } from '@/lib/settings';
 
 const SELL_PAGE_QUERY = `*[_type == "sellPage"][0]{
   heroTitle,
@@ -49,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   }
 
-  const metaTitle = data.seo?.metaTitle || data.heroTitle || 'Sell';
+  const metaTitle = await withBrand(data.seo?.metaTitle || data.heroTitle || 'Sell');
   const metaDescription = data.seo?.metaDescription || data.heroSubtitle || '';
   const ogImageUrl = data.seo?.ogImage
     ? urlFor(data.seo.ogImage)?.width(1200).height(630).url()

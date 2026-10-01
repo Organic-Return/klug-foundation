@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
-import { getDefaultHeroImageUrl } from "@/lib/settings";
+import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
 import RelatedPosts from '@/components/RelatedPosts';
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]{
@@ -49,8 +49,11 @@ export async function generateMetadata({
     ? urlFor(post.image)?.width(1200).height(630).url()
     : null;
 
-  // Use custom meta title or fall back to post title
-  const metaTitle = post.seo?.metaTitle || post.title;
+  // A custom meta title wins unless the editor's copy was cut off mid-word;
+  // either way the brand is suffixed when it fits.
+  const customTitle = post.seo?.metaTitle?.trim();
+  const baseTitle = customTitle && !/(\.\.\.|…)$/.test(customTitle) ? customTitle : post.title;
+  const metaTitle = await withBrand(baseTitle);
 
   // Use custom meta description or extract from body
   let metaDescription = post.seo?.metaDescription || post.title;

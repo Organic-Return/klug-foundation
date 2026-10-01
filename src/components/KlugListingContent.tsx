@@ -1642,14 +1642,25 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
 
         {/* Virtual Tour Tab */}
         {activeTab === 'tour' && listing.virtual_tour_url && (
-          <div className="aspect-video w-full">
-            <iframe
-              src={listing.virtual_tour_url}
-              className="w-full h-full border-0"
-              allowFullScreen
-              allow="xr-spatial-tracking"
-              title="Virtual Tour"
-            />
+          <div>
+            <div className="aspect-video w-full">
+              <iframe
+                src={listing.virtual_tour_url}
+                className="w-full h-full border-0"
+                allowFullScreen
+                allow="xr-spatial-tracking"
+                title="Virtual Tour"
+              />
+            </div>
+            {/* Not every tour host allows itself to be framed; keep the tour reachable either way. */}
+            <a
+              href={listing.virtual_tour_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block mt-4 text-sm underline underline-offset-4"
+            >
+              Open the virtual tour in a new tab
+            </a>
           </div>
         )}
       </div>

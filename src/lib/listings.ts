@@ -198,6 +198,38 @@ export function isSoldStatus(status: string | null | undefined): boolean {
   return s === 'sold' || s === 'closed';
 }
 
+// The feed files PDFs (floor plans, disclosures) alongside photos; the image
+// optimizer rejects them with a 400, so keep them out of the photo list.
+const DOCUMENT_URL = /\.(pdf|docx?|xlsx?|pptx?|txt)(\?|#|$)/i;
+function isImageUrl(url: string): boolean {
+  return !DOCUMENT_URL.test(url);
+}
+
+// The feed's virtual_tour_url is free text, not a URL: a bare domain
+// ("www.homestories.ai/..."), a bit.ly link, a whole <iframe> snippet, or a
+// label. Framed as-is, a relative value resolves under /real-estate-for-sale/
+// and 404s. Reduce it to an absolute URL or drop it.
+const EMBED_SRC = /src=["']([^"']+)["']/i;
+const DOMAIN_SHAPED = /^[\w-]+(\.[\w-]+)+(?::\d+)?([/?#]|$)/;
+export function normalizeVirtualTourUrl(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null;
+  let value = raw.trim();
+  const embed = value.match(EMBED_SRC);
+  if (embed) value = embed[1];
+  // Some values are a URL with the tail of an embed snippet still attached
+  value = value.replace(/&amp;/g, '&').split(/[\s"'<>]/)[0];
+  if (value.startsWith('//')) value = `https:${value}`;
+  else if (!/^https?:\/\//i.test(value)) {
+    if (!DOMAIN_SHAPED.test(value)) return null;
+    value = `https://${value}`;
+  }
+  try {
+    return new URL(value).href;
+  } catch {
+    return null;
+  }
+}
+
 // "March 14, 2024" from a feed date. Splits the YYYY-MM-DD parts by hand and
 // builds a LOCAL date: `new Date('2024-03-14')` is parsed as UTC midnight, which
 // renders as March 13 anywhere west of Greenwich. Locale is pinned to en-US so
@@ -548,7 +580,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     // RESO, fall back to the legacy `agent_name` free-text field.
     agent_name: row.list_agent_full_name || row.agent_name || null,
     agent_email: row.agent_email || null,
-    photos,
+    photos: photos.filter(isImageUrl),
     // Merge any video URLs the dedicated column has with the ones we
     // pulled out of the media[] array's Video-category items.
     video_urls: [
@@ -572,7 +604,7 @@ function transformListing(row: GraphQLListing): MLSProperty {
     attached_garage_yn: row.attached_garage_yn,
     parking_features: row.parking_features,
     association_amenities: row.association_amenities,
-    virtual_tour_url: row.virtual_tour_url,
+    virtual_tour_url: normalizeVirtualTourUrl(row.virtual_tour_url),
     list_agent_mls_id: row.list_agent_mls_id,
     list_agent_full_name: row.list_agent_full_name || null,
     co_list_agent_mls_id: row.co_list_agent_mls_id,

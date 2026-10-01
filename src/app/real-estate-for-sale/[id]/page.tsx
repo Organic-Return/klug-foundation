@@ -7,6 +7,7 @@ import {
   formatPrice,
   getRelatedListings,
   isOffMarketStatus,
+  isSoldStatus,
   type MLSProperty,
 } from '@/lib/listings';
 import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
@@ -335,15 +336,23 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
 export default async function ListingPage({ params, canonicalize = true }: ListingPageProps) {
   const { id } = await params;
 
-  const [listing, settings, googleMapsApiKey] = await Promise.all([
+  const [fetchedListing, settings, googleMapsApiKey] = await Promise.all([
     getListingBySlug(id),
     getSettings(),
     getGoogleMapsApiKey(),
   ]);
 
-  if (!listing) {
+  if (!fetchedListing) {
     notFound();
   }
+
+  // Tours and videos on closed listings are usually taken down by whoever
+  // hosted them, so a sold page would frame an error. Closed listings show
+  // neither, whoever listed them.
+  const showMedia = !isSoldStatus(fetchedListing.status);
+  const listing: MLSProperty = showMedia
+    ? fetchedListing
+    : { ...fetchedListing, virtual_tour_url: null, video_urls: [] };
 
   // Off-market listings (expired, withdrawn, canceled) are no longer for sale
   // and were pulled from the MLS — they should not be browsable. 404 them.
@@ -463,7 +472,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
             mobile: listingAgent.mobile,
           }}
           documents={propertyEnhancement?.documents}
-          videos={propertyEnhancement?.videos}
+          videos={showMedia ? propertyEnhancement?.videos : undefined}
           googleMapsApiKey={googleMapsApiKey}
         />
         <RelatedListings listings={related} city={listing.city} />
@@ -521,7 +530,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
           listing={listing}
           agent={partnerAgent}
           documents={propertyEnhancement?.documents}
-          videos={propertyEnhancement?.videos}
+          videos={showMedia ? propertyEnhancement?.videos : undefined}
           googleMapsApiKey={googleMapsApiKey}
         />
         <RelatedListings listings={related} city={listing.city} />
