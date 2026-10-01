@@ -1693,6 +1693,33 @@ export function getNeighborhoodsByCities(cities: string[]): Promise<string[]> {
   });
 }
 
+/**
+ * The feed sometimes carries one property under two MLS numbers (a relist,
+ * or a rental and a sale record): two pages with the same title, the same
+ * remarks and the same price. The older page canonicalises to the newer
+ * one instead of the two competing as duplicates.
+ */
+export async function findNewerDuplicateListing(
+  listing: Pick<MLSProperty, 'id' | 'mls_number' | 'address' | 'list_price'>
+): Promise<MLSProperty | null> {
+  if (!isSupabaseConfigured() || !listing.address || !listing.list_price) return null;
+  const { data, error } = await supabase
+    .from('mls_properties')
+    .select('*')
+    .eq('address', listing.address)
+    .eq('list_price', listing.list_price)
+    .neq('id', listing.id)
+    .not('status', 'is', null)
+    .order('mls_number', { ascending: false })
+    .limit(1);
+  if (error || !data || data.length === 0) return null;
+  const other = transformListing(data[0] as GraphQLListing);
+  if (isOffMarketStatus(other.status)) return null;
+  const mine = Number(listing.mls_number) || 0;
+  const theirs = Number(other.mls_number) || 0;
+  return theirs > mine ? other : null;
+}
+
 export function formatPrice(price: number | null): string {
   if (!price) return 'Price N/A';
   return new Intl.NumberFormat('en-US', {

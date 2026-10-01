@@ -19,9 +19,11 @@ export async function generateMetadata(
   // Page 2+ gets its own title so a paginated series isn't a wall of identical
   // results in the SERP.
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
+  // ...and its own description, or every page of the series is a duplicate.
+  const pageLead = page > 1 ? `Page ${page}. ` : '';
   const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
   const title = `Aspen & Snowmass Condos for Sale | ${siteName}`;
-  const description =
+  const description = pageLead +
     'Condos and condominiums for sale in Aspen, Snowmass Village, Basalt, and the Roaring Fork Valley — ski-in/ski-out residences, Aspen Core lock-offs, and downvalley condominiums, updated continuously from the Aspen Glenwood MLS.';
   return {
     title: `${title}${pageSuffix}`,

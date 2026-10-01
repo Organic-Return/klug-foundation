@@ -32,11 +32,13 @@ export async function generateMetadata(
   // Page 2+ gets its own title so a paginated series isn't a wall of identical
   // results in the SERP.
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
+  // ...and its own description, or every page of the series is a duplicate.
+  const pageLead = page > 1 ? `Page ${page}. ` : '';
   const { city: slug } = await params;
   const [baseUrl, siteName, city] = await Promise.all([getBaseUrl(), getSiteName(), resolveCity(slug)]);
   if (!city) return { title: 'Condos for Sale' };
   const title = `Condos for Sale in ${city}, Colorado | ${siteName}`;
-  const description = `Condominiums for sale in ${city}, Colorado. Current listings from the Aspen Glenwood MLS, updated continuously — with local guidance on HOA dues, short-term rental rules, and which buildings hold their value.`;
+  const description = pageLead + `Condominiums for sale in ${city}, Colorado. Current listings from the Aspen Glenwood MLS, updated continuously — with local guidance on HOA dues, short-term rental rules, and which buildings hold their value.`;
   return {
     title: `${title}${pageSuffix}`,
     description,

@@ -30,12 +30,14 @@ export async function generateMetadata(
   // Page 2+ gets its own title so a paginated series isn't a wall of identical
   // results in the SERP.
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
+  // ...and its own description, or every page of the series is a duplicate.
+  const pageLead = page > 1 ? `Page ${page}. ` : '';
   const { city: slug } = await params;
   const [baseUrl, siteName, city] = await Promise.all([getBaseUrl(), getSiteName(), resolveCity(slug)]);
   if (!city) return { title: 'Land for Sale' };
   return {
     title: `Land for Sale in ${city}, Colorado | ${siteName}${pageSuffix}`,
-    description: `Vacant lots, ranches, and acreage for sale in ${city}, Colorado. Updated continuously from the Aspen Glenwood MLS.`,
+    description: pageLead + `Vacant lots, ranches, and acreage for sale in ${city}, Colorado. Updated continuously from the Aspen Glenwood MLS.`,
     alternates: { canonical: page > 1 ? `${baseUrl}/land/${slug}?page=${page}` : `${baseUrl}/land/${slug}` },
     openGraph: {
       title: `Land for Sale in ${city}, Colorado | ${siteName}`,

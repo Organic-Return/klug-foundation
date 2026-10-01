@@ -1,36 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getYouTubeCredentials } from '@/lib/settings';
 import { getSiteName, getBaseUrl } from '@/lib/settings';
-
-interface VideoSnippet {
-  title: string;
-  description: string;
-  publishedAt: string;
-  channelTitle: string;
-  thumbnails: {
-    maxres?: { url: string };
-    standard?: { url: string };
-    high?: { url: string };
-  };
-}
-
-async function getVideo(videoId: string): Promise<VideoSnippet | null> {
-  const { apiKey } = await getYouTubeCredentials();
-  if (!apiKey) return null;
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/youtube/v3/videos?id=${encodeURIComponent(videoId)}&key=${apiKey}&part=snippet`,
-      { next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    return data.items?.[0]?.snippet ?? null;
-  } catch {
-    return null;
-  }
-}
+import { getVideo, findCanonicalVideoId } from '@/lib/youtube';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -42,7 +14,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     getSiteName(),
   ]);
   if (!snippet) return { title: 'Video Not Found' };
-  const description = snippet.description?.slice(0, 160)
+  // A re-upload of the same tour canonicalises to the first upload.
+  const canonicalId = (await findCanonicalVideoId(id, snippet.title)) || id;
+  const description = snippet.description?.replace(/\s+/g, ' ').trim().slice(0, 160)
     || `Watch ${snippet.title} on ${siteName}.`;
   const ogImage =
     snippet.thumbnails.maxres?.url
@@ -51,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${snippet.title} | ${siteName}`,
     description,
-    alternates: { canonical: `${baseUrl}/media/videos/${id}` },
+    alternates: { canonical: `${baseUrl}/media/videos/${canonicalId}` },
     openGraph: {
       title: snippet.title,
       description,

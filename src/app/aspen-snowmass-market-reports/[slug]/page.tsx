@@ -2,6 +2,7 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
@@ -40,11 +41,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const report = await client.fetch<SanityDocument>(MARKET_REPORT_QUERY, { slug }, options);
 
-  if (!report) {
-    return {
-      title: 'Report Not Found',
-    };
-  }
+  // A slug with no document behind it is a 404, not an indexable page
+  // whose only content is the site-wide default description.
+  if (!report) notFound();
 
   const seoImageUrl = report.seo?.ogImage
     ? urlFor(report.seo.ogImage)?.width(1200).height(630).url()
@@ -184,22 +183,7 @@ export default async function MarketReportPage({
     ),
   ]);
 
-  if (!report) {
-    return (
-      <main className="min-h-screen pt-32">
-        <div className="max-w-3xl mx-auto px-6 md:px-12">
-          <Link href="/aspen-snowmass-market-reports" className="inline-flex items-center gap-2 text-[var(--color-gold)] hover:gap-4 transition-all duration-300 mb-8">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-            </svg>
-            Back to Reports
-          </Link>
-          <h1 className="font-serif text-[#1a1a1a] dark:text-white mb-4">Report Not Found</h1>
-          <p className="text-[#6a6a6a] dark:text-gray-400 font-light">The market report you&apos;re looking for doesn&apos;t exist.</p>
-        </div>
-      </main>
-    );
-  }
+  if (!report) notFound();
 
   const heroImageUrl = report.headerImage
     ? urlFor(report.headerImage)?.width(1920).height(800).url()

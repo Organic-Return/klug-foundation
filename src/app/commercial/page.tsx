@@ -19,10 +19,12 @@ export async function generateMetadata(
   // Page 2+ gets its own title so a paginated series isn't a wall of identical
   // results in the SERP.
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
+  // ...and its own description, or every page of the series is a duplicate.
+  const pageLead = page > 1 ? `Page ${page}. ` : '';
   const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
   return {
     title: `Commercial Real Estate in Aspen Snowmass | ${siteName}${pageSuffix}`,
-    description:
+    description: pageLead +
       'Commercial real estate, multi-family income property, and mixed-use opportunities across Aspen, Snowmass Village, Basalt, and the Roaring Fork Valley.',
     alternates: { canonical: page > 1 ? `${baseUrl}/commercial?page=${page}` : `${baseUrl}/commercial` },
     openGraph: {

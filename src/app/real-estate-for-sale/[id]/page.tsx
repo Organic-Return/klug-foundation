@@ -8,6 +8,7 @@ import {
   getRelatedListings,
   isOffMarketStatus,
   isSoldStatus,
+  findNewerDuplicateListing,
   type MLSProperty,
 } from '@/lib/listings';
 import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
@@ -292,13 +293,16 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
   const remarks = (listing.description || '').replace(/\s+/g, ' ').trim();
   const fullDescription = remarks ? `${lead} ${remarks}` : `${lead} MLS# ${listing.mls_number}.`;
   const description = fullDescription.length > 300 ? fullDescription.slice(0, 297).replace(/\s+\S*$/, '') + '...' : fullDescription;
+  // A property the feed lists twice canonicalises to its newer record.
+  const newer = await findNewerDuplicateListing(listing);
+  const canonicalUrl = newer ? `${baseUrl}${getListingHref(newer)}` : listingUrl;
   const images = listing.photos && listing.photos.length > 0 ? listing.photos : [];
   const primaryImage = images[0] || `${baseUrl}/og-default.jpg`;
 
   return {
     title,
     description,
-    alternates: { canonical: listingUrl },
+    alternates: { canonical: canonicalUrl },
     keywords: [
       listing.city, listing.state, listing.property_type,
       'real estate', 'property', 'home for sale',

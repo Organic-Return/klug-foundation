@@ -2,6 +2,7 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
@@ -36,11 +37,9 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await client.fetch<SanityDocument>(POST_QUERY, { slug }, options);
 
-  if (!post) {
-    return {
-      title: 'Post Not Found',
-    };
-  }
+  // A slug with no document behind it is a 404, not an indexable page
+  // whose only content is the site-wide default description.
+  if (!post) notFound();
 
   // Use custom SEO image if available, otherwise use post image
   const seoImageUrl = post.seo?.ogImage
@@ -197,16 +196,7 @@ export default async function PostPage({
     getDefaultHeroImageUrl(),
   ]);
 
-  if (!post) {
-    return (
-      <main className="container mx-auto min-h-screen max-w-3xl p-8">
-        <Link href="/about/blog" className="hover:underline">
-          ← Back to posts
-        </Link>
-        <h1 className="text-[var(--color-sothebys-blue)] mb-8">Post not found</h1>
-      </main>
-    );
-  }
+  if (!post) notFound();
 
   const postImageUrl = post.image
     ? urlFor(post.image)?.width(1200).height(675).url()
