@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Partner, enrichPartnerWithAgentData } from "../../components";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
+import MorePartners from '@/components/MorePartners';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { htmlToPlainText, splitParagraphs } from '@/lib/textUtils';
 import { getRealogyListingsByAgentName, formatPrice, toAddressSlug } from '@/lib/listings';
@@ -353,6 +354,14 @@ export default async function MarketLeaderPartnerPage({ params }: Props) {
           </Link>
         </div>
       </section>
+
+      <MorePartners
+        currentId={partner._id}
+        partnerType="market_leader"
+        heading="More Market Leaders"
+        indexHref="/affiliated-partners/market-leaders"
+        indexLabel="All Market Leaders"
+      />
 
       {/* CTA Section */}
       <section className="py-20 md:py-28 bg-[var(--color-navy)]">

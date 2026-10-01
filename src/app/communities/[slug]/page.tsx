@@ -1,4 +1,5 @@
 import { PortableText, type SanityDocument, type PortableTextComponents } from "next-sanity";
+import MoreCommunities from '@/components/MoreCommunities';
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client, writeClient } from "@/sanity/client";
 import Link from "next/link";
@@ -1223,6 +1224,11 @@ export default async function CommunityPage({
               </div>
             </section>
           )}
+          <MoreCommunities
+            currentId={community._id}
+            currentSlug={slug}
+            parentId={community.parentCommunity?._ref ?? null}
+          />
         </div>
       </main>
     </>

@@ -405,8 +405,14 @@ export default function Footer({
           <p style={{ maxWidth: 'none', fontSize: '8px', marginBottom: '0.5em' }}>
             © {currentYear} Sotheby&apos;s International Realty Affiliates LLC. All rights reserved. Sotheby&apos;s International Realty® and the Sotheby&apos;s International Realty Logo are service marks licensed to Sotheby&apos;s International Realty Affiliates LLC and used with permission. Sotheby&apos;s International Realty Affiliates LLC fully supports the principles of the Fair Housing Act and the Equal Opportunity Act. Each office is independently owned and operated.
           </p>
+          <p style={{ maxWidth: 'none', fontSize: '8px', marginBottom: '6px' }}>
+            This website is not the official website of Sotheby&apos;s International Realty. Real estate agents affiliated with Sotheby&apos;s International Realty are independent contractors and are not employees of Sotheby&apos;s International Realty.
+          </p>
+          <p style={{ maxWidth: 'none', fontSize: '8px', marginBottom: '6px' }}>
+            The information set forth on this site is based upon information which we consider reliable, but because it has been supplied by third parties to our franchisees (who in turn supplied it to us), we can not represent that it is accurate or complete, and it should not be relied upon as such. The offerings are subject to errors, omissions, changes, including price, or withdrawal without notice.
+          </p>
           <p style={{ maxWidth: 'none', fontSize: '8px', marginBottom: '0' }}>
-            This website is not the official website of Sotheby&apos;s International Realty. Real estate agents affiliated with Sotheby&apos;s International Realty are independent contractors and are not employees of Sotheby&apos;s International Realty. The information set forth on this site is based upon information which we consider reliable, but because it has been supplied by third parties to our franchisees (who in turn supplied it to us), we can not represent that it is accurate or complete, and it should not be relied upon as such. The offerings are subject to errors, omissions, changes, including price, or withdrawal without notice. All dimensions are approximate and have not been verified by the selling party and can not be verified by Sotheby&apos;s International Realty Affiliates LLC. It is recommended that you hire a professional in the business of determining dimensions, such as an appraiser, architect or civil engineer, to determine such information.
+            All dimensions are approximate and have not been verified by the selling party and can not be verified by Sotheby&apos;s International Realty Affiliates LLC. It is recommended that you hire a professional in the business of determining dimensions, such as an appraiser, architect or civil engineer, to determine such information.
           </p>
         </div>
       </div>
