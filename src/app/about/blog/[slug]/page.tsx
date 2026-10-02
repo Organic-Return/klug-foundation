@@ -31,6 +31,16 @@ const urlFor = (source: any) =>
 const options = { next: { revalidate: 30 } };
 
 // Generate metadata for SEO, Open Graph, and Twitter Cards
+// The crawler and old links percent-encode "@" and accented characters in a
+// slug; the param arrives encoded and matched nothing in Sanity.
+function decodeSlug(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 // Old links carry the post title with spaces or accented characters
 // ("/about/blog/Spring Jam and March Real Estate Madness",
 // "/about/blog/hot-spots-for-après-in-aspen"). When no post has that exact
@@ -60,7 +70,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const slug = decodeSlug((await params).slug);
   const post = await client.fetch<SanityDocument>(POST_QUERY, { slug }, options);
 
   // A slug with no document behind it is a 404, not an indexable page
@@ -219,7 +229,7 @@ export default async function PostPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
+  const slug = decodeSlug((await params).slug);
   const [post, defaultHeroUrl] = await Promise.all([
     client.fetch<SanityDocument>(POST_QUERY, { slug }, options),
     getDefaultHeroImageUrl(),
