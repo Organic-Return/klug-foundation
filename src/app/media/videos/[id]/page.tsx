@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getSiteName, getBaseUrl } from '@/lib/settings';
+import { getSiteName, getBaseUrl, withBrand } from '@/lib/settings';
+import MoreVideos from '@/components/MoreVideos';
 import { getVideo, findCanonicalVideoId } from '@/lib/youtube';
 
 type Props = { params: Promise<{ id: string }> };
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     || snippet.thumbnails.standard?.url
     || snippet.thumbnails.high?.url;
   return {
-    title: `${snippet.title} | ${siteName}`,
+    title: await withBrand(snippet.title),
     description,
     alternates: { canonical: `${baseUrl}/media/videos/${canonicalId}` },
     openGraph: {
@@ -107,6 +108,7 @@ export default async function VideoDetailPage({ params }: Props) {
           )}
         </div>
       </section>
+      <MoreVideos currentId={id} />
     </main>
   );
 }

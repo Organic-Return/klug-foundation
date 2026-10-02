@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getOpenHouseListings } from '@/lib/listings';
-import { getSiteName, getBaseUrl, getSettings } from '@/lib/settings';
+import { getSiteName, getBaseUrl, getSettings, withBrand } from '@/lib/settings';
 import { client } from '@/sanity/client';
 import OpenHouseGrid from '@/components/OpenHouseGrid';
 
@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = `Browse upcoming open houses from ${siteName}.`;
 
   return {
-    title: 'Open Houses',
+    title: await withBrand('Open Houses'),
     description,
     alternates: { canonical: `${baseUrl}/open-houses` },
     openGraph: {

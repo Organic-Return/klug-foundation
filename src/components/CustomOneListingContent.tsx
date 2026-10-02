@@ -604,9 +604,9 @@ export default function CustomOneListingContent({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {/* Address */}
             <div>
-              <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
+              <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
                 {streetAddress}
-              </h1>
+              </h2>
               <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
                 {cityState}{listing.zip_code ? ` ${listing.zip_code}` : ''}
               </p>

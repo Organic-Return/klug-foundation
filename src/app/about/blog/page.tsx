@@ -317,10 +317,9 @@ export default async function BlogPage({
 
               {/* Page Numbers */}
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                const showPage =
-                  page === 1 ||
-                  page === totalPages ||
-                  Math.abs(page - currentPage) <= 1;
+                // Every page is linked from every page: with only the neighbours
+                // linked, a post on page 15 sat ten clicks from the homepage.
+                const showPage = true;
                 const showEllipsis =
                   !showPage &&
                   (page === 2 || page === totalPages - 1);

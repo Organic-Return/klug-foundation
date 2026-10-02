@@ -3,6 +3,7 @@ import MoreCommunities from '@/components/MoreCommunities';
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client, writeClient } from "@/sanity/client";
 import Link from "next/link";
+import { normalizeContentHref } from "@/lib/contentLinks";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
@@ -18,7 +19,7 @@ import ModernContactCTA from "@/components/ModernContactCTA";
 import CustomOneMarketStats from "@/components/CustomOneMarketStats";
 import CustomOneLocalHighlights from "@/components/CustomOneLocalHighlights";
 import { fetchDemographicData, formatCurrency, formatNumber } from "@/lib/census";
-import { getCommunityPriceRange, findMlsAreaMinorsByName } from "@/lib/listings";
+import { getCommunityPriceRange, findMlsAreaMinorsByName, getRentalCities, getCommercialCities, getLandCities } from "@/lib/listings";
 import { getSettings } from "@/lib/settings";
 
 const COMMUNITY_QUERY = `*[_type == "community" && slug.current == $slug][0]{
@@ -205,7 +206,7 @@ const components: PortableTextComponents = {
     em: ({ children }: { children?: ReactNode }) => <em className="italic font-serif">{children}</em>,
     code: ({ children }: { children?: ReactNode }) => <code className="bg-[#f5f5f5] dark:bg-gray-800 px-2 py-1 text-sm font-mono">{children}</code>,
     link: ({ children, value }: { children?: ReactNode; value?: { href?: string } }) => {
-      const href = value?.href || '';
+      const href = normalizeContentHref(value?.href || '');
       return (
         <a
           href={href}
@@ -301,7 +302,7 @@ const luxuryComponents: PortableTextComponents = {
     em: ({ children }: { children?: ReactNode }) => <em className="italic font-luxury">{children}</em>,
     code: ({ children }: { children?: ReactNode }) => <code className="bg-[#f6f1eb] px-2 py-1 text-sm font-mono">{children}</code>,
     link: ({ children, value }: { children?: ReactNode; value?: { href?: string } }) => {
-      const href = value?.href || '';
+      const href = normalizeContentHref(value?.href || '');
       return (
         <a
           href={href}
@@ -384,6 +385,15 @@ export default async function CommunityPage({
   ]);
 
   const template = settings?.template || 'classic';
+  // Only link to a property-type hub that exists for this town: /land/<city>
+  // 404s when no land is listed there, and three communities linked to one.
+  const hubSlug = (c: string) => c.toLowerCase().replace(/\s+/g, '-');
+  const [rentalCities, commercialCities, landCities] = await Promise.all([getRentalCities(), getCommercialCities(), getLandCities()]);
+  const hubHrefs = new Set([
+    ...rentalCities.map((c) => `/rentals/${hubSlug(c)}`),
+    ...commercialCities.map((c) => `/commercial/${hubSlug(c)}`),
+    ...landCities.map((c) => `/land/${hubSlug(c)}`),
+  ]);
   const isLuxury = template === 'luxury' || template === 'custom-one';
   const isCustomOne = template === 'custom-one';
   const variant = isLuxury ? 'luxury' : 'classic';
@@ -1018,7 +1028,8 @@ export default async function CommunityPage({
               { href: `/rentals/${slug}`, eyebrow: 'For Rent', label: `Rentals in ${community.title}` },
               { href: `/commercial/${slug}`, eyebrow: 'Commercial', label: `Commercial in ${community.title}` },
               { href: `/land/${slug}`, eyebrow: 'Land', label: `Land for sale in ${community.title}` },
-            ];
+            ].filter((c) => hubHrefs.has(c.href));
+            if (cells.length === 0) return null;
             return (
               <section className="py-12 md:py-16 bg-[#f8f7f5] dark:bg-[#141414]">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16">

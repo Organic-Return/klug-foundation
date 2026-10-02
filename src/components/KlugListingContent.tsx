@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { isEmbeddableMediaUrl } from '@/lib/contentLinks';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toDescriptionParagraphs, isSoldStatus, formatListingDate, type MLSProperty } from '@/lib/listings';
@@ -406,9 +407,9 @@ export default function KlugListingContent({
           <div className="border-b border-[var(--rc-brown)]/10 mb-4 py-3">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
-                <h1 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
+                <h2 className="font-serif text-2xl md:text-3xl text-[var(--rc-navy)] tracking-wide">
                   {listing.address?.split(',')[0] || listing.address}
-                </h1>
+                </h2>
                 <p className="text-[var(--rc-brown)]/70 text-sm mt-1 tracking-wide">
                   {listing.city}{listing.state ? `, ${listing.state}` : ''} {listing.zip_code}
                 </p>
@@ -1625,7 +1626,7 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
                     allow="encrypted-media"
                     title={`Property Video ${index + 1}`}
                   />
-                ) : (
+                ) : isEmbeddableMediaUrl(url) ? (
                   <video
                     src={url}
                     controls
@@ -1634,6 +1635,10 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
                   >
                     Your browser does not support the video tag.
                   </video>
+                ) : (
+                  <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full h-full bg-[#f5f5f5] text-sm underline underline-offset-4">
+                    Watch property video {index + 1} in a new tab
+                  </a>
                 )}
               </div>
             ))}
@@ -1643,6 +1648,7 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
         {/* Virtual Tour Tab */}
         {activeTab === 'tour' && listing.virtual_tour_url && (
           <div>
+            {isEmbeddableMediaUrl(listing.virtual_tour_url) && (
             <div className="aspect-video w-full">
               <iframe
                 src={listing.virtual_tour_url}
@@ -1652,6 +1658,7 @@ function MediaSection({ listing, isExclusive }: { listing: MLSProperty; isExclus
                 title="Virtual Tour"
               />
             </div>
+            )}
             {/* Not every tour host allows itself to be framed; keep the tour reachable either way. */}
             <a
               href={listing.virtual_tour_url}

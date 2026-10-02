@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import {
   getListingBySlug,
   getListingHref,
@@ -200,7 +200,9 @@ function generateRealEstateSchema(listing: MLSProperty) {
   // media) we omit the Product schema entirely rather than emit it
   // invalid — RealEstateListing already covers the property.
   const hasPhotos = !!(listing.photos && listing.photos.length > 0);
-  const productSchema = hasPhotos
+  // Google requires offers (or a rating or review) on a Product; a listing
+  // without a price gets no Product block rather than an invalid one.
+  const productSchema = hasPhotos && listing.list_price
     ? {
         '@context': 'https://schema.org',
         '@type': 'Product',
@@ -280,7 +282,9 @@ export async function generateMetadata({ params }: ListingPageProps): Promise<Me
     ]
       .filter(Boolean)
       .join(' — ');
-  const title = `${addressLabel} | ${formatPrice(listing.list_price)} | ${listing.city}, ${listing.state}`;
+  // The address already names the city; repeating it pushed every title past
+  // 70 characters and Google truncated the price.
+  const title = `${addressLabel} | ${formatPrice(listing.list_price)}`;
   // Lead with the facts that differ between units before the MLS remarks:
   // every unit in a building shares the same remarks, so remarks-only
   // descriptions were identical across dozens of pages.
@@ -407,7 +411,7 @@ export default async function ListingPage({ params, canonicalize = true }: Listi
   if (canonicalize) {
     const canonicalSlug = buildListingSlug(listing);
     if (canonicalSlug && id !== canonicalSlug) {
-      redirect(`/real-estate-for-sale/${canonicalSlug}`);
+      permanentRedirect(`/real-estate-for-sale/${canonicalSlug}`);
     }
   }
 

@@ -42,6 +42,7 @@ export default function OffMarketListingsContent({ listings }: OffMarketListings
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
+        <h1 className="sr-only">Off-Market Listings</h1>
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-gold)]"></div>
       </div>
     );

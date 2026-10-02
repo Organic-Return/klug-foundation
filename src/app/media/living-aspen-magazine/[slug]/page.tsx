@@ -2,10 +2,12 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import { normalizeContentHref } from "@/lib/contentLinks";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
+import MorePublications from "@/components/MorePublications";
 
 const MAGAZINE_QUERY = `*[_type == "publication" && publicationType == "magazine" && slug.current == $slug][0]{
   ...,
@@ -95,8 +97,10 @@ const components: PortableTextComponents = {
     normal: ({ children }: { children?: ReactNode }) => (
       <p className="mb-6 text-[#4a4a4a] dark:text-gray-300 leading-[1.8] font-light text-[17px]">{children}</p>
     ),
+    // The page title is the only H1; a heading the editor styled as H1 in the
+    // body renders as H2 so the outline does not restart.
     h1: ({ children }: { children?: ReactNode }) => (
-      <h1 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h1>
+      <h2 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h2>
     ),
     h2: ({ children }: { children?: ReactNode }) => (
       <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white mt-10 mb-5 tracking-wide">{children}</h2>
@@ -118,7 +122,7 @@ const components: PortableTextComponents = {
     underline: ({ children }: { children?: ReactNode }) => <span className="underline underline-offset-4">{children}</span>,
     'strike-through': ({ children }: { children?: ReactNode }) => <span className="line-through">{children}</span>,
     link: ({ children, value }: { children?: ReactNode; value?: { href?: string; blank?: boolean } }) => {
-      const href = value?.href || '';
+      const href = normalizeContentHref(value?.href || '');
       return (
         <a
           href={href}
@@ -313,9 +317,9 @@ export default async function MagazinePage({
             {pdfUrl && (
               <div className="mt-16 pt-12 border-t border-[#e8e6e3] dark:border-gray-800">
                 <div className="bg-[#f8f7f5] dark:bg-[#141414] p-8 md:p-12 text-center">
-                  <h3 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4">
+                  <h2 className="text-2xl font-serif font-light text-[#1a1a1a] dark:text-white mb-4">
                     Download Full Issue
-                  </h3>
+                  </h2>
                   <p className="text-[#6a6a6a] dark:text-gray-400 font-light mb-6">
                     Get the complete magazine in PDF format for offline reading.
                   </p>
@@ -337,6 +341,14 @@ export default async function MagazinePage({
         </section>
 
         {/* Subscribe CTA */}
+        <MorePublications
+          publicationType="magazine"
+          currentSlug={slug}
+          basePath="/media/living-aspen-magazine"
+          heading="More Issues"
+          indexLabel="All Issues"
+        />
+
         <section className="relative py-20 md:py-28 bg-[var(--color-sothebys-blue)] dark:bg-[#0a0a0a] overflow-hidden">
           {heroImageUrl && (
             <>

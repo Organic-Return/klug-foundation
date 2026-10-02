@@ -251,7 +251,7 @@ export async function withBrand(title: string): Promise<string> {
  */
 export async function getBaseUrl(): Promise<string> {
   const settings = await getSettings();
-  return process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
+  return (process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com').replace(/\/+$/, '');
 }
 
 /**

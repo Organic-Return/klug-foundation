@@ -2,12 +2,14 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { normalizeContentHref } from "@/lib/contentLinks";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
 import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
 import RelatedPosts from '@/components/RelatedPosts';
+import AdjacentPosts from '@/components/AdjacentPosts';
 
 const POST_QUERY = `*[_type == "post" && slug.current == $slug][0]{
   ...,
@@ -29,6 +31,30 @@ const urlFor = (source: any) =>
 const options = { next: { revalidate: 30 } };
 
 // Generate metadata for SEO, Open Graph, and Twitter Cards
+// Old links carry the post title with spaces or accented characters
+// ("/about/blog/Spring Jam and March Real Estate Madness",
+// "/about/blog/hot-spots-for-après-in-aspen"). When no post has that exact
+// slug, the ASCII slug form is tried and the request sent there permanently.
+function canonicalSlugForm(slug: string): string {
+  return slug
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function redirectToCanonicalSlug(slug: string): Promise<never | void> {
+  const canonical = canonicalSlugForm(slug);
+  if (!canonical || canonical === slug) return;
+  const exists = await client.fetch<string | null>(
+    `*[_type == "post" && slug.current == $slug][0].slug.current`,
+    { slug: canonical },
+    options
+  );
+  if (exists) permanentRedirect(`/about/blog/${canonical}`);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -39,7 +65,10 @@ export async function generateMetadata({
 
   // A slug with no document behind it is a 404, not an indexable page
   // whose only content is the site-wide default description.
-  if (!post) notFound();
+  if (!post) {
+    await redirectToCanonicalSlug(slug);
+    notFound();
+  }
 
   // Use custom SEO image if available, otherwise use post image
   const seoImageUrl = post.seo?.ogImage
@@ -128,7 +157,7 @@ const components: PortableTextComponents = {
     em: ({ children }: { children?: ReactNode }) => <em className="italic">{children}</em>,
     code: ({ children }: { children?: ReactNode }) => <code className="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded">{children}</code>,
     link: ({ children, value }: { children?: ReactNode; value?: { href?: string } }) => {
-      const href = value?.href || '';
+      const href = normalizeContentHref(value?.href || '');
       return <a href={href} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>;
     },
   },
@@ -196,7 +225,10 @@ export default async function PostPage({
     getDefaultHeroImageUrl(),
   ]);
 
-  if (!post) notFound();
+  if (!post) {
+    await redirectToCanonicalSlug(slug);
+    notFound();
+  }
 
   const postImageUrl = post.image
     ? urlFor(post.image)?.width(1200).height(675).url()
@@ -303,6 +335,7 @@ export default async function PostPage({
         );
       })()}
       <RelatedPosts currentSlug={slug} basePath="/about/blog" />
+      <AdjacentPosts currentSlug={slug} publishedAt={post.publishedAt} />
     </main>
     </>
   );

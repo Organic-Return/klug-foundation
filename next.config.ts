@@ -108,6 +108,24 @@ const nextConfig: NextConfig = {
       { source: '/testimonials', destination: '/about/testimonials', permanent: true },
       { source: '/blog', destination: '/about/blog', permanent: true },
       { source: '/why-klug-properties', destination: '/about/why-klug-properties', permanent: true },
+      // Paths from the Drupal site that blog posts and old inbound links still
+      // use; each 404ed in the October crawl.
+      { source: '/living-aspen-magazine', destination: '/media/living-aspen-magazine', permanent: true },
+      { source: '/living-aspen-magazine/:slug', destination: '/media/living-aspen-magazine/:slug', permanent: true },
+      { source: '/videos/:slug*', destination: '/media/videos', permanent: true },
+      { source: '/virtual-tours', destination: '/media/videos', permanent: true },
+      { source: '/favorite-properties', destination: '/saved-properties', permanent: true },
+      { source: '/Listings/off-market-listings', destination: '/off-market', permanent: true },
+      { source: '/listings/off-market-listings', destination: '/off-market', permanent: true },
+      { source: '/aspen-blog', destination: '/about/blog', permanent: true },
+      { source: '/aspen-blog/:slug', destination: '/about/blog/:slug', permanent: true },
+      // /property-detail?mlsId=140492: the listing page resolves a bare MLS number.
+      {
+        source: '/property-detail',
+        has: [{ type: 'query', key: 'mlsId', value: '(?<mlsId>[A-Za-z0-9]+)' }],
+        destination: '/real-estate-for-sale/:mlsId',
+        permanent: true,
+      },
     ];
   },
   async headers() {

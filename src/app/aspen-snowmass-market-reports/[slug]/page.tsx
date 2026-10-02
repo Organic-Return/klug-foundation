@@ -2,11 +2,13 @@ import { PortableText, type SanityDocument, type PortableTextComponents } from "
 import { createImageUrlBuilder } from "@sanity/image-url";
 import { client } from "@/sanity/client";
 import Link from "next/link";
+import { normalizeContentHref } from "@/lib/contentLinks";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import { getDefaultHeroImageUrl } from "@/lib/settings";
+import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
+import { pickNeighbours } from "@/lib/publications";
 
 const MARKET_REPORT_QUERY = `*[_type == "publication" && publicationType == "market-report" && slug.current == $slug][0]{
   ...,
@@ -51,7 +53,7 @@ export async function generateMetadata({
     ? urlFor(report.headerImage)?.width(1200).height(630).url()
     : null;
 
-  const metaTitle = report.seo?.metaTitle || report.title;
+  const metaTitle = await withBrand(report.seo?.metaTitle || report.title);
   const metaDescription = report.seo?.metaDescription || report.excerpt || report.title;
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
@@ -94,8 +96,10 @@ const components: PortableTextComponents = {
     normal: ({ children }: { children?: ReactNode }) => (
       <p className="mb-6 text-[#4a4a4a] dark:text-gray-300 leading-[1.8] font-light text-[17px]">{children}</p>
     ),
+    // The page title is the only H1; a heading the editor styled as H1 in the
+    // body renders as H2 so the outline does not restart.
     h1: ({ children }: { children?: ReactNode }) => (
-      <h1 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h1>
+      <h2 className="font-serif text-[#1a1a1a] dark:text-white mt-12 mb-6">{children}</h2>
     ),
     h2: ({ children }: { children?: ReactNode }) => (
       <h2 className="text-2xl md:text-3xl font-serif font-light text-[#1a1a1a] dark:text-white mt-10 mb-5 tracking-wide">{children}</h2>
@@ -117,7 +121,7 @@ const components: PortableTextComponents = {
     underline: ({ children }: { children?: ReactNode }) => <span className="underline underline-offset-4">{children}</span>,
     'strike-through': ({ children }: { children?: ReactNode }) => <span className="line-through">{children}</span>,
     link: ({ children, value }: { children?: ReactNode; value?: { href?: string; blank?: boolean } }) => {
-      const href = value?.href || '';
+      const href = normalizeContentHref(value?.href || '');
       return (
         <a
           href={href}
@@ -171,11 +175,11 @@ export default async function MarketReportPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [report, defaultHeroUrl, otherReports] = await Promise.all([
+  const [report, defaultHeroUrl, allReports] = await Promise.all([
     client.fetch<SanityDocument>(MARKET_REPORT_QUERY, { slug }, options),
     getDefaultHeroImageUrl(),
     client.fetch<Array<{ _id: string; title: string; slug: { current: string }; publishedAt: string; headerImage?: any }>>(
-      `*[_type == "publication" && publicationType == "market-report" && slug.current != $slug] | order(publishedAt desc) [0...6] {
+      `*[_type == "publication" && publicationType == "market-report" && defined(slug.current)] | order(publishedAt desc) [0...300] {
         _id, title, slug, publishedAt, headerImage
       }`,
       { slug },
@@ -184,6 +188,9 @@ export default async function MarketReportPage({
   ]);
 
   if (!report) notFound();
+  // The reports either side of this one, not the newest six: the older
+  // reports were otherwise linked from nothing but the index.
+  const otherReports = pickNeighbours(allReports, slug, 6);
 
   const heroImageUrl = report.headerImage
     ? urlFor(report.headerImage)?.width(1920).height(800).url()

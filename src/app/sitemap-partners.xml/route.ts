@@ -42,7 +42,11 @@ async function getMarketLeaderListingSlugs(): Promise<string[]> {
   for (const row of (data ?? []) as MarketLeaderRow[]) {
     if (!row.street_address) continue;
     const slug = toAddressSlug(row.street_address);
-    if (slug) slugs.add(slug);
+    // The page resolves a slug by matching each hyphen-separated token against
+    // the stored address. A token that lost punctuation ("No.1409" became
+    // "No1409") can never match, so that address is left out rather than
+    // listed as a URL that 404s.
+    if (slug && slug.split('-').every((tok) => row.street_address!.includes(tok))) slugs.add(slug);
   }
   return Array.from(slugs);
 }

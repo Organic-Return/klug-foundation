@@ -56,7 +56,9 @@ function PropertyCard({ listing, isSold, hasVideo = false, hasMatterport = false
           href={href}
           aria-label={listing.address || 'View property'}
           className="absolute inset-0 z-10"
-        />
+        >
+          <span className="sr-only">{listing.address || 'View property'}</span>
+        </Link>
 
         {currentPhoto && !imageError ? (
           <Image
