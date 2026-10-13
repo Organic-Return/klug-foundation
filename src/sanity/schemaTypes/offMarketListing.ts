@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { MultiImageUpload } from '../components/MultiImageUpload'
 
 export const offMarketListing = defineType({
   name: 'offMarketListing',
@@ -308,6 +309,9 @@ export const offMarketListing = defineType({
       name: 'photos',
       title: 'Property Photos',
       type: 'array',
+      description:
+        'Drag and drop a whole batch of photos onto the box, or click "Select photos" to pick several at once. Reorder by dragging; click a photo to set its hotspot or caption.',
+      components: { input: MultiImageUpload },
       of: [
         {
           type: 'image',
