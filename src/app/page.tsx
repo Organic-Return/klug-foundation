@@ -4,6 +4,7 @@ import { client } from '@/sanity/client';
 import { getHomepageData, getAllCommunities } from '@/lib/homepage';
 import { getSettings, getBranding } from '@/lib/settings';
 import { getNewestHighPricedByCities, getNewestHighPricedByCity, getListingsByAgentId } from '@/lib/listings';
+import { getFeaturedListings, getHomepageCityStats, getNewestListings } from '@/lib/homepageSections';
 import StructuredData from '@/components/StructuredData';
 import HomepageContent from '@/components/HomepageContent';
 import { brandName } from '@/lib/structuredData';
@@ -161,6 +162,34 @@ export default async function Home() {
       console.error('Error pre-fetching hero properties:', e);
     }
   }
+
+  // Pre-fetch the classic sections that otherwise load in the browser, so the
+  // featured property, Market Insights and the newest listings are in the HTML
+  // for crawlers that do not run JavaScript. The conditions mirror the ones
+  // HomepageContent renders each section under.
+  const template = settings?.template || 'classic';
+  const marketStatsCities = (homepage?.marketStatsSection?.cities || [])
+    .filter((c) => c.enabled)
+    .map((c) => c.city);
+  const featuredIds =
+    autoFeaturedMlsIds.length > 0 ? autoFeaturedMlsIds : featuredProperty?.mlsId ? [featuredProperty.mlsId] : [];
+  const [featuredListingsInitial, cityStatsInitial, newestListingsInitial] =
+    template === 'classic'
+      ? await Promise.all([
+          featuredProperty?.enabled && featuredIds.length > 0
+            ? getFeaturedListings(featuredIds)
+            : Promise.resolve(undefined),
+          homepage?.marketStatsSection?.enabled !== false
+            ? getHomepageCityStats(marketStatsCities.length > 0 ? marketStatsCities : undefined)
+            : Promise.resolve(undefined),
+          homepage?.featuredPropertiesCarousel?.enabled !== false
+            ? getNewestListings(
+                homepage?.featuredPropertiesCarousel?.cities || undefined,
+                homepage?.featuredPropertiesCarousel?.limit || 8
+              )
+            : Promise.resolve(undefined),
+        ])
+      : [undefined, undefined, undefined];
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
 
@@ -366,6 +395,9 @@ export default async function Home() {
         }}
         logoUrl={branding?.logo?.asset?.url ? urlFor(branding.logo).width(420).url() : undefined}
         logoAlt={branding?.logoAlt || settings?.title}
+        featuredListingsInitial={featuredListingsInitial}
+        cityStatsInitial={cityStatsInitial}
+        newestListingsInitial={newestListingsInitial}
         inTheNews={{
           enabled: homepage?.inTheNews?.enabled,
           title: homepage?.inTheNews?.title,

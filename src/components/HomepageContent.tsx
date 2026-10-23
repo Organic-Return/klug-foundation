@@ -10,6 +10,9 @@ import ClassicFeaturedProperty from '@/components/ClassicFeaturedProperty';
 import FeaturedAspenProperties from '@/components/FeaturedAspenProperties';
 import CityStats from '@/components/CityStats';
 import InTheNews from '@/components/InTheNews';
+import type { FeaturedListing } from '@/components/ClassicFeaturedProperty';
+import type { CarouselListing } from '@/components/FeaturedAspenProperties';
+import type { CityStatsData } from '@/components/CityStats';
 
 // RC Sotheby's template components — hero eagerly loaded, rest lazy
 import RCSothebysHero from '@/components/RCSothebysHero';
@@ -157,6 +160,14 @@ interface HomepageContentProps {
       publishedAt?: string;
     }>;
   };
+
+  // Server-fetched data for the classic sections that otherwise load in the
+  // browser (see src/lib/homepageSections.ts), so the homepage HTML carries
+  // them for crawlers that do not run JavaScript. Undefined means the section
+  // fetches after load as it used to.
+  featuredListingsInitial?: FeaturedListing[];
+  cityStatsInitial?: { cities: string[]; stats: CityStatsData[] };
+  newestListingsInitial?: CarouselListing[];
 }
 
 export default function HomepageContent({
@@ -184,6 +195,9 @@ export default function HomepageContent({
   logoUrl,
   logoAlt,
   inTheNews,
+  featuredListingsInitial,
+  cityStatsInitial,
+  newestListingsInitial,
 }: HomepageContentProps) {
   // Extract enabled cities from market stats configuration
   const marketStatsCities = marketStatsSection?.cities
@@ -400,6 +414,7 @@ export default function HomepageContent({
             headline={featuredProperty.headline}
             buttonText={featuredProperty.buttonText}
             videos={featuredProperty.videos}
+            initialProperties={featuredListingsInitial}
           />
         )}
 
@@ -410,6 +425,7 @@ export default function HomepageContent({
             subtitle={marketStatsSection?.subtitle}
             seoDescription={marketStatsSection?.seoDescription}
             configuredCities={marketStatsCities.length > 0 ? marketStatsCities : undefined}
+            initialData={cityStatsInitial}
           />
         )}
 
@@ -432,6 +448,7 @@ export default function HomepageContent({
             seoDescription={featuredPropertiesCarousel?.seoDescription}
             limit={featuredPropertiesCarousel?.limit}
             buttonText={featuredPropertiesCarousel?.buttonText}
+            initialProperties={newestListingsInitial}
           />
         )}
       </>

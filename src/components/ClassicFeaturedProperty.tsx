@@ -21,12 +21,17 @@ interface Property {
   property_type: string;
 }
 
+export type FeaturedListing = Property;
+
 interface ClassicFeaturedPropertyProps {
   mlsId?: string;
   mlsIds?: string[];
   headline?: string;
   buttonText?: string;
   videos?: string[];
+  /** Listings fetched on the server (src/app/page.tsx). With these the
+   *  section is in the HTML; without them it fetches after load. */
+  initialProperties?: Property[];
 }
 
 function formatSqft(sqft: number | null): string {
@@ -39,10 +44,12 @@ export default function ClassicFeaturedProperty({
   mlsIds,
   buttonText = 'View Property',
   videos,
+  initialProperties,
 }: ClassicFeaturedPropertyProps) {
-  const [properties, setProperties] = useState<Property[]>([]);
+  const hasInitial = initialProperties !== undefined;
+  const [properties, setProperties] = useState<Property[]>(initialProperties ?? []);
   const [activePropertyIndex, setActivePropertyIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!hasInitial);
   const [activeVideo, setActiveVideo] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -81,6 +88,7 @@ export default function ClassicFeaturedProperty({
   const hasMultipleVideos = effectiveVideos.length > 1;
 
   useEffect(() => {
+    if (hasInitial) return;
     let cancelled = false;
     async function fetchAll() {
       if (idsToFetch.length === 0) {

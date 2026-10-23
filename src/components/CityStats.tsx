@@ -11,7 +11,7 @@ interface MonthlyData {
   salesCount: number;
 }
 
-interface CityStatsData {
+export interface CityStatsData {
   city: string;
   totalActiveListings: number;
   totalUnderContract: number;
@@ -33,6 +33,31 @@ interface CityStatsProps {
   subtitle?: string;
   seoDescription?: string;
   configuredCities?: string[];
+  /** "All Properties" stats computed on the server (src/app/page.tsx). With
+   *  these the section is in the HTML; without them it fetches after load.
+   *  The other property filters still fetch when chosen. */
+  initialData?: { cities: string[]; stats: CityStatsData[] };
+}
+
+// The API returns every city it knows; when the CMS configures a list, show
+// only those, in the configured order.
+function applyConfiguredCities(
+  data: { cities: string[]; stats: CityStatsData[] },
+  configuredCities?: string[]
+): { cities: string[]; stats: CityStatsData[] } {
+  const resultCities: string[] = data.cities || [];
+  const resultStats: CityStatsData[] = data.stats || [];
+  if (!configuredCities || configuredCities.length === 0) {
+    return { cities: resultCities, stats: resultStats };
+  }
+  // Use Map for O(1) lookup instead of find()
+  const statsMap = new Map(resultStats.map((s) => [s.city, s]));
+  return {
+    cities: configuredCities.filter((city) => resultCities.includes(city)),
+    stats: configuredCities
+      .map((city) => statsMap.get(city))
+      .filter((s): s is CityStatsData => s !== undefined),
+  };
 }
 
 type PropertyFilter = 'all' | 'single-family' | 'condo-townhome' | 'land';
@@ -56,14 +81,20 @@ export default function CityStats({
   subtitle = 'Real-time market data across our featured communities',
   seoDescription,
   configuredCities,
+  initialData,
 }: CityStatsProps) {
-  const [cities, setCities] = useState<string[]>([]);
-  const [stats, setStats] = useState<CityStatsData[]>([]);
-  const [activeCity, setActiveCity] = useState<string>('');
+  // Server data seeds the state and the cache under the "all" key, so the
+  // mount-time fetch below is served from the cache instead of the network.
+  const initial = initialData ? applyConfiguredCities(initialData, configuredCities) : null;
+  const [cities, setCities] = useState<string[]>(initial?.cities ?? []);
+  const [stats, setStats] = useState<CityStatsData[]>(initial?.stats ?? []);
+  const [activeCity, setActiveCity] = useState<string>(initial?.cities[0] ?? '');
   const [propertyFilter, setPropertyFilter] = useState<PropertyFilter>('all');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initial);
 
-  const statsCache = useRef<Record<string, { cities: string[]; stats: CityStatsData[] }>>({});
+  const statsCache = useRef<Record<string, { cities: string[]; stats: CityStatsData[] }>>(
+    initial ? { [`all-${configuredCities?.join(',') || 'all'}`]: initial } : {}
+  );
 
   const fetchStats = useCallback(async (filter: PropertyFilter) => {
     // Return cached data if available
@@ -89,18 +120,7 @@ export default function CityStats({
       const response = await fetch(url);
       const data = await response.json();
 
-      // If configured cities are provided, filter and order the results
-      let resultCities = data.cities || [];
-      let resultStats = data.stats || [];
-
-      if (configuredCities && configuredCities.length > 0) {
-        // Use Map for O(1) lookup instead of find()
-        const statsMap = new Map(resultStats.map((s: CityStatsData) => [s.city, s]));
-        resultCities = configuredCities.filter(city => resultCities.includes(city));
-        resultStats = configuredCities
-          .map(city => statsMap.get(city))
-          .filter((s): s is CityStatsData => s !== undefined);
-      }
+      const { cities: resultCities, stats: resultStats } = applyConfiguredCities(data, configuredCities);
 
       // Cache the result
       statsCache.current[cacheKey] = { cities: resultCities, stats: resultStats };

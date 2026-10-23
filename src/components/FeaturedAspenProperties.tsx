@@ -18,6 +18,8 @@ interface Property {
   mls_number: string;
 }
 
+export type CarouselListing = Property;
+
 interface FeaturedAspenPropertiesProps {
   cities?: string[];
   title?: string;
@@ -25,6 +27,9 @@ interface FeaturedAspenPropertiesProps {
   seoDescription?: string;
   limit?: number;
   buttonText?: string;
+  /** Listings fetched on the server (src/app/page.tsx). With these the
+   *  section is in the HTML; without them it fetches after load. */
+  initialProperties?: Property[];
 }
 
 export default function FeaturedAspenProperties({
@@ -34,15 +39,18 @@ export default function FeaturedAspenProperties({
   seoDescription,
   limit = 8,
   buttonText = 'View All Properties',
+  initialProperties,
 }: FeaturedAspenPropertiesProps) {
-  const [properties, setProperties] = useState<Property[]>([]);
+  const hasInitial = initialProperties !== undefined;
+  const [properties, setProperties] = useState<Property[]>(initialProperties ?? []);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!hasInitial);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(0);
 
-  // Fetch properties on mount
+  // Fetch properties on mount, unless the server already supplied them
   useEffect(() => {
+    if (hasInitial) return;
     async function fetchProperties() {
       try {
         // Use cities parameter if multiple, or city parameter for single
@@ -60,7 +68,7 @@ export default function FeaturedAspenProperties({
       }
     }
     fetchProperties();
-  }, [cities, limit]);
+  }, [cities, limit, hasInitial]);
 
   const goToSlide = useCallback((index: number) => {
     if (properties.length === 0) return;
