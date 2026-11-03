@@ -185,8 +185,14 @@ export function parseFreeTextAddress(address?: string | null): Tenant['address']
   return { street: street || undefined, city, state, postalCode, country: 'US' };
 }
 
-/** The brand as a name: the last "|" segment of an SEO site title. */
-export function brandName(title?: string | null, fallback = 'Real Estate'): string {
+/**
+ * The brand as a name. Settings may carry an explicit `siteName`, written
+ * "Brand | Tagline", whose first segment is the brand; otherwise the SEO
+ * `title` is "Keywords | Brand", whose last segment is the brand.
+ */
+export function brandName(title?: string | null, fallback = 'Real Estate', siteName?: string | null): string {
+  const explicit = (siteName || '').split('|')[0].trim();
+  if (explicit) return explicit;
   const parts = (title || '').split('|').map((part) => part.trim()).filter(Boolean);
   return parts[parts.length - 1] || fallback;
 }
@@ -251,7 +257,7 @@ export async function getTenant(): Promise<Tenant> {
 
   const tenant: Tenant = {
     baseUrl,
-    name: data?.siteName?.trim() || brandName(data?.title, process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate'),
+    name: brandName(data?.title, process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate', data?.siteName),
     siteTitle: data?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate',
     description: data?.description,
     logoUrl: imageUrl(data?.logo, 600),

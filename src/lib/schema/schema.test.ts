@@ -309,6 +309,7 @@ describe('sitewide nodes', () => {
   it('brandName takes the last segment of an SEO title', () => {
     expect(brandName('Aspen Real Estate | Example Agent')).toBe('Example Agent');
     expect(brandName('', 'Fallback')).toBe('Fallback');
+    expect(brandName('Aspen Real Estate | Example Agent', 'x', 'Jane Example | Aspen Snowmass Real Estate')).toBe('Jane Example');
   });
 });
 

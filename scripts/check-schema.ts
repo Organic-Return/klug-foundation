@@ -40,7 +40,7 @@ const DEFAULT_PATHS: Record<string, string[]> = {
     '/communities/COMMUNITY',
     '/blog',
     '/POST',
-    '/agents/AGENT',
+    '/team/AGENT',
     '/about/stacey-k-kelly',
     '/testimonials',
     '/living-aspen/MAGAZINE',
@@ -74,7 +74,7 @@ async function resolvePlaceholder(path: string): Promise<string | null> {
     LISTING: tenant === 'skk' ? ['/listings', '/exclusive-listings'] : ['/real-estate-for-sale'],
     COMMUNITY: ['/communities', '/'],
     POST: tenant === 'skk' ? ['/blog'] : ['/about/blog'],
-    AGENT: tenant === 'skk' ? ['/agents', '/team'] : ['/about/our-team', '/agents'],
+    AGENT: tenant === 'skk' ? ['/team', '/agents'] : ['/about/our-team', '/agents'],
     MAGAZINE: tenant === 'skk' ? ['/living-aspen'] : ['/media/living-aspen-magazine'],
     VIDEO: ['/media/videos', '/videos'],
     PRESS: ['/in-the-news'],
@@ -87,6 +87,8 @@ async function resolvePlaceholder(path: string): Promise<string | null> {
     let m: RegExpExecArray | null;
     while ((m = re.exec(html))) {
       const href = m[1];
+      // Skip assets, API routes and anything with a file extension
+      if (/^\/(_next|api)\//.test(href) || /\.[a-z0-9]{2,5}$/i.test(href)) continue;
       // Skip index-like links (e.g. /blog/page/2) and other sections
       if (kind === 'POST' && tenant === 'skk' && /^\/(about|blog|agents|listings|communities|sell|buy|team|market-reports|living-aspen|videos|testimonials|contact-us|off-market|resources|builders|sold|privacy-policy|why-klug-properties|exclusive-listings|open-houses|saved-properties|local-guide|affiliated-partners)(\/|$)/.test(href)) continue;
       if (/\/page\/\d+/.test(href)) continue;
