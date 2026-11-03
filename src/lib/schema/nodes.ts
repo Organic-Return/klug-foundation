@@ -204,7 +204,9 @@ export type WebPageType =
   | 'FAQPage';
 
 export interface WebPageInput {
-  tenant: Tenant;
+  /** The tenant, or at least its base URL, for the isPartOf → website link. */
+  tenant?: Pick<Tenant, 'baseUrl'>;
+  baseUrl?: string;
   url: string;
   name: string;
   description?: string | null;
@@ -219,6 +221,7 @@ export interface WebPageInput {
 }
 
 export function webPageNode(input: WebPageInput): JsonLdNode {
+  const baseUrl = input.tenant?.baseUrl || input.baseUrl || new URL(input.url).origin;
   return {
     '@type': input.type || 'WebPage',
     '@id': ids.webpage(input.url),
@@ -226,7 +229,7 @@ export function webPageNode(input: WebPageInput): JsonLdNode {
     name: input.name,
     description: input.description,
     inLanguage: 'en-US',
-    isPartOf: ref(ids.website(input.tenant.baseUrl)),
+    isPartOf: ref(ids.website(baseUrl)),
     breadcrumb: input.hasBreadcrumb ? ref(ids.breadcrumb(input.url)) : undefined,
     primaryImageOfPage: imageObject(input.image),
     datePublished: input.datePublished,
@@ -379,7 +382,8 @@ export function reviewNode(input: ReviewInput): JsonLdNode | undefined {
 }
 
 export interface ProfilePageInput {
-  tenant: Tenant;
+  tenant?: Pick<Tenant, 'baseUrl'>;
+  baseUrl?: string;
   url: string;
   name: string;
   description?: string | null;
@@ -392,6 +396,7 @@ export interface ProfilePageInput {
 export function profilePageNode(input: ProfilePageInput): JsonLdNode {
   return webPageNode({
     tenant: input.tenant,
+    baseUrl: input.baseUrl,
     type: 'ProfilePage',
     url: input.url,
     name: input.name,

@@ -70,6 +70,7 @@ export interface Tenant {
 
 const TENANT_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   title,
+  siteName,
   description,
   siteUrl,
   socialMedia,
@@ -111,6 +112,7 @@ interface RawCredential {
 
 interface RawSettings {
   title?: string;
+  siteName?: string;
   description?: string;
   siteUrl?: string;
   socialMedia?: Record<string, string | null | undefined>;
@@ -153,6 +155,24 @@ function imageUrl(source: unknown, width: number, height?: number): string | und
   } catch {
     return undefined;
   }
+}
+
+/**
+ * A PostalAddress from a free-text office address as editors type it in
+ * settings, e.g. "Snowmass Village Office\n16 Kearns Road, Suite 110\n
+ * Snowmass Village, CO 81615". The last line is read as "City, ST ZIP" and
+ * the lines before it as the street (minus a leading office label). When
+ * it does not match that shape the whole text becomes the street.
+ */
+export function parseFreeTextAddress(address?: string | null): Tenant['address'] {
+  const lines = (address || '').split('\n').map((l) => l.trim()).filter(Boolean);
+  if (lines.length === 0) return null;
+  const last = /^(.+?),\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/.exec(lines[lines.length - 1]);
+  if (!last) return { street: lines.join(', ') };
+  const [, city, state, postalCode] = last;
+  const streetLines = lines.slice(0, -1);
+  const street = (streetLines.length > 1 ? streetLines.slice(1) : streetLines).join(', ');
+  return { street: street || undefined, city, state, postalCode, country: 'US' };
 }
 
 /** The brand as a name: the last "|" segment of an SEO site title. */
@@ -218,7 +238,7 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
 
   const tenant: Tenant = {
     baseUrl,
-    name: brandName(data?.title, process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate'),
+    name: data?.siteName?.trim() || brandName(data?.title, process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate'),
     siteTitle: data?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate',
     description: data?.description,
     logoUrl: imageUrl(data?.logo, 600),
@@ -227,9 +247,7 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
     email: data?.contactInfo?.email,
     address: office.street || office.city || office.postalCode
       ? { street: office.street, city: office.city, state: office.state, postalCode: office.postalCode, country: office.country }
-      : data?.contactInfo?.address
-        ? { street: String(data.contactInfo.address).split('\n')[0] }
-        : null,
+      : parseFreeTextAddress(data?.contactInfo?.address),
     geo: typeof office.lat === 'number' && typeof office.lng === 'number' ? { lat: office.lat, lng: office.lng } : null,
     priceRange: business.priceRange,
     areaServed: (business.areaServed || []).filter((a): a is string => !!a),

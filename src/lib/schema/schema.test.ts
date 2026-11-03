@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildGraph, compact, serializeJsonLd } from './graph';
 import { ids, absoluteUrl, normalizeBaseUrl } from './ids';
 import { toPlainText, truncate, temporalCoverage, isoDate } from './text';
-import { brandName, resolveBaseUrl, type Tenant } from './tenant';
+import { brandName, resolveBaseUrl, parseFreeTextAddress, type Tenant } from './tenant';
 import {
   organizationNode,
   agentNode,
@@ -288,6 +288,22 @@ describe('sitewide nodes', () => {
     expect((site.potentialAction as { target: { urlTemplate: string } }).target.urlTemplate).toBe(
       'https://www.example-agent.com/real-estate-for-sale?q={search_term_string}'
     );
+  });
+
+  it('parses a free-text office address', () => {
+    expect(parseFreeTextAddress('Snowmass Village Office\n16 Kearns Road, Suite 110\nSnowmass Village, CO 81615')).toEqual({
+      street: '16 Kearns Road, Suite 110',
+      city: 'Snowmass Village',
+      state: 'CO',
+      postalCode: '81615',
+      country: 'US',
+    });
+    expect(parseFreeTextAddress('415 East Hyman Avenue')).toEqual({ street: '415 East Hyman Avenue' });
+    expect(parseFreeTextAddress('')).toBeNull();
+  });
+
+  it('webPage derives the website id from the page origin when no tenant is given', () => {
+    expect(webPageNode({ url: 'https://x.com/a', name: 'A' }).isPartOf).toEqual({ '@id': 'https://x.com/#website' });
   });
 
   it('brandName takes the last segment of an SEO title', () => {
