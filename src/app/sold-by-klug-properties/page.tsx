@@ -2,12 +2,12 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 import { client } from '@/sanity/client';
 import { createImageUrlBuilder } from '@sanity/image-url';
-import { getSoldListingsByAgentIds, getMlsNumbersWithSIRMedia } from '@/lib/listings';
-import { getSiteName, getBaseUrl, getSettings } from '@/lib/settings';
+import { getSoldListingsByAgentIds, getMlsNumbersWithSIRMedia, getListingHref } from '@/lib/listings';
+import { getSiteName, getBaseUrl } from '@/lib/settings';
 import AgentListingsGrid from '@/components/AgentListingsGrid';
 import Link from 'next/link';
-import StructuredData from '@/components/StructuredData';
-import { brandName, generateBreadcrumbSchema, generateOfficeSchema } from '@/lib/structuredData';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, ids, brandName, breadcrumbNode, collectionPageNodes } from '@/lib/schema';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) { return builder.image(source); }
@@ -85,28 +85,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SoldByKlugPropertiesPage() {
-  const [page, teamMembers, baseUrl, settings] = await Promise.all([
+  const [page, teamMembers, tenant] = await Promise.all([
     getPageData(),
     client.fetch<TeamMemberWithIds[]>(
       `*[_type == "teamMember" && inactive != true]{ _id, name, mlsAgentId, mlsAgentIdSold }`,
       {},
       { next: { revalidate: 300 } }
     ),
-    getBaseUrl(),
-    getSettings(),
-  ]);
-  const officeSchema = generateOfficeSchema({
-    baseUrl,
-    pageUrl: `${baseUrl}/sold-by-klug-properties`,
-    name: settings?.title,
-    description: 'Properties sold by Chris Klug Properties across Aspen, Snowmass Village, and the Roaring Fork Valley.',
-    phone: settings?.contactInfo?.phone,
-    email: settings?.contactInfo?.email,
-    address: settings?.contactInfo?.address,
-  });
-  const breadcrumbs = generateBreadcrumbSchema([
-    { name: 'Home', url: baseUrl },
-    { name: 'Sold by Klug Properties', url: `${baseUrl}/sold-by-klug-properties` },
+    getTenant(),
   ]);
 
   const agentIds = Array.from(
@@ -150,10 +136,35 @@ export default async function SoldByKlugPropertiesPage() {
   const statsVolumeLabel = page?.statsVolumeLabel || 'Total Sales Volume';
   const emptyText = page?.emptyText || 'No sold listings available yet.';
 
+  // Structured data: a CollectionPage of the business's sold listings
+  // (first 10 by URL) with its breadcrumb.
+  const pageUrl = `${tenant.baseUrl}/sold-by-klug-properties`;
+  const schemaNodes = [
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: heroTitle, url: pageUrl },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url: pageUrl,
+      name: heroTitle,
+      description: heroDescription,
+      image: heroImageRaw,
+      hasBreadcrumb: true,
+      aboutId: ids.organization(tenant.baseUrl),
+      listName: heroTitle,
+      items: soldListings.slice(0, 10).map((l) => ({
+        url: `${tenant.baseUrl}${getListingHref(l)}`,
+        name: l.address || undefined,
+        image: l.photos?.[0],
+      })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
-      <StructuredData data={officeSchema} />
-      <StructuredData data={breadcrumbs} />
       {/* Hero — transparent header sits on top, so add extra top padding */}
       <section
         className="relative pt-36 pb-2 md:pt-44 md:pb-2 bg-[var(--color-sothebys-blue)]"
@@ -243,5 +254,6 @@ export default async function SoldByKlugPropertiesPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

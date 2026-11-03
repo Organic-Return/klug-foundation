@@ -2,177 +2,73 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getOffMarketListingBySlug, getOffMarketListings, formatPrice, getTotalBathrooms, type OffMarketListing } from '@/lib/offMarketListings';
 import OffMarketListingDetail from '@/components/OffMarketListingDetail';
-import StructuredData from '@/components/StructuredData';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, ids, listingNodes, webPageNode, breadcrumbNode, truncate, type Tenant } from '@/lib/schema';
 import { getGoogleMapsApiKey } from '@/lib/settings';
 
 interface OffMarketListingPageProps {
   params: Promise<{ slug: string }>;
 }
 
-// Helper to get the base URL
-function getBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-}
-
-// Generate Schema.org structured data for off-market listing
-function generateOffMarketSchema(listing: OffMarketListing) {
-  const baseUrl = getBaseUrl();
-  const listingUrl = `${baseUrl}/off-market/${listing.slug}`;
-  const totalBathrooms = getTotalBathrooms(listing);
-
-  // RealEstateListing schema
-  const realEstateSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'RealEstateListing',
-    '@id': listingUrl,
-    url: listingUrl,
-    name: listing.address || listing.title,
-    description: listing.description || `${listing.propertyType || 'Property'} in ${listing.city}, ${listing.state}`,
-    datePosted: listing.listingDate || listing.publishedAt,
-    ...(listing.soldDate && { dateModified: listing.soldDate }),
-    ...(listing.listPrice && {
-      offers: {
-        '@type': 'Offer',
-        price: listing.listPrice,
-        priceCurrency: 'USD',
-        availability: listing.status === 'Active'
-          ? 'https://schema.org/InStock'
-          : listing.status === 'Pending'
-          ? 'https://schema.org/LimitedAvailability'
-          : 'https://schema.org/SoldOut',
-      },
+/**
+ * Structured data for an off-market listing: WebPage, breadcrumb, the
+ * RealEstateListing with its offer (always sold by the business, since
+ * off-market listings are the tenant's own), the home itself and the Mux
+ * video when one was uploaded.
+ */
+function offMarketSchemaNodes(listing: OffMarketListing, tenant: Tenant) {
+  const listingUrl = `${tenant.baseUrl}/off-market/${listing.slug}`;
+  const name = listing.address || listing.title || 'Off-Market Property';
+  const description =
+    truncate(listing.description) || `Exclusive off-market ${listing.propertyType || 'property'} in ${listing.city}, ${listing.state}`;
+  const photos = [listing.featuredImageUrl, ...listing.photos].filter((p): p is string => !!p);
+  return [
+    webPageNode({
+      tenant,
+      url: listingUrl,
+      name,
+      description,
+      type: 'ItemPage',
+      image: photos[0],
+      hasBreadcrumb: true,
+      mainEntityId: ids.mainEntity(listingUrl),
+      datePublished: listing.publishedAt,
     }),
-    ...(listing.photos && listing.photos.length > 0 && {
-      image: listing.photos,
-      primaryImageOfPage: listing.photos[0],
+    breadcrumbNode(listingUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Off-Market Listings', url: `${tenant.baseUrl}/off-market` },
+      { name, url: listingUrl },
+    ]),
+    ...listingNodes({
+      url: listingUrl,
+      name,
+      description,
+      mlsNumber: undefined,
+      photos: [...new Set(photos)],
+      address: { street: listing.address, city: listing.city, state: listing.state, postalCode: listing.zipCode },
+      geo: { lat: listing.latitude, lng: listing.longitude },
+      propertyType: listing.propertyType,
+      bedrooms: listing.bedrooms,
+      bathrooms: getTotalBathrooms(listing) || null,
+      squareFeet: listing.squareFeet,
+      lotSizeAcres: listing.lotSize,
+      yearBuilt: listing.yearBuilt,
+      listPrice: listing.listPrice,
+      status: listing.status,
+      listingDate: listing.listingDate || listing.publishedAt,
+      soldDate: listing.soldDate,
+      sellerId: ids.organization(tenant.baseUrl),
+      video: listing.videoMuxPlaybackId
+        ? {
+            url: listingUrl,
+            name: `${name} video tour`,
+            thumbnailUrl: `https://image.mux.com/${listing.videoMuxPlaybackId}/thumbnail.jpg`,
+            uploadDate: listing.publishedAt,
+            contentUrl: `https://stream.mux.com/${listing.videoMuxPlaybackId}.m3u8`,
+          }
+        : null,
     }),
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: listing.address,
-      addressLocality: listing.city,
-      addressRegion: listing.state,
-      postalCode: listing.zipCode,
-      addressCountry: 'US',
-    },
-    ...(listing.latitude && listing.longitude && {
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: listing.latitude,
-        longitude: listing.longitude,
-      },
-    }),
-  };
-
-  // Residence schema
-  const propertySchema = {
-    '@context': 'https://schema.org',
-    '@type': listing.propertyType === 'Condo' || listing.propertyType === 'Townhouse'
-      ? 'Apartment'
-      : listing.propertyType === 'Land'
-      ? 'LandmarksOrHistoricalBuildings'
-      : 'SingleFamilyResidence',
-    '@id': `${listingUrl}#property`,
-    name: listing.address || listing.title,
-    description: listing.description,
-    url: listingUrl,
-    ...(listing.bedrooms !== null && { numberOfRooms: listing.bedrooms }),
-    ...(totalBathrooms > 0 && { numberOfBathroomsTotal: totalBathrooms }),
-    ...(listing.squareFeet && {
-      floorSize: {
-        '@type': 'QuantitativeValue',
-        value: listing.squareFeet,
-        unitCode: 'FTK',
-      },
-    }),
-    ...(listing.lotSize && {
-      lotSize: {
-        '@type': 'QuantitativeValue',
-        value: listing.lotSize,
-        unitCode: 'ACR',
-      },
-    }),
-    ...(listing.yearBuilt && { yearBuilt: listing.yearBuilt }),
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: listing.address,
-      addressLocality: listing.city,
-      addressRegion: listing.state,
-      postalCode: listing.zipCode,
-      addressCountry: 'US',
-    },
-    ...(listing.latitude && listing.longitude && {
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: listing.latitude,
-        longitude: listing.longitude,
-      },
-    }),
-    ...(listing.photos && listing.photos.length > 0 && { image: listing.photos }),
-  };
-
-  // Product schema for rich results
-  const productSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    '@id': `${listingUrl}#product`,
-    name: `${listing.address || 'Property'} - ${listing.city}, ${listing.state}`,
-    description: listing.description || `${listing.bedrooms || 0} bed, ${totalBathrooms} bath ${listing.propertyType || 'property'} in ${listing.city}, ${listing.state}`,
-    ...(listing.photos && listing.photos.length > 0 && { image: listing.photos }),
-    sku: listing.slug,
-    category: listing.propertyType || 'Real Estate',
-    ...(listing.listPrice && {
-      offers: {
-        '@type': 'Offer',
-        price: listing.listPrice,
-        priceCurrency: 'USD',
-        availability: listing.status === 'Active'
-          ? 'https://schema.org/InStock'
-          : listing.status === 'Pending'
-          ? 'https://schema.org/LimitedAvailability'
-          : 'https://schema.org/SoldOut',
-        url: listingUrl,
-        // Seller typed as Person (the agent), not RealEstateAgent —
-        // RealEstateAgent extends LocalBusiness and would require a
-        // full address we don't have for individual agents. See the
-        // matching note in /real-estate-for-sale/[id]/page.tsx.
-        ...(listing.agentName && {
-          seller: {
-            '@type': 'Person',
-            name: listing.agentName,
-            ...(listing.agentEmail && { email: listing.agentEmail }),
-          },
-        }),
-      },
-    }),
-  };
-
-  // BreadcrumbList schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Off-Market Listings',
-        item: `${baseUrl}/off-market`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: listing.address || listing.title,
-        item: listingUrl,
-      },
-    ],
-  };
-
-  return [realEstateSchema, propertySchema, productSchema, breadcrumbSchema];
+  ];
 }
 
 export async function generateMetadata({ params }: OffMarketListingPageProps): Promise<Metadata> {
@@ -274,13 +170,12 @@ export default async function OffMarketListingPage({ params }: OffMarketListingP
     notFound();
   }
 
-  const schemas = generateOffMarketSchema(listing);
+  const tenant = await getTenant();
+  const schemaNodes = offMarketSchemaNodes(listing, tenant);
 
   return (
     <>
-      {schemas.map((schema, index) => (
-        <StructuredData key={index} data={schema} />
-      ))}
+      <SchemaGraph nodes={schemaNodes} />
       <OffMarketListingDetail listing={listing} googleMapsApiKey={googleMapsApiKey} />
     </>
   );

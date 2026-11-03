@@ -101,6 +101,47 @@ const TENANT_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   }
 }`;
 
+interface RawCredential {
+  credentialType?: TenantCredential['type'];
+  name?: string;
+  issuer?: string;
+  url?: string;
+  year?: number;
+}
+
+interface RawSettings {
+  title?: string;
+  description?: string;
+  siteUrl?: string;
+  socialMedia?: Record<string, string | null | undefined>;
+  contactInfo?: { email?: string; phone?: string; address?: string };
+  logo?: unknown;
+  defaultHeroImage?: string;
+  defaultMetaImage?: unknown;
+  business?: {
+    office?: { street?: string; city?: string; state?: string; postalCode?: string; country?: string; lat?: number; lng?: number };
+    priceRange?: string;
+    areaServed?: Array<string | null>;
+    brokerage?: { name?: string; url?: string };
+    services?: Array<{ serviceType?: string; description?: string | null } | null>;
+    faqs?: Array<{ question?: string; answer?: unknown } | null>;
+    primaryAgent?: {
+      name?: string;
+      slug?: string;
+      title?: string;
+      bio?: string;
+      image?: unknown;
+      email?: string;
+      phone?: string;
+      mobile?: string;
+      website?: string;
+      socialMedia?: Record<string, string | null | undefined>;
+      knowsAbout?: Array<string | null>;
+      credentials?: RawCredential[];
+    } | null;
+  };
+}
+
 const builder = createImageUrlBuilder(client);
 
 function imageUrl(source: unknown, width: number, height?: number): string | undefined {
@@ -143,9 +184,9 @@ const CACHE_MS = 60_000;
 export async function getTenant(options: { agentProfilePath?: string; searchPath?: string } = {}): Promise<Tenant> {
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.tenant;
 
-  let data: Record<string, any> | null = null;
+  let data: RawSettings | null = null;
   try {
-    data = await client.fetch(TENANT_QUERY, {}, { next: { revalidate: 300 } });
+    data = await client.fetch<RawSettings | null>(TENANT_QUERY, {}, { next: { revalidate: 300 } });
   } catch (error) {
     console.error('Error fetching tenant settings:', error);
   }
@@ -153,7 +194,7 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
   const baseUrl = resolveBaseUrl(data?.siteUrl);
   const agentProfilePath = options.agentProfilePath || process.env.NEXT_PUBLIC_AGENT_PROFILE_PATH || '/real-estate-agent';
   const searchPath = options.searchPath || process.env.NEXT_PUBLIC_LISTINGS_PATH || '/real-estate-for-sale';
-  const business = data?.business || {};
+  const business: NonNullable<RawSettings['business']> = data?.business || {};
   const office = business.office || {};
   const primary = business.primaryAgent;
 
@@ -168,12 +209,10 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
         phone: primary.phone || primary.mobile,
         email: primary.email,
         sameAs: [primary.website, ...socialLinks(primary.socialMedia)].filter((v): v is string => !!v),
-        knowsAbout: Array.isArray(primary.knowsAbout) ? primary.knowsAbout.filter(Boolean) : [],
-        credentials: Array.isArray(primary.credentials)
-          ? primary.credentials
-              .filter((c: any) => c?.name && c?.credentialType)
-              .map((c: any) => ({ type: c.credentialType, name: c.name, issuer: c.issuer, url: c.url, year: c.year }))
-          : [],
+        knowsAbout: (primary.knowsAbout || []).filter((k): k is string => !!k),
+        credentials: (primary.credentials || [])
+          .filter((c): c is RawCredential & { name: string; credentialType: TenantCredential['type'] } => !!c?.name && !!c?.credentialType)
+          .map((c) => ({ type: c.credentialType, name: c.name, issuer: c.issuer, url: c.url, year: c.year })),
       }
     : null;
 
@@ -193,11 +232,13 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
         : null,
     geo: typeof office.lat === 'number' && typeof office.lng === 'number' ? { lat: office.lat, lng: office.lng } : null,
     priceRange: business.priceRange,
-    areaServed: Array.isArray(business.areaServed) ? business.areaServed.filter(Boolean) : [],
+    areaServed: (business.areaServed || []).filter((a): a is string => !!a),
     sameAs: socialLinks(data?.socialMedia),
     brokerage: business.brokerage?.name ? business.brokerage : null,
-    services: Array.isArray(business.services) ? business.services.filter((s: any) => s?.serviceType) : [],
-    faqs: Array.isArray(business.faqs) ? business.faqs.filter((f: any) => f?.question && f?.answer) : [],
+    services: (business.services || [])
+      .filter((svc): svc is { serviceType: string; description?: string | null } => !!svc?.serviceType)
+      .map((svc) => ({ serviceType: svc.serviceType, description: svc.description })),
+    faqs: (business.faqs || []).filter((f): f is TenantFaq => !!f?.question && !!f?.answer),
     agent,
     searchPath,
     agentProfilePath,

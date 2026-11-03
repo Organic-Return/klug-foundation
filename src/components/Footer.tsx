@@ -7,7 +7,7 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import AuthModal from './AuthModal';
 import { useAuth } from './AuthProvider';
-import { brandName } from '@/lib/structuredData';
+import { brandName } from '@/lib/schema';
 
 const builder = createImageUrlBuilder(client);
 
@@ -61,15 +61,14 @@ const DEFAULT_PORTRAIT = 'https://drupal-storage.s3.amazonaws.com/klug/public/20
 const DEFAULT_TAGLINE = 'https://drupal-storage.s3.amazonaws.com/klug/public/2024-11/footer-tagline%402x_20220524164420_0.png';
 const DEFAULT_BROKERAGE_LOGO = 'https://drupal-storage.s3.amazonaws.com/klug/public/2024-11/assir-logo%402x.png';
 
-// Office address fallback. Used when contactInfo.address is empty in
-// Sanity settings. Google's LocalBusiness validator (which classifies
-// this footer's RealEstateAgent microdata) reports the `address`
-// property as invalid when streetAddress is missing, so we always
-// emit a complete PostalAddress.
+// Office address fallback for the visible footer when contactInfo.address
+// is empty in Sanity settings. (Structured data reads the office address
+// from settings.business.office instead.)
 const DEFAULT_OFFICE_STREET_ADDRESS = '415 East Hyman Avenue';
 const OFFICE_LOCALITY = 'Aspen';
 const OFFICE_REGION = 'CO';
 const OFFICE_POSTAL_CODE = '81611';
+
 
 export default function Footer({
   logo,
@@ -118,29 +117,7 @@ export default function Footer({
   const footerLinks = columns.length > 0 ? columns[0]?.links || defaultLinks : defaultLinks;
 
   return (
-    <footer
-      className="relative flex flex-col items-center w-full"
-      itemScope
-      itemType="https://schema.org/RealEstateAgent"
-    >
-      {/* Hidden microdata for crawlers (also covered by JSON-LD on homepage) */}
-      <meta itemProp="name" content={siteTitle} />
-      <meta itemProp="priceRange" content="$$$$" />
-      {description && <meta itemProp="description" content={description} />}
-      {contactInfo?.phone && <meta itemProp="telephone" content={contactInfo.phone} />}
-      {contactInfo?.email && <meta itemProp="email" content={contactInfo.email} />}
-      <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress">
-        <meta itemProp="streetAddress" content={contactInfo?.address || DEFAULT_OFFICE_STREET_ADDRESS} />
-        <meta itemProp="addressLocality" content={OFFICE_LOCALITY} />
-        <meta itemProp="addressRegion" content={OFFICE_REGION} />
-        <meta itemProp="postalCode" content={OFFICE_POSTAL_CODE} />
-        <meta itemProp="addressCountry" content="US" />
-      </div>
-      {socialMedia?.facebook && <link itemProp="sameAs" href={socialMedia.facebook} />}
-      {socialMedia?.instagram && <link itemProp="sameAs" href={socialMedia.instagram} />}
-      {socialMedia?.twitter && <link itemProp="sameAs" href={socialMedia.twitter} />}
-      {socialMedia?.linkedin && <link itemProp="sameAs" href={socialMedia.linkedin} />}
-      {socialMedia?.youtube && <link itemProp="sameAs" href={socialMedia.youtube} />}
+    <footer className="relative flex flex-col items-center w-full">
 
       {/* Top Section - Sotheby's Blue Background with Portrait and Tagline */}
       <div className="flex flex-col w-full relative mt-14">
@@ -154,12 +131,11 @@ export default function Footer({
                 width={184}
                 height={237}
                 className="w-[165px] -mt-6 md:mt-0 md:absolute"
-                itemProp="image"
               />
             </div>
 
             {/* Tagline Image */}
-            <Link href="/" className="w-full md:w-8/12 xl:w-4/12 lg:max-w-none pb-0 xl:pl-10" itemProp="url">
+            <Link href="/" className="w-full md:w-8/12 xl:w-4/12 lg:max-w-none pb-0 xl:pl-10">
               <span className="sr-only">Homepage</span>
               <Image
                 src={taglineUrl}
@@ -167,7 +143,6 @@ export default function Footer({
                 width={416}
                 height={80}
                 className="w-full"
-                itemProp="logo"
               />
             </Link>
 

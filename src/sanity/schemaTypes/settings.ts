@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, type Rule } from 'sanity'
 
 export const settings = defineType({
   name: 'settings',
@@ -321,7 +321,7 @@ export const settings = defineType({
             {
               type: 'object',
               fields: [
-                { name: 'serviceType', title: 'Service', type: 'string', validation: (Rule: any) => Rule.required() },
+                { name: 'serviceType', title: 'Service', type: 'string', validation: (rule: Rule) => rule.required() },
                 { name: 'description', title: 'Description', type: 'text', rows: 2 },
               ],
               preview: { select: { title: 'serviceType' } },

@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getSiteName, getBaseUrl, getDefaultHeroImageUrl } from "@/lib/settings";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getTenant, breadcrumbNode, collectionPageNodes } from "@/lib/schema";
 
 const POSTS_COUNT_QUERY = `count(*[_type == "post"])`;
 
@@ -129,7 +131,32 @@ export default async function BlogPage({
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
+  const tenant = await getTenant();
+  const blogUrl = `${tenant.baseUrl}/about/blog`;
+  const schemaNodes = [
+    breadcrumbNode(blogUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: page?.heroTitle || 'Blog', url: blogUrl },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url: blogUrl,
+      name: page?.heroTitle || 'Blog',
+      description: page?.seo?.metaDescription || page?.heroDescription,
+      image: heroImageRaw,
+      hasBreadcrumb: true,
+      listName: page?.heroTitle || 'Blog',
+      items: posts.slice(0, 10).map((post) => ({
+        url: `${tenant.baseUrl}/about/blog/${post.slug?.current}`,
+        name: post.title,
+        image: post.image ? urlFor(post.image)?.width(1200).height(675).url() : undefined,
+      })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
@@ -420,5 +447,6 @@ export default async function BlogPage({
         </div>
       </section>
     </main>
+    </>
   );
 }

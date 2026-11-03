@@ -6,6 +6,9 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from 'next/navigation';
+import SchemaGraph from '@/components/SchemaGraph';
+import FaqSection, { faqEntries } from '@/components/FaqSection';
+import { getTenant, ids, webPageNode, breadcrumbNode, faqNode } from '@/lib/schema';
 
 const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"][0]{
   heroTitle,
@@ -24,6 +27,8 @@ const ABOUT_PAGE_QUERY = `*[_type == "aboutPage"][0]{
   ctaButtonText,
   ctaButtonLink,
   ctaImage,
+  faqTitle,
+  faqs,
   seo
 }`;
 
@@ -102,7 +107,31 @@ export default async function AboutPage() {
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
     : null;
 
+  // Structured data: AboutPage about the business, breadcrumb and the FAQ
+  // section rendered at the end of the page.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/about`;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: pageUrl,
+      type: 'AboutPage',
+      name: data.seo?.metaTitle || data.heroTitle || 'About',
+      description: data.seo?.metaDescription || data.heroSubtitle,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      aboutId: ids.organization(tenant.baseUrl),
+    }),
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: data.heroTitle || 'About', url: pageUrl },
+    ]),
+    faqNode(pageUrl, faqEntries(data.faqs)),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-end">
@@ -228,6 +257,8 @@ export default async function AboutPage() {
           </div>
         </section>
       )}
+      <FaqSection title={data.faqTitle} faqs={data.faqs} />
     </main>
+    </>
   );
 }

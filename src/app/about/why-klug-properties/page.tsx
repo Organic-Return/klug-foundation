@@ -6,6 +6,8 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getTenant, ids, reviewNode, webPageNode, breadcrumbNode } from "@/lib/schema";
 
 const WHY_KLUG_QUERY = `*[_type == "whyKlugProperties"][0]{
   heroTitle,
@@ -219,7 +221,34 @@ export default async function WhyKlugPropertiesPage() {
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
     : defaultHeroUrl;
 
+  // Structured data: the page, its breadcrumb and a Review for each
+  // testimonial quoted on it (no ratings exist here, so none are claimed).
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/about/why-klug-properties`;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: pageUrl,
+      type: 'AboutPage',
+      name: data.seo?.metaTitle || data.heroTitle || 'Why Choose Us',
+      description: data.seo?.metaDescription || data.heroSubtitle,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      aboutId: ids.organization(tenant.baseUrl),
+    }),
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'About', url: `${tenant.baseUrl}/about` },
+      { name: data.heroTitle || 'Why Choose Us', url: pageUrl },
+    ]),
+    ...((data.testimonials || []) as Array<{ quote?: string; author?: string }>).map((t) =>
+      reviewNode({ body: t.quote || '', authorName: t.author || '', itemReviewedId: ids.organization(tenant.baseUrl) })
+    ),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
@@ -563,5 +592,6 @@ export default async function WhyKlugPropertiesPage() {
         );
       })()}
     </main>
+    </>
   );
 }

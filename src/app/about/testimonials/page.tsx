@@ -5,9 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
-import StructuredData from "@/components/StructuredData";
-import { getDefaultHeroImageUrl, getSettings, withBrand } from "@/lib/settings";
-import { generateOfficeSchema } from "@/lib/structuredData";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
+import { getTenant, ids, reviewNode, webPageNode, breadcrumbNode } from "@/lib/schema";
 
 const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
   heroTitle,
@@ -22,7 +22,8 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
     location,
     transactionType,
     image,
-    propertyImage
+    propertyImage,
+    rating
   },
   testimonials[]{
     quote,
@@ -32,7 +33,8 @@ const TESTIMONIALS_QUERY = `*[_type == "testimonialsPage"][0]{
     transactionType,
     year,
     image,
-    featured
+    featured,
+    rating
   },
   videoTestimonialsTitle,
   videoTestimonials[]{
@@ -145,8 +147,6 @@ export default async function TestimonialsPage() {
     client.fetch<SanityDocument>(TESTIMONIALS_QUERY, {}, options),
     getDefaultHeroImageUrl(),
   ]);
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const settings = await getSettings();
 
   if (!data) {
     return (
@@ -174,43 +174,44 @@ export default async function TestimonialsPage() {
   const regularTestimonials = data.testimonials?.filter((t: any) => !t.featured) || [];
   const allTestimonials = [...(data.testimonials || [])];
 
-  // Business entity for this page. Testimonials are shown as content only:
-  // review markup a business hosts about itself is not eligible for rich
-  // results, and the ratings it carried were invented (every quote was 5/5).
-  const businessSchema = generateOfficeSchema({
-    baseUrl,
-    pageUrl: `${baseUrl}/about/testimonials`,
-    name: settings?.title,
-    description: 'Client testimonials for Chris Klug Properties, Aspen and Snowmass Village real estate.',
-    phone: settings?.contactInfo?.phone,
-    email: settings?.contactInfo?.email,
-    address: settings?.contactInfo?.address,
-  });
-
-  // BreadcrumbList schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Testimonials',
-        item: `${baseUrl}/about/testimonials`,
-      },
-    ],
-  };
+  // Structured data: the page, its breadcrumb and one Review per
+  // testimonial shown on it. A rating is included only when the CMS holds
+  // one; there is deliberately no AggregateRating, which Google treats as
+  // self-serving on a business's own site.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/about/testimonials`;
+  const reviewSources = [
+    ...(data.featuredTestimonial?.quote ? [data.featuredTestimonial] : []),
+    ...allTestimonials,
+  ];
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: pageUrl,
+      name: data.heroTitle || 'Testimonials',
+      description: data.heroSubtitle || data.seo?.metaDescription,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      aboutId: ids.organization(tenant.baseUrl),
+    }),
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Testimonials', url: pageUrl },
+    ]),
+    ...reviewSources.map((t: any) =>
+      reviewNode({
+        body: t.quote,
+        authorName: t.author,
+        itemReviewedId: ids.organization(tenant.baseUrl),
+        rating: typeof t.rating === 'number' ? t.rating : undefined,
+        datePublished: /^\d{4}$/.test(String(t.year || '')) ? String(t.year) : undefined,
+      })
+    ),
+  ];
 
   return (
     <>
-      <StructuredData data={businessSchema} />
-      <StructuredData data={breadcrumbSchema} />
+      <SchemaGraph nodes={schemaNodes} />
       <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section

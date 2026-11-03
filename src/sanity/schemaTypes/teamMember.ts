@@ -1,4 +1,4 @@
-import { defineType, defineField } from 'sanity'
+import { defineType, defineField, type Rule } from 'sanity'
 import { TeamMemberAgentImport } from '../components/TeamMemberAgentImport'
 
 export const teamMember = defineType({
@@ -146,9 +146,9 @@ export const teamMember = defineType({
                 ],
                 layout: 'radio',
               },
-              validation: (Rule: any) => Rule.required(),
+              validation: (rule: Rule) => rule.required(),
             },
-            { name: 'name', title: 'Name', type: 'string', validation: (Rule: any) => Rule.required() },
+            { name: 'name', title: 'Name', type: 'string', validation: (rule: Rule) => rule.required() },
             { name: 'issuer', title: 'Issuing Organization', type: 'string' },
             { name: 'url', title: 'URL', type: 'url' },
             { name: 'year', title: 'Year', type: 'number' },

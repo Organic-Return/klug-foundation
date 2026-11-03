@@ -8,6 +8,8 @@ import { getSiteName, getBaseUrl } from "@/lib/settings";
 import MorePartners from '@/components/MorePartners';
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { htmlToPlainText, splitParagraphs } from '@/lib/textUtils';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, personNode, profilePageNode, breadcrumbNode, truncate } from '@/lib/schema';
 import { getRealogyListingsByAgentName, formatPrice, toAddressSlug } from '@/lib/listings';
 
 // Query by slug or by generated slug from firstName-lastName
@@ -49,6 +51,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const canonicalUrl = `${baseUrl}/real-estate-agent/${slug}`;
+  // The partner's photo for social sharing (override photo or the roster photo).
+  const ogPhoto = await enrichPartnerWithAgentData(partner).then((p) => p.photoUrl).catch(() => null);
 
   return {
     title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | ${siteName}`,
@@ -60,6 +64,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${partner.firstName} ${partner.lastName} | Ski Town Partner | ${siteName}`,
       description: `Meet ${partner.firstName} ${partner.lastName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
       url: canonicalUrl,
+      type: 'profile',
+      images: ogPhoto ? [{ url: ogPhoto, alt: `${partner.firstName} ${partner.lastName}` }] : undefined,
     },
   };
 }
@@ -81,7 +87,46 @@ export default async function SkiTownPartnerPage({ params }: Props) {
   const activeListings = rawListings.activeListings;
   const soldListings = rawListings.soldListings;
 
+  // Structured data: a ProfilePage about this partner, a Person at their
+  // own company (not the tenant's business).
+  const tenant = await getTenant();
+  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath}/${slug}`;
+  const personId = `${profileUrl}#person`;
+  const fullName = `${partner.firstName} ${partner.lastName}`;
+  const partnerBio = enrichedPartner.bio ? truncate(htmlToPlainText(enrichedPartner.bio), 500) : undefined;
+  const schemaNodes = [
+    profilePageNode({
+      tenant,
+      url: profileUrl,
+      name: `${fullName} | Ski Town Partner`,
+      description: partnerBio || `Meet ${fullName}${partner.company ? ` of ${partner.company}` : ''}${partner.location ? ` in ${partner.location}` : ''}.`,
+      image: enrichedPartner.photoUrl,
+      mainEntityId: personId,
+    }),
+    breadcrumbNode(profileUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Ski Town Partners', url: `${tenant.baseUrl}/about/ski-town-partners` },
+      { name: fullName, url: profileUrl },
+    ]),
+    personNode({
+      id: personId,
+      url: profileUrl,
+      name: fullName,
+      jobTitle: partner.title,
+      description: partnerBio,
+      imageUrl: enrichedPartner.photoUrl,
+      telephone: partner.phone,
+      email: partner.email,
+      sameAs: [partner.website],
+      knowsAbout: partner.specialties,
+      worksForName: partner.company,
+      address: partner.location ? { city: partner.location } : undefined,
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="min-h-screen">
       {/* Hero Section — editorial card on white, matches /team layout */}
       <section className="bg-white dark:bg-[#1a1a1a] pt-12 md:pt-16 pb-16 md:pb-24">
@@ -397,5 +442,6 @@ export default async function SkiTownPartnerPage({ params }: Props) {
         </div>
       </section>
     </main>
+    </>
   );
 }

@@ -12,6 +12,8 @@ import AgentContactForm from "@/components/AgentContactForm";
 import AgentContactButton from "@/components/AgentContactButton";
 import { formatPhone, phoneHref } from '@/lib/phoneUtils';
 import { htmlToPlainText, splitParagraphs } from '@/lib/textUtils';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, ids, personNode, profilePageNode, breadcrumbNode, truncate, type TenantCredential } from '@/lib/schema';
 
 const builder = createImageUrlBuilder(client);
 function urlFor(source: any) {
@@ -49,10 +51,18 @@ interface TeamMember {
   };
   mlsAgentId?: string;
   mlsAgentIdSold?: string;
+  _updatedAt?: string;
+  website?: string;
+  knowsAbout?: string[];
+  credentials?: Array<{ credentialType: TenantCredential['type']; name: string; issuer?: string; url?: string; year?: number }>;
 }
 
 const TEAM_MEMBER_QUERY = `*[_type == "teamMember" && slug.current == $slug && inactive != true][0] {
   _id,
+  _updatedAt,
+  website,
+  knowsAbout,
+  credentials,
   name,
   slug,
   title,
@@ -87,6 +97,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = member.bio ? member.bio.slice(0, 160) : `Meet ${member.name} at ${siteName}.`;
   const displayTitle = member.title?.replace(/\bResidential\b/g, 'Real Estate Broker');
 
+  const ogImage = member.image ? urlFor(member.image).width(1200).height(630).fit('crop').crop('top').url() : undefined;
+
   return {
     title: `${member.name}${displayTitle ? ` | ${displayTitle}` : ''} | ${siteName}`,
     description,
@@ -95,6 +107,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${member.name} | ${siteName}`,
       description,
       url: canonicalUrl,
+      type: 'profile',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: member.name }] : undefined,
     },
   };
 }
@@ -151,7 +165,52 @@ export default async function TeamMemberPage({ params }: Props) {
     ? urlFor(member.image).width(450).height(560).url()
     : undefined;
 
+  // Structured data: a ProfilePage whose main entity is this agent. The
+  // tenant's primary agent is the sitewide #agent node; anyone else gets a
+  // Person of their own, working for the business.
+  const tenant = await getTenant();
+  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath}/${slug}`;
+  const isPrimaryAgent = tenant.agent?.slug === slug;
+  const personId = isPrimaryAgent ? ids.agent(tenant.baseUrl) : `${profileUrl}#person`;
+  const bioText = member.bio ? htmlToPlainText(member.bio) : undefined;
+  const schemaNodes = [
+    profilePageNode({
+      tenant,
+      url: profileUrl,
+      name: `${member.name}${member.title ? ` | ${member.title}` : ''}`,
+      description: truncate(bioText, 300),
+      image: member.image ? urlFor(member.image).width(1200).url() : undefined,
+      mainEntityId: personId,
+      dateModified: member._updatedAt,
+    }),
+    breadcrumbNode(profileUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Our Team', url: `${tenant.baseUrl}/about/our-team` },
+      { name: member.name, url: profileUrl },
+    ]),
+    isPrimaryAgent
+      ? undefined
+      : personNode({
+          id: personId,
+          url: profileUrl,
+          name: member.name,
+          jobTitle: member.title,
+          description: truncate(bioText, 500),
+          imageUrl: member.image ? urlFor(member.image).width(800).url() : undefined,
+          telephone: member.phone || member.mobile,
+          email: member.email,
+          sameAs: [member.website, ...Object.values(member.socialMedia || {})],
+          knowsAbout: member.knowsAbout,
+          credentials: (member.credentials || [])
+            .filter((c) => c?.name && c?.credentialType)
+            .map((c) => ({ type: c.credentialType, name: c.name, issuer: c.issuer, url: c.url, year: c.year })),
+          worksForId: ids.organization(tenant.baseUrl),
+        }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="min-h-screen">
       {/* Hero Gallery (RC with active listings) or Standard Hero */}
       {/* RC Hero Gallery (only when agent has active listings with photos) */}
@@ -570,5 +629,6 @@ export default async function TeamMemberPage({ params }: Props) {
         </section>
       )}
     </main>
+    </>
   );
 }

@@ -5,9 +5,10 @@ import { getHomepageData, getAllCommunities } from '@/lib/homepage';
 import { getSettings, getBranding } from '@/lib/settings';
 import { getNewestHighPricedByCities, getNewestHighPricedByCity, getListingsByAgentId } from '@/lib/listings';
 import { getFeaturedListings, getHomepageCityStats, getNewestListings } from '@/lib/homepageSections';
-import StructuredData from '@/components/StructuredData';
+import SchemaGraph from '@/components/SchemaGraph';
+import FaqSection, { faqEntries } from '@/components/FaqSection';
 import HomepageContent from '@/components/HomepageContent';
-import { brandName } from '@/lib/structuredData';
+import { getTenant, webPageNode, serviceNode, faqNode, ids } from '@/lib/schema';
 
 const builder = createImageUrlBuilder(client);
 
@@ -191,145 +192,36 @@ export default async function Home() {
         ])
       : [undefined, undefined, undefined];
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || 'https://example.com';
-
-  // Logo URL for schema (square preferred for logo, full for image)
-  const orgLogoUrl = branding?.logo?.asset?.url
-    ? urlFor(branding.logo).width(600).url()
-    : undefined;
-
-  // Roaring Fork Valley service area — used for areaServed in LocalBusiness schema
-  const areaServedCities = [
-    'Aspen',
-    'Snowmass Village',
-    'Snowmass',
-    'Basalt',
-    'Carbondale',
-    'El Jebel',
-    'Woody Creek',
-    'Old Snowmass',
-    'Glenwood Springs',
-    'Marble',
-    'Redstone',
+  // Page-level structured data. The business, agent and website nodes come
+  // from the root layout; this page adds its WebPage, the services the
+  // business offers and the site-wide FAQ (rendered below the content).
+  const tenant = await getTenant();
+  const homeUrl = `${tenant.baseUrl}/`;
+  const homeFaqs = faqEntries(tenant.faqs as Parameters<typeof faqEntries>[0]);
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: homeUrl,
+      name: settings?.title || tenant.siteTitle,
+      description: settings?.description,
+      image: fallbackImageUrl,
+      aboutId: ids.organization(tenant.baseUrl),
+    }),
+    ...tenant.services.map((service) =>
+      serviceNode({
+        serviceType: service.serviceType,
+        description: service.description,
+        providerId: ids.organization(tenant.baseUrl),
+        areaServed: tenant.areaServed,
+        url: homeUrl,
+      })
+    ),
+    faqNode(homeUrl, homeFaqs),
   ];
-
-  // RealEstateAgent / Organization structured data
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': ['RealEstateAgent', 'LocalBusiness', 'Organization'],
-    '@id': `${baseUrl}#organization`,
-    // The business is "Chris Klug Properties"; settings.title is the SEO
-    // title tag and stays on the WebSite/WebPage nodes below.
-    name: brandName(settings?.title),
-    description: settings?.description,
-    url: baseUrl,
-    telephone: settings?.contactInfo?.phone,
-    email: settings?.contactInfo?.email,
-    priceRange: '$$$$',
-    // Founder (Person) identity — helps search engines and LLMs answer
-    // "Chris Klug" person queries and ties the brand to its founder's
-    // on-site profile. Links to his live agent page (/real-estate-agent/…).
-    founder: {
-      '@type': 'Person',
-      name: 'Chris Klug',
-      jobTitle: 'Founder',
-      url: `${baseUrl}/real-estate-agent/chris-klug`,
-    },
-    logo: orgLogoUrl,
-    image: orgLogoUrl || fallbackImageUrl,
-    address: settings?.contactInfo?.address
-      ? {
-          '@type': 'PostalAddress',
-          streetAddress: settings.contactInfo.address,
-          addressLocality: 'Aspen',
-          addressRegion: 'CO',
-          addressCountry: 'US',
-        }
-      : {
-          '@type': 'PostalAddress',
-          addressLocality: 'Aspen',
-          addressRegion: 'CO',
-          addressCountry: 'US',
-        },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 39.1911,
-      longitude: -106.8175,
-    },
-    areaServed: areaServedCities.map((name) => ({
-      '@type': 'City',
-      name,
-      containedInPlace: {
-        '@type': 'AdministrativeArea',
-        name: 'Roaring Fork Valley, Colorado',
-      },
-    })),
-    knowsAbout: [
-      'Luxury real estate',
-      'Aspen real estate',
-      'Snowmass real estate',
-      'Roaring Fork Valley homes',
-      'Mountain properties',
-      'Ski-in ski-out homes',
-    ],
-    sameAs: [
-      settings?.socialMedia?.facebook,
-      settings?.socialMedia?.instagram,
-      settings?.socialMedia?.twitter,
-      settings?.socialMedia?.linkedin,
-      settings?.socialMedia?.youtube,
-    ].filter(Boolean),
-  };
-
-  // WebSite schema with SearchAction for sitelinks search box
-  const websiteSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': `${baseUrl}#website`,
-    name: settings?.title || 'Real Estate',
-    url: baseUrl,
-    description: settings?.description,
-    inLanguage: 'en-US',
-    publisher: {
-      '@id': `${baseUrl}#organization`,
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/real-estate-for-sale?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
-    },
-  };
-
-  // WebPage schema for homepage
-  const webPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${baseUrl}#webpage`,
-    url: baseUrl,
-    name: settings?.title || 'Real Estate',
-    description: settings?.description,
-    inLanguage: 'en-US',
-    dateModified: new Date().toISOString(),
-    isPartOf: {
-      '@id': `${baseUrl}#website`,
-    },
-    about: {
-      '@id': `${baseUrl}#organization`,
-    },
-    primaryImageOfPage: fallbackImageUrl ? {
-      '@type': 'ImageObject',
-      url: fallbackImageUrl,
-    } : undefined,
-  };
 
   return (
     <>
-      <StructuredData data={organizationSchema} />
-      <StructuredData data={websiteSchema} />
-      <StructuredData data={webPageSchema} />
+      <SchemaGraph nodes={schemaNodes} />
 
       <HomepageContent
         template={settings?.template}
@@ -405,6 +297,7 @@ export default async function Home() {
           articles: homepage?.inTheNews?.articles,
         }}
       />
+      <FaqSection faqs={tenant.faqs as Parameters<typeof faqEntries>[0]} />
     </>
   );
 }

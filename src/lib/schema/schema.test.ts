@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildGraph, compact, serializeJsonLd, type JsonLdNode } from './graph';
+import { buildGraph, compact, serializeJsonLd } from './graph';
 import { ids, absoluteUrl, normalizeBaseUrl } from './ids';
 import { toPlainText, truncate, temporalCoverage, isoDate } from './text';
 import { brandName, resolveBaseUrl, type Tenant } from './tenant';

@@ -7,6 +7,9 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { notFound } from 'next/navigation';
 import { withBrand } from '@/lib/settings';
+import SchemaGraph from '@/components/SchemaGraph';
+import { faqEntries } from '@/components/FaqSection';
+import { getTenant, ids, webPageNode, breadcrumbNode, faqNode, serviceNode } from '@/lib/schema';
 
 const BUY_PAGE_QUERY = `*[_type == "buyPage"][0]{
   heroTitle,
@@ -108,7 +111,39 @@ export default async function BuyPage() {
     ? urlFor(data.heroImage)?.width(1920).height(800).url()
     : null;
 
+  // Structured data: the page, breadcrumb, the services the business offers
+  // and the FAQ section this page already renders.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/buy`;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: pageUrl,
+      name: data.seo?.metaTitle || data.heroTitle || 'Buy',
+      description: data.seo?.metaDescription || data.heroSubtitle,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      aboutId: ids.organization(tenant.baseUrl),
+    }),
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: data.heroTitle || 'Buy', url: pageUrl },
+    ]),
+    ...tenant.services.map((service) =>
+      serviceNode({
+        serviceType: service.serviceType,
+        description: service.description,
+        providerId: ids.organization(tenant.baseUrl),
+        areaServed: tenant.areaServed,
+        url: pageUrl,
+      })
+    ),
+    faqNode(pageUrl, faqEntries(data.faqs)),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] min-h-[500px] flex items-end">
@@ -273,5 +308,6 @@ export default async function BuyPage() {
         </section>
       )}
     </main>
+    </>
   );
 }

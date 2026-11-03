@@ -9,7 +9,6 @@ import {
   getDistinctStatuses,
   getNeighborhoodsByCity,
   getNeighborhoodsByCities,
-  formatPrice,
   type SortOption,
   type MLSProperty,
 } from '@/lib/listings';
@@ -23,82 +22,31 @@ import {
 import { getSettings, getGoogleMapsApiKey, getSiteName } from '@/lib/settings';
 import { client } from '@/sanity/client';
 import ListingsSearchClient from '@/components/ListingsSearchClient';
-import StructuredData from '@/components/StructuredData';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, breadcrumbNode, collectionPageNodes, type Tenant } from '@/lib/schema';
 
-// Generate ItemList schema for listings
-function generateListingsSchema(listings: MLSProperty[], baseUrl: string, total: number) {
-  // ItemList schema for search results
-  const itemListSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Property Listings',
-    description: 'Browse all available property listings',
-    numberOfItems: total,
-    itemListElement: listings.slice(0, 10).map((listing, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      item: {
-        '@type': 'RealEstateListing',
-        '@id': `${baseUrl}${getListingHref(listing)}`,
-        url: `${baseUrl}${getListingHref(listing)}`,
-        name: listing.address || `Property ${listing.mls_number}`,
-        description: listing.description || `${listing.property_type || 'Property'} in ${listing.city}, ${listing.state}`,
-        ...(listing.list_price && {
-          offers: {
-            '@type': 'Offer',
-            price: listing.list_price,
-            priceCurrency: 'USD',
-          },
-        }),
-        ...(listing.photos && listing.photos.length > 0 && {
-          image: listing.photos[0],
-        }),
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: listing.address,
-          addressLocality: listing.city,
-          addressRegion: listing.state,
-          postalCode: listing.zip_code,
-          addressCountry: 'US',
-        },
-      },
-    })),
-  };
-
-  // BreadcrumbList schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Listings',
-        item: `${baseUrl}/real-estate-for-sale`,
-      },
-    ],
-  };
-
-  // CollectionPage schema
-  const collectionPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    '@id': `${baseUrl}/real-estate-for-sale`,
-    name: 'Property Listings',
-    description: 'Browse all available property listings from the MLS database.',
-    url: `${baseUrl}/real-estate-for-sale`,
-    mainEntity: {
-      '@id': `${baseUrl}/real-estate-for-sale#itemlist`,
-    },
-  };
-
-  return [itemListSchema, breadcrumbSchema, collectionPageSchema];
+/** CollectionPage + ItemList (first 10 results) + breadcrumb for the listings index. */
+function listingsSchemaNodes(listings: MLSProperty[], tenant: Tenant) {
+  const url = `${tenant.baseUrl}/real-estate-for-sale`;
+  return [
+    breadcrumbNode(url, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Listings', url },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url,
+      name: 'Property Listings',
+      description: 'Browse all available property listings',
+      hasBreadcrumb: true,
+      listName: 'Property Listings',
+      items: listings.slice(0, 10).map((listing) => ({
+        url: `${tenant.baseUrl}${getListingHref(listing)}`,
+        name: listing.address || undefined,
+        image: listing.photos?.[0],
+      })),
+    }),
+  ];
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -280,8 +228,8 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
     : { videos: new Set<string>(), matterports: new Set<string>() };
 
   // Generate structured data
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const schemas = generateListingsSchema(listings, baseUrl, total);
+  const tenant = await getTenant();
+  const schemaNodes = listingsSchemaNodes(listings, tenant);
 
   // Build current search params for pagination
   const currentSearchParams = new URLSearchParams();
@@ -300,9 +248,7 @@ export default async function ListingsPage({ searchParams }: ListingsPageProps) 
 
   return (
     <>
-      {schemas.map((schema, index) => (
-        <StructuredData key={index} data={schema} />
-      ))}
+      <SchemaGraph nodes={schemaNodes} />
       {/*
         This page had no h1 at all — the layout is a filter bar over a
         results/map split with no room for a headline. Screen readers and

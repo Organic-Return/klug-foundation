@@ -6,6 +6,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSiteName, getBaseUrl } from "@/lib/settings";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getTenant, ids, articleNode, webPageNode, breadcrumbNode, truncate } from "@/lib/schema";
 
 interface PressArticleDoc {
   _id: string;
@@ -169,7 +171,43 @@ export default async function PressArticlePage({
     ? urlFor(article.sourceLogo)?.height(80).url() || null
     : null;
 
+  // Structured data: press coverage as a NewsArticle published by the
+  // outlet, pointing at the original story.
+  const tenant = await getTenant();
+  const articleUrl = `${tenant.baseUrl}/in-the-news/${slug}`;
+  const articleDescription = truncate(article.excerpt) || `${article.title} — featured in ${article.sourceName}.`;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: articleUrl,
+      name: article.title,
+      description: articleDescription,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      mainEntityId: ids.mainEntity(articleUrl),
+      datePublished: article.publishedAt,
+    }),
+    breadcrumbNode(articleUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'In the News', url: `${tenant.baseUrl}/in-the-news` },
+      { name: article.title, url: articleUrl },
+    ]),
+    articleNode({
+      type: 'NewsArticle',
+      url: articleUrl,
+      headline: article.title,
+      description: articleDescription,
+      image: heroImageUrl,
+      datePublished: article.publishedAt,
+      publisherName: article.sourceName,
+      publisherLogoUrl: logoUrl,
+      isBasedOn: article.url,
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Hero */}
       <section className="relative pt-36 pb-16 md:pt-44 md:pb-24 bg-[var(--color-sothebys-blue)]">
@@ -260,5 +298,6 @@ export default async function PressArticlePage({
         </div>
       </section>
     </main>
+    </>
   );
 }

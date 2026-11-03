@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { getSiteName, getBaseUrl, withBrand } from '@/lib/settings';
 import MoreVideos from '@/components/MoreVideos';
 import { getVideo, findCanonicalVideoId } from '@/lib/youtube';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, ids, videoNode, webPageNode, breadcrumbNode, truncate } from '@/lib/schema';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -52,7 +54,43 @@ export default async function VideoDetailPage({ params }: Props) {
         .filter(Boolean)
     : [];
 
+  // Structured data: the YouTube video as a VideoObject on its own page.
+  const tenant = await getTenant();
+  const videoUrl = `${tenant.baseUrl}/media/videos/${id}`;
+  const thumbnail =
+    snippet.thumbnails.maxres?.url || snippet.thumbnails.standard?.url || snippet.thumbnails.high?.url;
+  const videoDescription = truncate(snippet.description, 300) || snippet.title;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: videoUrl,
+      name: snippet.title,
+      description: videoDescription,
+      type: 'ItemPage',
+      image: thumbnail,
+      hasBreadcrumb: true,
+      mainEntityId: `${videoUrl}#video`,
+      datePublished: snippet.publishedAt,
+    }),
+    breadcrumbNode(videoUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Videos', url: `${tenant.baseUrl}/media/videos` },
+      { name: snippet.title, url: videoUrl },
+    ]),
+    videoNode({
+      url: videoUrl,
+      name: snippet.title,
+      description: videoDescription,
+      thumbnailUrl: thumbnail,
+      uploadDate: snippet.publishedAt,
+      embedUrl: `https://www.youtube.com/embed/${encodeURIComponent(id)}`,
+      publisherId: ids.organization(tenant.baseUrl),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Player band */}
       <section className="bg-black">
@@ -110,5 +148,6 @@ export default async function VideoDetailPage({ params }: Props) {
       </section>
       <MoreVideos currentId={id} />
     </main>
+    </>
   );
 }

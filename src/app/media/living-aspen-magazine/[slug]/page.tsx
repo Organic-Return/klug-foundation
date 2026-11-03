@@ -8,6 +8,8 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
 import MorePublications from "@/components/MorePublications";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getTenant, ids, articleNode, webPageNode, breadcrumbNode, truncate } from "@/lib/schema";
 
 const MAGAZINE_QUERY = `*[_type == "publication" && publicationType == "magazine" && slug.current == $slug][0]{
   ...,
@@ -204,26 +206,48 @@ export default async function MagazinePage({
 
   const pdfUrl = magazine.pdfFile?.asset?.url;
 
-  // JSON-LD structured data
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    name: magazine.title,
-    description: magazine.excerpt || magazine.title,
-    image: heroImageUrl || undefined,
-    datePublished: magazine.publishedAt,
-    publisher: {
-      '@type': 'Organization',
-      name: 'Living Aspen',
+  // Structured data: the issue as an Article published by the business,
+  // with its page and breadcrumb.
+  const tenant = await getTenant();
+  const issueUrl = `${tenant.baseUrl}/media/living-aspen-magazine/${slug}`;
+  const issueDescription = truncate(magazine.excerpt) || magazine.title;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: issueUrl,
+      name: magazine.title,
+      description: issueDescription,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      mainEntityId: ids.mainEntity(issueUrl),
+      datePublished: magazine.publishedAt,
+      dateModified: magazine._updatedAt || magazine.publishedAt,
+    }),
+    breadcrumbNode(issueUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Living Aspen Magazine', url: `${tenant.baseUrl}/media/living-aspen-magazine` },
+      { name: magazine.title, url: issueUrl },
+    ]),
+    {
+      ...articleNode({
+        type: 'Article',
+        url: issueUrl,
+        headline: magazine.title,
+        description: issueDescription,
+        image: heroImageUrl,
+        datePublished: magazine.publishedAt,
+        dateModified: magazine._updatedAt || magazine.publishedAt,
+        publisherId: ids.organization(tenant.baseUrl),
+        authorId: tenant.agent ? ids.agent(tenant.baseUrl) : undefined,
+        authorName: tenant.agent ? undefined : tenant.name,
+      }),
+      associatedMedia: pdfUrl ? { '@type': 'MediaObject', contentUrl: pdfUrl, encodingFormat: 'application/pdf' } : undefined,
     },
-  };
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <SchemaGraph nodes={schemaNodes} />
       <main className="min-h-screen">
         {/* Hero Section - Magazine Cover Style */}
         <section className="relative min-h-[75vh] flex items-end">

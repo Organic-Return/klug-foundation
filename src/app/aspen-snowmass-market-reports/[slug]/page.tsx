@@ -9,6 +9,8 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
 import { pickNeighbours } from "@/lib/publications";
+import SchemaGraph from "@/components/SchemaGraph";
+import { getTenant, ids, reportNode, webPageNode, breadcrumbNode, temporalCoverage, truncate } from "@/lib/schema";
 
 const MARKET_REPORT_QUERY = `*[_type == "publication" && publicationType == "market-report" && slug.current == $slug][0]{
   ...,
@@ -198,103 +200,47 @@ export default async function MarketReportPage({
 
   const pdfUrl = report.pdfFile?.asset?.url;
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
-  const reportUrl = `${baseUrl}/aspen-snowmass-market-reports/${slug}`;
-
-  // Article/Report schema with enhanced details
-  const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Report',
-    '@id': reportUrl,
-    headline: report.title,
-    name: report.title,
-    description: report.excerpt || report.title,
-    url: reportUrl,
-    image: heroImageUrl || undefined,
-    datePublished: report.publishedAt,
-    dateModified: report._updatedAt || report.publishedAt,
-    author: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}#organization`,
-      name: 'Real Estate',
-    },
-    publisher: {
-      '@type': 'Organization',
-      '@id': `${baseUrl}#organization`,
-      name: 'Real Estate',
-    },
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': reportUrl,
-    },
-    ...(pdfUrl && {
-      associatedMedia: {
-        '@type': 'MediaObject',
-        contentUrl: pdfUrl,
-        encodingFormat: 'application/pdf',
-      },
+  // Structured data: the Report (authored by the primary agent, published
+  // by the business, about the market area, covering the report period),
+  // its page and breadcrumb.
+  const tenant = await getTenant();
+  const reportUrl = `${tenant.baseUrl}/aspen-snowmass-market-reports/${slug}`;
+  const reportDescription = truncate(report.excerpt) || report.title;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: reportUrl,
+      name: report.title,
+      description: reportDescription,
+      image: heroImageUrl,
+      hasBreadcrumb: true,
+      mainEntityId: ids.mainEntity(reportUrl),
+      datePublished: report.publishedAt,
+      dateModified: report._updatedAt || report.publishedAt,
     }),
-  };
-
-  // BreadcrumbList schema
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: baseUrl,
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Market Reports',
-        item: `${baseUrl}/aspen-snowmass-market-reports`,
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: report.title,
-        item: reportUrl,
-      },
-    ],
-  };
-
-  // WebPage schema
-  const webPageSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    '@id': `${reportUrl}#webpage`,
-    url: reportUrl,
-    name: report.title,
-    description: report.excerpt || report.title,
-    isPartOf: {
-      '@id': `${baseUrl}#website`,
-    },
-    primaryImageOfPage: heroImageUrl ? {
-      '@type': 'ImageObject',
-      url: heroImageUrl,
-    } : undefined,
-    datePublished: report.publishedAt,
-    dateModified: report._updatedAt || report.publishedAt,
-  };
+    breadcrumbNode(reportUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Market Reports', url: `${tenant.baseUrl}/aspen-snowmass-market-reports` },
+      { name: report.title, url: reportUrl },
+    ]),
+    reportNode({
+      url: reportUrl,
+      name: report.title,
+      description: reportDescription,
+      image: heroImageUrl,
+      datePublished: report.publishedAt,
+      dateModified: report._updatedAt || report.publishedAt,
+      authorId: tenant.agent ? ids.agent(tenant.baseUrl) : undefined,
+      publisherId: ids.organization(tenant.baseUrl),
+      aboutPlace: tenant.areaServed[0],
+      temporalCoverage: temporalCoverage(report.periodStart, report.periodEnd),
+      pdfUrl,
+    }),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
-      />
+      <SchemaGraph nodes={schemaNodes} />
       <main className="min-h-screen">
         {/* Hero Section */}
         <section className="relative h-[45vh] md:h-[52vh] min-h-[375px]">
