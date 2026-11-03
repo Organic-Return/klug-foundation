@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, breadcrumbNode, collectionPageNodes } from '@/lib/schema';
 
 const MAGAZINES_QUERY = `*[_type == "publication" && publicationType == "magazine"] | order(publishedAt desc) {
   _id,
@@ -75,6 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
     || page?.heroDescription
     || 'Discover the Aspen lifestyle through our curated magazine featuring local culture, design, real estate, and more.';
 
+  const ogImage = page?.heroImage?.asset?.url || (await getDefaultHeroImageUrl()) || undefined;
   return {
     title,
     description,
@@ -86,6 +89,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: 'website',
       url: `${baseUrl}/media/living-aspen-magazine`,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
   };
 }
@@ -115,7 +119,29 @@ export default async function LivingAspenPage() {
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
+  // Structured data: CollectionPage + ItemList of the entries, with breadcrumb.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/media/living-aspen-magazine`;
+  const schemaNodes = [
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: heroTitle, url: pageUrl },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url: pageUrl,
+      name: heroTitle,
+      description: heroDescription,
+      image: heroImageRaw,
+      hasBreadcrumb: true,
+      listName: heroTitle,
+      items: magazines.filter((m) => m.slug?.current).slice(0, 25).map((m) => ({ url: `${tenant.baseUrl}/media/living-aspen-magazine/${m.slug.current}`, name: m.title })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
@@ -321,5 +347,6 @@ export default async function LivingAspenPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

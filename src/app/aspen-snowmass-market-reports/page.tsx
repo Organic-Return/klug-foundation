@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { getDefaultHeroImageUrl } from "@/lib/settings";
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, breadcrumbNode, collectionPageNodes } from '@/lib/schema';
 
 const MARKET_REPORTS_QUERY = `*[_type == "publication" && publicationType == "market-report"] | order(publishedAt desc) {
   _id,
@@ -75,6 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
     || page?.heroDescription
     || 'Stay informed with our comprehensive market reports covering real estate trends, statistics, and analysis.';
 
+  const ogImage = page?.heroImage?.asset?.url || (await getDefaultHeroImageUrl()) || undefined;
   return {
     title,
     description,
@@ -86,6 +89,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: 'website',
       url: `${baseUrl}/aspen-snowmass-market-reports`,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
   };
 }
@@ -116,7 +120,29 @@ export default async function MarketReportsPage() {
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
+  // Structured data: CollectionPage + ItemList of the entries, with breadcrumb.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/aspen-snowmass-market-reports`;
+  const schemaNodes = [
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: heroTitle, url: pageUrl },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url: pageUrl,
+      name: heroTitle,
+      description: heroDescription,
+      image: heroImageRaw,
+      hasBreadcrumb: true,
+      listName: heroTitle,
+      items: reports.filter((r) => r.slug?.current).slice(0, 25).map((r) => ({ url: `${tenant.baseUrl}/aspen-snowmass-market-reports/${r.slug.current}`, name: r.title })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
@@ -325,5 +351,6 @@ export default async function MarketReportsPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

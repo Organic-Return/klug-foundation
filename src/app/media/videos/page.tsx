@@ -4,6 +4,8 @@ import { getBaseUrl, getSiteName, getDefaultHeroImageUrl } from "@/lib/settings"
 import { getYouTubeVideos } from "@/lib/youtube";
 import { client } from "@/sanity/client";
 import VideosGrid from "@/components/VideosGrid";
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, breadcrumbNode, collectionPageNodes } from '@/lib/schema';
 
 interface VideosPageDoc {
   heroTitle?: string;
@@ -49,6 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
     || page?.heroDescription
     || 'Watch our latest real estate videos and virtual tours.';
 
+  const ogImage = page?.heroImage?.asset?.url || (await getDefaultHeroImageUrl()) || undefined;
   return {
     title,
     description,
@@ -59,6 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       url: `${baseUrl}/media/videos`,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
   };
 }
@@ -81,7 +85,29 @@ export default async function VideosPage() {
 
   const heroImageRaw: string | null = page?.heroImage?.asset?.url || defaultHeroUrl;
 
+  // Structured data: CollectionPage + ItemList of the entries, with breadcrumb.
+  const tenant = await getTenant();
+  const pageUrl = `${tenant.baseUrl}/media/videos`;
+  const schemaNodes = [
+    breadcrumbNode(pageUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: heroTitle, url: pageUrl },
+    ]),
+    ...collectionPageNodes({
+      tenant,
+      url: pageUrl,
+      name: heroTitle,
+      description: heroDescription,
+      image: heroImageRaw,
+      hasBreadcrumb: true,
+      listName: heroTitle,
+      items: videos.filter((v) => v.id?.videoId).slice(0, 25).map((v) => ({ url: `${tenant.baseUrl}/media/videos/${v.id.videoId}`, name: v.snippet?.title })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen">
       {/* Hero Section — transparent header sits on top, so add extra top padding */}
       <section
@@ -153,6 +179,7 @@ export default async function VideosPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }
 

@@ -45,3 +45,24 @@ export function temporalCoverage(start?: string | null, end?: string | null): st
   if (s && e) return s === e ? s : `${s}/${e}`;
   return s || e || undefined;
 }
+
+/**
+ * The street part of a feed address that repeats the city, state and ZIP,
+ * e.g. "82 Vista Place, Glenwood Springs, CO 81601" → "82 Vista Place".
+ */
+export function streetOnly(
+  address: string | null | undefined,
+  city?: string | null,
+  state?: string | null,
+  postalCode?: string | null
+): string | undefined {
+  if (!address) return undefined;
+  let street = address.trim();
+  const esc = (v: string) => v.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (city) street = street.replace(new RegExp(`,\\s*${esc(city)}(,\\s*[A-Z]{2})?(\\s+\\d{5}(-\\d{4})?)?\\s*$`, 'i'), '');
+  if (state) street = street.replace(new RegExp(`,\\s*${esc(state)}(\\s+\\d{5}(-\\d{4})?)?\\s*$`, 'i'), '');
+  if (postalCode) street = street.replace(new RegExp(`[\\s,]*${esc(postalCode)}\\s*$`), '');
+  // Generic ", City, ST 12345" suffix when the feed's own fields are missing
+  street = street.replace(/,\s*[A-Za-z .'-]+,\s*[A-Z]{2}(\s+\d{5}(-\d{4})?)?\s*$/, '');
+  return street.trim() || undefined;
+}

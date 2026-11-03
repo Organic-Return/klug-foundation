@@ -10,6 +10,7 @@
 import { ids, ref, type Ref } from './ids';
 import type { JsonLdNode } from './graph';
 import type { Tenant, TenantAgent, TenantCredential } from './tenant';
+import { streetOnly } from './text';
 
 const schemaUrl = (name: string) => `https://schema.org/${name}`;
 
@@ -567,13 +568,18 @@ export interface ListingInput {
   video?: VideoInput | null;
 }
 
+/** Land, lots and acreage: described as a plain Place, not a building. */
+export function isLandType(propertyType?: string | null): boolean {
+  return /\b(land|lots?|acreage|ranch|farm|vacant)\b/i.test(propertyType || '');
+}
+
 /** Maps the feed's property type to a schema.org accommodation type. */
 export function accommodationType(propertyType?: string | null): string {
   const type = (propertyType || '').toLowerCase();
+  if (isLandType(type)) return 'Place';
   if (/condo|apartment|co-?op|flat/.test(type)) return 'Apartment';
   if (/town/.test(type)) return 'House';
   if (/duplex|multi|triplex|fourplex|income/.test(type)) return 'House';
-  if (/land|lot|acreage|ranch|farm/.test(type)) return 'LandmarksOrHistoricalBuildings';
   if (/commercial|office|retail|industrial|business/.test(type)) return 'Accommodation';
   if (/single|residence|house|home|cabin|chalet/.test(type)) return 'SingleFamilyResidence';
   return 'Accommodation';
@@ -589,7 +595,16 @@ export function listingAvailability(status?: string | null): ListingAvailability
 /** RealEstateListing plus the accommodation it offers, cross-linked. */
 export function listingNodes(input: ListingInput): JsonLdNode[] {
   const accommodationId = `${input.url}#property`;
-  const address = postalAddress(input.address);
+  // Feeds often repeat the city, state and ZIP inside the street line.
+  const address = postalAddress(
+    input.address
+      ? { ...input.address, street: streetOnly(input.address.street, input.address.city, input.address.state, input.address.postalCode) }
+      : input.address
+  );
+  const land = isLandType(input.propertyType);
+  // A count of zero is "unknown" in the feed, not a fact about the home.
+  const bedrooms = input.bedrooms && input.bedrooms > 0 ? input.bedrooms : undefined;
+  const bathrooms = input.bathrooms && input.bathrooms > 0 ? input.bathrooms : undefined;
   const geo = geoCoordinates(input.geo);
   const availability = listingAvailability(input.status);
   const video = input.video ? videoNode(input.video) : undefined;
@@ -623,22 +638,35 @@ export function listingNodes(input: ListingInput): JsonLdNode[] {
       : undefined,
   };
 
-  const accommodation: JsonLdNode = {
-    '@type': accommodationType(input.propertyType),
-    '@id': accommodationId,
-    name: input.name,
-    description: input.description,
-    url: input.url,
-    image: input.photos,
-    numberOfRooms: input.bedrooms ?? undefined,
-    numberOfBedrooms: input.bedrooms ?? undefined,
-    numberOfBathroomsTotal: input.bathrooms ?? undefined,
-    floorSize: input.squareFeet ? { '@type': 'QuantitativeValue', value: input.squareFeet, unitCode: 'FTK' } : undefined,
-    lotSize: input.lotSizeAcres ? { '@type': 'QuantitativeValue', value: input.lotSizeAcres, unitCode: 'ACR' } : undefined,
-    yearBuilt: input.yearBuilt ?? undefined,
-    address,
-    geo,
-  };
+  const lotSize = input.lotSizeAcres ? { '@type': 'QuantitativeValue', value: input.lotSizeAcres, unitCode: 'ACR' } : undefined;
+  const accommodation: JsonLdNode = land
+    ? {
+        '@type': 'Place',
+        '@id': accommodationId,
+        name: input.name,
+        description: input.description,
+        url: input.url,
+        image: input.photos,
+        additionalProperty: lotSize ? { '@type': 'PropertyValue', name: 'Lot Size', value: input.lotSizeAcres, unitCode: 'ACR' } : undefined,
+        address,
+        geo,
+      }
+    : {
+        '@type': accommodationType(input.propertyType),
+        '@id': accommodationId,
+        name: input.name,
+        description: input.description,
+        url: input.url,
+        image: input.photos,
+        numberOfRooms: bedrooms,
+        numberOfBedrooms: bedrooms,
+        numberOfBathroomsTotal: bathrooms,
+        floorSize: input.squareFeet ? { '@type': 'QuantitativeValue', value: input.squareFeet, unitCode: 'FTK' } : undefined,
+        lotSize,
+        yearBuilt: input.yearBuilt ?? undefined,
+        address,
+        geo,
+      };
 
   return [listing, accommodation, ...(video ? [video] : [])];
 }

@@ -4,7 +4,7 @@ export { buildGraph, compact, serializeJsonLd } from './graph';
 export type { JsonLdNode, JsonLdGraph } from './graph';
 export { getTenant, brandName, resolveBaseUrl, parseFreeTextAddress } from './tenant';
 export type { Tenant, TenantAgent, TenantCredential, TenantService, TenantFaq } from './tenant';
-export { toPlainText, truncate, isoDate, temporalCoverage } from './text';
+export { toPlainText, truncate, isoDate, temporalCoverage, streetOnly } from './text';
 export {
   organizationNode,
   agentNode,
@@ -25,6 +25,7 @@ export {
   collectionPageNodes,
   listingNodes,
   accommodationType,
+  isLandType,
   listingAvailability,
   imageObject,
   postalAddress,

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { buildGraph, compact, serializeJsonLd } from './graph';
 import { ids, absoluteUrl, normalizeBaseUrl } from './ids';
-import { toPlainText, truncate, temporalCoverage, isoDate } from './text';
+import { toPlainText, truncate, temporalCoverage, isoDate, streetOnly } from './text';
 import { brandName, resolveBaseUrl, parseFreeTextAddress, type Tenant } from './tenant';
 import {
   organizationNode,
@@ -403,7 +403,8 @@ describe('listings', () => {
     expect(accommodationType('Single Family Residence')).toBe('SingleFamilyResidence');
     expect(accommodationType('Condominium')).toBe('Apartment');
     expect(accommodationType('Townhouse')).toBe('House');
-    expect(accommodationType('Unimproved Land')).toBe('LandmarksOrHistoricalBuildings');
+    expect(accommodationType('Unimproved Land')).toBe('Place');
+    expect(accommodationType('Single Family Lot')).toBe('Place');
     expect(accommodationType(null)).toBe('Accommodation');
   });
 
@@ -422,6 +423,29 @@ describe('listings', () => {
     expect(home['@id']).toBe('https://x.com/l/1#property');
     const [own] = listingNodes({ url: 'https://x.com/l/1', name: '1 St', listPrice: 5, sellerId: 'https://x.com/#organization' });
     expect((own.offers as { seller: unknown }).seller).toEqual({ '@id': 'https://x.com/#organization' });
+  });
+
+  it('describes land as a Place with its lot size and no room counts', () => {
+    const [, lot] = listingNodes({
+      url: 'https://x.com/l/2',
+      name: '82 Vista Place, Glenwood Springs, CO 81601',
+      propertyType: 'Single Family Lot',
+      bedrooms: 0,
+      bathrooms: 0,
+      lotSizeAcres: 2.57,
+      address: { street: '82 Vista Place, Glenwood Springs, CO 81601', city: 'Glenwood Springs', state: 'CO', postalCode: '81601' },
+    });
+    expect(lot['@type']).toBe('Place');
+    expect(lot.numberOfBathroomsTotal).toBeUndefined();
+    expect(lot.numberOfRooms).toBeUndefined();
+    expect(lot.additionalProperty).toEqual({ '@type': 'PropertyValue', name: 'Lot Size', value: 2.57, unitCode: 'ACR' });
+    expect((lot.address as { streetAddress: string }).streetAddress).toBe('82 Vista Place');
+  });
+
+  it('omits zero bed and bath counts on homes too', () => {
+    const [, home] = listingNodes({ url: 'https://x.com/l/3', name: 'H', propertyType: 'Single Family Residence', bedrooms: 0, bathrooms: 0 });
+    expect(home.numberOfBedrooms).toBeUndefined();
+    expect(home.numberOfBathroomsTotal).toBeUndefined();
   });
 
   it('adds a VideoObject when the listing has a video', () => {
@@ -446,6 +470,14 @@ describe('text helpers', () => {
     expect(toPlainText('  plain ')).toBe('plain');
     expect(toPlainText(null)).toBe('');
   });
+  it('trims the street from a full feed address', () => {
+    expect(streetOnly('82 Vista Place, Glenwood Springs, CO 81601', 'Glenwood Springs', 'CO', '81601')).toBe('82 Vista Place');
+    expect(streetOnly('16 Kearns Road, Suite 110, Snowmass Village, CO 81615', 'Snowmass Village', 'CO', '81615')).toBe('16 Kearns Road, Suite 110');
+    expect(streetOnly('123 Main St, Aspen, CO')).toBe('123 Main St');
+    expect(streetOnly('123 Main St', 'Aspen', 'CO', '81611')).toBe('123 Main St');
+    expect(streetOnly('')).toBeUndefined();
+  });
+
   it('truncates on a word boundary', () => {
     expect(truncate('a '.repeat(200), 50)!.length).toBeLessThanOrEqual(51);
     expect(truncate('short')).toBe('short');
