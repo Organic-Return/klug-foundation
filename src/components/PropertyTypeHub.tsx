@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { getListingHref, HUB_PAGE_SIZE, type MLSProperty } from '@/lib/listings';
+import SchemaGraph from '@/components/SchemaGraph';
+import { getTenant, breadcrumbNode, collectionPageNodes } from '@/lib/schema';
 
 interface PropertyTypeHubProps {
   /** Slug used in URLs — also used to build city-filter links. */
@@ -47,7 +49,7 @@ function formatPrice(p: number | null): string {
   }).format(p);
 }
 
-export default function PropertyTypeHub({
+export default async function PropertyTypeHub({
   type,
   title,
   intro,
@@ -68,7 +70,38 @@ export default function PropertyTypeHub({
   const pageHref = (n: number) => (n <= 1 ? pagerBase : `${pagerBase}?page=${n}`);
   const otherTypes = (Object.keys(TYPE_COPY) as Array<PropertyTypeHubProps['type']>).filter((t) => t !== type);
 
+  // Structured data, the same shape as the listings index: CollectionPage,
+  // an ItemList of the listings on this page, and a breadcrumb that runs
+  // Home → type hub → city for the city pages.
+  const tenant = await getTenant();
+  const hubPath = `/${type}`;
+  const pageUrl = `${tenant.baseUrl}${pageHref(page)}`;
+  const crumbs = [
+    { name: 'Home', url: `${tenant.baseUrl}/` },
+    { name: typeCopy.eyebrow, url: `${tenant.baseUrl}${hubPath}` },
+    ...(currentCity && pagerBase !== hubPath ? [{ name: currentCity, url: `${tenant.baseUrl}${pagerBase}` }] : []),
+  ];
+  const schemaNodes = [
+    breadcrumbNode(pageUrl, crumbs),
+    ...collectionPageNodes({
+      tenant,
+      url: pageUrl,
+      name: page > 1 ? `${title} — Page ${page}` : title,
+      description: intro[0],
+      image: listings[0]?.photos?.[0],
+      hasBreadcrumb: true,
+      listName: title,
+      items: listings.slice(0, 25).map((l) => ({
+        url: `${tenant.baseUrl}${getListingHref(l)}`,
+        name: l.address || undefined,
+        image: l.photos?.[0],
+      })),
+    }),
+  ];
+
   return (
+    <>
+    <SchemaGraph nodes={schemaNodes} />
     <main className="-mt-20 min-h-screen bg-white dark:bg-[#1a1a1a]">
       {/* Hero band */}
       <section className="relative bg-[var(--color-sothebys-blue)] pt-36 pb-16 md:pt-44 md:pb-20">
@@ -278,5 +311,6 @@ export default function PropertyTypeHub({
         </div>
       </section>
     </main>
+    </>
   );
 }
