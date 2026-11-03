@@ -81,7 +81,8 @@ const patch = {};
 // office address already comes from the free-text contact address).
 if (!args.includes('--skip-office') && !business.office?.street) patch['business.office'] = DEFAULTS.office;
 if (!args.includes('--skip-price-range') && !business.priceRange) patch['business.priceRange'] = DEFAULTS.priceRange;
-const areaServed = opt('area-served', null) ? opt('area-served').split(',').map((s) => s.trim()).filter(Boolean) : DEFAULTS.areaServed;
+// Semicolon-separated, since the places themselves contain commas ("Aspen, CO").
+const areaServed = opt('area-served', null) ? opt('area-served').split(';').map((s) => s.trim()).filter(Boolean) : DEFAULTS.areaServed;
 if (!business.areaServed?.length) patch['business.areaServed'] = areaServed;
 if (!business.services?.length) patch['business.services'] = DEFAULTS.services;
 if (!business.primaryAgent && agent) patch['business.primaryAgent'] = { _type: 'reference', _ref: agent._id };
