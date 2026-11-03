@@ -31,5 +31,6 @@ import { blogPage } from './blogPage'
 import { inTheNewsPage } from './inTheNewsPage'
 import { teamPage } from './teamPage'
 import { videosPage } from './videosPage'
+import { faqItem } from './faqItem'
 
-export const schemaTypes = [post, community, publication, settings, homepage, teamMember, accolade, navigation, mlsConfiguration, whyKlugProperties, testimonialsPage, affiliatedPartner, affiliatedPartnersPage, offMarketListing, propertyEnhancement, buyPage, sellPage, aboutPage, resourcesPage, relocationPage, firstTimeBuyersPage, builder, buildersPage, sitePage, pressArticle, exclusiveAndNewPage, soldByKlugPage, marketReportsPage, livingAspenPage, blogPage, inTheNewsPage, teamPage, videosPage]
+export const schemaTypes = [post, community, publication, settings, homepage, teamMember, accolade, navigation, mlsConfiguration, whyKlugProperties, testimonialsPage, affiliatedPartner, affiliatedPartnersPage, offMarketListing, propertyEnhancement, buyPage, sellPage, aboutPage, resourcesPage, relocationPage, firstTimeBuyersPage, builder, buildersPage, sitePage, pressArticle, exclusiveAndNewPage, soldByKlugPage, marketReportsPage, livingAspenPage, blogPage, inTheNewsPage, teamPage, videosPage, faqItem]

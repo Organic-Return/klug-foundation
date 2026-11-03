@@ -36,6 +36,19 @@ export const post = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      description: 'e.g. "Neighborhood Guides", "Market Insights".',
+    }),
+    defineField({
+      name: 'faqs',
+      title: 'Frequently Asked Questions',
+      type: 'array',
+      of: [{ type: 'faqItem' }],
+      description: 'Shown as an FAQ section at the end of the post.',
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'object',

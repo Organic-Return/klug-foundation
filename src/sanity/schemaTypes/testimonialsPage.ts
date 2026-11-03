@@ -97,6 +97,13 @@ export const testimonialsPage = defineType({
           },
         }),
         defineField({
+          name: 'rating',
+          title: 'Star Rating (optional)',
+          type: 'number',
+          description: 'Only when the client actually gave a star rating, 1 to 5.',
+          validation: (Rule) => Rule.integer().min(1).max(5),
+        }),
+        defineField({
           name: 'propertyImage',
           title: 'Property Image',
           type: 'image',
@@ -168,6 +175,13 @@ export const testimonialsPage = defineType({
               options: {
                 hotspot: true,
               },
+            }),
+            defineField({
+              name: 'rating',
+              title: 'Star Rating (optional)',
+              type: 'number',
+              description: 'Only when the client actually gave a star rating, 1 to 5.',
+              validation: (Rule) => Rule.integer().min(1).max(5),
             }),
             defineField({
               name: 'featured',

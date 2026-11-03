@@ -260,6 +260,84 @@ export const settings = defineType({
       ],
     }),
     defineField({
+      name: 'business',
+      title: 'Business Details (structured data)',
+      type: 'object',
+      description:
+        'Facts about the business that search engines read from every page: office address and map position, service area, services, brokerage and the primary agent. Leave anything unknown blank; it is simply left out.',
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        {
+          name: 'primaryAgent',
+          title: 'Primary Agent',
+          type: 'reference',
+          to: [{ type: 'teamMember' }],
+          description: 'The agent the site belongs to. Named as the author of blog posts and market reports and as the person behind the business.',
+        },
+        {
+          name: 'office',
+          title: 'Office Address',
+          type: 'object',
+          fields: [
+            { name: 'street', title: 'Street Address', type: 'string' },
+            { name: 'city', title: 'City', type: 'string' },
+            { name: 'state', title: 'State (two letters)', type: 'string' },
+            { name: 'postalCode', title: 'ZIP Code', type: 'string' },
+            { name: 'country', title: 'Country (two letters)', type: 'string', initialValue: 'US' },
+            { name: 'lat', title: 'Latitude', type: 'number' },
+            { name: 'lng', title: 'Longitude', type: 'number' },
+          ],
+        },
+        {
+          name: 'priceRange',
+          title: 'Price Range',
+          type: 'string',
+          options: { list: ['$', '$$', '$$$', '$$$$'], layout: 'radio' },
+        },
+        {
+          name: 'areaServed',
+          title: 'Areas Served',
+          type: 'array',
+          of: [{ type: 'string' }],
+          options: { layout: 'tags' },
+          description: 'Towns and regions, e.g. "Aspen, CO", "Snowmass Village, CO", "Roaring Fork Valley".',
+        },
+        {
+          name: 'brokerage',
+          title: 'Brokerage',
+          type: 'object',
+          description: 'The parent brokerage, e.g. Aspen Snowmass Sotheby\'s International Realty or Christie\'s International Real Estate.',
+          fields: [
+            { name: 'name', title: 'Name', type: 'string' },
+            { name: 'url', title: 'Website', type: 'url' },
+          ],
+        },
+        {
+          name: 'services',
+          title: 'Services',
+          type: 'array',
+          description: 'Listed on the home, buy and sell pages as Service structured data.',
+          of: [
+            {
+              type: 'object',
+              fields: [
+                { name: 'serviceType', title: 'Service', type: 'string', validation: (Rule: any) => Rule.required() },
+                { name: 'description', title: 'Description', type: 'text', rows: 2 },
+              ],
+              preview: { select: { title: 'serviceType' } },
+            },
+          ],
+        },
+        {
+          name: 'faqs',
+          title: 'Site-wide FAQs',
+          type: 'array',
+          of: [{ type: 'faqItem' }],
+          description: 'Shown on the home page as an FAQ section.',
+        },
+      ],
+    }),
+    defineField({
       name: 'seo',
       title: 'Default SEO Settings',
       type: 'object',

@@ -108,6 +108,14 @@ export const aboutPage = defineType({
       options: { hotspot: true },
     }),
 
+    defineField({ name: 'faqTitle', title: 'FAQ Section Title', type: 'string' }),
+    defineField({
+      name: 'faqs',
+      title: 'Frequently Asked Questions',
+      type: 'array',
+      of: [{ type: 'faqItem' }],
+      description: 'Shown as an FAQ section at the end of the about page.',
+    }),
     defineField({
       name: 'seo',
       title: 'SEO',

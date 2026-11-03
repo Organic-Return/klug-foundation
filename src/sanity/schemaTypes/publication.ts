@@ -145,6 +145,20 @@ export const publication = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'periodStart',
+      title: 'Report Period Start',
+      type: 'date',
+      description: 'First day of the period this market report covers.',
+      hidden: ({ parent }) => parent?.publicationType !== 'market-report',
+    }),
+    defineField({
+      name: 'periodEnd',
+      title: 'Report Period End',
+      type: 'date',
+      description: 'Last day of the period this market report covers.',
+      hidden: ({ parent }) => parent?.publicationType !== 'market-report',
+    }),
+    defineField({
       name: 'featured',
       title: 'Featured Publication',
       type: 'boolean',

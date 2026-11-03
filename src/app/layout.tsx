@@ -15,6 +15,8 @@ import { AuthProvider } from "@/components/AuthProvider";
 import UTMCapture from "@/components/UTMCapture";
 import Analytics from "@/components/Analytics";
 import { getSettings, getBranding } from "@/lib/settings";
+import { getTenant, siteNodes } from "@/lib/schema";
+import SchemaGraph from "@/components/SchemaGraph";
 import { getMainNavigation, getFooterNavigation, groupFooterLinks } from "@/lib/navigation";
 import { getAllCommunities } from "@/lib/homepage";
 
@@ -97,11 +99,18 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = settings?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate';
   const description = settings?.description || process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '';
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || settings?.siteUrl || '';
+  const tenant = await getTenant();
 
   return {
     title,
     description,
     ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
+    // Default social image for pages that set no openGraph of their own.
+    openGraph: {
+      siteName: tenant.name,
+      type: 'website',
+      ...(tenant.imageUrl ? { images: [{ url: tenant.imageUrl }] } : {}),
+    },
   };
 }
 
@@ -200,9 +209,14 @@ export default async function RootLayout({
     return `${inter_} ${lora.variable}`; // sothebys preset
   })();
 
+  // Sitewide structured data: the business, its primary agent and the
+  // website, with stable @ids that every page's own graph refers to.
+  const tenant = await getTenant();
+
   return (
     <html lang="en">
       <body className={`${fontVariables} antialiased ${templateClass} ${fontPresetClass}`.trim()}>
+        <SchemaGraph nodes={siteNodes(tenant)} />
         <Analytics gaId={gaId} gtmId={gtmId} fbPixelId={fbPixelId} gadsConversionId={gadsConversionId} />
         <AuthProvider>
         <UTMCapture />

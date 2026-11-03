@@ -423,6 +423,19 @@ export const community = defineType({
       ],
     }),
     defineField({
+      name: 'county',
+      title: 'County',
+      type: 'string',
+      description: 'e.g. "Pitkin County". Used to place the community within its county and state in structured data.',
+    }),
+    defineField({
+      name: 'faqs',
+      title: 'Frequently Asked Questions',
+      type: 'array',
+      of: [{ type: 'faqItem' }],
+      description: 'Shown as an FAQ section at the end of the community page.',
+    }),
+    defineField({
       name: 'seo',
       title: 'SEO',
       type: 'object',

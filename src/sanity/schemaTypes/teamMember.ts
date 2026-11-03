@@ -112,6 +112,54 @@ export const teamMember = defineType({
       ],
     }),
     defineField({
+      name: 'website',
+      title: 'Personal Website',
+      type: 'url',
+    }),
+    defineField({
+      name: 'knowsAbout',
+      title: 'Areas of Expertise',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: { layout: 'tags' },
+      description: 'Topics and places this agent specialises in, e.g. "Luxury homes", "Snowmass Village".',
+    }),
+    defineField({
+      name: 'credentials',
+      title: 'Credentials',
+      type: 'array',
+      description: 'Memberships, awards and licenses. Read by search engines from the agent profile page.',
+      of: [
+        {
+          type: 'object',
+          name: 'credential',
+          fields: [
+            {
+              name: 'credentialType',
+              title: 'Type',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Membership', value: 'membership' },
+                  { title: 'Award', value: 'award' },
+                  { title: 'License', value: 'license' },
+                ],
+                layout: 'radio',
+              },
+              validation: (Rule: any) => Rule.required(),
+            },
+            { name: 'name', title: 'Name', type: 'string', validation: (Rule: any) => Rule.required() },
+            { name: 'issuer', title: 'Issuing Organization', type: 'string' },
+            { name: 'url', title: 'URL', type: 'url' },
+            { name: 'year', title: 'Year', type: 'number' },
+          ],
+          preview: {
+            select: { title: 'name', subtitle: 'credentialType' },
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'mlsAgentId',
       title: 'MLS Agent ID',
       type: 'string',
