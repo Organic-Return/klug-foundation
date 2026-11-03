@@ -8,6 +8,9 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import MuxVideoPlayer from "@/components/MuxVideoPlayer";
 import { getDefaultHeroImageUrl, withBrand } from "@/lib/settings";
+import SchemaGraph from "@/components/SchemaGraph";
+import FaqSection, { faqEntries } from "@/components/FaqSection";
+import { getTenant, ids, articleNode, webPageNode, breadcrumbNode, faqNode, toPlainText, truncate } from "@/lib/schema";
 import RelatedPosts from '@/components/RelatedPosts';
 import AdjacentPosts from '@/components/AdjacentPosts';
 
@@ -244,35 +247,48 @@ export default async function PostPage({
     ? urlFor(post.image)?.width(1200).height(675).url()
     : null;
 
-  // Generate JSON-LD structured data for SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
-    image: postImageUrl || undefined,
-    datePublished: post.publishedAt,
-    dateModified: post._updatedAt || post.publishedAt,
-    author: {
-      '@type': 'Organization',
-      name: 'Real Estate Website',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Real Estate Website',
-      logo: {
-        '@type': 'ImageObject',
-        url: postImageUrl || undefined,
-      },
-    },
-    description: post.title,
-  };
+  // Structured data: BlogPosting by the primary agent, published by the
+  // business, with the page, breadcrumb and any FAQ rendered below the post.
+  const tenant = await getTenant();
+  const postUrl = `${tenant.baseUrl}/about/blog/${post.slug.current}`;
+  const postDescription = post.seo?.metaDescription || truncate(toPlainText(post.body), 300) || post.title;
+  const schemaNodes = [
+    webPageNode({
+      tenant,
+      url: postUrl,
+      name: post.title,
+      description: postDescription,
+      image: postImageUrl,
+      hasBreadcrumb: true,
+      mainEntityId: ids.mainEntity(postUrl),
+      datePublished: post.publishedAt,
+      dateModified: post._updatedAt || post.publishedAt,
+    }),
+    breadcrumbNode(postUrl, [
+      { name: 'Home', url: `${tenant.baseUrl}/` },
+      { name: 'Blog', url: `${tenant.baseUrl}/about/blog` },
+      { name: post.title, url: postUrl },
+    ]),
+    articleNode({
+      type: 'BlogPosting',
+      url: postUrl,
+      headline: post.title,
+      description: postDescription,
+      image: postImageUrl,
+      datePublished: post.publishedAt,
+      dateModified: post._updatedAt || post.publishedAt,
+      authorId: tenant.agent ? ids.agent(tenant.baseUrl) : undefined,
+      authorName: tenant.agent ? undefined : tenant.name,
+      publisherId: ids.organization(tenant.baseUrl),
+      articleSection: post.category,
+      keywords: Array.isArray(post.seo?.keywords) ? post.seo.keywords : undefined,
+    }),
+    faqNode(postUrl, faqEntries(post.faqs)),
+  ];
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <SchemaGraph nodes={schemaNodes} />
       <main className="container mx-auto min-h-screen flex flex-col gap-4">
         <div className="max-w-3xl mx-auto w-full px-8 pt-8">
           <Link href="/about/blog" className="hover:underline">
@@ -346,6 +362,7 @@ export default async function PostPage({
       })()}
       <RelatedPosts currentSlug={slug} basePath="/about/blog" />
       <AdjacentPosts currentSlug={slug} publishedAt={post.publishedAt} />
+      <FaqSection faqs={post.faqs} />
     </main>
     </>
   );

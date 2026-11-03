@@ -72,7 +72,10 @@ async function getPageData(): Promise<PageDoc | null> {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [baseUrl, siteName, page] = await Promise.all([getBaseUrl(), getSiteName(), getPageData()]);
+  const [baseUrl, siteName, page, tenant] = await Promise.all([getBaseUrl(), getSiteName(), getPageData(), getTenant()]);
+  const ogImage = page?.seo?.ogImage
+    ? urlFor(page.seo.ogImage)?.width(1200).height(630).fit('crop').url()
+    : page?.heroImage?.asset?.url || tenant.imageUrl || undefined;
   const heroTitle = page?.heroTitle || 'Blog';
   const title = page?.seo?.metaTitle || `${heroTitle} | ${siteName}`;
   const description = page?.seo?.metaDescription
@@ -90,6 +93,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       type: 'website',
       url: `${baseUrl}/about/blog`,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
   };
 }

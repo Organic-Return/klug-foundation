@@ -8,7 +8,7 @@ import { getTenant, ids, webPageNode, breadcrumbNode } from '@/lib/schema';
 export const revalidate = 60;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const [baseUrl, siteName, tenant] = await Promise.all([getBaseUrl(), getSiteName(), getTenant()]);
   return {
     title: `Contact Us | ${siteName}`,
     description:
@@ -16,8 +16,9 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: { canonical: `${baseUrl}/contact-us` },
     openGraph: {
       title: `Contact Us | ${siteName}`,
-      description: 'Reach the Klug Properties team.',
+      description: `Reach the ${tenant.name} team.`,
       url: `${baseUrl}/contact-us`,
+      images: tenant.imageUrl ? [{ url: tenant.imageUrl }] : undefined,
     },
   };
 }
