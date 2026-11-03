@@ -90,7 +90,7 @@ export default async function SkiTownPartnerPage({ params }: Props) {
   // Structured data: a ProfilePage about this partner, a Person at their
   // own company (not the tenant's business).
   const tenant = await getTenant();
-  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath}/${slug}`;
+  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath(slug)}`;
   const personId = `${profileUrl}#person`;
   const fullName = `${partner.firstName} ${partner.lastName}`;
   const partnerBio = enrichedPartner.bio ? truncate(htmlToPlainText(enrichedPartner.bio), 500) : undefined;

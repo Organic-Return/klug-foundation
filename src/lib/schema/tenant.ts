@@ -7,6 +7,7 @@
 import { createImageUrlBuilder } from '@sanity/image-url';
 import { client } from '@/sanity/client';
 import { normalizeBaseUrl } from './ids';
+import { siteConfig } from './site-config';
 
 export interface TenantCredential {
   type: 'membership' | 'award' | 'license';
@@ -64,11 +65,27 @@ export interface Tenant {
   agent: TenantAgent | null;
   /** Path of the listings search page, for the WebSite SearchAction. */
   searchPath: string;
-  /** Path under which agent profiles live, e.g. /real-estate-agent. */
-  agentProfilePath: string;
+  /** Profile path for a team member slug, e.g. /real-estate-agent/jane. */
+  agentProfilePath: (slug: string) => string;
 }
 
+const AGENT_FIELDS = `
+      name,
+      "slug": slug.current,
+      title,
+      bio,
+      image,
+      email,
+      phone,
+      mobile,
+      website,
+      socialMedia,
+      knowsAbout,
+      credentials
+`;
+
 const TENANT_QUERY = `*[_type == "settings" && _id == "settings"][0]{
+  template,
   title,
   siteName,
   description,
@@ -85,21 +102,9 @@ const TENANT_QUERY = `*[_type == "settings" && _id == "settings"][0]{
     brokerage,
     services,
     faqs,
-    primaryAgent->{
-      name,
-      "slug": slug.current,
-      title,
-      bio,
-      image,
-      email,
-      phone,
-      mobile,
-      website,
-      socialMedia,
-      knowsAbout,
-      credentials
-    }
-  }
+    primaryAgent->{${AGENT_FIELDS}}
+  },
+  "fallbackAgent": *[_type == "teamMember" && featured == true && inactive != true] | order(order asc)[0]{${AGENT_FIELDS}}
 }`;
 
 interface RawCredential {
@@ -110,7 +115,23 @@ interface RawCredential {
   year?: number;
 }
 
+interface RawAgent {
+  name?: string;
+  slug?: string;
+  title?: string;
+  bio?: string;
+  image?: unknown;
+  email?: string;
+  phone?: string;
+  mobile?: string;
+  website?: string;
+  socialMedia?: Record<string, string | null | undefined>;
+  knowsAbout?: Array<string | null>;
+  credentials?: RawCredential[];
+}
+
 interface RawSettings {
+  template?: string;
   title?: string;
   siteName?: string;
   description?: string;
@@ -127,21 +148,10 @@ interface RawSettings {
     brokerage?: { name?: string; url?: string };
     services?: Array<{ serviceType?: string; description?: string | null } | null>;
     faqs?: Array<{ question?: string; answer?: unknown } | null>;
-    primaryAgent?: {
-      name?: string;
-      slug?: string;
-      title?: string;
-      bio?: string;
-      image?: unknown;
-      email?: string;
-      phone?: string;
-      mobile?: string;
-      website?: string;
-      socialMedia?: Record<string, string | null | undefined>;
-      knowsAbout?: Array<string | null>;
-      credentials?: RawCredential[];
-    } | null;
+    primaryAgent?: RawAgent | null;
   };
+  /** The featured team member, used when settings name no primary agent. */
+  fallbackAgent?: RawAgent | null;
 }
 
 const builder = createImageUrlBuilder(client);
@@ -201,7 +211,7 @@ export function resolveBaseUrl(settingsSiteUrl?: string | null): string {
 let cached: { at: number; tenant: Tenant } | null = null;
 const CACHE_MS = 60_000;
 
-export async function getTenant(options: { agentProfilePath?: string; searchPath?: string } = {}): Promise<Tenant> {
+export async function getTenant(): Promise<Tenant> {
   if (cached && Date.now() - cached.at < CACHE_MS) return cached.tenant;
 
   let data: RawSettings | null = null;
@@ -212,17 +222,20 @@ export async function getTenant(options: { agentProfilePath?: string; searchPath
   }
 
   const baseUrl = resolveBaseUrl(data?.siteUrl);
-  const agentProfilePath = options.agentProfilePath || process.env.NEXT_PUBLIC_AGENT_PROFILE_PATH || '/real-estate-agent';
-  const searchPath = options.searchPath || process.env.NEXT_PUBLIC_LISTINGS_PATH || '/real-estate-for-sale';
+  const template = data?.template || process.env.NEXT_PUBLIC_SITE_TEMPLATE || null;
+  const agentProfilePath = (slug: string) => siteConfig.agentProfilePath(slug, template);
+  const searchPath = siteConfig.searchPath;
   const business: NonNullable<RawSettings['business']> = data?.business || {};
   const office = business.office || {};
-  const primary = business.primaryAgent;
+  // Settings → Business → Primary Agent wins; the featured team member stands
+  // in until an editor sets it.
+  const primary = business.primaryAgent || data?.fallbackAgent;
 
   const agent: TenantAgent | null = primary?.name && primary?.slug
     ? {
         name: primary.name,
         slug: primary.slug,
-        url: `${baseUrl}${agentProfilePath}/${primary.slug}`,
+        url: `${baseUrl}${agentProfilePath(primary.slug)}`,
         jobTitle: primary.title,
         bio: primary.bio,
         imageUrl: imageUrl(primary.image, 800),

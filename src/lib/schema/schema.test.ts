@@ -59,7 +59,7 @@ const tenant: Tenant = {
     ],
   },
   searchPath: '/real-estate-for-sale',
-  agentProfilePath: '/real-estate-agent',
+  agentProfilePath: (slug: string) => `/real-estate-agent/${slug}`,
 };
 
 /** Every string under the given key in the whole graph. */

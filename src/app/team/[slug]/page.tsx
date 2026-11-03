@@ -169,7 +169,7 @@ export default async function TeamMemberPage({ params }: Props) {
   // tenant's primary agent is the sitewide #agent node; anyone else gets a
   // Person of their own, working for the business.
   const tenant = await getTenant();
-  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath}/${slug}`;
+  const profileUrl = `${tenant.baseUrl}${tenant.agentProfilePath(slug)}`;
   const isPrimaryAgent = tenant.agent?.slug === slug;
   const personId = isPrimaryAgent ? ids.agent(tenant.baseUrl) : `${profileUrl}#person`;
   const bioText = member.bio ? htmlToPlainText(member.bio) : undefined;

@@ -50,3 +50,4 @@ export type {
   CollectionPageInput,
   ListingInput,
 } from './nodes';
+export { siteConfig } from './site-config';
