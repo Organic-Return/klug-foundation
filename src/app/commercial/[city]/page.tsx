@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCommercialListings, getCommercialCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
+import { getAreaShareImage } from '@/lib/share-image';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
@@ -33,7 +34,12 @@ export async function generateMetadata(
   // ...and its own description, or every page of the series is a duplicate.
   const pageLead = page > 1 ? `Page ${page}. ` : '';
   const { city: slug } = await params;
-  const [baseUrl, siteName, city] = await Promise.all([getBaseUrl(), getSiteName(), resolveCity(slug)]);
+  const [baseUrl, siteName, city, shareImage] = await Promise.all([
+    getBaseUrl(),
+    getSiteName(),
+    resolveCity(slug),
+    getAreaShareImage(slug),
+  ]);
   if (!city) return { title: 'Commercial Real Estate' };
   return {
     title: `${city} Commercial Real Estate | ${siteName}${pageSuffix}`,
@@ -43,6 +49,12 @@ export async function generateMetadata(
       title: `${city} Commercial Real Estate | ${siteName}`,
       description: `Commercial real estate listings in ${city}, Colorado.`,
       url: `${baseUrl}/commercial/${slug}`,
+      images: shareImage ? [shareImage] : undefined,
+    },
+    twitter: {
+      card: shareImage ? 'summary_large_image' : 'summary',
+      title: `${city} Commercial Real Estate | ${siteName}`,
+      images: shareImage ? [shareImage.url] : undefined,
     },
   };
 }

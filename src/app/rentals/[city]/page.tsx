@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getRentals, getRentalCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
+import { getAreaShareImage } from '@/lib/share-image';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
@@ -33,7 +34,12 @@ export async function generateMetadata(
   // ...and its own description, or every page of the series is a duplicate.
   const pageLead = page > 1 ? `Page ${page}. ` : '';
   const { city: slug } = await params;
-  const [baseUrl, siteName, city] = await Promise.all([getBaseUrl(), getSiteName(), resolveCity(slug)]);
+  const [baseUrl, siteName, city, shareImage] = await Promise.all([
+    getBaseUrl(),
+    getSiteName(),
+    resolveCity(slug),
+    getAreaShareImage(slug),
+  ]);
   if (!city) return { title: 'Rentals' };
   return {
     title: `${city} Rentals | ${siteName}${pageSuffix}`,
@@ -43,6 +49,12 @@ export async function generateMetadata(
       title: `${city} Rentals | ${siteName}`,
       description: `Available rental properties in ${city}, Colorado.`,
       url: `${baseUrl}/rentals/${slug}`,
+      images: shareImage ? [shareImage] : undefined,
+    },
+    twitter: {
+      card: shareImage ? 'summary_large_image' : 'summary',
+      title: `${city} Rentals | ${siteName}`,
+      images: shareImage ? [shareImage.url] : undefined,
     },
   };
 }

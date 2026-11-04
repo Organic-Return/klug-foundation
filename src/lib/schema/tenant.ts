@@ -93,8 +93,9 @@ const TENANT_QUERY = `*[_type == "settings" && _id == "settings"][0]{
   socialMedia,
   contactInfo,
   "logo": branding.logo,
-  "defaultHeroImage": defaultHeroImage.asset->url,
+  defaultHeroImage,
   "defaultMetaImage": seo.defaultMetaImage,
+  "homepageHero": *[_type == "homepage"][0].hero.fallbackImage,
   business{
     office,
     priceRange,
@@ -139,8 +140,9 @@ interface RawSettings {
   socialMedia?: Record<string, string | null | undefined>;
   contactInfo?: { email?: string; phone?: string; address?: string };
   logo?: unknown;
-  defaultHeroImage?: string;
+  defaultHeroImage?: unknown;
   defaultMetaImage?: unknown;
+  homepageHero?: unknown;
   business?: {
     office?: { street?: string; city?: string; state?: string; postalCode?: string; country?: string; lat?: number; lng?: number };
     priceRange?: string;
@@ -261,7 +263,15 @@ export async function getTenant(): Promise<Tenant> {
     siteTitle: data?.title || process.env.NEXT_PUBLIC_SITE_TITLE || 'Real Estate',
     description: data?.description,
     logoUrl: imageUrl(data?.logo, 600),
-    imageUrl: imageUrl(data?.defaultMetaImage, 1200, 630) || data?.defaultHeroImage || undefined,
+    // Default share image: the SEO meta image, else the site-wide hero, else
+    // the homepage hero, else the logo. Each step is a settings value, so a
+    // tenant that sets none still gets a picture rather than a blank card.
+    imageUrl:
+      imageUrl(data?.defaultMetaImage, 1200, 630) ||
+      imageUrl(data?.defaultHeroImage, 1200, 630) ||
+      imageUrl(data?.homepageHero, 1200, 630) ||
+      imageUrl(data?.logo, 1200) ||
+      undefined,
     phone: data?.contactInfo?.phone,
     email: data?.contactInfo?.email,
     address: office.street || office.city || office.postalCode

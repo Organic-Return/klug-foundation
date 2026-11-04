@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getCondoListings, getCondoCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
+import { getDefaultShareImage } from '@/lib/share-image';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
@@ -21,7 +22,7 @@ export async function generateMetadata(
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
   // ...and its own description, or every page of the series is a duplicate.
   const pageLead = page > 1 ? `Page ${page}. ` : '';
-  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const [baseUrl, siteName, shareImage] = await Promise.all([getBaseUrl(), getSiteName(), getDefaultShareImage()]);
   const title = `Aspen & Snowmass Condos for Sale | ${siteName}`;
   const description = pageLead +
     'Condos and condominiums for sale in Aspen, Snowmass Village, Basalt, and the Roaring Fork Valley — ski-in/ski-out residences, Aspen Core lock-offs, and downvalley condominiums, updated continuously from the Aspen Glenwood MLS.';
@@ -33,6 +34,12 @@ export async function generateMetadata(
       title,
       description: 'Condos for sale across Aspen, Snowmass Village, Basalt, and the Roaring Fork Valley.',
       url: `${baseUrl}/condos`,
+      images: shareImage ? [shareImage] : undefined,
+    },
+    twitter: {
+      card: shareImage ? 'summary_large_image' : 'summary',
+      title,
+      images: shareImage ? [shareImage.url] : undefined,
     },
   };
 }

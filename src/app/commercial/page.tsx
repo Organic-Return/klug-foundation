@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getCommercialListings, getCommercialCities } from '@/lib/listings';
 import { getBaseUrl, getSiteName } from '@/lib/settings';
+import { getDefaultShareImage } from '@/lib/share-image';
 import PropertyTypeHub from '@/components/PropertyTypeHub';
 
 export const revalidate = 300;
@@ -21,7 +22,7 @@ export async function generateMetadata(
   const pageSuffix = page > 1 ? ` \u2014 Page ${page}` : '';
   // ...and its own description, or every page of the series is a duplicate.
   const pageLead = page > 1 ? `Page ${page}. ` : '';
-  const [baseUrl, siteName] = await Promise.all([getBaseUrl(), getSiteName()]);
+  const [baseUrl, siteName, shareImage] = await Promise.all([getBaseUrl(), getSiteName(), getDefaultShareImage()]);
   return {
     title: `Commercial Real Estate in Aspen Snowmass | ${siteName}${pageSuffix}`,
     description: pageLead +
@@ -32,6 +33,12 @@ export async function generateMetadata(
       description:
         'Commercial, multi-family, and mixed-use real estate across the Roaring Fork Valley.',
       url: `${baseUrl}/commercial`,
+      images: shareImage ? [shareImage] : undefined,
+    },
+    twitter: {
+      card: shareImage ? 'summary_large_image' : 'summary',
+      title: `Commercial Real Estate in Aspen Snowmass | ${siteName}`,
+      images: shareImage ? [shareImage.url] : undefined,
     },
   };
 }
